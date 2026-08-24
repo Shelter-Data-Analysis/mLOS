@@ -133,8 +133,26 @@ Rscript mlos_run_complete.R --settings data/OC2_settings.yaml --data data/OC2_da
 Rscript mlos_run_complete.R --settings data/OC1_settings.yaml --data data/OC1_data.csv --results results/OC1
 ```
 
+Then rebuild both decks, in the same pass and from those runs. A deck shows
+numbers it did not compute, so one built before the run it displays is showing
+an earlier shelter:
+
+```bash
+python3 -m mlos_review.deck
+```
+
+```bash
+python3 -m mlos_review.deck results/OC1 reports/mlos_deck_OC1.pptx
+```
+
 `tools/make_deposit.py` refuses to stage a bundle whose runs disagree about the
-version, which is the same check stated as code.
+version, and refuses a deck older than the run it claims to show. Both are the
+paragraphs above stated as code. Staging each bundle to a throwaway directory
+is the cheap way to find out now rather than at upload time:
+
+```bash
+python3 tools/make_deposit.py /tmp/check_results && python3 tools/make_deposit.py --deck /tmp/check_deck
+```
 
 ### 4. Tag and publish the GitHub release
 
