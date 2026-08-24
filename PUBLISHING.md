@@ -28,8 +28,8 @@ by hand.
 | Artifact | Contents | How it gets to Zenodo |
 |---|---|---|
 | The tool | The `mlos_*.R` sources, `mlos_review/`, the four guides and the Word export of each of the three reader-facing ones, the settings files, the prepared inputs, and the test suite: everything git tracks | Automatic. Zenodo archives the repository tree of each published GitHub release |
-| The results | One complete run per dataset: plots, curve CSVs, `results.json`, the Excel workbook, the console log, and the preparation statistics, plus the settings file and provenance sidecar that say how to read them | By hand, from a bundle staged by `tools/make_deposit.py` |
-| The deck | The generated PowerPoint decks, their table workbooks, and their figures, plus the deck settings file | By hand, from the same script |
+| The results | The complete OC2 run: plots, curve CSVs, `results.json`, the Excel workbook, the console log, and the preparation statistics, plus the settings file and provenance sidecar that say how to read them | By hand, from a bundle staged by `tools/make_deposit.py` |
+| The deck | The generated PowerPoint deck, its table workbook, and its figures, plus the deck settings file | By hand, from the same script |
 
 `results/` and `reports/` are not tracked, so neither reaches the software
 archive. That is the point of the second and third deposits, not an oversight.
@@ -142,9 +142,13 @@ Rscript mlos_run_complete.R --settings data/OC2_settings.yaml --data data/OC2_da
 Rscript mlos_run_complete.R --settings data/OC1_settings.yaml --data data/OC1_data.csv --results results/OC1
 ```
 
-Then rebuild both decks, in the same pass and from those runs. A deck shows
+Both runs, though only OC2 is deposited: OC1 is regenerated because the guides
+quote it and `tests/show_guide_examples.py` checks those figures against a run,
+so letting it fall behind breaks a check rather than a deposit.
+
+Then rebuild the decks, in the same pass and from those runs. A deck shows
 numbers it did not compute, so one built before the run it displays is showing
-an earlier shelter:
+an earlier shelter. Only the first is deposited:
 
 ```bash
 python3 -m mlos_review.deck
@@ -281,12 +285,19 @@ What makes tracking them affordable is the rebuild rule, and what makes the
 rule safe is the version stamp each guide carries: nothing has to remember
 whether an export is current, because comparing two stamps says so.
 
-**The results deposit covers two runs**, OC2 and OC1.
-`data/OC2_largecut_settings.yaml` is a variant that adds one filter, cutting
-the LARGE animal size, to make a single point about the shape floor; it is an
-illustration rather than a core example. It stays in the repository because
-`tests/README_TESTS.md` names it as an input to `scan_shape_floor.R`, and no
-run of it is deposited.
+**The deposits cover OC2 only.** The analysis reports on OC2, and that is what
+a paper will cite. OC1 is the previous definition of the same dataset, kept and
+regenerated as a baseline the guides quote, but nothing about it is withheld by
+leaving it out: its prepared input is in the prepared data deposit and
+`data/OC1_settings.yaml` is in this repository, so anyone can reproduce it.
+What is not deposited is a second set of results nothing cites.
+`tools/make_deposit.py` names OC1 in `SKIP`, before the version check, so
+choosing not to regenerate it cannot block an OC2 deposit.
+
+`data/OC2_largecut_settings.yaml` is left out on the same principle, one step
+further: it adds a single filter cutting the LARGE animal size, to make one
+point about the shape floor. It stays in the repository because
+`tests/README_TESTS.md` names it as an input to `scan_shape_floor.R`.
 
 ## The citable identifiers
 
