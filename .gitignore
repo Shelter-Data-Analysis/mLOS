@@ -24,7 +24,7 @@ __pycache__/
 # Raw shelter extracts are not kept here at all. They are large, they are
 # published data, and they belong in a deposit with their own DOI rather than
 # in git history, where every version would live forever. The extract behind
-# OC1 and OC2 is deposited at 10.5281/zenodo.22051090.
+# OC1 and OC2 is deposited at 10.5281/zenodo.22051091.
 /data/*_raw.csv.gz
 
 # The Word exports of the guides are tracked, and make_docx.sh builds them.

@@ -16,7 +16,7 @@ before it is tagged claims an artifact nobody can fetch.
 
 ---
 
-## Unreleased
+## 0.1.0 (2026-08-24)
 
 The first release. There is no earlier version to compare against, so this
 section describes what 0.1.0 is rather than what moved.
@@ -53,6 +53,11 @@ analysis.
   analysis sits downstream of. It carries no `doi:` field yet, because a
   concept DOI does not exist until a release is archived.
 - `PUBLISHING.md` is the runbook for the release itself.
+- The two data deposits this analysis reads are cited by their version DOIs,
+  `10.5281/zenodo.22051091` for the raw extract and `10.5281/zenodo.22051368`
+  for the prepared files, rather than by the concept DOIs that follow the
+  newest version. A run log pins its source by digest, so only a version
+  record is guaranteed to still hold those bytes.
 
 ### Experimental
 

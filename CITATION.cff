@@ -62,7 +62,7 @@ authors:
     given-names: "Michael Loizos"
     orcid: "https://orcid.org/0009-0009-9896-2761"
 version: "0.1.0"
-date-released: "2026-08-22"
+date-released: "2026-08-24"
 license: MIT
 repository-code: "https://github.com/Shelter-Data-Analysis/mLOS"
 keywords:

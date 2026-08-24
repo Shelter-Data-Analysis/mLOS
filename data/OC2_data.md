@@ -52,8 +52,9 @@ their preparation.
 
 `OC2_data.csv` is deposited, with its statistics table, its run log, and the
 settings file that produced it, at
-[10.5281/zenodo.22051367](https://doi.org/10.5281/zenodo.22051367), under CC BY
-4.0.
+[10.5281/zenodo.22051368](https://doi.org/10.5281/zenodo.22051368), under CC BY
+4.0. That is the DOI of version 1 of the deposit, which is the one holding the
+bytes described above.
 
 ### Preparation summary
 
@@ -111,11 +112,13 @@ version of them would live forever. `/data/*_raw.csv.gz` is gitignored so one
 cannot be committed here by accident.
 
 > **Zenodo DOI:
-> [10.5281/zenodo.22051090](https://doi.org/10.5281/zenodo.22051090).** The
+> [10.5281/zenodo.22051091](https://doi.org/10.5281/zenodo.22051091).** The
 > 25-5969 extract is deposited there as `OC_raw.csv.gz`, under CC BY 4.0. Cite
-> it as the data source for anything computed from `OC2_data.csv`. That
-> identifier resolves to the newest version of the deposit; a published
-> analysis names the version it read instead.
+> it as the data source for anything computed from `OC2_data.csv`. That is the
+> version DOI rather than the concept DOI
+> [10.5281/zenodo.22051090](https://doi.org/10.5281/zenodo.22051090), which
+> follows the newest version: a run log pins its source by digest, so only the
+> version record is guaranteed to still hold those bytes.
 
 A gzipped working copy is kept locally, outside any repository, at the path the
 config points to. ShelterDataPrep resolves that path relative to the settings

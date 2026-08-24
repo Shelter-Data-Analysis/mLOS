@@ -15,7 +15,7 @@ The house style in `documentation_rules.md` applies here too.
 - [Order of operations](#order-of-operations)
 - [Which DOI to cite](#which-doi-to-cite)
 - [The pre-publication sweep](#the-pre-publication-sweep)
-- [Decisions still open](#decisions-still-open)
+- [Decisions, settled](#decisions-settled)
 - [The citable identifiers](#the-citable-identifiers)
 
 ---
@@ -42,11 +42,8 @@ moving. Bundling them means either that reworking the deck forces a new version
 of the record a paper cites, or that the deck inside that record goes stale.
 Separating them costs one more identifier to keep in sync.
 
-**Deposit the deck only when something points at it.** A deposit earns its keep
-when it is cited. Everything in the deck is derived from `results.json`, which
-the results deposit already holds, so a deck deposit with no consumer is a DOI
-to maintain and nothing else. Stage it whenever; upload it when a manuscript,
-a talk, or a collaborator needs a citable copy.
+Both deposits go up together, after the release is archived and before the
+documentation release that catches every DOI in one pass.
 
 ## Order of operations
 
@@ -86,6 +83,13 @@ published after the switch is on and does not reach back for earlier ones.
   GitHub stamps tags in UTC and Zenodo dates records in Geneva local time. An
   evening tag on the United States west coast lands on the following day in
   both, and the release then disagrees with the date written inside it.
+
+- Check that the two data deposits are cited by their **version** DOIs rather
+  than their concept DOIs, in `data/OC1_data.md`, `data/OC2_data.md`, and the
+  raw-extract comment in `.gitignore`. This belongs here rather than in the
+  documentation release, because those deposits already exist and the switch
+  depends on nothing minted later. An archived release that names a concept
+  DOI names a pointer that can move off the bytes it was run on.
 
 - Bump the version stamp in any guide the release changed, then rebuild the
   Word exports. They are tracked but rebuilt only here, so this is the one
@@ -175,9 +179,10 @@ one pass.
 
 ### 7. Stage and upload the deck deposit
 
-Only when something cites it; see the note under
-[What gets published](#what-gets-published). Same metadata shape, with *is
-derived from* pointing at the results deposit rather than at the prepared data.
+Same metadata shape as step 6, with *is derived from* pointing at the results
+deposit rather than at the prepared data. Do this in the same sitting: the
+deck bundle records the analysis version and run timestamp of the run behind
+it, so the two deposits describe the same run.
 
 ### 8. Cut the documentation release that catches the DOIs
 
@@ -187,7 +192,6 @@ release carries them:
 - The software concept DOI into `CITATION.cff`'s `doi:` field.
 - The results deposit, and the deck deposit if it exists, wherever they belong
   in `README.md` and the guides.
-- The data references switched from concept to version DOIs; see below.
 
 Output stays byte-identical, so the results deposit stays valid and pinned at
 the earlier version. Do not regenerate it.
@@ -204,10 +208,10 @@ carries a concept DOI and why a run log has to report the version.
 **Data: the version DOI.** A run log pins its source by digest, so only the
 version DOI is guaranteed to still hold the bytes that produced a result.
 
-Until mLOS is published, the guides and sidecars name the ShelterDataPrep
-deposits by their concept DOIs, which is deliberate: they resolve to the newest
-version, and nothing here is citing a specific run yet. Step 8 is where the two
-data references become version DOIs.
+The two data sidecars and the raw-extract comment in `.gitignore` follow the
+data rule and name version DOIs. The one concept DOI in the documents is
+ShelterDataPrep's own, which is right: it is software, and the version a
+preparation log reports sits beside it.
 
 ## The pre-publication sweep
 
@@ -217,22 +221,26 @@ Passages that are accurate now and wrong once a DOI exists.
 |---|---|---|
 | `README.md`, "Citing" | `CITATION.cff` carries no DOI yet | Names the concept DOI and the version beside it |
 | The three guides | Version stamp `20260823_001` or later, Word export possibly behind it | Stamps bumped and exports rebuilt, per step 2 |
-| `data/OC1_data.md`, `data/OC2_data.md` | Raw extract at `10.5281/zenodo.22051090`, prepared files at `10.5281/zenodo.22051367`, both concept DOIs | Version DOIs `…091` and `…368`, since each sidecar pins a specific file |
-| `.gitignore`, raw-extract comment | Raw extract deposited at `10.5281/zenodo.22051090` | Version DOI, same reason |
+| `data/OC1_data.md`, `data/OC2_data.md` | Raw extract at `…091`, prepared files at `…368`, both version DOIs | Correct as it stands; switched from concept DOIs at 0.1.0 |
+| `.gitignore`, raw-extract comment | Raw extract deposited at `…091` | Correct as it stands |
 | `mlos_user_guide.md`, screening-ledger section | ShelterDataPrep at `10.5281/zenodo.22051338` | Correct as it stands; a concept DOI is right for software |
-| `presentation_guide.md` | Deck builder documented with no deposit named | Names the deck deposit, if one exists |
+| `presentation_guide.md` | Deck builder documented with no deposit named | Names the deck deposit |
 
 Check this list against the files rather than trusting it. It was written
 before the first release and the documents have moved since.
 
-## Decisions still open
+## Decisions, settled
 
-**Whether the deck deposit happens at all.** See
-[What gets published](#what-gets-published). Staged either way; uploaded when
-something cites it.
+Recorded so they are not reopened by accident.
 
-Three questions that were open here are not any more, and are recorded so they
-are not reopened by accident.
+**The deck deposit goes up**, alongside the results deposit and at the same
+time, as its own record rather than a folder inside that one. The two are
+separated because they have different half-lives: the results deposit is what
+a paper's data availability statement points at and has to stay pinned to the
+version that produced it, while the deck builder is experimental and is
+expected to keep moving. Bundling them would mean either that reworking the
+deck forces a new version of the record a paper cites, or that the deck inside
+that record goes stale.
 
 **The repository is public**, and begins at the release snapshot. See
 [step 0](#0-the-repository-is-public).
