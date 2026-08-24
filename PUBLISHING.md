@@ -330,10 +330,24 @@ deposits and of ShelterDataPrep itself are already known.
 | 7 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
 | 8 | mLOS results, all versions | `10.5281/zenodo.22084230` |
 | 9 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 10 | mLOS deck, all versions | not yet minted |
-| 11 | mLOS deck, version 1 | not yet minted |
+| 10 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 11 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
 by concept DOI with its version, mLOS by concept DOI with its version, and the
-results by version DOI.
+results by version DOI. The deck is cited only when the slides themselves are
+what is being referred to.
+
+Each deposit names its direct parent and nothing further, so the ancestry is
+walkable without any record having to know the whole chain:
+
+```
+raw extract   …091
+     |  isDerivedFrom
+prepared data …368   <-- isCompiledBy -- ShelterDataPrep …338
+     |  isDerivedFrom
+mLOS results  …231   <-- isCompiledBy -- mLOS …814
+     |  isDerivedFrom
+mLOS deck     …157   <-- isCompiledBy -- mLOS …814
+```
