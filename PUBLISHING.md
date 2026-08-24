@@ -217,7 +217,9 @@ harmless and looks like debris in a citable record.
   version by construction.
 - **Related identifiers**, which are what make the deposits a chain rather than
   a set of orphans:
-  - *is derived from* the prepared data, `10.5281/zenodo.22051368`
+  - *is derived from* the prepared data, `10.5281/zenodo.22051368`. Not the
+    raw extract: mLOS never reads that file, and the chain stays complete
+    because the prepared deposit points at the raw one itself
   - *is compiled by* mLOS, the concept DOI from step 5
 
 Do this before the documentation release, so that release catches every DOI in
@@ -326,8 +328,8 @@ deposits and of ShelterDataPrep itself are already known.
 | 5 | Prepared data, version 1 | `10.5281/zenodo.22051368` |
 | 6 | mLOS, all releases | `10.5281/zenodo.22083814` |
 | 7 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
-| 8 | mLOS results, all versions | not yet minted |
-| 9 | mLOS results, version 1 | not yet minted |
+| 8 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 9 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
 | 10 | mLOS deck, all versions | not yet minted |
 | 11 | mLOS deck, version 1 | not yet minted |
 
