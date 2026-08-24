@@ -1273,5 +1273,5 @@ You can instead have the tool compute AnimLOS (discussed in [2, 3]), which attem
 
 [2] Mavrovouniotis ML. Distribution of Length of Stay and Its Variation by Calendar Period in Animal Shelters. In: Veterinary Information Network; 2026:456-459. [researchgate.net](https://www.researchgate.net/publication/403852994_Distribution_of_Length_of_Stay_and_Its_Variation_by_Calendar_Period_in_Animal_Shelters)
 
-[3] Mavrovouniotis ML. Distribution of length of stay and its variation by calendar period in animal shelters: Cumulative incidence of outcome types by calendar period in Orange County California.  (Forthcoming in the JSMCAH special issue on the ABVP 2026 Symposium.)
+[3] Mavrovouniotis ML. Distribution of length of stay and its variation by calendar period in animal shelters: Cumulative incidence of outcome types by calendar period in Orange County California.  (Forthcoming in the JSMCAH special issue on the ABVP 2026 Symposium, to appear in www.jsmcah.org)
 

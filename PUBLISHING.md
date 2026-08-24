@@ -316,8 +316,10 @@ point about the shape floor. It stays in the repository because
 
 ## The citable identifiers
 
-Filled in as they are minted. The concept DOIs of the two ShelterDataPrep
-deposits and of ShelterDataPrep itself are already known.
+All twelve exist. Numbers 6 and 8 are the pair that matters for the software:
+the concept DOI resolves to the newest release, which is 0.1.1 today, and the
+release DOI names one release forever. A citation gives the concept DOI and
+the version a run log reported.
 
 | # | What it names | DOI |
 |---|---|---|
@@ -328,10 +330,11 @@ deposits and of ShelterDataPrep itself are already known.
 | 5 | Prepared data, version 1 | `10.5281/zenodo.22051368` |
 | 6 | mLOS, all releases | `10.5281/zenodo.22083814` |
 | 7 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
-| 8 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 9 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 10 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 11 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 8 | mLOS 0.1.1 | `10.5281/zenodo.22086002` |
+| 9 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 10 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 11 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 12 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
