@@ -1,0 +1,111 @@
+# Test fixture: sim_cause_rate_shift (statistical / simulation case)
+# -----------------------------------------------------------------------
+# A CAUSE-SPECIFIC rate shift with memoryless (geometric) stays: at the
+# period 1 -> 2 boundary the within-day rates of the three outcome causes
+# change by different factors, for every animal in care (see generator.R):
+# L triples, T drops 3-fold, N is unchanged. The baseline cause shares
+# 0.6 / 0.3 / 0.1 make the all-cause multiplier exactly
+# 0.6*3 + 0.3/3 + 0.1 = 2, so the ALL-CAUSE process is numerically
+# identical to sim_geometric_period_effect (Q: 0.94 -> 0.94^2 = 0.8836,
+# daily outcome probability q: 0.06 -> 0.1164, true Cox HR exactly 2),
+# while the cause mix shifts from 0.6/0.3/0.1 to
+# (0.6*3, 0.3/3, 0.1)/2 = 0.9/0.05/0.05.
+#
+# The educational point (the mirror image of the geometric case's): the
+# all-cause analyses, KM, Cox, census, CANNOT distinguish this fixture
+# from a uniform doubling of every cause; only the AJ cause-level
+# analysis reveals what actually happened. And within the AJ layer, each
+# cause has a distinct, instructive fate:
+#   - L: rate x3, plateau 0.6 -> 0.9, reached twice as fast.
+#   - T: rate x1/3, yet its CIF rises to its (6-fold lower) plateau
+#     TWICE AS FAST: every CIF's time scale is set by the all-cause
+#     hazard, not the cause's own.
+#   - N: rate UNCHANGED, yet its plateau halves (0.1 -> 0.05): a faster
+#     competitor claims animals first. A cause-specific rate can be
+#     perfectly stable while its observed share collapses.
+#
+# Like the other sim_* fixtures, the expected values are the KNOWN
+# PARAMETERS of the generating model, with tolerances sized to the
+# sampling error (~4 SD of each estimator across a 25-seed scan at
+# authoring time); the derivations are below.
+#
+# Timeline: intakes run from 2023-12-01 at Poisson(10) per day, four
+# months before the first period -- a notional "period 0" in which the
+# population builds from empty to steady state (time constant
+# 1/q1 ~ 17 days, so ~7 time constants) and which supplies the
+# left-truncated residents observed from 2024-04-01. The boundary sits
+# exactly on the period 1 -> 2 edge, so the hazard and the cause shares
+# are constant within each period. Animals still in care on 2024-10-01
+# (the export date) are right-censored. Two periods suffice: the
+# three-period structure of sim_geometric_period_effect existed for the
+# twin-HR and census-settling checks, which this case does not repeat
+# (Little's law and the census lag are that case's story; period 2 here
+# is off steady state for its first weeks, so no census is checked).
+#
+# Generating truth (Q1 = 0.94 through 2024-06-30; Q2 = 0.8836 from
+# 2024-07-01; cause shares 0.6/0.3/0.1 before, 0.9/0.05/0.05 from the
+# boundary). LOS is geometric within a period, exact at whole days, no
+# day-rounding bias:
+#   - Survival at whole days m, per period p: S_p(m) = Q_p^m, and
+#     S_2(m) = S_1(2m) (two-fold time compression).
+#   - Per-period KM medians (smallest m with S <= 0.5):
+#     Period 1: 12 (0.94^11 = 0.506, barely above 0.5, so sampling can
+#     land on 11; 0.94^12 = 0.476); Period 2: 6 (0.8836^5 = 0.539,
+#     0.8836^6 = 0.476).
+#   - Restricted means at cap 120 = sum of S over m = 0..119, and the
+#     cap is high enough that they equal the true mean LOS = 1/q to
+#     three decimals: Period 1: (1 - 0.94^120)/0.06 = 16.6567;
+#     Period 2: (1 - 0.8836^120)/0.1164 = 8.5911.
+#   - Cox period hazard ratio (reference OLDEST = Period 1): exactly 2,
+#     the within-day all-cause rate ratio, since 1 - q2 = (1 - q1)^2 is
+#     grouped proportional hazards with ratio 2 and the Efron tie
+#     handling targets that rate ratio (math document Section 6.2; the
+#     geometric case's pseudo-truth run measured 1.994/2.013, and this
+#     case's 25-seed authoring scan averaged HR 2.021 with SE 0.022).
+#   - AJ conditional-by-period: within a regime the outcome day and the
+#     cause are independent, so per period CIF_Any(m) = 1 - S_p(m) and
+#     CIF_cause(m) = share_cause * CIF_Any(m). The two-fold compression
+#     makes Period 2 at day 6 and Period 1 at day 12 land on the SAME
+#     all-cause value, CIF_Any = 1 - 0.94^12 = 0.52408, while the cause
+#     split differs:
+#       Period 1, day 12: CIF_L = 0.6 * 0.52408 = 0.31445,
+#         CIF_T = 0.3 * 0.52408 = 0.15722, CIF_N = 0.1 * 0.52408 = 0.05241.
+#       Period 2, day 6:  CIF_L = 0.9 * 0.52408 = 0.47167,
+#         CIF_T = CIF_N = 0.05 * 0.52408 = 0.02620.
+#     CondRem's exact estimand is share * (1 - S(tau)/S(x)) with tau the
+#     last tabulated day (its denominator includes animals still
+#     undetermined at tau); at these hazards the correction at the
+#     checked days is < 0.005, well inside the tolerances, so
+#     CondRem_cause = share to well within a tolerance step:
+#       Period 1, day 12: 0.6 / 0.3 / 0.1.
+#       Period 2, day 6:  0.9 / 0.05 / 0.05.
+#   - The unified (pooled) KM and AJ mix the two regimes with
+#     composition weights that have no clean closed form, so only the
+#     committed-sample counts are pinned for them, as in
+#     sim_geometric_period_effect.
+#
+# A README-only corollary worth knowing when reading the outputs: the
+# distribution of stay length GIVEN the cause is the all-cause geometric,
+# identical for every cause. So the mean stay of the animals that leave
+# by T drops from ~16.7 to ~8.6 days across the boundary even though T's
+# own rate fell 3-fold; "T slowed down" is invisible in the observed T
+# stays and shows up only as T becoming rare.
+#
+# No intake_type or animal_group column: the AJ layer stratifies by
+# period only, so the period dimension is where a cause-specific shift
+# is visible to the analyses (sim_weibull_truncation covers group
+# effects); the Cox model has the period factor as its only predictor.
+#
+# plot_stay_cap windows the plots (rendered under --generate-outputs) to
+# the first 30 days; the analyses and exported CSVs run to the 120-day
+# restricted_stay_cap, chosen high enough that capping never distorts
+# the restricted means (see above).
+
+period_dates:
+  - 2024-04-01
+  - 2024-07-01
+  - 2024-10-01
+
+restricted_stay_cap: 120
+
+plot_stay_cap: 30

@@ -1,0 +1,9 @@
+"section","step","action","column","role","value","scope","detail","rows_in","rows_affected","rows_out","animal_id_in","animal_id_affected","animal_id_out"
+"stage",0,"read","data.csv","","","","4 column(s)",6,0,6,6,0,6
+"stage",1,"cut","intake_date, outcome_date, outcome_type","","","","drop rows with none of intake_date, outcome_date, outcome_type",6,0,6,6,0,6
+"stage",2,"dedup","animal_id, intake_date, outcome_date","","","","drop all but the last row of each repeated animal_id, intake_date, outcome_date",6,0,6,6,0,6
+"stage",3,"cut","animal_id, intake_date, outcome_date","","","","drop the shorter stay of each pair of one animal's stays that overlap in time",6,0,6,6,0,6
+"stage",4,"cut","intake_date, outcome_date","","","","drop where outcome_date < 2021-01-01 or intake_date >= 2021-03-01",6,0,6,6,0,6
+"stage",5,"cut","intake_date, outcome_date","","","","drop stays that fall in a gap between periods",6,0,6,6,0,6
+"stage",6,"split","period_label","","","","one row per period a stay is observed in, left-truncated and censored at the period bounds",6,0,6,6,0,6
+"stage",7,"cut","time_start, time_end","","","","drop rows the cap or the truncation left with no time at risk (time_start >= time_end)",6,0,6,6,0,6

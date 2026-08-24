@@ -1,0 +1,14 @@
+"days","G01","G02","G03","G04","G05","G06","G07","G08","G09","G10","G11","G01_ci_lower","G01_ci_upper","G02_ci_lower","G02_ci_upper","G03_ci_lower","G03_ci_upper","G04_ci_lower","G04_ci_upper","G05_ci_lower","G05_ci_upper","G06_ci_lower","G06_ci_upper","G07_ci_lower","G07_ci_upper","G08_ci_lower","G08_ci_upper","G09_ci_lower","G09_ci_upper","G10_ci_lower","G10_ci_upper","G11_ci_lower","G11_ci_upper"
+"restricted_mean",1,2,3,4,5,6,7,8,9,10,11,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"0",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"1",1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"2",NA,1,0,0,0,0,0,0,0,0,0,NA,NA,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"3",NA,NA,1,0,0,0,0,0,0,0,0,NA,NA,NA,NA,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"4",NA,NA,NA,1,0,0,0,0,0,0,0,NA,NA,NA,NA,NA,NA,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"5",NA,NA,NA,NA,1,0,0,0,0,0,0,NA,NA,NA,NA,NA,NA,NA,NA,1,1,0,0,0,0,0,0,0,0,0,0,0,0
+"6",NA,NA,NA,NA,NA,1,0,0,0,0,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,1,0,0,0,0,0,0,0,0,0,0
+"7",NA,NA,NA,NA,NA,NA,1,0,0,0,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,1,0,0,0,0,0,0,0,0
+"8",NA,NA,NA,NA,NA,NA,NA,1,0,0,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,1,0,0,0,0,0,0
+"9",NA,NA,NA,NA,NA,NA,NA,NA,1,0,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,1,0,0,0,0
+"10",NA,NA,NA,NA,NA,NA,NA,NA,NA,1,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,1,0,0
+"11",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,1

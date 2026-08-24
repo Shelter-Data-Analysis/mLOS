@@ -1,0 +1,70 @@
+# Test fixture: value_maps
+# -----------------------------------------------------------------------
+# Exercises both optional value maps end to end. The 10 rows carry raw
+# labels that NO analysis should ever see: animal_size is spelled
+# {TOY, SML, XL, LRG} and intake_type spells one category two ways
+# ("OWNER SUR" and "OWNER SURRENDER"). The maps below fold them into two
+# animal_group levels (SML, LRG) and two intake types (STRAY, SURRENDER),
+# and the whole pipeline -- KM, AJ, Cox, per-stratum stats, plots, Excel,
+# results.json -- must then behave exactly as if the file had been written
+# that way. That is the difference from a filter: a mapped-away value
+# leaves no empty level behind, so the golden Cox table has no phantom XL
+# or TOY row (compare value_filters, whose golden Cox deliberately keeps
+# one).
+#
+# Three things are deliberate in the map lists:
+#   - Two raw labels merge into ONE target (the normalization case), and
+#     "OWNER SUR" is a strict PREFIX of "OWNER SURRENDER", so a matcher
+#     that compared prefixes rather than whole values would map the wrong
+#     rows and move the intake-type medians below.
+#   - GIANT and SEIZED occur NOWHERE in the data. A key that matches
+#     nothing is legitimate (maps may name rare labels that a given
+#     extract happens not to contain), and both are pinned at zero in the
+#     register: results.json records every configured pair, zeros
+#     included, which is what a user checks a map by.
+#   - animal_group is CONSTRUCTED from animal_size, so the keys are the
+#     composite values, which pins that the map runs after construction.
+#
+# All 10 animals share an intake date, have distinct LOS, all leave with
+# outcome L, and the single period is wide enough that nothing is
+# truncated, censored, or capped. Event day = LOS + 1, so the ten stays
+# occupy event days 1..10 and survival right after the k-th smallest of
+# n distinct events is (n-k)/n. AFTER mapping, the strata interleave:
+#   animal_group SML (n=5): days 1,3,5,7,9   -> median 5, mean 5
+#   animal_group LRG (n=5): days 2,4,6,8,10  -> median 6, mean 6
+#   intake STRAY     (n=4): days 1,4,5,9     -> median 4.5, mean 4.75
+#   intake SURRENDER (n=6): days 2,3,6,7,8,10 -> median 6.5, mean 6
+# The two stratifiers therefore cut the sample differently and neither is
+# separated from the other, so Cox is well conditioned here (unlike
+# stratified_km_animal_group, which is deliberately separated). The two
+# medians that land on an exact 0.5 tie take the midpoint of the touching
+# step, the rule pinned in aj_competing_risks_mixed. See expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+
+restricted_stay_cap: 20
+
+animal_group_columns:
+  - animal_size
+
+animal_group_map:
+  - "XL": "LRG"
+  - "TOY": "SML"
+  - "GIANT": "LRG"
+
+intake_type_map:
+  - "OWNER SUR": "SURRENDER"
+  - "OWNER SURRENDER": "SURRENDER"
+  - "SEIZED": "OTHER"
+
+# Named explicitly rather than left to the most-frequent default: the two
+# animal_group levels are tied 5/5 after mapping, and a fixture should not
+# rest on how a tie is broken. Both references are values the maps
+# PRODUCE, which is the documented rule (filter and reference lists name
+# post-map values).
+animal_group_reference: SML
+intake_type_reference: STRAY
+
+discard_bad_rows: false

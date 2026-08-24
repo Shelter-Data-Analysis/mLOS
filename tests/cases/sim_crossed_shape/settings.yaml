@@ -1,0 +1,46 @@
+# sim_crossed_shape - a discharge shape that lives in the cell
+# =======================================================================
+# The only fixture with THREE qualifying predictors, which is what the
+# crossed shape formula of math methods 6.7 needs before it can be
+# reached at all. Everywhere else in the suite a variant has a single
+# "other" predictor, so its crossed and additive formulas are the same
+# string and the whole crossing path goes untested.
+#
+# Generating truth (generator.R draws it, README.md tells the story):
+# two intake types x two animal groups, a common Weibull scale of 20
+# days, and a shape that is a checkerboard across the cells,
+#
+#              G1     G2
+#     OWNER   0.70   1.30
+#     STRAY   1.30   0.70
+#
+# whose row and column means are equal. On the log scale both main
+# effects are therefore exactly zero: an additive shape formula sees
+# nothing at all, and only the crossed formula recovers the pattern.
+# That is what makes this case a test of the CHOICE rather than of the
+# fitting, and it is why the expected shape ratios below sit near 1 for
+# the main effects while the crossing test is decisively significant.
+#
+# Two periods with no true difference, so period qualifies as a third
+# predictor and doubles as a true-null calibration check.
+#
+# Whole-day discretization (ceiling of a continuous Weibull draw) biases
+# the fitted shape slightly upward at this scale, so the tolerances on k
+# are widened rather than the generating values being adjusted.
+
+period_dates:
+  - 2024-01-01
+  - 2024-04-01
+  - 2024-07-01
+
+restricted_stay_cap: 120
+
+intake_type_reference: OWNER
+animal_group_reference: G1
+
+parametric_regression: WEIBULL
+# The fixture exists to exercise the crossed shape formula, which is off by
+# default, so it asks for it. The only case in the suite that does: everywhere
+# else two predictors mean the crossed and additive formulas are the same
+# string and the setting changes nothing.
+weibull_shape_crossing: true

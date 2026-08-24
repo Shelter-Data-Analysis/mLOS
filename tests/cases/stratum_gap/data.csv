@@ -1,0 +1,5 @@
+animal_id,intake_date,outcome_date,outcome_type,animal_group
+1,2021-01-01,2021-01-25,L,FAST
+2,2021-01-01,2021-01-05,L,FAST
+3,2021-01-01,2021-01-15,L,SLOW
+4,2020-12-12,2021-01-10,L,SLOW

@@ -1,0 +1,140 @@
+# Test fixture: sim_intake_mix_shift (statistical / simulation case)
+# -----------------------------------------------------------------------
+# SIMPSON'S PARADOX in a shelter. At the period 1 -> 2 boundary two
+# things change at once and pull the reported numbers in OPPOSITE
+# directions (see generator.R):
+#
+#   1. Every dog in care gets FASTER: the within-day outcome rate
+#      improves x1.5, for both sizes and for every animal already in
+#      care. In the outcome-window model of Mavrovouniotis, Animals
+#      2026, 16(8):1158, Section 2.5, that raises the daily no-outcome
+#      probability to the 1.5 power (Q -> Q^1.5), the grouped form of
+#      proportional hazards, so the true Cox period hazard ratio is
+#      exactly 1.5.
+#        SMALL: q 0.12 -> 1 - 0.88^1.5 = 0.174487 (mean stay 8.33 ->
+#               5.73 days)
+#        LARGE: q 0.03 -> 1 - 0.97^1.5 = 0.044661 (mean stay 33.33 ->
+#               22.39 days)
+#   2. The INTAKE MIX flips: SMALL/LARGE goes from 70/30 to 30/70.
+#      Total intake stays 10 dogs/day throughout, so the shelter's
+#      volume never changes -- only who walks through the door.
+#
+# Because LARGE dogs stay far longer, the mix flip drags every POOLED
+# statistic the wrong way. The crude, unadjusted comparison says the
+# shelter got SLOWER and FULLER; the size-adjusted Cox model says every
+# dog got 50% FASTER; and both are correct statements about the same
+# data. That is the whole point of the case, and it is the question
+# period analysis exists to answer: "did we get slower, or did our
+# intake change?"
+#
+# Because BOTH sizes' rates scale by the same 1.5, the hazard ratio
+# BETWEEN the sizes is unchanged by the boundary. There is no
+# period-by-size interaction, so the Cox model with period + size is
+# correctly specified and all THREE of its true coefficients are known
+# in closed form -- the first sim case to fit two predictors jointly,
+# which is precisely the adjusted-vs-crude capability it teaches.
+#
+# Like the other sim_* fixtures, the expected values are the KNOWN
+# PARAMETERS of the generating model, with tolerances sized to the
+# sampling error (~4 SD of each estimator across a 30-seed scan at
+# authoring time); the derivations are below.
+#
+# Timeline: intakes run from 2023-09-01, about 7 time constants of the
+# SLOW group (1/q = 33 days) before the first period -- a notional
+# "period 0" in which the population builds from empty to steady state
+# and which supplies the left-truncated residents observed from
+# 2024-05-01. Three quarterly periods follow. Period 2 is the
+# TRANSITION: the standing population works off its old composition,
+# so period 2's pooled statistics have no clean closed form and are
+# deliberately NOT checked (as with period 2's census in
+# sim_geometric_period_effect). Period 3 is the new steady state: its
+# start sits 92 days = 4.11 time constants of the new LARGE rate past
+# the boundary, so it is ~98.4% relaxed, and the small residual is
+# covered by its tolerances (the authoring scan measured the period-3
+# census running ~3.3 low against the fully-settled truth for exactly
+# this reason). Dogs still in care on 2025-02-01 (the export date) are
+# right-censored.
+#
+# Generating truth (period 1: mix 70/30, Q_S = 0.88, Q_L = 0.97;
+# periods 2-3: mix 30/70, Q_S = 0.88^1.5 = 0.825513, Q_L = 0.97^1.5 =
+# 0.955339. LOS geometric within group and period, exact at whole days,
+# no day-rounding bias):
+#   - Pooled survival at whole days m in a STEADY period (intake-share
+#     weights, which is what the period-stratified KM estimates at
+#     steady state):
+#       Period 1: S(m) = 0.7 * 0.88^m + 0.3 * 0.97^m
+#       Period 3: S(m) = 0.3 * 0.825513^m + 0.7 * 0.955339^m
+#     Pooled medians (smallest m with S(m) <= 0.5) therefore RISE from
+#     8 to 10 even though every dog improved:
+#       Period 1: S(7) = 0.52847, S(8) = 0.48687  -> median 8
+#       Period 3: S(9) = 0.51741, S(10) = 0.48737 -> median 10
+#     Both crossings are close to 0.5, so sampling can land one day
+#     either side; the tolerances allow +/- 2 days.
+#   - Pooled restricted means at cap 120 (sum of S over m = 0..119),
+#     which also RISE: Period 1: 0.7*(1-0.88^120)/0.12 +
+#     0.3*(1-0.97^120)/0.03 = 15.5747 (the same truth as
+#     sim_size_mixture's period 1, which this case's period 1
+#     reproduces from an independent sample); Period 3:
+#     0.3*(1-0.825513^120)/0.174487 + 0.7*(1-0.955339^120)/0.044661 =
+#     17.3279.
+#   - Cox, reference SMALL and period 1 (OLDEST), all three true
+#     coefficients exact:
+#       HR_periodPeriod_2 = HR_periodPeriod_3 = 1.5 (the within-day
+#         rate improvement; periods 2 and 3 share the same true hazard,
+#         so the two fields check the SAME truth twice, as in
+#         sim_geometric_period_effect). NOTE the sign convention: a
+#         hazard ratio ABOVE 1 means dogs leave FASTER, i.e. shorter
+#         stays -- the good direction. That the crude medians move the
+#         other way is the paradox.
+#       HR_animal_groupLARGE = ln(0.97)/ln(0.88) = 0.238273, the
+#         within-day rate ratio between the sizes, unchanged by the
+#         boundary because both rates scale by the same factor (and the
+#         same truth as sim_size_mixture's group HR).
+#   - Census (capped Little's law): the census statistic counts
+#     animal-days only up to restricted_stay_cap, so its steady-state
+#     truth is intakes/day x E[min(LOS, 120)]: Period 1: 10 x 15.5747 =
+#     155.75; Period 3: 10 x 17.3279 = 173.28. The shelter gets FULLER
+#     while every dog gets faster. Period 2 is NOT checked (transition).
+#     Composition: LARGE dogs are 63.2% of the period-1 census from 30%
+#     of intakes, and 90.1% of the period-3 census from 70% of intakes
+#     (census share of a group scales as intake share / departure rate).
+#   - Flow: mean_daily_intakes = 10 in EVERY period -- pinned in all
+#     three, because "the volume never changed, only the mix" is a
+#     load-bearing part of the story. mean_daily_outcomes = 10 in the
+#     steady periods 1 and 3. Period 2's outflow runs slightly below
+#     inflow (~9.75/day) as the population accumulates its extra ~24
+#     animals, but that 0.25/day deficit is far inside sampling noise
+#     at this sample size (~4 SD = 0.9), so it is not pinned; the
+#     direction is noted in README.md as the contrast with
+#     sim_geometric_period_effect, where the population was draining
+#     and outflow EXCEEDED inflow.
+#
+# NOT pinned, and why: the group-stratified KM (group.LARGE.median
+# etc.) pools BOTH regimes for each size, so its curves are pre/post
+# hazard mixtures with no clean closed form -- only the committed
+# counts are pinned there. This is the same pooling-across-regimes
+# trap the case is about, one level down; README.md points it out. No
+# AJ checks either: causes stay at fixed 0.7/0.2/0.1 shares (that
+# dimension belongs to sim_cause_rate_shift).
+#
+# animal_group_reference pins the Cox/Weibull baseline to SMALL so the
+# LARGE coefficient reads in the documented direction; without it the
+# most-frequent-level rule would pick LARGE (1910 of 3229 rows, since
+# the long-staying large dogs dominate the observed window) and flip
+# the coefficient to animal_groupSMALL.
+#
+# plot_stay_cap windows the plots (rendered under --generate-outputs)
+# to the first 45 days, wide enough to show the LARGE medians; the
+# analyses and exported CSVs run to the 120-day restricted_stay_cap.
+
+period_dates:
+  - 2024-05-01
+  - 2024-08-01
+  - 2024-11-01
+  - 2025-02-01
+
+restricted_stay_cap: 120
+
+plot_stay_cap: 45
+
+animal_group_reference: SMALL

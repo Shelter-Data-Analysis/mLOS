@@ -1,0 +1,42 @@
+# Test fixture: eleven_animal_groups
+# -----------------------------------------------------------------------
+# 11 animal groups -- one more than the DEFAULT max_plot_strata (10, see
+# .MAX_PLOT_STRATA in mlos_common.R) -- to pin the rule that the
+# plot-strata limit affects PLOTS ONLY: all 11 stratified KM fits must
+# still be computed and correct. This case deliberately leaves
+# max_plot_strata unset, so it also pins that default; max_plot_strata_off
+# covers the same skip-plot-but-still-write-CSV branch via an explicit
+# setting instead, on a stratifier the default would have plotted.
+#
+# Single period [2021-01-01, 2021-02-01), cap 20 (never binds). One
+# animal per group G01..G11, all intake Jan 1, outcome L on Jan k so
+# that group G<k>'s animal has LOS = k (diff k-1, +1); G01 is an
+# intraday (same-day) stay.
+#
+# Per-stratum KM is trivial: a single animal whose curve steps 1 -> 0 at
+# day k, so median = k, n = 1, events = 1 for every stratum.
+#
+# Unified KM: 11 distinct event days 1..11, no censoring, so survival
+# right after the k-th event = (11-k)/11:
+#   median = 6  (S(5) = 6/11 = 0.545 > 0.5, S(6) = 5/11 = 0.455 <= 0.5,
+#                no exact tie)
+#   percentile_90 = 10  (S(9) = 2/11 = 0.182 > 0.1, S(10) = 1/11 = 0.091
+#                <= 0.1, no exact tie)
+#   restricted mean = mean LOS = (1+2+...+11)/11 = 6, max_time = 11.
+#
+# Cox runs on animal_group (11 levels, one observation each -- heavy
+# separation, which must degrade gracefully, not crash). The default
+# reference is the most frequent level; all levels tie at n = 1, so the
+# first level (G01) is chosen. G01 is the fastest resolver, so the other
+# groups' HRs diverge toward 0 (bounded) rather than +Inf, matching the
+# reference-choice guidance in the User Guide. Only the fit's shape is
+# asserted.
+# See expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+
+restricted_stay_cap: 20
+
+discard_bad_rows: false

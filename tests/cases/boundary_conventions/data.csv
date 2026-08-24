@@ -1,0 +1,6 @@
+animal_id,intake_date,outcome_date,outcome_type,animal_group
+1,2021-01-02,2021-01-02,L,SMALL
+2,2021-01-10,2021-01-15,L,LARGE
+3,2021-01-14,2021-01-20,L,LARGE
+4,2021-01-15,2021-01-18,L,SMALL
+5,2021-01-05,2021-01-09,L,SMALL

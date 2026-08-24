@@ -1,0 +1,92 @@
+# mLOS presentation settings
+# =======================================================================
+# Controls the slide deck, not the analysis. Same YAML syntax as the analysis
+# settings file beside this one. Every setting has a default, so anything you
+# delete falls back rather than breaking; an unrecognized key is an error,
+# because a silently ignored typo is a setting you believe is in force.
+#
+#   python3 -m mlos_review.deck                       # uses this file
+#   python3 -m mlos_review.deck --settings=other.yaml # uses another
+#
+# Named OC_, not OC1_ or OC2_, and that is deliberate. The settings here are
+# Orange County's -- `emphasis: period: ALWAYS` asserts that the period
+# comparison always merits the emphasis, which is a claim about this study's
+# design rather than a neutral default -- but they hold for every definition of
+# the dataset. OC1 and OC2 differ in which rows count as stays, in the study
+# window and in the outcome vocabulary; none of that bears on how the deck is
+# presented. So the file is shared, and it keeps the unversioned prefix while
+# the data files beside it carry OC1_ and OC2_.
+
+
+output:
+  # Reports are written here, and git ignores the directory. A deck already at
+  # this name is never overwritten: it is renamed to
+  # mlos_deck_<YYYYMMDD>_<NNN>.pptx first, matching how results/ archives an
+  # earlier run, so the plain name always holds the latest.
+  directory: reports
+  filename: mlos_deck.pptx
+
+
+tables:
+  # How the highest and lowest value in each column is marked.
+  #   MARK    an up or down arrow beside the number, and = where every level
+  #           ties
+  #   COLOR   the number itself in blue (highest) or orange (lowest), with
+  #           nothing where every level ties
+  # MARK survives photocopying, projection and color blindness; COLOR reads
+  # faster on a screen. Either way the marks are judged against every level,
+  # including levels a short table does not show.
+  #
+  # The marks were H, L and F until the competing-risk tables started heading
+  # their columns with outcome codes: on this data those are L, T and N, so an
+  # "L" beside a number meant lowest while the "L" above it meant community
+  # live. Arrows cannot collide with a code, whatever the codes turn out to be.
+  high_low_flag: MARK
+
+
+emphasis:
+  # What each stratifier is entitled to, before the data gets a say.
+  #
+  #   AUTO    let the findings decide (the default): salient when the levels'
+  #           average stays are more than a day, plus 15% of the shelter's
+  #           average stay, apart, once the part of that spread which is
+  #           sampling noise has been taken out. Every LOS slide reports the
+  #           number and the verdict in its speaker notes.
+  #   ALWAYS  always give it slides, whenever the dataset supports it
+  #   NEVER   leave it out
+  #   a list of level names: always give it slides AND always show those
+  #           levels in its tables, whether or not they would have been picked
+  #
+  # ALWAYS buys a second slide today: what that stratifier's animals already in
+  # care still owe, straight after its length-of-stay slide.
+  #
+  # On a dataset with only ONE stratifier, a stratifier this file says nothing
+  # about defaults to ALWAYS instead of AUTO. AUTO means "let the findings
+  # decide", and deciding is a comparison between the analysis dimensions;
+  # with one dimension there is nothing to compare it against. Writing AUTO or
+  # NEVER here is honoured whatever the dataset holds.
+  #
+  # A named level that this dataset does not have is warned about, not fatal:
+  # one settings file is reused across runs, and a filtered dataset is as
+  # likely an explanation as a typo. Quote level names that could be read as
+  # something else, for instance "NO" or "ON".
+  #
+  # Examples:
+  #   animal_group: ALWAYS
+  #   intake_type: [OWNER, STRAY]
+  #   period: NEVER
+  period: ALWAYS
+  intake_type: AUTO
+  animal_group: AUTO
+
+
+# How much of the competing-risks (Aalen-Johansen) analysis the deck carries.
+#   FULL    the whole-sample slide, then one slide per stratifier: a panel per
+#           outcome, and a table of the levels
+#   TEASER  the whole-sample slide, then ONE stratifier's slide, the one whose
+#           plots carry the fewest lines, for an audience that has not asked
+#           for the full breakdown
+#   NONE    leave it out entirely
+# A stratifier set to NEVER above is left out of the competing-risks section
+# too, and is not a candidate for the one TEASER shows.
+aj_coverage: FULL

@@ -1,0 +1,136 @@
+# Citation metadata, in the Citation File Format (https://citation-file-format.org).
+# GitHub reads this and shows a "Cite this repository" button; Zenodo reads it
+# when minting a DOI from a release.
+#
+####   RELEASE CHECKLIST.  The full runbook is PUBLISHING.md; these are the
+####   steps that go wrong inside this file.
+####
+####   1. Enable the repository in Zenodo BEFORE tagging.  Zenodo archives
+####      releases made after it is switched on and does not reach back for
+####      earlier ones.  This is the one ordering constraint that cannot be
+####      repaired afterward.
+####   2. On each tagged release, bump `version` and `date-released` to match.
+####      `version` here must equal the one a run log reports, or the citation
+####      names software that did not produce the result.  The test suite holds
+####      it equal to MLOS_VERSION in mlos_common.R and to pyproject.toml.
+####      `version` is bumped when the work is done rather than when the tag
+####      lands, so `date-released` runs ahead of the tag until CHANGELOG.md's
+####      Unreleased section is given its number; check it at tag time.
+####   3. Check the date in UTC (`TZ=UTC date +%F`) before tagging.  GitHub
+####      stamps tags in UTC and Zenodo dates records in Geneva local time, so
+####      an evening tag on the United States west coast lands on the next day
+####      in both of them and disagrees with what is written here.
+####   4. For `doi:` below, use Zenodo's CONCEPT DOI, the version-independent
+####      one that always resolves to the newest release, not the DOI of a
+####      single release.  A release's own DOI does not exist until that
+####      release is archived, by which point this file is already inside it,
+####      so it could only ever name the release before.  The concept DOI is
+####      stable, and `version` above is what says which release was actually
+####      run.  There is therefore no `doi:` field until the release after the
+####      first archived one.
+####   5. AFTER publishing a release, edit the Zenodo record's `version` field
+####      to drop the leading `v`.  Zenodo takes that field from the tag name
+####      rather than from `version` below, so the record reads `v0.1.0` where
+####      a run log reads `0.1.0`, and the pair a reader checks is the DOI and
+####      the version.
+#
+####   LICENSE.  `license` below names the license of the code, which is what
+####   this file is metadata for.  The two guides, mlos_user_guide.md and
+####   mlos_math_methods.md, are CC BY 4.0; see README.md.  Naming both here
+####   would leave Zenodo to choose one for its record, so the record's own
+####   description is where the documentation license belongs.
+
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite it as below.  If you use results
+  computed from the Orange County data that the shipped settings files cover,
+  also cite the deposit the prepared input comes from, 10.5281/zenodo.22051368,
+  alongside it.
+title: "mLOS"
+abstract: >-
+  Survival analysis of length of stay in animal shelters.  A run is one YAML
+  settings file and one prepared CSV of shelter stays, and produces
+  Kaplan-Meier, Cox proportional-hazards, and Aalen-Johansen competing-risks
+  results comparing time in care across user-defined periods, intake types, or
+  animal groups.  Output is a consolidated Excel workbook, a plot set with the
+  numerical values of every curve beside it, a JSON bundle holding every
+  computed number, and a record of how the input rows were transformed, removed
+  or kept.
+type: software
+authors:
+  - family-names: "Mavrovouniotis"
+    given-names: "Michael Loizos"
+    orcid: "https://orcid.org/0009-0009-9896-2761"
+version: "0.1.0"
+date-released: "2026-08-22"
+license: MIT
+repository-code: "https://github.com/Shelter-Data-Analysis/mLOS"
+keywords:
+  - animal shelter
+  - length of stay
+  - survival analysis
+  - Kaplan-Meier
+  - competing risks
+  - reproducible research
+
+# The chain this software sits at the end of: the prepared files it reads, the
+# tool that produced them, and the raw extracts behind those.  The two data
+# deposits are cited by their VERSION DOI rather than their concept DOI, and
+# the software by its concept DOI.  That is one rule applied twice rather than
+# two rules: precision has to live somewhere, and for software it lives in the
+# version number beside the DOI, while for data it lives in the digest a run
+# log pins, so only a version DOI is guaranteed to still hold the bytes that
+# produced a result.
+#
+# If a deposit's own title or author list changes, change it here too: a
+# citation that does not match the record is not a citation.
+references:
+  - type: data
+    title: >-
+      Processed animal-level data, with descriptive statistics, from
+      government-operated animal shelters in Orange County and Los Angeles
+      County, California
+    authors:
+      - family-names: "Mavrovouniotis"
+        given-names: "Michael Loizos"
+        orcid: "https://orcid.org/0009-0009-9896-2761"
+    doi: "10.5281/zenodo.22051368"
+    version: "1"
+    year: 2026
+    license: CC-BY-4.0
+    notes: >-
+      The direct input.  data/OC1_data.csv and data/OC2_data.csv in this
+      repository are byte-identical to two of the files in this deposit, and
+      their statistics tables are the first half of the flow that
+      data_preparation_stats.csv continues.  A run over your own shelter's
+      data has nothing to do with this deposit and should not cite it.
+  - type: software
+    title: "ShelterDataPrep"
+    authors:
+      - family-names: "Mavrovouniotis"
+        given-names: "Michael Loizos"
+        orcid: "https://orcid.org/0009-0009-9896-2761"
+    doi: "10.5281/zenodo.22051338"
+    year: 2026
+    license: MIT
+    repository-code: "https://github.com/Shelter-Data-Analysis/ShelterDataPrep"
+    notes: >-
+      Prepares a raw shelter extract into the input format this tool reads.
+      Cite it with the version a preparation run log reports; the shipped
+      inputs were prepared under 0.3.0.
+  - type: data
+    title: >-
+      Raw animal-level data from government-operated animal shelters in Orange
+      County and Los Angeles County, California
+    authors:
+      - family-names: "Mavrovouniotis"
+        given-names: "Michael Loizos"
+        orcid: "https://orcid.org/0009-0009-9896-2761"
+    doi: "10.5281/zenodo.22051091"
+    version: "1"
+    year: 2026
+    license: CC-BY-4.0
+    notes: >-
+      One step further upstream: the extract ShelterDataPrep read to produce
+      the prepared files above.  Cite it when the preparation itself is part of
+      what is being reported.

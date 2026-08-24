@@ -1,0 +1,67 @@
+<!--
+  Source for kaplan_meier_diagram.png, which is what the deck embeds: pptx has
+  no SVG, so the picture is rasterized once and committed beside this file.
+  Edit here, then regenerate; the command is in deck.py, beside the constant
+  that names the PNG.
+
+  The viewBox starts left of zero because the case labels are set flush right
+  against x=30 and run back past the origin; a box starting at 0 clipped them.
+-->
+<svg viewBox="-85 0 890 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background and grid -->
+  <rect x="-85" y="0" width="890" height="600" fill="#f8f9fa" />
+  
+  <!-- Study period boundaries -->
+  <line x1="100" y1="150" x2="100" y2="550" stroke="#333" stroke-width="2" />
+  <line x1="700" y1="150" x2="700" y2="550" stroke="#333" stroke-width="2" />
+  <text x="100" y="580" text-anchor="middle" font-family="Arial" font-size="24" fill="#333">Period Start</text>
+  <text x="700" y="580" text-anchor="middle" font-family="Arial" font-size="24" fill="#333">Period End</text>
+  
+  <!-- Time axis -->
+  <line x1="50" y1="550" x2="750" y2="550" stroke="#333" stroke-width="2" />
+  <text x="400" y="590" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold" fill="#333">Time</text>
+  
+  <!-- Case 1: Fully observed -->
+  <text x="350" y="210" text-anchor="middle" font-family="Arial" font-size="24" fill="#333">Fully observed</text>
+  <line x1="200" y1="230" x2="500" y2="230" stroke="#1f77b4" stroke-width="10" />
+  <circle cx="200" cy="230" r="10" fill="#1f77b4" />
+  <circle cx="500" cy="230" r="10" fill="#1f77b4" />
+  <text x="30" y="235" text-anchor="end" font-family="Arial" font-size="24" font-weight="bold" fill="#333">Case 1:</text>
+  
+  <!-- Case 2: Left-truncated -->
+  <text x="250" y="300" text-anchor="middle" font-family="Arial" font-size="24" fill="#333">Left-truncated</text>
+  <line x1="50" y1="320" x2="100" y2="320" stroke="#999" stroke-width="10" stroke-dasharray="5,5" />
+  <line x1="100" y1="320" x2="400" y2="320" stroke="#ff7f0e" stroke-width="10" />
+  <circle cx="400" cy="320" r="10" fill="#ff7f0e" />
+  <text x="30" y="325" text-anchor="end" font-family="Arial" font-size="24" font-weight="bold" fill="#333">Case 2:</text>
+  
+  <!-- Case 3: Right-censored -->
+  <text x="500" y="390" text-anchor="middle" font-family="Arial" font-size="24" fill="#333">Right-censored</text>
+  <line x1="300" y1="410" x2="700" y2="410" stroke="#2ca02c" stroke-width="10" />
+  <circle cx="300" cy="410" r="10" fill="#2ca02c" />
+  <line x1="700" y1="410" x2="750" y2="410" stroke="#999" stroke-width="10" stroke-dasharray="5,5" />
+  <text x="30" y="415" text-anchor="end" font-family="Arial" font-size="24" font-weight="bold" fill="#333">Case 3:</text>
+  
+  <!-- Case 4: Both left-truncated and right-censored -->
+  <text x="400" y="480" text-anchor="middle" font-family="Arial" font-size="24" fill="#333">Left-truncated &amp; Right-censored</text>
+  <line x1="50" y1="500" x2="100" y2="500" stroke="#999" stroke-width="10" stroke-dasharray="5,5" />
+  <line x1="100" y1="500" x2="700" y2="500" stroke="#d62728" stroke-width="10" />
+  <line x1="700" y1="500" x2="750" y2="500" stroke="#999" stroke-width="10" stroke-dasharray="5,5" />
+  <text x="30" y="505" text-anchor="end" font-family="Arial" font-size="24" font-weight="bold" fill="#333">Case 4:</text>
+  
+  <!-- Legend. Wide enough for its longest line, which the 410 it started at
+       was not, and centered on the widened canvas rather than on the old one. -->
+  <rect x="110" y="50" width="500" height="110" fill="white" stroke="#333" stroke-width="1" rx="5" />
+
+  <line x1="140" y1="80" x2="180" y2="80" stroke="#333" stroke-width="10" />
+  <text x="200" y="85" font-family="Arial" font-size="24" fill="#333">Observation Window</text>
+
+  <line x1="140" y1="110" x2="180" y2="110" stroke="#999" stroke-width="10" stroke-dasharray="5,5" />
+  <text x="200" y="115" font-family="Arial" font-size="24" fill="#333">Unobserved Time</text>
+
+  <circle cx="160" cy="140" r="10" fill="#333" />
+  <text x="200" y="145" font-family="Arial" font-size="24" fill="#333">Event Point (Intake/Outcome)</text>
+
+  <!-- Title -->
+  <text x="360" y="30" text-anchor="middle" font-family="Arial" font-size="22" font-weight="bold" fill="#333">Observation Windows in Kaplan-Meier Analysis</text>
+</svg>

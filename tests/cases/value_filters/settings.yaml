@@ -1,0 +1,38 @@
+# Test fixture: value_filters
+# -----------------------------------------------------------------------
+# Exercises all three optional value filters at once, and proves they
+# compose in the documented order (intake_type, then animal_group, then the
+# named "other" column). The 10-row data has intake_type in
+# {STRAY, OWNER, TRANSFER}, animal_size in {SMALL, LARGE} (built into
+# animal_group), and a coat column in {black, white} that is NOT a
+# stratifier and is dropped after filtering.
+#
+# Applied in order to the 10 rows:
+#   intake_filter_cut: TRANSFER          drops rows 9, 10        -> 8 left
+#   animal_group_filter_pass: LARGE      keeps LARGE (3,4,5,8)   -> 4 left
+#   other (coat) pass: black             keeps black (3, 5, 8)   -> 3 left
+# The three survivors are stays of length 4, 6, 7 days (all community-live
+# events), so the golden KM has n=3, median 6, max_time 7. The whole point
+# is that the filters, not the analysis, select exactly those rows; the
+# expected.R numbers pin that.
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+
+restricted_stay_cap: 20
+
+animal_group_columns:
+  - animal_size
+
+intake_filter_cut:
+  - TRANSFER
+
+animal_group_filter_pass:
+  - LARGE
+
+other_filter_column_name: coat
+other_filter_pass:
+  - black
+
+discard_bad_rows: false

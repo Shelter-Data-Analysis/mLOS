@@ -1,0 +1,13 @@
+"days","Period_1","Period_2","Period_1_ci_lower","Period_1_ci_upper","Period_2_ci_lower","Period_2_ci_upper"
+"restricted_mean",10,NA,NA,NA,NA,NA
+"0",0,NA,0,0,NA,NA
+"1",0,NA,0,0,NA,NA
+"2",0,NA,0,0,NA,NA
+"3",0,NA,0,0,NA,NA
+"4",0,NA,0,0,NA,NA
+"5",0,NA,0,0,NA,NA
+"6",0,NA,0,0,NA,NA
+"7",0,NA,0,0,NA,NA
+"8",0,NA,0,0,NA,NA
+"9",0,NA,0,0,NA,NA
+"10",0.333333333333333,NA,0.0672783908519223,1,NA,NA

@@ -1,0 +1,30 @@
+# Test fixture: median_not_reached
+# -----------------------------------------------------------------------
+# Heavy censoring so that the KM curve never reaches the 0.5 (median) or
+# 0.10 (90th percentile) thresholds: both statistics must come back NA,
+# not crash, and the NA-guarded reference-line/legend branches of
+# plot_km_curve are exercised under --generate-outputs.
+#
+# Single period [2021-01-01, 2021-03-01) (59 days), cap 30. Five animals,
+# all intake Jan 1: one outcome L on Jan 5 (event day 5), four still in
+# care. The in-care rows run to the period end (time_end = 59), which
+# exceeds the cap, so all four are capped and censored at day 30
+# (n_capped = 4, fraction_capped = 0.8).
+#
+# Hand-derived KM:
+#   S(t) = 1.0 for t in [0, 5); one event among 5 at risk at day 5
+#   -> S(t) = 0.8 for t >= 5, held to the cap by the censorings at 30.
+# -> median = NA (0.8 > 0.5 forever), percentile_90 = NA,
+#    restricted mean (cap 30) = 5*1.0 + 25*0.8 = 25, max_time = 30.
+#
+# AJ: single cause, CIF_L = 0.2 from day 5 on. CondRem_L(0) = 0.2 and
+# CondRem_L(5) = 0 (nothing else resolves within the horizon).
+# See expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-03-01
+
+restricted_stay_cap: 30
+
+discard_bad_rows: false

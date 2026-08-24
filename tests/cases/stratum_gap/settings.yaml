@@ -1,0 +1,43 @@
+# Test fixture: stratum_gap
+# -----------------------------------------------------------------------
+# An observation gap INSIDE one stratum while the pooled (unified) data
+# has none -- the case the per-stratum gap check in stratified_km_analysis
+# exists for, and the sneakiest one in practice: the unified KM looks
+# fine, but a small stratum's own curve is silently corrupted. Small
+# strata are far more gap-prone than the pooled data.
+#
+# Single period [2021-01-01, 2021-06-01), cap 40. Four animals in two
+# animal groups:
+#   FAST/1: intake Jan 1, outcome L Jan 25 -> (0,25]  (covers the pooled
+#           timeline through the SLOW stratum's gap)
+#   FAST/2: intake Jan 1, outcome L Jan  5 -> (0,5]
+#   SLOW/3: intake Jan 1, outcome L Jan 15 -> (0,15]
+#   SLOW/4: intake 2020-12-12 (20 days in care at the period start,
+#           left-truncated), outcome L Jan 10 at LOS 30 -> (20,30]
+#
+# Pooled coverage is (0,30] with no hole -> NO unified gap (asserted).
+# SLOW's own intervals are (0,15] and (20,30] -> gap (15, 20] (asserted).
+#
+# Hand-derived unified KM (events at 5, 15, 25, 30 with risk sets
+# 3, 2, 2, 1): S = 2/3, 1/3, 1/6, 0.
+#   median = 15 (S(5) = 2/3 > 0.5, S(15) = 1/3 <= 0.5, no tie)
+#   percentile_90 = 30 (S(25) = 1/6 > 0.1, S(30) = 0, no tie)
+#   restricted mean (cap 40) = 5 + 10*(2/3) + 10*(1/3) + 5*(1/6)
+#                            = 95/6 = 15.8333..., max_time = 30.
+#
+# Hand-derived stratified KM:
+#   FAST (n=2, events at 5 and 25): S(5) = 1/2 EXACTLY -> median is the
+#     midpoint of the flat stretch [5, 25): 15 (the documented exact-tie
+#     convention). S(25) = 0.
+#   SLOW (n=2): day 15 has risk set {animal 3} only (animal 4 enters at
+#     20), so S(15) = 0 -- the stratum curve zeroes BEFORE its gap, and
+#     animal 4's 30-day stay contributes nothing: median = 15.
+# See expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-06-01
+
+restricted_stay_cap: 40
+
+discard_bad_rows: false

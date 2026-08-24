@@ -1,0 +1,24 @@
+# Test fixture: auto_animal_id
+# -----------------------------------------------------------------------
+# Identical data and periods to truncation_censoring_split, but the CSV
+# supplies NO animal_id column. read_and_prepare_data must auto-generate
+# one id per row (each row assumed a distinct animal), so the 5th row --
+# the only one straddling the Jan 6 period boundary -- keeps its two
+# period-split rows ((0,5] event=0 then (5,10] event=1) in a single Cox
+# cluster, exactly as if an explicit animal_id had been supplied.
+#
+# This regression-tests the auto-generation path: because every fixture
+# with an explicit animal_id produces the clustered Cox fit already, the
+# only way the generated ids could go wrong (e.g. one id per period-row
+# instead of one per animal) is to compare against the explicit-id twin.
+# The unified KM and the Cox fit here must match truncation_censoring_split
+# field-for-field. See expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-01-06
+  - 2021-02-01
+
+restricted_stay_cap: 30
+
+discard_bad_rows: false

@@ -1,0 +1,99 @@
+section,step,action,column,role,value,scope,detail,rows_in,rows_affected,rows_out,animal_id_in,animal_id_affected,animal_id_out
+stage,0,read,OC_raw.csv.gz,,,,11 column(s),192149,0,192149,160819,0,160819
+stage,0,parse_dates,intake_date,,,,0 of 192149 supplied value(s) unparseable as ISO8601,192149,0,192149,160819,0,160819
+stage,0,parse_dates,outcome_date,,,,0 of 191664 supplied value(s) unparseable as ISO8601,192149,0,192149,160819,0,160819
+stage,0,parse_dates,dob,,,,0 of 191482 supplied value(s) unparseable as ISO8601,192149,0,192149,160819,0,160819
+stage,0,derive,"nights, night_sign, window_presence, age, age_group",,,,"computed nights, night_sign, window_presence, age, age_group",192149,0,192149,160819,0,160819
+stage,1,cut,animal_type,,,,"drop where animal_type in (BIRD, CAT, LIVESTOCK, OTHER)",192149,147385,44764,160819,123514,37305
+stage,2,cut,window_presence,,,,"drop where window_presence in (AFTER, BEFORE, _UNKNOWN_)",44764,2497,42267,37305,2296,35196
+stage,3,cut,intake_type,,,,"drop where intake_type in (DISPO REQ, EUTH REQ, FOUND, LOST, SURGERY)",42267,1975,40292,35196,1974,33309
+stage,4,cut,intake_cond,,,,"drop where intake_cond in (DEAD, HEAD TEST)",40292,2904,37388,33309,2899,30500
+stage,5,cut,outcome_type,,,,"drop where outcome_type in (DELETE DUP, FOUND EXP, HOME EXP, LOST EXP)",37388,1976,35412,30500,1964,28729
+stage,6,cut,intake_type,,,,"drop where intake_type in (BOARDING, DISASTER)",35412,37,35375,28729,27,28705
+stage,7,cut,kennel_no,,,,"drop where kennel_no in (FOUND, HOME, HOME EXP, LOST)",35375,632,34743,28705,620,28239
+stage,8,map,outcome_type,,,,ADOPTION -> TRANSFER where outcome_subtype in (RESCUE),34743,2776,34743,28239,2771,28239
+stage,9,map,outcome_type,,,,"ADOPTION -> LCOM, CELL DOGS -> TRAN, DIED -> NONL, DISPOSAL -> NONL, DOA -> NONL, ESCAPED -> NONL, EUTH -> NONL, FOSTER -> TRAN, MISSING -> NONL, RESCU WAIT -> TRAN, RET 2 WILD -> TRAN, RTO -> LCOM, RTO 2 OS -> LCOM, RTO-DEAD -> NONL, RTO-S -> LCOM, RTO-TMH -> LCOM, SURG SCHED -> INC, SURG WAIT -> INC, TRANSFER -> TRAN, _UNKNOWN_ -> INC",34743,34743,34743,28239,28239,28239
+stage,10,map,outcome_type,,,,"LCOM -> _NODATE_, NONL -> _NODATE_, TRAN -> _NODATE_ where night_sign in (_UNKNOWN_)",34743,0,34743,28239,0,28239
+stage,11,map,intake_type,,,,"CONFISCATE -> OTH, FOSTER -> RET, OWNER SUR -> OWNER, RETURN -> RET, STRAY -> STRAY, STRAY OWN -> STRAY, TRANSFER -> OTH, WILD -> STRAY",34743,34743,34743,28239,28239,28239
+stage,12,map,age_group,,,,_NEGATIVE_ -> _UNKNOWN_,34743,140,34743,28239,138,28239
+stage,13,map,age_group,,,,_UNKNOWN_ -> JUVENILE where animal_size in (PUPPY),34743,133,34743,28239,133,28239
+stage,14,map,animal_size,,,,"905-V -> _UNKNOWN_, KITTN -> _UNKNOWN_, OPS -> _UNKNOWN_, TOY -> SMALL, UNKWN -> _UNKNOWN_, X-LRG -> LARGE",34743,1345,34743,28239,1095,28239
+stage,15,map,animal_size,,,,"PUPPY -> _UNKNOWN_ where age_group in (ADULT, SENIOR, YOUNG)",34743,94,34743,28239,81,28239
+stage,16,cut,night_sign,,,,drop where night_sign in (-1),34743,0,34743,28239,0,28239
+stage,17,cut,age_group,,,,drop where age_group in (_OVER_),34743,9,34734,28239,9,28230
+stage,18,dedup,"animal_id, intake_date, outcome_date, outcome_type, intake_type, animal_size, age_group",,,,"drop repeats of animal_id, intake_date, outcome_date, outcome_type, intake_type, animal_size, age_group where night_sign in (1)",34734,16,34718,28230,16,28230
+stage,19,write,"animal_id, intake_date, outcome_date, outcome_type, intake_type, animal_size, age_group",,,,/Users/michaelm/Desktop/GitProjects/ShelterDataPrep/results/OC2_data.csv,34718,0,34718,28230,0,28230
+detail,1,cut,animal_type,cut,BIRD,rows cut,,,16493,,,16421,
+detail,1,cut,animal_type,cut,CAT,rows cut,,,87403,,,64096,
+detail,1,cut,animal_type,cut,LIVESTOCK,rows cut,,,113,,,110,
+detail,1,cut,animal_type,cut,OTHER,rows cut,,,43376,,,42887,
+detail,2,cut,window_presence,cut,AFTER,rows cut,,,11,,,11,
+detail,2,cut,window_presence,cut,BEFORE,rows cut,,,2486,,,2285,
+detail,2,cut,window_presence,cut,_UNKNOWN_,rows cut,,,0,,,0,
+detail,3,cut,intake_type,cut,DISPO REQ,rows cut,,,1815,,,1814,
+detail,3,cut,intake_type,cut,EUTH REQ,rows cut,,,157,,,157,
+detail,3,cut,intake_type,cut,FOUND,rows cut,,,0,,,0,
+detail,3,cut,intake_type,cut,LOST,rows cut,,,0,,,0,
+detail,3,cut,intake_type,cut,SURGERY,rows cut,,,3,,,3,
+detail,4,cut,intake_cond,cut,DEAD,rows cut,,,2507,,,2502,
+detail,4,cut,intake_cond,cut,HEAD TEST,rows cut,,,397,,,397,
+detail,5,cut,outcome_type,cut,DELETE DUP,rows cut,,,0,,,0,
+detail,5,cut,outcome_type,cut,FOUND EXP,rows cut,,,929,,,924,
+detail,5,cut,outcome_type,cut,HOME EXP,rows cut,,,2,,,2,
+detail,5,cut,outcome_type,cut,LOST EXP,rows cut,,,1045,,,1038,
+detail,6,cut,intake_type,cut,BOARDING,rows cut,,,5,,,5,
+detail,6,cut,intake_type,cut,DISASTER,rows cut,,,32,,,22,
+detail,7,cut,kennel_no,cut,FOUND,rows cut,,,17,,,17,
+detail,7,cut,kennel_no,cut,HOME,rows cut,,,603,,,591,
+detail,7,cut,kennel_no,cut,HOME EXP,rows cut,,,0,,,0,
+detail,7,cut,kennel_no,cut,LOST,rows cut,,,12,,,12,
+detail,8,map,outcome_type,map from,ADOPTION,rows mapped,,,2776,,,2771,
+detail,8,map,outcome_subtype,where,RESCUE,rows mapped,,,2776,,,2771,
+detail,9,map,outcome_type,map from,ADOPTION,rows mapped,,,15877,,,13907,
+detail,9,map,outcome_type,map from,CELL DOGS,rows mapped,,,1,,,1,
+detail,9,map,outcome_type,map from,DIED,rows mapped,,,116,,,116,
+detail,9,map,outcome_type,map from,DISPOSAL,rows mapped,,,210,,,209,
+detail,9,map,outcome_type,map from,DOA,rows mapped,,,0,,,0,
+detail,9,map,outcome_type,map from,ESCAPED,rows mapped,,,1,,,1,
+detail,9,map,outcome_type,map from,EUTH,rows mapped,,,1386,,,1386,
+detail,9,map,outcome_type,map from,FOSTER,rows mapped,,,1910,,,1491,
+detail,9,map,outcome_type,map from,MISSING,rows mapped,,,4,,,4,
+detail,9,map,outcome_type,map from,RESCU WAIT,rows mapped,,,0,,,0,
+detail,9,map,outcome_type,map from,RET 2 WILD,rows mapped,,,0,,,0,
+detail,9,map,outcome_type,map from,RTO,rows mapped,,,10620,,,9495,
+detail,9,map,outcome_type,map from,RTO 2 OS,rows mapped,,,1,,,1,
+detail,9,map,outcome_type,map from,RTO-DEAD,rows mapped,,,1,,,1,
+detail,9,map,outcome_type,map from,RTO-S,rows mapped,,,0,,,0,
+detail,9,map,outcome_type,map from,RTO-TMH,rows mapped,,,77,,,77,
+detail,9,map,outcome_type,map from,SURG SCHED,rows mapped,,,0,,,0,
+detail,9,map,outcome_type,map from,SURG WAIT,rows mapped,,,0,,,0,
+detail,9,map,outcome_type,map from,TRANSFER,rows mapped,,,4333,,,4327,
+detail,9,map,outcome_type,map from,_UNKNOWN_,rows mapped,,,206,,,206,
+detail,10,map,outcome_type,map from,LCOM,rows mapped,,,0,,,0,
+detail,10,map,outcome_type,map from,NONL,rows mapped,,,0,,,0,
+detail,10,map,outcome_type,map from,TRAN,rows mapped,,,0,,,0,
+detail,10,map,night_sign,where,_UNKNOWN_,rows mapped,,,0,,,0,
+detail,11,map,intake_type,map from,CONFISCATE,rows mapped,,,4268,,,3707,
+detail,11,map,intake_type,map from,FOSTER,rows mapped,,,1975,,,1517,
+detail,11,map,intake_type,map from,OWNER SUR,rows mapped,,,1559,,,1542,
+detail,11,map,intake_type,map from,RETURN,rows mapped,,,2073,,,1740,
+detail,11,map,intake_type,map from,STRAY,rows mapped,,,20535,,,20278,
+detail,11,map,intake_type,map from,STRAY OWN,rows mapped,,,4312,,,4048,
+detail,11,map,intake_type,map from,TRANSFER,rows mapped,,,20,,,20,
+detail,11,map,intake_type,map from,WILD,rows mapped,,,1,,,1,
+detail,12,map,age_group,map from,_NEGATIVE_,rows mapped,,,140,,,138,
+detail,13,map,age_group,map from,_UNKNOWN_,rows mapped,,,133,,,133,
+detail,13,map,animal_size,where,PUPPY,rows mapped,,,133,,,133,
+detail,14,map,animal_size,map from,905-V,rows mapped,,,257,,,182,
+detail,14,map,animal_size,map from,KITTN,rows mapped,,,2,,,2,
+detail,14,map,animal_size,map from,OPS,rows mapped,,,0,,,0,
+detail,14,map,animal_size,map from,TOY,rows mapped,,,632,,,546,
+detail,14,map,animal_size,map from,UNKWN,rows mapped,,,6,,,6,
+detail,14,map,animal_size,map from,X-LRG,rows mapped,,,448,,,359,
+detail,15,map,animal_size,map from,PUPPY,rows mapped,,,94,,,81,
+detail,15,map,age_group,where,ADULT,rows mapped,,,16,,,15,
+detail,15,map,age_group,where,SENIOR,rows mapped,,,12,,,12,
+detail,15,map,age_group,where,YOUNG,rows mapped,,,66,,,56,
+detail,16,cut,night_sign,cut,-1,rows cut,,,0,,,0,
+detail,17,cut,age_group,cut,_OVER_,rows cut,,,9,,,9,
+detail,18,dedup,night_sign,where,1,rows dropped,,,16,,,16,

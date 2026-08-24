@@ -1,0 +1,41 @@
+# Test fixture: restricted_cap_binding
+# -----------------------------------------------------------------------
+# Exercises the restricted_stay_cap machinery, which no other fixture
+# touches: capped_at_rmean flagging, the event->censored recode at the
+# cap, fraction_capped, a restricted mean where the cap actually binds,
+# and the invalid-interval drop in break_down_by_period.
+#
+# Single period [2021-06-01, 2021-08-01), cap 20. Six animals:
+#   1-4: intake Jun 1, outcome L Jun 5 -> LOS 5 (date diff 4, +1 for the
+#        arrival/departure-day convention): rows (0,5], event=1.
+#   5:   intake Jun 1, still in care -> raw time_end = 61 (period length),
+#        61 > 20 so the row is capped: (0,20], event=0, capped_at_rmean.
+#   6:   intake 2021-05-01 (31 days BEFORE the period starts), still in
+#        care -> left-truncated with time_start = 31. After capping,
+#        time_end = 20 <= time_start = 31, an invalid interval, so the
+#        row is dropped entirely (dropped_invalid path). Its absence is
+#        what the row counts below assert; if the drop ever regressed,
+#        survfit() would reject the negative-length interval and the whole
+#        run would crash.
+#
+# Hand-derived KM on the 5 surviving rows:
+#   S(t) = 1.0 for t in [0, 5): 5 at risk.
+#   S(t) = 0.2 for t >= 5: 4 events at day 5, then animal 5 is censored
+#          at day 20 with no further events.
+# -> median = 5 (S(5) = 0.2 <= 0.5, no exact tie).
+# -> percentile_90 = NA: S never reaches 0.10.
+# -> restricted mean (cap 20) = 5*1.0 + 15*0.2 = 8.
+# -> n_capped = 1 (animal 5 only; animal 6 was dropped), fraction_capped
+#    = 1/5 = 0.2.
+#
+# Hand-derived AJ (single cause L): CIF_L jumps to 4/5 = 0.8 at day 5 and
+# holds (animal 5's censoring at 20 adds nothing).
+# See expected.R.
+
+period_dates:
+  - 2021-06-01
+  - 2021-08-01
+
+restricted_stay_cap: 20
+
+discard_bad_rows: false

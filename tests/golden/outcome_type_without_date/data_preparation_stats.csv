@@ -1,0 +1,12 @@
+"section","step","action","column","role","value","scope","detail","rows_in","rows_affected","rows_out","animal_id_in","animal_id_affected","animal_id_out"
+"stage",0,"read","data.csv","","","","4 column(s)",10,0,10,10,0,10
+"stage",1,"cut","intake_date, outcome_date, outcome_type","","","","drop rows with none of intake_date, outcome_date, outcome_type",10,0,10,10,0,10
+"stage",2,"map","outcome_type","","","","HOLD -> still in care (outcome_date kept as the censoring date)",10,1,10,10,1,10
+"stage",3,"cut","outcome_type, outcome_date","","","","drop rows carrying an outcome_type with no outcome_date",10,2,8,10,2,8
+"stage",4,"dedup","animal_id, intake_date, outcome_date","","","","drop all but the last row of each repeated animal_id, intake_date, outcome_date",8,0,8,8,0,8
+"stage",5,"cut","animal_id, intake_date, outcome_date","","","","drop the shorter stay of each pair of one animal's stays that overlap in time",8,0,8,8,0,8
+"stage",6,"cut","intake_date, outcome_date","","","","drop where outcome_date < 2021-01-01 or intake_date >= 2021-03-01",8,0,8,8,0,8
+"stage",7,"cut","intake_date, outcome_date","","","","drop stays that fall in a gap between periods",8,0,8,8,0,8
+"stage",8,"split","period_label","","","","one row per period a stay is observed in, left-truncated and censored at the period bounds",8,0,8,8,0,8
+"stage",9,"cut","time_start, time_end","","","","drop rows the cap or the truncation left with no time at risk (time_start >= time_end)",8,0,8,8,0,8
+"detail",2,"map","outcome_type","map from","HOLD","rows mapped","",,1,,,1,

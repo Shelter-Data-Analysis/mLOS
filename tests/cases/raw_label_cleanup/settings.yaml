@@ -1,0 +1,65 @@
+# Test fixture: raw_label_cleanup
+# -----------------------------------------------------------------------
+# Exercises the data-preparation pipeline that every other fixture skips
+# by using clean L/T/N data: raw-label mapping (outcome_type_L/T/N),
+# outcome_type_delete, outcome_type_in_care (outcome_type recoded to NA
+# but outcome_date RETAINED, so the animal is censored at its departure
+# date, not at period end), a blank-outcome still-in-care animal, and the
+# study-window filters on both sides.
+#
+# Single period [2021-01-01, 2021-02-01), cap 40. Nine CSV rows:
+#   1: intake Jan 1, "Adopted"  Jan  5 -> L, event day  5 (diff 4, +1)
+#   2: intake Jan 1, "RTO"      Jan  5 -> L, event day  5
+#   3: intake Jan 1, "Transfer" Jan 10 -> T, event day 10
+#   4: intake Jan 1, "Euth"     Jan 15 -> N, event day 15
+#   5: intake Jan 1, "Wildlife" Jan  3 -> deleted before any processing
+#   6: intake Jan 1, "Foster"   Jan  8 -> in-care recode: censored day 8
+#   7: intake Jan 1, blank/blank        -> still in care, censored day 31
+#      (period length; 31 < cap 40, so no capping anywhere)
+#   8: intake 2020-11-01, "Adopted" 2020-12-15 -> outcome before the study
+#      window start, dropped by the window filter
+#   9: intake 2021-02-05, "Euth" 2021-02-10 -> intake on/after the window
+#      end, dropped by the window filter
+# -> period_data has 6 rows: 4 events (2 L, 1 T, 1 N), 2 censored.
+#
+# Hand-derived KM:
+#   day  5: 6 at risk, 2 events -> S = 4/6 = 2/3
+#   day  8: row 6 censored (no S change)
+#   day 10: 3 at risk (rows 3,4,7), 1 event -> S = 2/3 * 2/3 = 4/9
+#   day 15: 2 at risk (rows 4,7),   1 event -> S = 4/9 * 1/2 = 2/9
+#   row 7 censored at day 31; S holds at 2/9.
+# -> median = 10 (S(5) = 0.667 > 0.5, S(10) = 0.444 <= 0.5, no tie).
+# -> percentile_90 = NA (S never reaches 0.10).
+# -> restricted mean (cap 40, curve extended flat past the last observed
+#    time 31 -- verified directly against summary(fit, rmean = 40)):
+#    5*1 + 5*(2/3) + 5*(4/9) + 25*(2/9) = 145/9 = 16.111...
+#
+# Hand-derived AJ (jump at t = S(t-) * d_k(t)/n(t)):
+#   CIF_L(5)  = 1   * 2/6 = 1/3
+#   CIF_T(10) = 2/3 * 1/3 = 2/9
+#   CIF_N(15) = 4/9 * 1/2 = 2/9
+#   CIF_Any(15) = 1/3 + 2/9 + 2/9 = 7/9 = 1 - S(15). Row 7 is still
+#   unresolved at tau = 31, so the day-0 CondRem values sum to 7/9 < 1.
+# See expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+
+restricted_stay_cap: 40
+
+outcome_type_L:
+  - "Adopted"
+  - "RTO"
+outcome_type_T:
+  - "Transfer"
+outcome_type_N:
+  - "Euth"
+
+outcome_type_delete:
+  - "Wildlife"
+
+outcome_type_in_care:
+  - "Foster"
+
+discard_bad_rows: false

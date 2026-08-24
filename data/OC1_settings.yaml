@@ -1,0 +1,211 @@
+# OC1 Length of Stay - analysis settings (YAML)
+# All string values are case-sensitive.
+#
+# Superseded by OC2_settings.yaml / OC2_data.csv, the default since 2026-08-01.
+# This pairing was the default, under the names OC_settings.yaml and
+# OC_data.csv, until then. It is frozen and kept as a baseline: run it when a
+# later result looks wrong and you want to compare against a known one.
+#
+#   Rscript mlos_run_complete.R --settings data/OC1_settings.yaml \
+#                               --data     data/OC1_data.csv
+#
+# Nothing here should change. An edit makes the baseline disagree with the
+# numbers it was recorded against, which is the one thing it exists to rule out.
+
+# Boundaries of the periods to compare. N dates define N-1 periods (left-closed, right-open intervals).
+# At least 2 dates required. Format: YYYY-MM-DD.
+# Align boundaries to a fixed weekday to minimize day-of-week noise.
+# Note: all periods are used in all analyses (KM, Cox, AJ). Stratified plots (by period,
+# intake type, or animal group) are skipped when the number of strata exceeds 10; the
+# companion CSV files are still written.
+period_dates:
+  - 2019-01-01
+  - 2020-04-01
+  - 2021-07-01
+  - 2022-10-01
+
+# Optional custom names for the periods, used in all outputs (plots, CSVs, Excel).
+# Must list exactly one label per period (period_dates entries minus 1), each unique,
+# with no commas or equals signs. Quote all values. If omitted, periods are named
+# Period_1, Period_2, ...
+period_labels:
+  - "Pre-C"
+  - "Early-C"
+  - "Late-C"
+
+# Rows whose raw outcome_type matches one of these values are deleted before any other processing.
+# _NODATE_ is ShelterDataPrep's marker for a row that names an outcome but has
+# no usable outcome date. One row carries it here, A1937050, and the stay is
+# unusable: with no departure date nothing can place it in time. Deleting it by
+# name is what lets discard_bad_rows stay at the strict default below.
+outcome_type_delete:
+  - "X"
+  - "_NODATE_"
+
+# Raw outcome_type values that mean the animal is still in care (recoded to blank outcome before analysis).
+outcome_type_in_care:
+  - "I"
+  - "InCare"
+
+# Map site-specific outcome labels to the three canonical codes (L, T, N).
+# Omit all three if the data file already uses L/T/N directly; otherwise provide all three.
+# Quote all values to prevent YAML boolean interpretation.
+outcome_type_L: # Community live: return-to-owner, adoption
+  - "LiveC"
+outcome_type_T: # Other live: transfer, foster, return-to-field
+  - "Transf"
+outcome_type_N: # Non-live: euthanasia (any type), died in care, lost in care
+  - "NonL"
+
+# Optional value maps. Each rewrites the values of one stratification column
+# before anything counts, filters, or strata by it, so a value mapped away
+# leaves no empty level behind. Written as a list of pairs, one per line, in
+# the form "from: to". Quote both sides. Use them to merge categories too thin
+# to stand alone, or to normalize labels an export spells more than one way.
+#
+# animal_group_map applies after animal_group is built from
+# animal_group_columns, so its keys are whole composite values:
+# animal_group_map:
+#   - "XL": "LRG"
+#   - "TOY": "SML"
+#
+# intake_type_map:
+#   - "OWNER SUR": "SURRENDER"
+#
+# Keys must be unique, but need NOT occur in the data: a map for a rare label
+# can sit here across runs whether or not a given extract contains one. Nothing
+# is therefore checked against the data. Instead each map prints one console
+# line counting every pair, zeros included, and a pair you expected to fire
+# showing 0 is how you catch a misspelled key. The pairs do not chain (all
+# replacements are made at once against the original values), and a blank value
+# reads as its "_UNKNOWN_" fill, so "_UNKNOWN_" is a usable key.
+
+# Optional value filters. Each keeps or drops whole rows by matching one
+# column against a list of values (so every statistic sees only the retained
+# rows). They are applied late in data preparation, after the duplicate-stay
+# and overlapping-stay screens, so those integrity checks still judge the
+# complete file (see the User Guide for the full stage order). For each of the
+# three targets below, supply AT MOST ONE of its *_pass (keep only these
+# values) or *_cut (drop these values) list; supplying both is an error.
+# Values are matched case-sensitive against the CSV labels as they stand after
+# any value map above (a blank intake_type or animal_group matches as
+# "_UNKNOWN_"). All are off by default (omit the
+# keys). A filter that removes every row stops the run.
+#
+# intake_type (the intake_filter_* settings cannot be present unless the data
+# has an intake_type column):
+# intake_filter_pass:
+#   - "STRAY"
+# intake_filter_cut:
+#   - "OWNER SUR"
+#
+# animal_group (applied after animal_group is built from animal_group_columns,
+# or after an animal_group column already present in the data; the settings
+# cannot be present unless animal_group exists):
+# animal_group_filter_pass:
+#   - "LRG"
+#   - "MED"
+# animal_group_filter_cut:
+#   - "SML"
+#
+# One other column, named explicitly. other_filter_column_name gives the
+# single column to filter (it must exist in the data file) and pairs with one
+# of other_filter_pass / other_filter_cut. The column need not be a stratifier
+# and is not otherwise used or reported.
+# other_filter_column_name: coat_color
+# other_filter_pass:
+#   - "black"
+
+# Stays exceeding this many days are right-censored at the cap for the restricted mean calculation.
+restricted_stay_cap: 365
+
+# Plots are truncated at this day on the x-axis (does not affect statistics). Must be <= restricted_stay_cap.
+plot_stay_cap: 60
+
+# Scale font sizes in PNG plots (1.0 = default; increase for presentations or high-DPI screens).
+png_pointsize_factor: 1.5
+
+# Scale line widths in PNG plots (1.0 = default).
+png_line_width_factor: 2
+
+# If true, the stratified (by-period) AJ CIF line plots also draw shaded confidence
+# interval ribbons per stratum, matching the aggregate AJ CIF plot. Off by default
+# since ribbons can clutter a plot with many overlapping strata.
+show_aj_cif_ci_ribbons: true
+
+# If true, the stratified Kaplan-Meier plots also draw shaded confidence interval
+# ribbons per stratum, drawn as true step/stair shapes matching the KM curves
+# themselves. Off by default since ribbons can clutter a plot with many overlapping strata.
+show_km_ci_ribbons: true
+
+# Columns in the CSV file to use as animal_group. Optional.
+# If omitted, mLOS looks for a column literally named "animal_group".
+# If specified, the listed columns are concatenated with "_" as the separator to
+# form animal_group (e.g. species_size_coat becomes "DOG_LARGE_SHORT").
+# A single column still works; just list it alone.
+animal_group_columns:
+  - animal_size
+
+# Reference level for animal_group in Cox regression. Optional; defaults to the most frequent level.
+animal_group_reference: MED
+
+# Reference level for intake_type in Cox regression. Optional; defaults to the most frequent level.
+intake_type_reference: STRAY
+
+# Reference period in Cox regression: OLDEST (first period) or NEWEST (last period).
+period_reference: OLDEST
+
+# If true, rows that fail data quality checks are silently dropped and a message is printed.
+# If false (default), any data quality error stops the run immediately.
+# Checks applied to each row:
+#   - intake_date must be a valid YYYY-MM-DD date.
+#   - outcome_date, when present, must be a valid YYYY-MM-DD date and must not be earlier than intake_date.
+#   - outcome_type must be blank, in outcome_type_delete, in outcome_type_in_care, or mappable to L/T/N.
+#   - an outcome_type that survives the outcome_type_in_care recode must have an outcome_date.
+discard_bad_rows: false
+
+# If true, when two stays of the same animal_id overlap (each begins strictly
+# before the other ends; physically impossible), the shorter stay is dropped
+# with a printed count (a blank outcome_date counts as the longest possible
+# stay; of two equal stays, the one earlier in the file is dropped). A stay
+# beginning on the day another ends is a legitimate same-day departure and
+# return, not an overlap. If false (default), any overlap stops the run.
+# The OC export contains 40 such rows (mostly same-intake re-classifications
+# with differing outcome dates), hence true here.
+discard_overlapping_rows: true
+
+# Which stratified plot/CSV pairs to produce. Each setting names one family of
+# stratified output (drawn once per stratifier: by period, intake type, and
+# animal group). Accepted values, case-sensitive:
+#   TRUE  (default) - write both the PNG plot and its companion CSV
+#   FALSE           - write neither
+#   PNG             - write only the PNG plot
+#   CSV             - write only the companion CSV
+# These affect ONLY the stratified outputs. The unified (whole-data) plots and
+# CSVs, including the aj_cif_unified_stack and aj_conditional_unified_stack
+# plots, are always produced.
+# (A stratified family is still skipped when its stratum count exceeds
+# max_plot_strata; there the PNG is dropped and only the CSV is written, and
+# only if the CSV is enabled here.)
+km_survival_by_stratifier: TRUE          # Kaplan-Meier survival curves by stratum
+km_remaining_los_by_stratifier: TRUE     # expected remaining LOS vs days already in care
+km_census_by_tenure_by_stratifier: TRUE  # steady-state animals in care by current tenure
+km_in_care_tenure_by_stratifier: TRUE     # in-care tenure profile (fraction with longer tenure)
+aj_cif_by_stratifier: TRUE               # Aalen-Johansen cumulative incidence by stratum
+aj_conditional_by_stratifier: TRUE       # conditional outcome probability by stratum
+
+# Optional Weibull regression alongside Cox (same predictors), reported on its
+# own Weibull_Regression sheet: LOS ratios ("stays 30% longer than the
+# reference group"), hazard ratios implied by the fit (compare with the Cox
+# sheet), and the shape k. Values: false (default) or WEIBULL. Requires the
+# flexsurv package.
+parametric_regression: WEIBULL
+
+# Whether the Weibull shape variants (the Weibull_By_... sheets) may give every
+# COMBINATION of the other predictors its own shape, rather than one shape term
+# per predictor. Values: false (default) or true. Advanced and unfinished: where
+# it runs the data can prefer it decisively, but it spends a parameter per cell,
+# a thin cell cannot pay for one, and the run then falls back to the additive
+# shape formula for that sheet alone. Only read with parametric_regression: WEIBULL.
+weibull_shape_crossing: false
+

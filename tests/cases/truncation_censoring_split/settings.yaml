@@ -1,0 +1,43 @@
+# Test fixture: truncation_censoring_split
+# -----------------------------------------------------------------------
+# Same 5 animals as constant_los_single_period (every one has true LOS =
+# 10 days, outcome L). Animal 5 intakes on day 1 of the month and the
+# period boundary falls on day 6 -- exactly halfway through its 10-day
+# stay -- while animals 1-4 all intake on/after day 11, entirely inside
+# Period_2, so only animal 5 straddles the boundary.
+#
+# Per-period participation (see mlos_math_methods.md Sec 3, 3.5):
+#   Period_1 = [2021-01-01, 2021-01-06): only animal 5 participates.
+#     True outcome (Jan 10) is not < the boundary (Jan 6), so this row is
+#     administratively censored at the boundary: (t_start=0, t_end=5], event=0.
+#   Period_2 = [2021-01-06, 2021-02-01): animal 5 reappears, left-truncated
+#     at the boundary (already 5 days into its stay when Period_2 began):
+#     (t_start=5, t_end=10], event=1 -- an exact 5-and-5 split. Animals 1-4
+#     participate only here (their intake postdates the boundary), each
+#     fresh and unsplit: (t_start=0, t_end=10], event=1, exactly as in
+#     constant_los_single_period.
+#
+# Pooled, animal 5's two rows -- (0,5] event=0 then (5,10] event=1 -- exactly
+# reconstruct the single uncut (0,10] event=1 interval that animals 1-4 each
+# contribute directly. So the *unified* KM curve should be identical to
+# constant_los_single_period's (median = 10, restricted_mean = 10, etc.),
+# even though period_data now has 6 rows (5 animals, one split in two) with
+# n_censored = 1 instead of 0. See expected.R.
+
+# parametric_regression is enabled here as a deliberate FAILURE-path probe:
+# every animal has the same LOS (10 days), so the Weibull MLE is degenerate
+# (the shape diverges and the information matrix is singular). The fit must
+# fail SOFTLY -- a "Weibull fit failed ... skipping" console note, the
+# not-available note on the Weibull_Regression sheet, and an uninterrupted
+# run -- never a crash. (weibull_small covers the successful-fit path.)
+
+period_dates:
+  - 2021-01-01
+  - 2021-01-06
+  - 2021-02-01
+
+restricted_stay_cap: 30
+
+discard_bad_rows: false
+
+parametric_regression: WEIBULL

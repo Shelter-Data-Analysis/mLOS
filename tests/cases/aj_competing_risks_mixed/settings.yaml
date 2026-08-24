@@ -1,0 +1,30 @@
+# Test fixture: aj_competing_risks_mixed
+# -----------------------------------------------------------------------
+# 10 animals, all intake on the same day, three competing outcome types
+# with distinct, constant LOS per type: 7x L at 10 days, 2x T at 15 days,
+# 1x N at 20 days. Single period wide enough to avoid any truncation,
+# censoring, or capping. No intake_type/animal_group columns and only one
+# period, so Cox regression has no predictor and should be skipped.
+#
+# Hand-derived KM survival (S(t) = fraction still in care):
+#   S(t) = 1.0  for t in [0, 10)   (all 10 still at risk)
+#   S(t) = 0.3  for t in [10, 15)  (7 L exits at t=10: 1 - 7/10)
+#   S(t) = 0.1  for t in [15, 20)  (2 T exits at t=15: 0.3 * (1 - 2/3))
+#   S(t) = 0.0  for t >= 20        (1 N exit at t=20: 0.1 * (1 - 1/1))
+# -> median_los = 10, percentile_90 = 15, restricted_mean = 12 (area under
+#    S: 1*10 + 0.3*5 + 0.1*5 + 0*(cap-20)).
+#
+# Hand-derived AJ cumulative incidence (no censoring, so CIF_Any(t) = 1 - S(t)):
+#   CIF_L(t) = 0 for t < 10, then 0.7 for t >= 10   (jump = S(10-) * 7/10 = 1.0 * 0.7)
+#   CIF_T(t) = 0 for t < 15, then 0.2 for t >= 15   (jump = S(15-) * 2/3 = 0.3 * 2/3)
+#   CIF_N(t) = 0 for t < 20, then 0.1 for t >= 20   (jump = S(20-) * 1/1 = 0.1 * 1)
+#   Check: CIF_L(20) + CIF_T(20) + CIF_N(20) = 0.7 + 0.2 + 0.1 = 1.0 = 1 - S(20).
+# See tests/cases/aj_competing_risks_mixed/expected.R.
+
+period_dates:
+  - 2020-12-01
+  - 2021-03-01
+
+restricted_stay_cap: 30
+
+discard_bad_rows: false

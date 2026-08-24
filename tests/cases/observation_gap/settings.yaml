@@ -1,0 +1,38 @@
+# Test fixture: observation_gap
+# -----------------------------------------------------------------------
+# A genuine gap in observation: a stretch of days where NO animal is at
+# risk, easily produced with left truncation and a small sample. This
+# fixture settled a real question: the original gap warning scanned
+# km_fit$n.risk for zeros, which can never fire (survfit only reports
+# rows at event/censoring times, where n.risk >= 1 by construction), so a
+# true gap slipped through silently. Detection now sweeps the
+# (time_start, time_end] intervals themselves, and this fixture pins it.
+#
+# Single period [2021-01-01, 2021-06-01), cap 60. Four animals:
+#   1-3: intake Jan 1 (period start), outcomes L at LOS 5, 10, 15:
+#        rows (0,5], (0,10], (0,15], all events.
+#   4:   intake 2020-12-12, i.e. 20 days ALREADY in care at the period
+#        start (left-truncated, time_start = 20), outcome L on Jan 10 at
+#        LOS 30 (diff 29, +1): row (20,30], event.
+# Nobody is at risk in (15, 20] -> gap from day 15 to day 20.
+#
+# Hand-derived KM -- and a demonstration of WHY the gap warning matters:
+#   day  5: 3 at risk, 1 event -> S = 2/3
+#   day 10: 2 at risk, 1 event -> S = 1/3
+#   day 15: 1 at risk, 1 event -> S = 0   <- risk set empties via an event
+#   day 30: 1 at risk (animal 4), 1 event -> factor (1 - 1/1), S stays 0.
+# Animal 4's 30-day stay contributes NOTHING: the curve zeroed at day 15
+# and cannot recover. median = 10, percentile_90 = 15 (S first <= 0.10
+# at 15, no exact tie), restricted mean = 5 + 5*(2/3) + 5*(1/3) = 10 --
+# the area up to the gap only, even though a quarter of the cohort
+# demonstrably stayed 30 days. That silent distortion is exactly what
+# gap_detected/gap_start/gap_end now surface.
+# See expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-06-01
+
+restricted_stay_cap: 60
+
+discard_bad_rows: false

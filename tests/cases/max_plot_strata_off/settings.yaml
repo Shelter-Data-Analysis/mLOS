@@ -1,0 +1,34 @@
+# Test fixture: max_plot_strata_off
+# -----------------------------------------------------------------------
+# Pins the max_plot_strata setting, the plot-only legibility limit. Reuses
+# the 8-animal data of stratified_km_animal_group (SMALL LOS 1,2,3; LARGE
+# LOS 4,5,6,7,8), which has a single animal_group stratifier with 2 levels.
+#
+# Two levels is comfortably under the default limit of 10, so at the
+# default this data DOES get stratified plots. Setting the limit to 1
+# therefore proves the override actually took effect, rather than
+# coincidentally agreeing with the default: the golden png_manifest.txt
+# lists no km_survival_by_*, km_remaining_los_*, aj_cif_by_*, or
+# aj_conditional_by_* plot, while every companion CSV is still written.
+# That split is the whole contract of the setting.
+#
+# 1, not 0, is the "no stratified plots" value: a stratifier reaches the
+# plot code only through a has_field gate requiring two or more levels, so
+# its stratum count is always at least 2 and 1 suppresses every one of
+# them. 0 is rejected by the parser (see the settings-validation section
+# of run_tests.R).
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+
+restricted_stay_cap: 20
+
+max_plot_strata: 1
+
+# Same rationale as stratified_km_animal_group: SMALL and LARGE never
+# overlap, so Cox on animal_group is complete separation. Referencing the
+# faster group keeps the divergence at HR -> 0 rather than HR -> +Inf.
+animal_group_reference: SMALL
+
+discard_bad_rows: false

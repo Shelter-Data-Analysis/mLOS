@@ -1,0 +1,47 @@
+# Test fixture: custom_period_labels
+# -----------------------------------------------------------------------
+# Pins the optional period_labels setting: the same data, periods, and cap
+# as boundary_conventions, but the two periods are named "Old policy" and
+# "New policy" instead of the default Period_1/Period_2. The labels
+# deliberately contain a space (a non-syntactic R name) to prove custom
+# labels survive every path that keys on period_label: period_data
+# subsetting, stratified KM stratum names, the by-period AJ per_period
+# list, the three shared per-period metric functions, CSV column headers,
+# and the Excel By_Period lookups.
+#
+# Labels must only rename the periods -- every number below is identical
+# to boundary_conventions, whose settings.yaml carries the full hand
+# derivation. Summary of the shared setup:
+#
+# Two periods: "Old policy" = [2021-01-01, 2021-01-15),
+#              "New policy" = [2021-01-15, 2021-02-01).
+# Cap 40 (never binds). Five animals, all outcome L; animals 2 and 3
+# straddle the boundary (split rows), animal 4 intakes exactly on it.
+# -> Old policy: 4 rows, 2 events; New policy: 3 rows, 3 events.
+#
+# Per-period KM (from boundary_conventions):
+#   Old policy: S(1) = 3/4, S(5) = 3/8            -> median 5.
+#   New policy: S(4) = 1/2, S(6) = 1/4, S(7) = 0  -> exact-tie midpoint
+#               median (4+6)/2 = 5.
+# Unified KM: S = 4/5, 3/5, 2/5, 1/5, 0 at days 1, 4, 5, 6, 7
+#   -> median 5, percentile_90 = 7, restricted mean 4.6, max_time 7.
+#
+# By-period AJ (single outcome type, so CIF_L = 1 - per-period KM S; each
+# period tabulated to its own largest fitted time: Old policy days 0..5,
+# New policy days 0..7):
+#   Old policy: CIF_L day 1 = 1/4, day 5 = 5/8 (grid ends at 5).
+#   New policy: CIF_L day 4 = 1/2, day 6 = 3/4, day 7 = 1.
+# See expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-01-15
+  - 2021-02-01
+
+period_labels:
+  - "Old policy"
+  - "New policy"
+
+restricted_stay_cap: 40
+
+discard_bad_rows: false

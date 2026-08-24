@@ -1,0 +1,74 @@
+# Packaging metadata for mlos_review, the Python half of this repository.
+#
+# The R analysis needs no such file, so this one is easy to mistake for
+# ceremony. It exists for three reasons.
+#
+# It is the single declaration of what the package needs to run. Those
+# requirements were previously stated in prose in README.md, in
+# presentation_guide.md, and as a literal pip command in colab_mlos.ipynb:
+# three copies, no lower bounds, and nothing that would notice when they
+# disagreed.
+#
+# It makes the package installable, so `import mlos_review` works from any
+# directory rather than only from the repository root. Nothing in the repo
+# requires that today (`python3 -m mlos_review.deck` from the root works
+# because Python puts the current directory on the import path, and
+# tests/run_review_tests.py adds the root itself), which is why installing
+# stays optional. It is what a Colab session or a scheduled build would want.
+#
+# And it is most of the mechanical work of ever moving this package into its
+# own repository, held in advance and cheaply, without moving it. The case for
+# keeping the two halves together is that they release together and share the
+# golden bundles as fixtures; none of that argues for being unable to leave.
+#
+# Install for development, from the repository root:
+#
+#     pip install -e .
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlos-review"
+version = "0.1.0"
+description = "Audience-facing documents built from an mLOS results bundle"
+readme = "presentation_guide.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+
+# 3.9 is not aspirational: it is what this is developed and tested on, which is
+# possible only because every module that carries annotations starts with
+# `from __future__ import annotations`. Losing that line from a module would
+# make its `str | Path` a runtime error here while passing on a newer Python,
+# so the import is load-bearing rather than habit.
+
+# Lower bounds are the versions this has actually been run against, not the
+# oldest that might work. Nothing here reaches for a recent API; the bounds are
+# a record of where it is known to stand up.
+dependencies = [
+    "python-pptx>=1.0",
+    "pandas>=2.0",
+    "PyYAML>=6.0",
+    "matplotlib>=3.5",
+    "openpyxl>=3.1",
+]
+
+# matplotlib and openpyxl are not optional extras for a report renderer that
+# might one day be built: one deck build needs both today. figures.py imports
+# matplotlib at module scope and deck.py imports figures, so a session without
+# it cannot get as far as reading the bundle; and build() writes the companion
+# workbook on every run, which is openpyxl. They were missing from this list
+# while the deck built anyway on machines that happened to carry them.
+
+[tool.setuptools]
+# The one package, listed rather than discovered: automatic discovery would
+# also find tests/ and data/, which are the repository's and not this
+# package's.
+packages = ["mlos_review"]
+
+[tool.setuptools.package-data]
+# deck.py opens the diagram relative to its own file, so an installed copy has
+# to carry it. The SVG travels with the PNG because it is what the PNG is
+# drawn from.
+mlos_review = ["*.png", "*.svg"]

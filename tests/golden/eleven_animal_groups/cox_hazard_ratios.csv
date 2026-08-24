@@ -1,0 +1,12 @@
+"variable","hr","ci_lower","ci_upper","p_value"
+"animal_groupG01",1,NA,NA,NA
+"animal_groupG02",1.34569221912893e-11,0,Inf,1
+"animal_groupG03",1.30682220700845e-20,0,Inf,1
+"animal_groupG04",3.79442409090028e-29,0,Inf,1
+"animal_groupG05",1.93252481582489e-37,0,Inf,1
+"animal_groupG06",1.39137580225722e-45,0,Inf,1
+"animal_groupG07",1.24383721195578e-53,0,Inf,1
+"animal_groupG08",1.24625265706075e-61,0,Inf,1
+"animal_groupG09",1.26010226344504e-69,0,Inf,1
+"animal_groupG10",1.11255171307098e-77,0,Inf,1
+"animal_groupG11",6.33260474784732e-86,0,Inf,1

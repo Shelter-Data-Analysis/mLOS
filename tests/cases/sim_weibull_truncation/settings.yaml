@@ -1,0 +1,76 @@
+# Test fixture: sim_weibull_truncation (statistical / simulation case)
+# -----------------------------------------------------------------------
+# Unlike the exact fixtures, this case checks the analyses against the
+# KNOWN PARAMETERS of the model that generated data.csv (see generator.R
+# for the model and the seed), with statistical tolerances in expected.R
+# sized to the sampling error at this sample size (~1200 observed
+# animals). It doubles as a worked example: run the suite with
+# --generate-outputs and look in tests/results/sim_weibull_truncation/
+# to see what every plot and CSV looks like when the data samples a
+# predetermined form.
+#
+# Intakes arrive from 2024-01-01, but the study window below starts
+# 2024-03-01, so animals already in care on that day enter left-truncated
+# and animals that left in January/February are filtered out; animals
+# still in care on 2024-09-01 (the export date) are right-censored.
+#
+# Generating truth (k = 1.3; scale 10 for STRAY, 20 for OWNER; equal
+# intake rates; causes L/T/N with probabilities 0.7/0.2/0.1). Each
+# animal draws a continuous duration W and its recorded LOS is
+# floor(W) + 1 days, the mLOS convention that arrival and departure days
+# both count (same-day intake and outcome is LOS = 1); for a continuous
+# W this equals ceiling(W), so P(LOS > m) = P(W > m) at whole days:
+#   - Survival at whole days m:   S_g(m) = exp(-(m/scale_g)^1.3),
+#     pooled  S(m) = (S_STRAY(m) + S_OWNER(m)) / 2.
+#   - Cox HR (OWNER vs STRAY reference): hazards are proportional with
+#     ratio 2^(-1.3) = 0.406127.
+#   - Weibull regression: shape 1.3, LOS ratio TR_intake_typeOWNER = 2,
+#     implied HR = 2^(-1.3) = 0.406127. The recorded LOS (floor(W) + 1)
+#     rounds the continuous stay up to whole days, which biases the
+#     fitted scales up by roughly half a day each, so the fitted LOS
+#     ratio sits slightly below 2 (about 20.5/10.5 = 1.95) and the
+#     fitted shape slightly above 1.3; the Weibull tolerances cover this
+#     known discretization bias plus sampling error.
+#   - KM medians are the smallest whole day m with S(m) <= 0.5:
+#     pooled 11 (S(10) = 0.517, S(11) = 0.477); STRAY 8; OWNER 16
+#     (S_OWNER(15) = 0.503, barely above 0.5, so sampling can land on 15;
+#     the tolerance allows +/- 1 day around each median).
+#   - Restricted means at cap 90 are sums of S over m = 0..89 (for the
+#     whole-day LOS, E[min(LOS, 90)] = sum of P(LOS > m)):
+#     pooled 14.3509, STRAY 9.7380, OWNER 18.9639.
+#   - 90th percentile of the pooled curve: smallest m with S(m) <= 0.10,
+#     which is m = 30 (S(30) = 0.09961).
+#   - AJ CIFs: cause is independent of stay length, so
+#     CIF_cause(m) = p_cause * (1 - S(m)) and the conditional removal
+#     distribution CondRem_cause(m) = p_cause at every day; e.g.
+#     1 - S(30) = 0.90039, CIF_L at day 30 = 0.7 * 0.90039 = 0.63028.
+#
+# Tolerances in expected.R are ~4 standard errors of each estimator
+# (from the fitted models at authoring time), widened where a known
+# discretization bias applies, so a fresh sample from generator.R with a
+# new seed is expected to pass as well. Counts (n, n_events) are
+# properties of the committed sample and are pinned exactly.
+#
+# intake_type_reference pins the Cox/Weibull baseline to STRAY: the
+# window filtering removes fast-leaving strays from January/February,
+# so OWNER would otherwise win the default most-frequent-level rule and
+# flip the coefficient to intake_typeSTRAY.
+
+period_dates:
+  - 2024-03-01
+  - 2024-09-01
+
+restricted_stay_cap: 90
+
+# plot_stay_cap windows the PLOTS (rendered under --generate-outputs) to
+# the first 35 days, where the curves carry most of their information:
+# the pooled survival is down to about 7% still in care by day 35.
+# Every analysis, and every exported CSV, still runs to the 90-day
+# restricted_stay_cap above; the plot cap crops the picture, never the
+# data. It also demonstrates the setting for users reading this case as
+# a worked example.
+plot_stay_cap: 35
+
+intake_type_reference: STRAY
+
+parametric_regression: WEIBULL

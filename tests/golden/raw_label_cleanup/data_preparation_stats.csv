@@ -1,0 +1,18 @@
+"section","step","action","column","role","value","scope","detail","rows_in","rows_affected","rows_out","animal_id_in","animal_id_affected","animal_id_out"
+"stage",0,"read","data.csv","","","","4 column(s)",9,0,9,9,0,9
+"stage",1,"cut","outcome_type","","","","drop where outcome_type in (Wildlife)",9,1,8,9,1,8
+"stage",2,"cut","intake_date, outcome_date, outcome_type","","","","drop rows with none of intake_date, outcome_date, outcome_type",8,0,8,8,0,8
+"stage",3,"map","outcome_type","","","","Foster -> still in care (outcome_date kept as the censoring date)",8,1,8,8,1,8
+"stage",4,"map","outcome_type","","","","Adopted -> L, RTO -> L, Transfer -> T, Euth -> N",8,6,8,8,6,8
+"stage",5,"dedup","animal_id, intake_date, outcome_date","","","","drop all but the last row of each repeated animal_id, intake_date, outcome_date",8,0,8,8,0,8
+"stage",6,"cut","animal_id, intake_date, outcome_date","","","","drop the shorter stay of each pair of one animal's stays that overlap in time",8,0,8,8,0,8
+"stage",7,"cut","intake_date, outcome_date","","","","drop where outcome_date < 2021-01-01 or intake_date >= 2021-02-01",8,2,6,8,2,6
+"stage",8,"cut","intake_date, outcome_date","","","","drop stays that fall in a gap between periods",6,0,6,6,0,6
+"stage",9,"split","period_label","","","","one row per period a stay is observed in, left-truncated and censored at the period bounds",6,0,6,6,0,6
+"stage",10,"cut","time_start, time_end","","","","drop rows the cap or the truncation left with no time at risk (time_start >= time_end)",6,0,6,6,0,6
+"detail",1,"cut","outcome_type","cut","Wildlife","rows cut","",,1,,,1,
+"detail",3,"map","outcome_type","map from","Foster","rows mapped","",,1,,,1,
+"detail",4,"map","outcome_type","map from","Adopted","rows mapped","",,2,,,2,
+"detail",4,"map","outcome_type","map from","RTO","rows mapped","",,1,,,1,
+"detail",4,"map","outcome_type","map from","Transfer","rows mapped","",,1,,,1,
+"detail",4,"map","outcome_type","map from","Euth","rows mapped","",,2,,,2,

@@ -1,0 +1,108 @@
+# Test fixture: sim_size_mixture (statistical / simulation case)
+# -----------------------------------------------------------------------
+# STATIC HETEROGENEITY, nothing else: 70% SMALL dogs (daily outcome
+# probability q = 0.12, mean stay 8.33 days) and 30% LARGE dogs
+# (q = 0.03, mean stay 33.3 days), each perfectly memoryless, with NO
+# change of any kind over calendar time (see generator.R).
+#
+# The educational point: the POOLED (unadjusted) hazard declines with
+# tenure even though no individual dog's prospects ever change. The
+# fast-leaving small dogs drain out of the risk set first, so the
+# surviving population is increasingly made of long-staying large dogs.
+# This is the classic frailty / unobserved-heterogeneity artifact of
+# the survival literature in its simplest form, and the practical
+# lesson is an action: record size and stratify/adjust by it, and the
+# "deceleration" dissolves.
+#
+# Quantitatively, the pooled curve violates the fixed ratios a
+# memoryless process must obey between its summaries:
+#   memoryless:  mean ~ 1.44 x median,  90th percentile ~ 3.32 x median
+#   this mixture: mean/median = 15.57/8 = 1.95, p90/median = 38/8 = 4.75
+# Both pinned via expected_km. The fitted Weibull tells the same story:
+# WITHOUT the size term the shape comes out ~0.87 (a "declining hazard";
+# authoring-time scan mean 0.869, committed sample 0.886), WITH the size
+# term it comes out ~1.12, i.e. constant hazard up to the documented
+# whole-day discretization bias. Both fits run in the suite: the main
+# Weibull model shares the Cox formula (every recorded predictor), and
+# the unified companion (intercept + period only, reported at the
+# bottom of the Weibull worksheet) drops the size term -- its shape is
+# pinned at the ~0.87 pseudo-truth via expected_weibull$shape_unified.
+#
+# A field-known corollary, visible in the census: although LARGE dogs
+# are 30% of intakes, at steady state they are 63% of the animals in
+# residence -- census share of a group scales as intake share divided
+# by departure rate: (3/0.03) / (3/0.03 + 7/0.12) = 100/158.33 = 0.632.
+#
+# The two study periods are IDENTICAL by construction (no rate change,
+# no mix change), giving a true-null calibration check: the Cox period
+# hazard ratio must be 1, and both periods' KM statistics equal the
+# same mixture truths. No current sim pins a null effect otherwise.
+#
+# Timeline: intakes run from 2023-09-01 at Poisson(7)/day SMALL +
+# Poisson(3)/day LARGE; the first period starts 2024-05-01, about 7
+# time constants of the SLOW group (1/q = 33 days) later, so
+# observation opens at steady state with organically left-truncated
+# residents. Animals still in care on 2024-11-01 (the export date) are
+# right-censored.
+#
+# Generating truth (Q_S = 0.88, Q_L = 0.97, intake shares 0.7/0.3;
+# LOS geometric within group, exact at whole days, no day-rounding
+# bias in the KM/Cox layer):
+#   - Pooled survival at whole days m (intake-share weights, which is
+#     what the unified KM estimates at steady state):
+#       S(m) = 0.7 * 0.88^m + 0.3 * 0.97^m
+#     Median 8 (S(7) = 0.5275, S(8) = 0.4859; the margin is small, so
+#     sampling can land on 9). 90th percentile 38 (S(37) = 0.1034,
+#     S(38) = 0.0997, extremely borderline, hence the wide tolerance).
+#     Restricted mean at cap 120 = 0.7*(1-0.88^120)/0.12 +
+#     0.3*(1-0.97^120)/0.03 = 5.8333 + 9.7413 = 15.5746 (the LARGE
+#     tail past the cap, 0.97^120 = 0.0259, is genuinely cut: ~13
+#     committed stays are capped, exercising the capping accounting).
+#   - Per-group KM: SMALL median 6 (0.88^5 = 0.5277, 0.88^6 = 0.4644),
+#     rmean 8.3333; LARGE median 23 (0.97^22 = 0.5117, 0.97^23 =
+#     0.4963, borderline), rmean 32.4709.
+#   - Cox (reference SMALL, reference period 1): the grouped form of
+#     proportional hazards gives 1 - q_L = (1 - q_S)^theta with
+#     theta = ln(0.97)/ln(0.88) = 0.238258, the true LARGE hazard
+#     ratio; the period hazard ratio is exactly 1 (nothing changes).
+#   - Weibull regression (shares the Cox formula: period + size):
+#     true LOS ratio TR_LARGE = 33.33/8.33 = 4, TR_period = 1; the
+#     fitted shape's pseudo-truth is ~1.12 (constant hazard + the
+#     discretization bias of fitting a continuous Weibull to whole-day
+#     geometric stays; 20-seed scan mean 1.115, SD 0.022), and the
+#     implied HR_LARGE lands near the continuous-model 1/TR = 0.25.
+#     Tolerances cover bias + 4 SD, as in sim_weibull_truncation.
+#     The UNIFIED Weibull (intercept + period only) drops the size
+#     term, so its shape has pseudo-truth ~0.87 (scan mean 0.869,
+#     SD 0.018): the pooled hazard genuinely declines with tenure by
+#     composition, and the fit reports it.
+#   - Census (capped Little's law): the census statistic counts
+#     animal-days only up to restricted_stay_cap, so its steady-state
+#     truth is intakes/day x E[min(LOS, 120)] = 10 x 15.5746 = 155.75
+#     per period (not 10 x 15.83; see the cap note in
+#     sim_geometric_period_effect's settings). Flow: intakes/day = 10 =
+#     outcomes/day at steady state, in both periods.
+#
+# The unified KM pools the two sizes BY DESIGN here (that is the blind
+# view the case exists to exhibit); the stratified KM and the Cox/
+# Weibull fits are the sighted view of the same data.csv, side by side.
+# No AJ checks: causes stay at fixed shares (that dimension belongs to
+# sim_cause_rate_shift).
+#
+# plot_stay_cap windows the plots (rendered under --generate-outputs)
+# to the first 60 days, wide enough to show the LARGE median (23) and
+# the pooled curve's long tail; analyses and CSVs run to the 120-day
+# restricted_stay_cap.
+
+period_dates:
+  - 2024-05-01
+  - 2024-08-01
+  - 2024-11-01
+
+restricted_stay_cap: 120
+
+plot_stay_cap: 60
+
+animal_group_reference: SMALL
+
+parametric_regression: WEIBULL

@@ -1,0 +1,53 @@
+# Test fixture: outcome_type_without_date
+# -----------------------------------------------------------------------
+# The drop path of the outcome_type-with-no-outcome_date check, and the
+# ordering that makes the check safe to apply at all. Ten animals in one
+# period, 2021-01-01 to 2021-03-01, cap 30. Three rows carry a blank
+# outcome_date, and the run must treat each of them differently:
+#
+#   a7  L,    no date -> dropped (discard_bad_rows: true)
+#   a8  N,    no date -> dropped
+#   a9  HOLD, no date -> KEPT, still in care, because outcome_type_in_care
+#                        declares HOLD to mean the animal has not left. The
+#                        check runs after that recode, so the shielding is
+#                        what this row proves.
+#   a10 blank type, with a date -> KEPT, unclassified exit, censored at its
+#                        departure day. The check is about the other
+#                        direction and must not touch it.
+#
+# Under the default discard_bad_rows: false the same data stops the run;
+# that path is asserted by the validation section of run_tests.R, since a
+# fixture that trips a stop() aborts its own run.
+#
+# Eight rows therefore reach the analysis, none left-truncated (every
+# intake falls on or after the period start) and none dropped for an
+# invalid interval. Their time_end values, (outcome_date - intake_date) + 1
+# or the capped period remainder:
+#
+#   day  5, event: a1, a2, a6
+#   day 10, event: a3 (N), a4 (T), a5 (L)
+#   day 10, censored: a10
+#   day 30, censored: a9 (54 days to the period end, capped at 30)
+#
+# KM: S(t) = 1 below 5; 1 - 3/8 = 0.625 on [5, 10); 0.625 * (1 - 3/5) =
+# 0.25 from 10 onward (the three day-10 events precede the day-10
+# censoring, the usual tie convention). So median_los = 10 (the first day
+# S <= 0.5), n_events = 6, n_censored = 2, n_capped = 1, max_time = 30, and
+#   restricted_mean = 1*5 + 0.625*5 + 0.25*20 = 13.125.
+# percentile_90 is not reached: S never falls to 0.10.
+#
+# AJ: all three causes are present. Each day-10 event increments its own
+# CIF by S(5) * 1/5 = 0.125, so at day 10 CIF_N = CIF_T = 0.125 and
+# CIF_L = 3/8 + 0.125 = 0.5, summing to CIF_Any = 0.75 = 1 - S(10).
+# See tests/cases/outcome_type_without_date/expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-03-01
+
+restricted_stay_cap: 30
+
+outcome_type_in_care:
+  - "HOLD"
+
+discard_bad_rows: true

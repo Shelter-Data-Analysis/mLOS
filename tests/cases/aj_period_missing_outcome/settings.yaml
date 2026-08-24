@@ -1,0 +1,56 @@
+# Test fixture: aj_period_missing_outcome
+# -----------------------------------------------------------------------
+# First fixture to pin expected_aj_period values (the by-period AJ path
+# was previously only smoke-tested). Three periods with deliberately
+# asymmetric outcomes:
+#   Period_1: outcomes L and N   (both CIF columns present)
+#   Period_2: outcome L only     (no CIF_N/CondRem_N columns at all)
+#   Period_3: no events          (all censored -> "no analyzable outcomes",
+#             the period is skipped and per_period excludes it entirely)
+# This exercises the outcome-union logic in aj_conditional_by_period and
+# the per-period NULL-skip path.
+#
+# Periods: [2021-01-01, 2021-02-01), [2021-02-01, 2021-03-01),
+#          [2021-03-01, 2021-04-01). Cap 60 (> longest time_end 59, so no
+# capping). Animals are placed so nobody straddles the P1/P2 boundary:
+#   1: intake Jan 1,  L Jan  5 -> P1 event day  5
+#   2: intake Jan 1,  N Jan 10 -> P1 event day 10
+#   3: intake Jan 1,  L Jan  5 -> P1 event day  5
+#   4: intake Feb 1,  L Feb  8 -> P2 event day  8 (diff 7, +1)
+#   5: intake Feb 1,  L Feb  8 -> P2 event day  8
+#   6: intake Feb 1, in care   -> P2 row (0,28] censored at the boundary,
+#      then P3 row (28,59] left-truncated and censored at the window end
+#   7: intake Mar 5, in care   -> P3 row (0,27] censored
+# -> period_data: P1 3 rows, P2 3 rows, P3 2 rows = 8; 5 events, 3 censored.
+#
+# Hand-derived per-period AJ (each period tabulated to its own largest
+# fitted time: P1 days 0..10, P2 days 0..28; values hold flat after the
+# last within-period event out to that period's own grid end):
+#   P1: CIF_L(5) = 2/3 (3 at risk, 2 L events); CIF_N(10) = S(5)*1 =
+#       1/3 * 1 = 1/3; CIF_Any(10) = 1, so CondRem is NA from day 10 on
+#       (nobody left at risk). CondRem day 0: L = 2/3, N = 1/3. CondRem
+#       day 5: L = 0, N = (1/3 - 0)/(1 - 2/3) = 1.
+#   P2: CIF_L(8) = 2/3 (3 at risk, 2 L events); animal 6's censoring at 28
+#       changes nothing. No N outcome -> no CIF_N column (asserted as NA).
+#   P3: skipped (no events).
+#
+# Hand-derived unified KM (pooled rows, counting-process risk sets):
+#   day  5: 7 at risk (rows 1-5, 6's P2 row, 7), 2 events -> S = 5/7
+#   day  8: 5 at risk (2, 4, 5, 6-P2, 7),        2 events -> S = 3/7
+#   day 10: 3 at risk (2, 6-P2, 7),              1 event  -> S = 2/7
+#   censorings at 27, 28, 59; S holds at 2/7.
+# -> median = 8 (S(5) = 5/7 > 0.5, S(8) = 3/7 <= 0.5, no tie),
+#    percentile_90 = NA, max_time = 59,
+#    restricted mean (cap 60, flat extension) =
+#      5*1 + 3*(5/7) + 2*(3/7) + 50*(2/7) = 156/7 = 22.2857...
+# See expected.R.
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+  - 2021-03-01
+  - 2021-04-01
+
+restricted_stay_cap: 60
+
+discard_bad_rows: false

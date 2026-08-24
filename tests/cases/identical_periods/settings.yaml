@@ -1,0 +1,56 @@
+# Test fixture: identical_periods
+# -----------------------------------------------------------------------
+# Invariance check: two periods containing IDENTICAL data except for a
+# time shift. Intensive metrics of the unified period must then equal
+# those of each period separately -- specifically the KM curve and the
+# restricted mean. Pooling two copies of the same sample leaves every
+# empirical proportion unchanged, so any difference between the unified
+# and per-period results would expose a bookkeeping bug (mis-assigned
+# rows, spurious truncation/censoring at the boundary, or a pooled fit
+# that isn't really pooling).
+#
+# Two calendar months: P1 = [2021-01-01, 2021-02-01), P2 = [2021-02-01,
+# 2021-03-01). Cap 15 (never binds). Three animals per month, intaking
+# and outcoming on the SAME DAY OF THE RESPECTIVE MONTH (2nd->3rd,
+# 5th->8th, 10th->18th), so with LOS = date diff + 1 each month holds the
+# same LOS multiset {2, 4, 9}, all events, outcome L. No animal touches a
+# period boundary (latest outcome Jan 18 / Feb 18, earliest intake on the
+# 2nd), so there is no left truncation and no administrative censoring:
+# each period's rows are exactly (0,2], (0,4], (0,9], all event = 1.
+#
+# Hand-derived per-period KM (n = 3, no censoring -> empirical survival):
+#   S = 2/3 on [2,4), 1/3 on [4,9), 0 from 9.
+#   median = 4 (S(2) = 2/3 > 0.5, S(4) = 1/3 < 0.5, no exact tie).
+#   restricted mean (cap 15, curve hits 0 at 9 so the cap adds nothing)
+#     = 2*1 + 2*(2/3) + 5*(1/3) = 5 = mean(2, 4, 9), as it must be with
+#     no censoring.
+#
+# Hand-derived unified KM (6 rows, every multiplicity doubled): events at
+# days 2, 4, 9 with risk sets 6, 4, 2 -> S = 4/6, 2/6, 0 = the SAME curve.
+#   median = 4, percentile_90 = 9 (S(4) = 1/3 > 0.1, S(9) = 0 <= 0.1),
+#   restricted_mean = 5, max_time = 9.
+# Under --generate-outputs the golden CSVs show the curve equality
+# directly: the Period_1 and Period_2 columns of
+# km_survival_by_period.csv and the Probability_Still_In_Care column of
+# km_survival_unified.csv are identical, restricted-mean rows included.
+#
+# Cox (2 periods -> period predictor runs, reference = oldest): the two
+# periods are exchangeable at every event time (each risk set holds
+# equally many P1 and P2 rows, and each event day has one event from
+# each), so the partial-likelihood score at beta = 0 vanishes and the
+# fitted HR is exactly 1 -- tie handling included, since every event day
+# is a P1/P2 tie.
+#
+# Per-period stats separate intensive from extensive: the per-animal
+# quantities (counts, animal-days 2+4+9 = 15, in-care days 1+6+36 = 43
+# via (t_end - t_start - 1)*(t_end + t_start)/2) are identical, while the
+# per-day rates differ only through the month lengths (31 vs 28 days).
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+  - 2021-03-01
+
+restricted_stay_cap: 15
+
+discard_bad_rows: false

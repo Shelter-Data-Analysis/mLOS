@@ -1,0 +1,48 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+Rplots.pdf
+setwd.R
+*/
+!/data/
+!/tests/
+!/tests/**
+!/mlos_review/
+/tests/results/
+__pycache__/
+
+# ShelterDataPrep writes three files per dataset: <name>_data.csv, its
+# <name>_data_stats.csv processing ledger, and a <name>_data_run.txt log.
+# The prepared data and the ledger are tracked -- both are small, and the
+# ledger is the exclusion accounting behind the numbers.
+# The log is not: it records absolute paths, local timestamps and library
+# versions, so it differs on every run and every machine.
+/data/*_run.txt
+
+# Raw shelter extracts are not kept here at all. They are large, they are
+# published data, and they belong in a deposit with their own DOI rather than
+# in git history, where every version would live forever. The extract behind
+# OC1 and OC2 is deposited at 10.5281/zenodo.22051090.
+/data/*_raw.csv.gz
+
+# The Word exports of the guides are tracked, and make_docx.sh builds them.
+# Neither was true until 2026-08-23. A .docx is a zip archive, so it
+# neither diffs nor delta-compresses, and 74 commits of them had grown to a
+# third of the repository's packed size, which is why they were untracked in
+# the first place. What makes tracking them safe is the rule that replaced the
+# old habit: they are rebuilt for a release, not on every edit, so the history
+# gains a few hundred kilobytes a release rather than a few hundred a day.
+# Do not commit a rebuild alongside an ordinary documentation change.
+#
+# Whether a .docx matches its .md is answered by the version stamp both carry
+# and by the source commit make_docx.sh writes into the .docx, not by
+# modification time: python3 tests/show_doc_versions.py.
+
+# tools/ is already covered by the */ rule above, and stays that way. It holds
+# make_deposit.py, which stages the Zenodo deposits described in
+# PUBLISHING.md: a local packaging step run between a release and an upload,
+# not part of what an analysis run needs.
+tests/**/.DS_Store
+tests/**/.Rhistory

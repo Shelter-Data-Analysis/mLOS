@@ -1,0 +1,34 @@
+# Test fixture: in_care_days_boundary_neutrality
+# -----------------------------------------------------------------------
+# Companion to boundary_conventions: the SAME data.csv, but with the
+# interior period boundary removed (one period [2021-01-01, 2021-02-01)
+# instead of splitting at 2021-01-15). Pins that the occupancy metrics
+# are neutral to period splitting: each per-period value here must equal
+# the sum of boundary_conventions' two per-period values.
+#
+#   total_animal_days:      23 = 12 + 11
+#   total_intakes:           5 =  4 +  1
+#   total_in_care_days_sum: 52 = 20 + 32
+#
+# The in-care-days identity holds because nights are credited to the
+# period containing the following morning (a left-truncated row keeps
+# the boundary night at value t_start), the same convention as the
+# overnight census; before that fix the split run summed to 46, losing
+# one night per boundary-crossing stay.
+#
+# Hand derivation of 52 (contributions m..t_end-1, m = max(t_start, 1)):
+#   1: intake Jan  2, L Jan  2: (0,1] -> none (intraday)
+#   2: intake Jan 10, L Jan 15: (0,6] -> 1..5 = 15
+#   3: intake Jan 14, L Jan 20: (0,7] -> 1..6 = 21
+#   4: intake Jan 15, L Jan 18: (0,4] -> 1..3 =  6
+#   5: intake Jan  5, L Jan  9: (0,5] -> 1..4 = 10
+# Total 52; nights count 18 = total_animal_days - total_intakes = 23 - 5,
+# matching the overnight census night set (each stay: LOS - 1 nights).
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+
+restricted_stay_cap: 40
+
+discard_bad_rows: false

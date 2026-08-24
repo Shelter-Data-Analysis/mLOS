@@ -1,0 +1,104 @@
+# Test fixture: sim_geometric_period_effect (statistical / simulation case)
+# -----------------------------------------------------------------------
+# A TRUE PERIOD EFFECT with memoryless (geometric) stays: at the period
+# 1 -> 2 boundary, the rate at which animals in care have outcomes
+# DOUBLES, for every animal in care, including residents admitted
+# earlier (see generator.R). "Rate" is meant in the outcome-window sense
+# of Mavrovouniotis, Animals 2026, 16(8):1158, Section 2.5: outcomes
+# occur at a constant rate lambda within a window of duration T each
+# day, while the stay itself is counted in whole days. The daily
+# no-outcome probability is Q = exp(-lambda T), so doubling lambda
+# SQUARES it: Q1 = 0.94 before the boundary, Q2 = 0.94^2 = 0.8836 from
+# it, i.e. daily outcome probabilities q1 = 0.06 and q2 = 0.1164. This
+# is exactly the grouped (whole-day) form of proportional hazards, so
+# the Cox hazard ratio has true value exactly 2 -- the within-day rate
+# ratio. A neat consequence of Q2 = Q1^2: the period 2/3 survival curve
+# is the period 1 curve compressed two-fold in time, S_23(m) = S_1(2m).
+#
+# Like sim_weibull_truncation, the expected values are the KNOWN
+# PARAMETERS of the generating model, with tolerances sized to the
+# sampling error; the derivations are below.
+#
+# The educational point of this case: the Cox period hazard ratio sees
+# the doubled rate IMMEDIATELY and identically in periods 2 and 3,
+# while the census -- the number most shelters actually watch -- lags,
+# drifting from the old steady state toward the new one over period 2
+# and settling only in period 3. Little's law (mean census = daily
+# intakes x mean LOS = daily intakes / daily outcome probability)
+# therefore holds in periods 1 and 3 but NOT in period 2, which
+# inherits period 1's population and works it off: during period 2,
+# outcomes per day temporarily EXCEED intakes per day. Period 2 is
+# excluded from the census check for exactly that reason; its
+# hazard-based checks (KM median, restricted mean, AJ, Cox) remain
+# exact, because the rate shift sits ON its left boundary, so the
+# hazard is constant within every period.
+#
+# Timeline: intakes run from 2023-12-01 at Poisson(5) per day, four
+# months before the first period -- a notional "period 0" in which the
+# population builds from empty to steady state (time constant
+# 1/q1 ~ 17 days, so ~7 time constants) and which supplies the
+# left-truncated residents observed from 2024-04-01. Animals still in
+# care on 2025-01-01 (the export date) are right-censored.
+#
+# Generating truth (Q1 = 0.94 through 2024-06-30; Q2 = 0.94^2 = 0.8836
+# from 2024-07-01; causes L/T/N at 0.7/0.2/0.1). LOS is geometric
+# within a period, exact at whole days, with no day-rounding bias:
+#   - Survival at whole days m, per period p: S_p(m) = Q_p^m, and
+#     S_23(m) = S_1(2m).
+#   - Per-period KM medians (smallest m with S <= 0.5):
+#     Period 1: 12 (0.94^11 = 0.506, barely above 0.5, so sampling can
+#     land on 11; 0.94^12 = 0.476); Periods 2, 3: 6 (0.8836^5 = 0.539,
+#     0.8836^6 = 0.476).
+#   - Restricted means at cap 120 = sum of S over m = 0..119, and the
+#     cap is high enough that they equal the true mean LOS = 1/q to
+#     three decimals: Period 1: (1 - 0.94^120)/0.06 = 16.6567;
+#     Periods 2, 3: (1 - 0.8836^120)/0.1164 = 8.5911. (The cap is
+#     chosen so it effectively never binds: with a binding cap,
+#     animal-days beyond it are not counted, which would shave a few
+#     percent off both the restricted means and the census, muddying
+#     the Little's law check.)
+#   - Cox period hazard ratios (reference OLDEST = Period 1): exactly 2,
+#     the within-day rate ratio, since 1 - q2 = (1 - q1)^2 is grouped
+#     proportional hazards with ratio 2. The Efron tie approximation
+#     (see the math document, Section 6.2) targets precisely this rate
+#     ratio: a 4-replicate pseudo-truth run at 12x the intake rate
+#     measured 1.994 and 2.013 (SE ~ 0.02-0.04) at authoring time.
+#     Periods 2 and 3 share the same true hazard, so the two fields
+#     check the SAME truth twice.
+#   - Little's law census (mean_census = total animal-days / period
+#     days): Period 1: 5/0.06 = 83.333; Period 3: 5/0.1164 = 42.955;
+#     Period 2: NOT checked -- it averages roughly 46.5 on its way down
+#     (closed-form geometric relaxation; the committed sample shows
+#     ~51), deliberately left unchecked as the illustration of Little's
+#     law failing off steady state.
+#   - Flow: mean_daily_intakes = 5 in every period; mean_daily_outcomes
+#     = 5 in periods 1 and 3 (outflow = inflow at steady state), but
+#     ~5.44 in period 2: the inherited excess population (83.333 -
+#     42.955 = 40.4 animals) leaves during the period, adding 40.4/92
+#     = 0.44 per day.
+#   - AJ conditional-by-period: cause is independent of stay length, so
+#     per period CIF_Any(m) = 1 - S_p(m) and CIF_cause = p_cause *
+#     CIF_Any. The two-fold compression makes Period_2/3 at day 6 equal
+#     Period_1 at day 12: CIF_Any = 1 - 0.94^12 = 0.52408 in both.
+#     CondRem's exact estimand is p_cause * (1 - S(tau)/S(x)) with tau
+#     the last tabulated day (its denominator includes animals still
+#     undetermined at tau); at cap 120 the correction factor is < 0.001,
+#     so CondRem_cause = p_cause holds to three decimals.
+#
+# No intake_type or animal_group column: this case isolates the period
+# dimension (sim_weibull_truncation covers group effects), so the Cox
+# model has the period factor as its only predictor.
+#
+# plot_stay_cap windows the plots (rendered under --generate-outputs) to
+# the first 30 days; the analyses and exported CSVs run to the 120-day
+# restricted_stay_cap.
+
+period_dates:
+  - 2024-04-01
+  - 2024-07-01
+  - 2024-10-01
+  - 2025-01-01
+
+restricted_stay_cap: 120
+
+plot_stay_cap: 30

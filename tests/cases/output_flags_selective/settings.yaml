@@ -1,0 +1,40 @@
+# Test fixture: output_flags_selective
+# -----------------------------------------------------------------------
+# Pins the six per-stratified-output emission flags (km_survival_by_stratifier,
+# km_remaining_los_by_stratifier, km_census_by_tenure_by_stratifier,
+# km_in_care_tenure_by_stratifier, aj_cif_by_stratifier,
+# aj_conditional_by_stratifier). Reuses the 8-animal data of
+# stratified_km_animal_group / max_plot_strata_off (SMALL LOS 1,2,3;
+# LARGE LOS 4,5,6,7,8), one animal_group stratifier with 2 levels.
+#
+# Each of the four accepted values is exercised at least once, spread
+# across the six families, so the golden manifests prove every branch:
+#   PNG   -> plot only, no CSV
+#   CSV   -> CSV only, no plot
+#   FALSE -> neither file
+#   TRUE  -> both files
+# The whole contract lives in the golden png_manifest.txt (which stratified
+# PNGs exist) sitting next to the golden CSV set (which stratified CSVs
+# exist). The unified outputs (km_survival_unified, aj_cif_unified,
+# aj_conditional_unified_stack, cox_hazard_ratios) are unaffected by
+# these settings and must appear regardless.
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+
+restricted_stay_cap: 20
+
+km_survival_by_stratifier: PNG
+km_remaining_los_by_stratifier: CSV
+km_census_by_tenure_by_stratifier: FALSE
+km_in_care_tenure_by_stratifier: TRUE
+aj_cif_by_stratifier: CSV
+aj_conditional_by_stratifier: FALSE
+
+# Same rationale as stratified_km_animal_group: SMALL and LARGE never
+# overlap, so Cox on animal_group is complete separation. Referencing the
+# faster group keeps the divergence at HR -> 0 rather than HR -> +Inf.
+animal_group_reference: SMALL
+
+discard_bad_rows: false

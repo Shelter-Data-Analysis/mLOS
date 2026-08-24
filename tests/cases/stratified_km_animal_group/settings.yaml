@@ -1,0 +1,53 @@
+# Test fixture: stratified_km_animal_group
+# -----------------------------------------------------------------------
+# 10 animals, all with the same intake date, split into two named
+# animal_group strata plus two rows whose animal_group is BLANK. The
+# blanks are the point of the extension: mLOS never analyzes an optional
+# stratification column with missing values -- .fill_missing_level turns
+# them into an explicit "_UNKNOWN_" level -- and this fixture pushes that
+# level through the FULL pipeline (stratified KM, by-group AJ, Cox,
+# per-stratum observation/census/flow stats, plots, Excel) with exact
+# hand-derived truths. The unit-level fill
+# behavior (label escalation, constructed-group fills, analyzable-level
+# counting) is asserted in run_tests.R's validation section; this is the
+# integration counterpart.
+#
+# LOS layout (distinct, non-overlapping constant-spread days; single
+# period wide enough to avoid any truncation, censoring, or capping, so
+# every curve is exact: with n distinct animals and no censoring,
+# survival right after the k-th smallest event = (n-k)/n):
+#   SMALL     (n=3): LOS 1,2,3   -> S = 2/3, 1/3, 0
+#     -> median = 2, restricted_mean = 1 + 2/3 + 1/3 = 2.
+#   LARGE     (n=5): LOS 4..8    -> S = 0.8,0.6,0.4,0.2,0
+#     -> median = 6, restricted_mean = 4 + 0.8+0.6+0.4+0.2 = 6.
+#   _UNKNOWN_ (n=2): LOS 9,10    -> S = 0.5, 0
+#     -> S(9) = 0.5 EXACTLY, so the median is the midpoint of that
+#        one-day step: 9.5 (the tie-breaking rule discovered in
+#        aj_competing_risks_mixed and exercised twice more below).
+# Pooled/unified (n=10, event days 1..10, no ties): S after the k-th
+# event = (10-k)/10, so
+#   - S(5)  = 0.5 exactly  -> median = 5.5 (midpoint again);
+#   - S(9)  = 0.1 exactly  -> percentile_90 = 9.5 (the same midpoint
+#     rule at the 0.10 threshold, previously unexercised by any case);
+#   - restricted_mean = (10+9+...+1)/10 = 5.5.
+# See expected.R for the exact values (verified directly against
+# survfit()/summary() before being written down).
+
+period_dates:
+  - 2021-01-01
+  - 2021-02-01
+
+restricted_stay_cap: 20
+
+# SMALL (days 1-3), LARGE (days 4-8), and _UNKNOWN_ (days 9-10) never
+# overlap, so Cox regression on animal_group is genuine complete
+# separation -- both coefficients diverge. Reference the fastest-
+# resolving group (SMALL) rather than the default most-frequent choice
+# (LARGE), so each divergence is HR -> 0 (bounded, underflows
+# gracefully) rather than HR -> +Inf (risks float overflow and breaks
+# downstream CI/formatting math). See expected.R.
+animal_group_reference: SMALL
+
+# The blank animal_group cells must be filled, NOT treated as bad rows:
+# this stays false to pin that distinction.
+discard_bad_rows: false

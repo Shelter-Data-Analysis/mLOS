@@ -1,0 +1,4 @@
+"variable","hr","ci_lower","ci_upper","p_value"
+"animal_groupLARGE",7.54414673886066e-11,0,Inf,0.971665295509748
+"animal_groupSMALL",1,NA,NA,NA
+"animal_group_UNKNOWN_",7.33342477639326e-20,0,Inf,0.950127644872398

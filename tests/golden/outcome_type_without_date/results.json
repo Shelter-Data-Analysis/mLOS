@@ -1,0 +1,906 @@
+{
+  "schema_version": 5,
+  "run": {
+    "mlos_version": "(version)",
+    "generated_at": "(run time)",
+    "data_file": "(project root)/tests/cases/outcome_type_without_date/data.csv",
+    "settings_file": "(project root)/tests/cases/outcome_type_without_date/settings.yaml",
+    "output_dir": "(project root)/tests/results/outcome_type_without_date",
+    "log_file": "(none: test-suite run)"
+  },
+  "settings": {
+    "restricted_stay_cap": 30,
+    "period_reference": "OLDEST",
+    "intake_type_reference": null,
+    "animal_group_reference": null,
+    "animal_group_columns": null,
+    "parametric_regression": false,
+    "weibull_shape_crossing": false,
+    "discard_bad_rows": true,
+    "discard_overlapping_rows": false,
+    "intake_filter": null,
+    "animal_group_filter": null,
+    "other_filter": null,
+    "outcome_type_delete": null,
+    "outcome_type_in_care": {
+      "type": "named_vector",
+      "names": ["HOLD"],
+      "values": ["HOLD"]
+    },
+    "outcome_type_mapping": null,
+    "periods": {
+      "type": "table",
+      "columns": {
+        "period_num": [1],
+        "start_date": ["2021-01-01"],
+        "end_date": ["2021-03-01"],
+        "period_label": ["Period_1"],
+        "duration_days": [59]
+      }
+    },
+    "window_days": 59,
+    "n_periods_present": 1,
+    "coverage": {
+      "period": {
+        "label": "Period",
+        "included": false,
+        "n": 1
+      },
+      "intake": {
+        "label": "Intake type",
+        "included": false,
+        "n": 0
+      },
+      "group": {
+        "label": "Animal group",
+        "included": false,
+        "n": 0
+      }
+    },
+    "presentation": {
+      "plot_stay_cap": 30,
+      "max_plot_strata": 10,
+      "show_km_ci_ribbons": false,
+      "show_aj_cif_ci_ribbons": false,
+      "png_pointsize_factor": 1,
+      "png_line_width_factor": 1,
+      "output_flags": {
+        "km_survival_by_stratifier": {
+          "type": "named_vector",
+          "names": ["png", "csv"],
+          "values": [true, true]
+        },
+        "km_remaining_los_by_stratifier": {
+          "type": "named_vector",
+          "names": ["png", "csv"],
+          "values": [true, true]
+        },
+        "km_census_by_tenure_by_stratifier": {
+          "type": "named_vector",
+          "names": ["png", "csv"],
+          "values": [true, true]
+        },
+        "km_in_care_tenure_by_stratifier": {
+          "type": "named_vector",
+          "names": ["png", "csv"],
+          "values": [true, true]
+        },
+        "aj_cif_by_stratifier": {
+          "type": "named_vector",
+          "names": ["png", "csv"],
+          "values": [true, true]
+        },
+        "aj_conditional_by_stratifier": {
+          "type": "named_vector",
+          "names": ["png", "csv"],
+          "values": [true, true]
+        }
+      }
+    }
+  },
+  "unified": {
+    "study_start": "2021-01-01",
+    "study_end": "2021-03-01",
+    "restricted_stay_cap": 30,
+    "max_time": 30,
+    "n_total": 8,
+    "n_events": 6,
+    "n_censored": 2,
+    "n_capped": 1,
+    "fraction_capped": 0.125,
+    "fraction_capped_ci_lower": 0.0031597235312519093,
+    "fraction_capped_ci_upper": 0.52650967087520661,
+    "still_in_care_at_cap": 0.25,
+    "still_in_care_at_cap_ci_lower": 0.07528139295608835,
+    "still_in_care_at_cap_ci_upper": 0.83021843175054244,
+    "median_los": 10,
+    "median_los_ci_lower": 5,
+    "median_los_ci_upper": null,
+    "percentile_90": null,
+    "percentile_90_ci_lower": 10,
+    "percentile_90_ci_upper": null,
+    "restricted_mean": 13.125,
+    "restricted_mean_se": 3.5286218095738171,
+    "restricted_mean_ci_lower": 6.2089012532353189,
+    "restricted_mean_ci_upper": 20.041098746764682,
+    "gaps": {
+      "type": "table",
+      "columns": {
+        "analysis": [],
+        "stratum": [],
+        "gap_start_day": [],
+        "gap_end_day": []
+      }
+    }
+  },
+  "palette": {
+    "stratum_colors": ["#006400", "#0000FF", "#FF0000", "#FFA500", "#A020F0", "#A52A2A", "#FFC0CB", "#666666", "#00FFFF", "#FF00FF", "#000000", "#CDAD00", "#00868B"],
+    "outcome_colors": {
+      "type": "named_vector",
+      "names": ["L", "T", "N"],
+      "values": ["#006400", "#0000FF", "#FF0000"]
+    },
+    "outcome_labels": {
+      "type": "named_vector",
+      "names": ["L", "T", "N"],
+      "values": ["L community live", "T other live", "N non-live"]
+    },
+    "outcome_order": ["L", "T", "N"]
+  },
+  "data_preparation": {
+    "has_register": true,
+    "rows_read": 10,
+    "rows_prepared": 8,
+    "attrition": {
+      "type": "table",
+      "columns": {
+        "step": ["blank_records", "outcome_type_without_date", "duplicate_stays", "overlapping_stays", "outside_study_window"],
+        "rows_before": [10, 10, 8, 8, 8],
+        "rows_after": [10, 8, 8, 8, 8],
+        "rows_removed": [0, 2, 0, 0, 0]
+      }
+    },
+    "ledger": {
+      "type": "table",
+      "columns": {
+        "step": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "name": ["read", "blank_records", "outcome_type_in_care", "outcome_type_without_date", "duplicate_stays", "overlapping_stays", "outside_study_window", "no_period", "period_split", "invalid_interval"],
+        "action": ["read", "cut", "map", "cut", "dedup", "cut", "cut", "cut", "split", "cut"],
+        "column": ["data.csv", "intake_date, outcome_date, outcome_type", "outcome_type", "outcome_type, outcome_date", "animal_id, intake_date, outcome_date", "animal_id, intake_date, outcome_date", "intake_date, outcome_date", "intake_date, outcome_date", "period_label", "time_start, time_end"],
+        "detail": ["4 column(s)", "drop rows with none of intake_date, outcome_date, outcome_type", "HOLD -> still in care (outcome_date kept as the censoring date)", "drop rows carrying an outcome_type with no outcome_date", "drop all but the last row of each repeated animal_id, intake_date, outcome_date", "drop the shorter stay of each pair of one animal's stays that overlap in time", "drop where outcome_date < 2021-01-01 or intake_date >= 2021-03-01", "drop stays that fall in a gap between periods", "one row per period a stay is observed in, left-truncated and censored at the period bounds", "drop rows the cap or the truncation left with no time at risk (time_start >= time_end)"],
+        "rows_in": [10, 10, 10, 10, 8, 8, 8, 8, 8, 8],
+        "rows_affected": [0, 0, 1, 2, 0, 0, 0, 0, 0, 0],
+        "rows_out": [10, 10, 10, 8, 8, 8, 8, 8, 8, 8],
+        "animal_id_in": [10, 10, 10, 10, 8, 8, 8, 8, 8, 8],
+        "animal_id_affected": [0, 0, 1, 2, 0, 0, 0, 0, 0, 0],
+        "animal_id_out": [10, 10, 10, 8, 8, 8, 8, 8, 8, 8]
+      }
+    },
+    "ledger_detail": {
+      "type": "table",
+      "columns": {
+        "step": [2],
+        "action": ["map"],
+        "column": ["outcome_type"],
+        "role": ["map from"],
+        "value": ["HOLD"],
+        "scope": ["rows mapped"],
+        "rows_affected": [1],
+        "animal_id_affected": [1]
+      }
+    },
+    "recoded_in_care": 1,
+    "mapped_intake_type": {
+      "type": "table",
+      "columns": {
+        "from": [],
+        "to": [],
+        "rows_mapped": []
+      }
+    },
+    "mapped_animal_group": {
+      "type": "table",
+      "columns": {
+        "from": [],
+        "to": [],
+        "rows_mapped": []
+      }
+    },
+    "animal_ids_supplied": true,
+    "n_animals": 8,
+    "stays_in_care": 1,
+    "stays_censored_early": 1,
+    "stays_with_outcome": 6,
+    "study_window_start": "2021-01-01",
+    "study_window_end": "2021-03-01",
+    "intake_date_first": "2021-01-01",
+    "intake_date_last": "2021-01-07",
+    "outcome_date_first": "2021-01-05",
+    "outcome_date_last": "2021-01-16",
+    "animals_with_multiple_rows": 0,
+    "animals_with_repeat_stays": 0,
+    "stays_split_across_periods": 0,
+    "dropped_invalid_times_total": 0,
+    "dropped_invalid_times_by_period": {
+      "type": "table",
+      "columns": {
+        "period_num": [1],
+        "period_label": ["Period_1"],
+        "dropped_invalid_rows": [0]
+      }
+    },
+    "rows_analyzed": 8
+  },
+  "cox": {
+    "has_analysis": false,
+    "message": "no predictors available (fewer than two periods with data, no intake_type/animal_group)"
+  },
+  "weibull": {
+    "has_analysis": false,
+    "message": null
+  },
+  "aj": {
+    "has_analysis": true,
+    "outcome_states": ["L", "T", "N"],
+    "max_time": 30,
+    "rmtl": {
+      "type": "table",
+      "columns": {
+        "state": ["(s0)", "L", "T", "N", "Any"],
+        "rmean": [13.125, 11.875, 2.5, 2.5, 16.875],
+        "se": [3.5286218095738162, 4.2331928700450208, 2.3385358667337135, 2.3385358667337135, 3.5286218095738162],
+        "ci_lower": [6.2089012532353207, 3.5779419747117593, -2.0835302987980784, -2.0835302987980784, 9.9589012532353216],
+        "ci_upper": [20.041098746764678, 20.172058025288241, 7.0835302987980784, 7.0835302987980784, 23.791098746764678]
+      }
+    },
+    "rmtl_cap": 30
+  },
+  "strata": {
+    "period": {
+      "labels": "Period_1",
+      "observations": {
+        "type": "matrix",
+        "rows": ["duration_days", "total_observations", "events", "censored", "left_truncated", "right_censored", "capped_at_restricted_stay_cap", "mean_days_at_risk", "total_animal_days", "mean_census_inventory", "total_in_care_days_sum", "daily_mean_total_in_care_days", "total_intakes", "total_outcomes", "mean_daily_intakes", "mean_daily_outcomes"],
+        "columns": ["Period_1"],
+        "values": [
+          [59],
+          [8],
+          [6],
+          [2],
+          [0],
+          [2],
+          [1],
+          [10.625],
+          [85],
+          [1.4406779661016949],
+          [645],
+          [10.932203389830509],
+          [8],
+          [6],
+          [0.13559322033898305],
+          [0.10169491525423729]
+        ]
+      },
+      "outcomes": {
+        "type": "matrix",
+        "rows": ["completed_outcomes_total", "outcome_L_events", "outcome_T_events", "outcome_N_events"],
+        "columns": ["Period_1"],
+        "values": [
+          [6],
+          [4],
+          [1],
+          [1]
+        ]
+      },
+      "mix": {
+        "type": "matrix",
+        "rows": ["outcome_mix_L", "outcome_mix_T", "outcome_mix_N"],
+        "columns": ["Period_1"],
+        "values": [
+          [0.66666666666666663],
+          [0.16666666666666666],
+          [0.16666666666666666]
+        ]
+      },
+      "incidence": {
+        "type": "matrix",
+        "rows": ["incidence_overall_per_100_animal_days", "incidence_L_per_100_animal_days", "incidence_T_per_100_animal_days", "incidence_N_per_100_animal_days"],
+        "columns": ["Period_1"],
+        "values": [
+          [7.0588235294117645],
+          [4.7058823529411766],
+          [1.1764705882352942],
+          [1.1764705882352942]
+        ]
+      },
+      "km": {
+        "type": "matrix",
+        "rows": ["km_median_los", "km_p90_los", "km_restricted_mean", "km_past_days_per_intake", "km_future_days_per_intake", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_restricted_mean_se", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper"],
+        "columns": ["Period_1"],
+        "values": [
+          [10],
+          [null],
+          [13.125],
+          [129.375],
+          [142.5],
+          [5],
+          [null],
+          [10],
+          [null],
+          [6.2089012532353189],
+          [20.041098746764682],
+          [3.5286218095738171],
+          [0.25],
+          [0.07528139295608835],
+          [0.83021843175054244]
+        ]
+      },
+      "census": {
+        "type": "matrix",
+        "rows": ["mean_census_inventory", "daily_mean_total_in_care_days", "expected_census", "expected_past_animal_days", "expected_future_animal_days", "per_resident_in_care_days", "per_resident_past_days", "per_resident_future_days", "per_resident_past_days_restricted_median", "per_resident_past_days_restricted_p90", "remaining_days_at_mean_tenure", "remaining_days_at_median_tenure", "remaining_days_at_p90_tenure"],
+        "columns": ["Period_1"],
+        "values": [
+          [1.4406779661016949],
+          [10.932203389830509],
+          [1.7796610169491525],
+          [17.542372881355931],
+          [19.322033898305083],
+          [7.5882352941176476],
+          [9.8571428571428577],
+          [10.857142857142856],
+          [7],
+          [24],
+          [9],
+          [11],
+          [6]
+        ]
+      },
+      "aj_final_cif": {
+        "type": "matrix",
+        "rows": ["aj_final_cif_Any", "aj_final_cif_L", "aj_final_cif_T", "aj_final_cif_N"],
+        "columns": ["Period_1"],
+        "values": [
+          [0.75],
+          [0.5],
+          [0.125],
+          [0.125]
+        ]
+      },
+      "aj_restricted_mean": {
+        "type": "matrix",
+        "rows": ["aj_restricted_mean_Any", "aj_restricted_mean_L", "aj_restricted_mean_T", "aj_restricted_mean_N"],
+        "columns": ["Period_1"],
+        "values": [
+          [7.5],
+          [6.25],
+          [10],
+          [10]
+        ]
+      },
+      "aj_rmtl": {
+        "type": "matrix",
+        "rows": ["aj_rmst_stay", "aj_rmtl_Any", "aj_rmtl_L", "aj_rmtl_T", "aj_rmtl_N"],
+        "columns": ["Period_1"],
+        "values": [
+          [13.125],
+          [16.875],
+          [11.875],
+          [2.5],
+          [2.5]
+        ]
+      },
+      "aj_window": {
+        "type": "matrix",
+        "rows": ["aj_analysis_window_days"],
+        "columns": ["Period_1"],
+        "values": [
+          [30]
+        ]
+      },
+      "ci": {
+        "type": "matrix",
+        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_overall_per_100_animal_days", "incidence_overall_per_100_animal_days_ci_lower", "incidence_overall_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
+        "columns": ["Period_1"],
+        "values": [
+          [0.125],
+          [0.0031597235312519093],
+          [0.52650967087520661],
+          [0.13559322033898305],
+          [0.058539528419466136],
+          [0.26717269864734433],
+          [0.10169491525423729],
+          [0.037320241584590699],
+          [0.22134701733082518],
+          [0.66666666666666663],
+          [0.22277809550351219],
+          [0.95672813170725823],
+          [0.16666666666666666],
+          [0.0042107445144894742],
+          [0.64123457899767478],
+          [0.16666666666666666],
+          [0.0042107445144894742],
+          [0.64123457899767478],
+          [7.0588235294117645],
+          [2.5904638276362952],
+          [15.3640870853161],
+          [4.7058823529411766],
+          [1.2821945572074416],
+          [12.048927853416115],
+          [1.1764705882352942],
+          [0.02978565645210576],
+          [6.5548745775751742],
+          [1.1764705882352942],
+          [0.02978565645210576],
+          [6.5548745775751742],
+          [10],
+          [5],
+          [null],
+          [null],
+          [10],
+          [null],
+          [13.125],
+          [6.2089012532353189],
+          [20.041098746764682],
+          [0.25],
+          [0.07528139295608835],
+          [0.83021843175054244],
+          [1.7796610169491525],
+          [0.7451777696878028],
+          [4.2502520392891059],
+          [0.75],
+          [0.16978156824945756],
+          [0.92471860704391162],
+          [0.5],
+          [0.25004882186280469],
+          [0.9998047506785237],
+          [0.125],
+          [0.019984067022007647],
+          [0.78187287816803397],
+          [0.125],
+          [0.019984067022007647],
+          [0.78187287816803397],
+          [13.125],
+          [6.2089012532353207],
+          [20.041098746764678],
+          [16.875],
+          [9.9589012532353216],
+          [23.791098746764678],
+          [11.875],
+          [3.5779419747117593],
+          [20.172058025288241],
+          [2.5],
+          [-2.0835302987980784],
+          [7.0835302987980784],
+          [2.5],
+          [-2.0835302987980784],
+          [7.0835302987980784]
+        ]
+      },
+      "weibull_shape": {
+        "has_analysis": false,
+        "message": "not a predictor in the pooled Weibull regression, fewer than two qualifying predictors, parametric_regression is not WEIBULL, or the pooled Weibull fit failed"
+      },
+      "cox_stratified": {
+        "has_analysis": false,
+        "message": "not a predictor in the pooled Cox regression, fewer than two qualifying predictors, or Cox regression was skipped"
+      }
+    },
+    "all": {
+      "labels": "All",
+      "observations": {
+        "type": "matrix",
+        "rows": ["duration_days", "total_observations", "events", "censored", "left_truncated", "right_censored", "capped_at_restricted_stay_cap", "mean_days_at_risk", "total_animal_days", "mean_census_inventory", "total_in_care_days_sum", "daily_mean_total_in_care_days", "total_intakes", "total_outcomes", "mean_daily_intakes", "mean_daily_outcomes"],
+        "columns": ["All"],
+        "values": [
+          [59],
+          [8],
+          [6],
+          [2],
+          [0],
+          [2],
+          [1],
+          [10.625],
+          [85],
+          [1.4406779661016949],
+          [645],
+          [10.932203389830509],
+          [8],
+          [6],
+          [0.13559322033898305],
+          [0.10169491525423729]
+        ]
+      },
+      "outcomes": {
+        "type": "matrix",
+        "rows": ["completed_outcomes_total", "outcome_L_events", "outcome_T_events", "outcome_N_events"],
+        "columns": ["All"],
+        "values": [
+          [6],
+          [4],
+          [1],
+          [1]
+        ]
+      },
+      "mix": {
+        "type": "matrix",
+        "rows": ["outcome_mix_L", "outcome_mix_T", "outcome_mix_N"],
+        "columns": ["All"],
+        "values": [
+          [0.66666666666666663],
+          [0.16666666666666666],
+          [0.16666666666666666]
+        ]
+      },
+      "incidence": {
+        "type": "matrix",
+        "rows": ["incidence_overall_per_100_animal_days", "incidence_L_per_100_animal_days", "incidence_T_per_100_animal_days", "incidence_N_per_100_animal_days"],
+        "columns": ["All"],
+        "values": [
+          [7.0588235294117645],
+          [4.7058823529411766],
+          [1.1764705882352942],
+          [1.1764705882352942]
+        ]
+      },
+      "km": {
+        "type": "matrix",
+        "rows": ["km_median_los", "km_p90_los", "km_restricted_mean", "km_past_days_per_intake", "km_future_days_per_intake", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_restricted_mean_se", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper"],
+        "columns": ["All"],
+        "values": [
+          [10],
+          [null],
+          [13.125],
+          [129.375],
+          [142.5],
+          [5],
+          [null],
+          [10],
+          [null],
+          [6.2089012532353189],
+          [20.041098746764682],
+          [3.5286218095738171],
+          [0.25],
+          [0.07528139295608835],
+          [0.83021843175054244]
+        ]
+      },
+      "census": {
+        "type": "matrix",
+        "rows": ["mean_census_inventory", "daily_mean_total_in_care_days", "expected_census", "expected_past_animal_days", "expected_future_animal_days", "per_resident_in_care_days", "per_resident_past_days", "per_resident_future_days", "per_resident_past_days_restricted_median", "per_resident_past_days_restricted_p90", "remaining_days_at_mean_tenure", "remaining_days_at_median_tenure", "remaining_days_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [1.4406779661016949],
+          [10.932203389830509],
+          [1.7796610169491525],
+          [17.542372881355931],
+          [19.322033898305083],
+          [7.5882352941176476],
+          [9.8571428571428577],
+          [10.857142857142856],
+          [7],
+          [24],
+          [9],
+          [11],
+          [6]
+        ]
+      },
+      "aj_final_cif": {
+        "type": "matrix",
+        "rows": ["aj_final_cif_Any", "aj_final_cif_L", "aj_final_cif_T", "aj_final_cif_N"],
+        "columns": ["All"],
+        "values": [
+          [0.75],
+          [0.5],
+          [0.125],
+          [0.125]
+        ]
+      },
+      "aj_restricted_mean": {
+        "type": "matrix",
+        "rows": ["aj_restricted_mean_Any", "aj_restricted_mean_L", "aj_restricted_mean_T", "aj_restricted_mean_N"],
+        "columns": ["All"],
+        "values": [
+          [7.5],
+          [6.25],
+          [10],
+          [10]
+        ]
+      },
+      "aj_rmtl": {
+        "type": "matrix",
+        "rows": ["aj_rmst_stay", "aj_rmtl_Any", "aj_rmtl_L", "aj_rmtl_T", "aj_rmtl_N"],
+        "columns": ["All"],
+        "values": [
+          [13.125],
+          [16.875],
+          [11.875],
+          [2.5],
+          [2.5]
+        ]
+      },
+      "aj_window": {
+        "type": "matrix",
+        "rows": ["aj_analysis_window_days"],
+        "columns": ["All"],
+        "values": [
+          [30]
+        ]
+      },
+      "ci": {
+        "type": "matrix",
+        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_overall_per_100_animal_days", "incidence_overall_per_100_animal_days_ci_lower", "incidence_overall_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
+        "columns": ["All"],
+        "values": [
+          [0.125],
+          [0.0031597235312519093],
+          [0.52650967087520661],
+          [0.13559322033898305],
+          [0.058539528419466136],
+          [0.26717269864734433],
+          [0.10169491525423729],
+          [0.037320241584590699],
+          [0.22134701733082518],
+          [0.66666666666666663],
+          [0.22277809550351219],
+          [0.95672813170725823],
+          [0.16666666666666666],
+          [0.0042107445144894742],
+          [0.64123457899767478],
+          [0.16666666666666666],
+          [0.0042107445144894742],
+          [0.64123457899767478],
+          [7.0588235294117645],
+          [2.5904638276362952],
+          [15.3640870853161],
+          [4.7058823529411766],
+          [1.2821945572074416],
+          [12.048927853416115],
+          [1.1764705882352942],
+          [0.02978565645210576],
+          [6.5548745775751742],
+          [1.1764705882352942],
+          [0.02978565645210576],
+          [6.5548745775751742],
+          [10],
+          [5],
+          [null],
+          [null],
+          [10],
+          [null],
+          [13.125],
+          [6.2089012532353189],
+          [20.041098746764682],
+          [0.25],
+          [0.07528139295608835],
+          [0.83021843175054244],
+          [1.7796610169491525],
+          [0.7451777696878028],
+          [4.2502520392891059],
+          [0.75],
+          [0.16978156824945756],
+          [0.92471860704391162],
+          [0.5],
+          [0.25004882186280469],
+          [0.9998047506785237],
+          [0.125],
+          [0.019984067022007647],
+          [0.78187287816803397],
+          [0.125],
+          [0.019984067022007647],
+          [0.78187287816803397],
+          [13.125],
+          [6.2089012532353207],
+          [20.041098746764678],
+          [16.875],
+          [9.9589012532353216],
+          [23.791098746764678],
+          [11.875],
+          [3.5779419747117593],
+          [20.172058025288241],
+          [2.5],
+          [-2.0835302987980784],
+          [7.0835302987980784],
+          [2.5],
+          [-2.0835302987980784],
+          [7.0835302987980784]
+        ]
+      },
+      "unified_stay_counts": {
+        "type": "table",
+        "columns": {
+          "period_label": ["All"],
+          "total_stays": [8],
+          "left_truncated_stays": [0],
+          "right_censored_stays": [2]
+        }
+      }
+    }
+  },
+  "outputs": [
+    {
+      "csv": "km_survival_unified.csv",
+      "plot": "km_survival_unified.png",
+      "kind": "km_survival",
+      "stratifier": "all",
+      "outcome": null,
+      "variant": "lines",
+      "description": "Unified Kaplan-Meier survival curve over all data.",
+      "x": {
+        "column": "days",
+        "units": "days since intake",
+        "note": "integer tenure; the grid runs 0..restricted_stay_cap - 1"
+      },
+      "values": {
+        "columns": "probability_still_in_care and its 95% CI bounds",
+        "units": "probability",
+        "meaning": "probability a stay is still in care at tenure d"
+      },
+      "aggregate": {
+        "row": "restricted_mean",
+        "units": "days",
+        "meaning": "restricted mean stay, the column sum of the survival grid",
+        "derivation": "column_sum"
+      }
+    },
+    {
+      "csv": "km_remaining_los_unified.csv",
+      "plot": "km_remaining_los_unified.png",
+      "kind": "km_remaining_los",
+      "stratifier": "all",
+      "outcome": null,
+      "variant": "lines",
+      "description": "Remaining length of stay by tenure, over all data.",
+      "x": {
+        "column": "days",
+        "units": "days since intake",
+        "note": "integer tenure; the grid runs 0..restricted_stay_cap - 1"
+      },
+      "values": {
+        "columns": "a single All column, the whole dataset pooled",
+        "units": "days",
+        "meaning": "expected remaining stay for an animal that has already been in care d days"
+      },
+      "aggregate": {
+        "row": "remaining_days_at_mean_tenure",
+        "units": "days",
+        "meaning": "the curve read at the mean in-care tenure (per_resident_past_days) of the same stratum, truncated to the day step it falls in: what an animal of average tenure still expects. NOT the average remaining stay over the in-care population, which is per_resident_future_days = per_resident_past_days + 1",
+        "derivation": "at_mean_tenure"
+      }
+    },
+    {
+      "csv": "km_census_by_tenure_unified.csv",
+      "plot": "km_census_by_tenure_unified.png",
+      "kind": "km_census_by_tenure",
+      "stratifier": "all",
+      "outcome": null,
+      "variant": "lines",
+      "description": "Steady-state census by tenure, over all data.",
+      "x": {
+        "column": "days",
+        "units": "days since intake",
+        "note": "integer tenure; the grid runs 0..restricted_stay_cap - 1"
+      },
+      "values": {
+        "columns": "a single All column, the whole dataset pooled",
+        "units": "animals",
+        "meaning": "expected number in care with current tenure d, at steady state"
+      },
+      "aggregate": {
+        "row": "expected_census",
+        "units": "animals",
+        "meaning": "expected total census, the column sum of the grid (Little's law)",
+        "derivation": "column_sum"
+      }
+    },
+    {
+      "csv": "km_in_care_tenure_unified.csv",
+      "plot": "km_in_care_tenure_unified.png",
+      "kind": "km_in_care_tenure",
+      "stratifier": "all",
+      "outcome": null,
+      "variant": "lines",
+      "description": "In-care tenure profile, over all data.",
+      "x": {
+        "column": "days",
+        "units": "days since intake",
+        "note": "integer tenure; the grid runs 0..restricted_stay_cap - 1"
+      },
+      "values": {
+        "columns": "a single All column, the whole dataset pooled",
+        "units": "proportion",
+        "meaning": "share of the in-care population with tenure of at least d days"
+      },
+      "aggregate": {
+        "row": "per_resident_past_days",
+        "units": "days",
+        "meaning": "mean tenure of the in-care population, the column sum of the grid",
+        "derivation": "column_sum"
+      }
+    },
+    {
+      "csv": "aj_cif_unified.csv",
+      "plot": "aj_cif_unified.png",
+      "kind": "aj_cif",
+      "stratifier": "all",
+      "outcome": null,
+      "variant": "lines",
+      "description": "Unified Aalen-Johansen competing-risk cumulative incidence.",
+      "x": {
+        "column": "days",
+        "units": "days since intake",
+        "note": "integer tenure; the grid runs 0..the AJ analysis window (the last fitted time, at most restricted_stay_cap)"
+      },
+      "values": {
+        "columns": "CIF and conditional-remaining columns per outcome, plus CI bounds",
+        "units": "probability",
+        "meaning": "cumulative incidence of each outcome by day d"
+      },
+      "aggregate": {
+        "row": "restricted_mean",
+        "units": "days",
+        "meaning": "mean days to each column's outcome among the stays that reach it within the window",
+        "derivation": "cif_normalized_rmean"
+      }
+    },
+    {
+      "csv": "aj_conditional_unified.csv",
+      "plot": "aj_conditional_unified.png",
+      "kind": "aj_conditional",
+      "stratifier": "all",
+      "outcome": null,
+      "variant": "lines",
+      "description": "Conditional outcome mix by day, all outcomes on one grid.",
+      "x": {
+        "column": "days",
+        "units": "days since intake",
+        "note": "integer tenure; only the days within the AJ analysis window where the conditional probabilities are defined"
+      },
+      "values": {
+        "columns": "one per outcome",
+        "units": "probability",
+        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+      },
+      "aggregate": null
+    },
+    {
+      "csv": null,
+      "plot": "aj_cif_unified_stack.png",
+      "kind": "aj_cif",
+      "stratifier": "all",
+      "outcome": null,
+      "variant": "stack",
+      "description": "Unified cumulative incidence as a stack. Same data as aj_cif_unified.csv.",
+      "x": {
+        "column": "days",
+        "units": "days since intake",
+        "note": "integer tenure; the grid runs 0..the AJ analysis window (the last fitted time, at most restricted_stay_cap)"
+      },
+      "values": {
+        "columns": "one band per outcome",
+        "units": "probability",
+        "meaning": "cumulative incidence of each outcome by day d, stacked; the top of the stack is the probability of having departed and the space above it the probability of still being in care"
+      },
+      "aggregate": null
+    },
+    {
+      "csv": null,
+      "plot": "aj_conditional_unified_stack.png",
+      "kind": "aj_conditional",
+      "stratifier": "all",
+      "outcome": null,
+      "variant": "stack",
+      "description": "Conditional outcome mix as a stack. Same data as aj_conditional_unified.csv.",
+      "x": {
+        "column": "days",
+        "units": "days since intake",
+        "note": "integer tenure; only the days within the AJ analysis window where the conditional probabilities are defined"
+      },
+      "values": {
+        "columns": "one band per outcome",
+        "units": "probability",
+        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+      },
+      "aggregate": null
+    }
+  ]
+}

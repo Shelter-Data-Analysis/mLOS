@@ -1,0 +1,19 @@
+# Test fixture: constant_los_single_period
+# -----------------------------------------------------------------------
+# Five animals, every one with LOS = exactly 10 days (intake to outcome),
+# outcome_type "L", inside a single period that fully contains every
+# intake and outcome date (no left truncation, no administrative
+# censoring at a period boundary). No capping (restricted_stay_cap > 10).
+#
+# Known result: the KM curve is a single step from 1.0 to 0.0 at day 10.
+#   median_los = 10, percentile_90 = 10, restricted_mean = 10 (for any
+#   restricted_stay_cap >= 10), n_events = 5, n_censored = 0, n_capped = 0.
+# See tests/cases/constant_los_single_period/expected.R.
+
+period_dates:
+  - 2020-12-01
+  - 2021-03-01
+
+restricted_stay_cap: 30
+
+discard_bad_rows: false

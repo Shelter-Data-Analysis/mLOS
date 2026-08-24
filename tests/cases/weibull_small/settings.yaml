@@ -1,0 +1,36 @@
+# Test fixture: weibull_small
+# -----------------------------------------------------------------------
+# Exercises parametric_regression: WEIBULL on a deliberately small dataset
+# (14 animals) -- small-data viability is the selling point of the
+# parametric fit, so that is the regime this fixture pins.
+#
+# Single period, all intakes after the period start: every counting-process
+# row has time_start = 0, i.e. NO left truncation, by design. That makes
+# survreg (which cannot handle truncation) a valid independent
+# cross-check of the flexsurvreg values pinned in expected.R: at
+# authoring time, survreg(Surv(time_end, event) ~ intake_type,
+# dist = "weibull") reproduced the shape exactly (1.289723) and the LOS
+# ratio as its reciprocal (0.430001 = 1/2.325576; survreg's default
+# reference is alphabetical "owner", mLOS relevels to the most frequent
+# level "stray").
+#
+# Two intake types: stray (8 animals, LOS 2,3,4,6,8,10,14,20, all events)
+# and owner (5 events, LOS 3,5,9,15,25, plus one still in care from
+# 2024-05-20 -> right-censored at the period end, 43 days). Cap 60 never
+# binds. Reference level: stray (most frequent). The single coefficient is
+# intake_typeowner: owner-surrendered animals stay ~2.3x longer (LOS
+# ratio 2.326), implied HR 0.337 vs Cox HR 0.433 -- the gap between the
+# two HRs is expected at n = 14 and is exactly what the side-by-side
+# console/sheet comparison is for.
+#
+# The Weibull values are regression pins (from the flexsurvreg fit at
+# authoring, cross-checked as above), not hand-derived: a parametric MLE
+# has no closed form to derive by hand.
+
+period_dates:
+  - 2024-01-01
+  - 2024-07-01
+
+restricted_stay_cap: 60
+
+parametric_regression: WEIBULL
