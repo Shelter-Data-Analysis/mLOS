@@ -107,6 +107,15 @@ published after the switch is on and does not reach back for earlier ones.
   release that ships a Word export built from an earlier draft is a release
   whose archive disagrees with itself.
 
+- Run `colab_mlos.ipynb` in Google Colab from scratch, in a fresh runtime, all
+  the way through the deck cell. This one cannot be automated from here and is
+  not covered by either test suite: the notebook is inside the archived
+  release, it is the path a reader without a local R install will take, and it
+  pins nothing. `install.packages` and `pip install` take whatever CRAN and
+  PyPI hold that day, so a release that worked in Colab last month can stop
+  working without any change here. A release whose notebook is broken is
+  broken for exactly the audience least able to diagnose it.
+
 - Run the sweep in [the section below](#the-pre-publication-sweep).
 - Run the test suite, and validate the citation file:
 
