@@ -316,31 +316,43 @@ point about the shape floor. It stays in the repository because
 
 ## The citable identifiers
 
-All twelve exist. Numbers 6 and 8 are the pair that matters for the software:
-the concept DOI resolves to the newest release, which is 0.1.1 today, and the
-release DOI names one release forever. A citation gives the concept DOI and
-the version a run log reported.
+All fourteen exist, and all fourteen were checked against Zenodo rather than
+copied from a page. Rows 4 and 5 are ShelterDataPrep's own release DOIs. They
+are that repository's to maintain and nothing here depends on them, but a data
+availability statement is written once from one list, and sending its author
+to a second document to complete it is how a citation ends up incomplete.
+
+The prepared input this analysis reads was produced under ShelterDataPrep
+0.3.0, row 4, which is the version to name beside row 3.
 
 | # | What it names | DOI |
 |---|---|---|
 | 1 | Raw extracts, all versions | `10.5281/zenodo.22051090` |
 | 2 | Raw extracts, version 1 | `10.5281/zenodo.22051091` |
 | 3 | ShelterDataPrep, all releases | `10.5281/zenodo.22051338` |
-| 4 | Prepared data, all versions | `10.5281/zenodo.22051367` |
-| 5 | Prepared data, version 1 | `10.5281/zenodo.22051368` |
-| 6 | mLOS, all releases | `10.5281/zenodo.22083814` |
-| 7 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
-| 8 | mLOS 0.1.1 | `10.5281/zenodo.22086002` |
-| 9 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 10 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 11 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 12 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 4 | ShelterDataPrep 0.3.0 | `10.5281/zenodo.22051339` |
+| 5 | ShelterDataPrep 0.3.1 | `10.5281/zenodo.22051603` |
+| 6 | Prepared data, all versions | `10.5281/zenodo.22051367` |
+| 7 | Prepared data, version 1 | `10.5281/zenodo.22051368` |
+| 8 | mLOS, all releases | `10.5281/zenodo.22083814` |
+| 9 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
+| 10 | mLOS 0.1.1 | `10.5281/zenodo.22086002` |
+| 11 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 12 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 13 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 14 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
 by concept DOI with its version, mLOS by concept DOI with its version, and the
 results by version DOI. The deck is cited only when the slides themselves are
 what is being referred to.
+
+The rule behind that split is one idea applied twice. For software, precision
+lives in the version number beside the DOI, so the concept DOI is right and
+follows the newest release. For data, precision lives in the digest a run log
+pins, so only the version DOI is guaranteed to still hold the bytes a result
+came from.
 
 Each deposit names its direct parent and nothing further, so the ancestry is
 walkable without any record having to know the whole chain:
