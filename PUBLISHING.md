@@ -52,55 +52,20 @@ a talk, or a collaborator needs a citable copy.
 
 The steps are ordered because several of them cannot be repaired afterward.
 
-### 0. Publish as a fresh repository under the same name
+### 0. The repository is public
 
-Zenodo cannot archive a private repository, so something has to become public
-first, and what becomes public is a new repository holding one commit,
-"Initial public release", of the tree as it then stands. The development
-repository is renamed and kept private as the archive.
+Done, 2026-08-23. Zenodo cannot archive a private repository, so this came
+first.
 
-The name is preserved, which is what makes this cheap: rename
-`Shelter-Data-Analysis/mLOS` to `Shelter-Data-Analysis/mLOS-dev`, then create
-a new `Shelter-Data-Analysis/mLOS`. No link into ShelterDataPrep changes, and
-`repository-code:` in `CITATION.cff` is already correct.
-
-**Why a fresh repository rather than this one.** Two reasons, and the second
-is the one with consequences. The early commits are a different program: the
-files were organized by pipeline step rather than by what they do, and reading
-that history costs a newcomer more than it tells them. And 439 of the 533
-commits carry a `Co-Authored-By` trailer naming an AI assistant, written
-before the convention changed to `Assisted-by`. Publishing them would put 439
-formal co-authorship assertions into the record a paper cites, which is the
-thing the convention was changed to avoid.
-
-**The one step that can go wrong.** Renaming a repository leaves a redirect
-from the old name, and creating a new repository with that name silently
-removes it. Any working copy still pointing at the old URL then resolves to
-the new public repository, and one push would put the whole development
-history there. Immediately after the rename, before creating anything:
-
-```bash
-git remote set-url origin https://github.com/Shelter-Data-Analysis/mLOS-dev.git
-```
-
-**Before taking the snapshot**, make sure the tree says nothing that is false
-in public: an access note addressed to collaborators, a runbook describing a
-plan that was not taken. The first public commit is the one nobody can amend
-later. See [the sweep](#the-pre-publication-sweep).
-
-**After it is pushed**, verify the new repository tracks exactly what the old
-one did before going public, since a file silently left behind is invisible
-until someone needs it:
-
-```bash
-diff <(git -C ../mLOS-dev ls-files) <(git ls-files)
-```
+The public repository begins at a single commit, "Initial public release", of
+the tree as it then stood. Development before that point is retained
+privately and is not part of the published record. Nothing here needs doing
+again; the step is kept so the shape of the repository is not a mystery.
 
 ### 1. Switch Zenodo on, before any tag
 
 Log in to Zenodo with GitHub and enable `Shelter-Data-Analysis/mLOS` on the
-GitHub repositories page. That is the new repository from step 0; check the
-list is showing it and not the renamed archive.
+GitHub repositories page.
 
 This is the one ordering constraint with no repair. Zenodo archives releases
 published after the switch is on and does not reach back for earlier ones.
@@ -246,12 +211,10 @@ data references become version DOIs.
 
 ## The pre-publication sweep
 
-Passages that are accurate now and wrong once the repository is public or once
-a DOI exists.
+Passages that are accurate now and wrong once a DOI exists.
 
 | Where | What it says now | What it becomes |
 |---|---|---|
-| `README.md`, "Contributing" | Issues and pull requests welcome | Correct as it stands; the collaborator access note it replaced was removed before the snapshot |
 | `README.md`, "Citing" | `CITATION.cff` carries no DOI yet | Names the concept DOI and the version beside it |
 | The three guides | Version stamp `20260823_001` or later, Word export possibly behind it | Stamps bumped and exports rebuilt, per step 2 |
 | `data/OC1_data.md`, `data/OC2_data.md` | Raw extract at `10.5281/zenodo.22051090`, prepared files at `10.5281/zenodo.22051367`, both concept DOIs | Version DOIs `…091` and `…368`, since each sidecar pins a specific file |
@@ -271,9 +234,8 @@ something cites it.
 Three questions that were open here are not any more, and are recorded so they
 are not reopened by accident.
 
-**The repository goes public as a fresh one under the same name**, with the
-development history kept in a renamed private archive. See
-[step 0](#0-publish-as-a-fresh-repository-under-the-same-name).
+**The repository is public**, and begins at the release snapshot. See
+[step 0](#0-the-repository-is-public).
 
 **The Word exports are tracked**, and rebuilt for a release rather than on
 every edit. Zenodo archives the repository tree and not the release assets, so
