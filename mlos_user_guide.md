@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260824_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260824_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -1273,5 +1273,5 @@ You can instead have the tool compute AnimLOS (discussed in [2, 3]), which attem
 
 [2] Mavrovouniotis ML. Distribution of Length of Stay and Its Variation by Calendar Period in Animal Shelters. In: Veterinary Information Network; 2026:456-459. [researchgate.net](https://www.researchgate.net/publication/403852994_Distribution_of_Length_of_Stay_and_Its_Variation_by_Calendar_Period_in_Animal_Shelters)
 
-[3] Mavrovouniotis ML. Distribution of length of stay and its variation by calendar period in animal shelters: Cumulative incidence of outcome types by calendar period in Orange County California.  (Forthcoming in the JSMCAH special issue on the ABVP 2026 Symposium.)
+[3] Mavrovouniotis ML. Distribution of length of stay and its variation by calendar period in animal shelters: Cumulative incidence of outcome types by calendar period in Orange County California.  (Forthcoming in the JSMCAH special issue on the ABVP 2026 Symposium, to appear in www.jsmcah.org)
 
