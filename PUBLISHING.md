@@ -176,7 +176,9 @@ wants.
 Then edit the Zenodo record's `version` field to drop the leading `v`. Zenodo
 takes it from the tag name rather than from `CITATION.cff`, so the record reads
 `v0.1.0` where a run log reads `0.1.0`, and the pair a reader checks is the DOI
-and the version.
+and the version. This has needed doing on every release so far, three for three
+across both repositories, so it is part of publishing rather than something to
+check for.
 
 ### 6. Stage and upload the results deposit
 
@@ -289,8 +291,8 @@ deposits and of ShelterDataPrep itself are already known.
 | 3 | ShelterDataPrep, all releases | `10.5281/zenodo.22051338` |
 | 4 | Prepared data, all versions | `10.5281/zenodo.22051367` |
 | 5 | Prepared data, version 1 | `10.5281/zenodo.22051368` |
-| 6 | mLOS, all releases | not yet minted |
-| 7 | mLOS, this release | not yet minted |
+| 6 | mLOS, all releases | `10.5281/zenodo.22083814` |
+| 7 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
 | 8 | mLOS results, all versions | not yet minted |
 | 9 | mLOS results, version 1 | not yet minted |
 | 10 | mLOS deck, all versions | not yet minted |
