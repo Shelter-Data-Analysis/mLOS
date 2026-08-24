@@ -87,12 +87,17 @@ Each CSV row in the input data file is one shelter stay, with mandatory columns 
 
 ## Citing
 
-The version a run reports is part of the citation, so the console log, the
-`run` block of `results.json`, and the Excel cover sheet all carry it.
-[`CITATION.cff`](CITATION.cff) holds the rest, including the deposits the
-prepared input and the preparation tool come from. It carries no DOI yet: one
-is minted when the first release is archived. [`PUBLISHING.md`](PUBLISHING.md)
-is the runbook for getting there.
+mLOS is archived at [10.5281/zenodo.22083814](https://doi.org/10.5281/zenodo.22083814). Cite that alongside the version a run reports: the DOI resolves to the newest release, so the version is what says which one produced a result. Every run reports it, in the console log, in the `run` block of `results.json`, and on the Excel cover sheet.
+
+[`CITATION.cff`](CITATION.cff) holds the rest, including the deposits the prepared input and the preparation tool come from, and what the shipped OC2 settings produce. Three deposits sit beside this repository:
+
+| Deposit | DOI | Cite it when |
+|---|---|---|
+| Prepared input | [10.5281/zenodo.22051368](https://doi.org/10.5281/zenodo.22051368) | You ran mLOS on the shipped Orange County data. |
+| OC2 results | [10.5281/zenodo.22084231](https://doi.org/10.5281/zenodo.22084231) | You used those results as they are rather than recomputing them. |
+| OC2 slide deck | [10.5281/zenodo.22085157](https://doi.org/10.5281/zenodo.22085157) | The slides themselves are what you are referring to. The results deposit is the record; this is a rendering of it. |
+
+[`PUBLISHING.md`](PUBLISHING.md) is the release runbook, and lists every citable identifier in the chain.
 
 ## License
 

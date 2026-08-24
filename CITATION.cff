@@ -47,7 +47,8 @@ message: >-
   If you use this software, please cite it as below.  If you use results
   computed from the Orange County data that the shipped settings files cover,
   also cite the deposit the prepared input comes from, 10.5281/zenodo.22051368,
-  alongside it.
+  alongside it.  If you use the OC2 results as they are rather than recomputing
+  them, cite 10.5281/zenodo.22084231 instead of that one.
 title: "mLOS"
 abstract: >-
   Survival analysis of length of stay in animal shelters.  A run is one YAML
@@ -63,9 +64,10 @@ authors:
   - family-names: "Mavrovouniotis"
     given-names: "Michael Loizos"
     orcid: "https://orcid.org/0009-0009-9896-2761"
-version: "0.1.0"
+version: "0.1.1"
 date-released: "2026-08-24"
 license: MIT
+doi: "10.5281/zenodo.22083814"
 repository-code: "https://github.com/Shelter-Data-Analysis/mLOS"
 keywords:
   - animal shelter
@@ -75,10 +77,10 @@ keywords:
   - competing risks
   - reproducible research
 
-# The chain this software sits at the end of: the prepared files it reads, the
-# tool that produced them, and the raw extracts behind those.  The two data
-# deposits are cited by their VERSION DOI rather than their concept DOI, and
-# the software by its concept DOI.  That is one rule applied twice rather than
+# The chain this software sits in: the prepared files it reads, the tool that
+# produced them, what it writes from them, and the raw extracts behind it all.
+# The data deposits are cited by their VERSION DOI rather than their concept
+# DOI, and the software by its concept DOI.  That is one rule applied twice rather than
 # two rules: precision has to live somewhere, and for software it lives in the
 # version number beside the DOI, while for data it lives in the digest a run
 # log pins, so only a version DOI is guaranteed to still hold the bytes that
@@ -120,6 +122,27 @@ references:
       Prepares a raw shelter extract into the input format this tool reads.
       Cite it with the version a preparation run log reports; the shipped
       inputs were prepared under 0.3.0.
+  - type: data
+    title: >-
+      mLOS results for the OC2 study: length-of-stay analysis of Orange County
+      California shelter data (mLOS 0.1.0)
+    authors:
+      - family-names: "Mavrovouniotis"
+        given-names: "Michael Loizos"
+        orcid: "https://orcid.org/0009-0009-9896-2761"
+    doi: "10.5281/zenodo.22084231"
+    version: "1"
+    year: 2026
+    license: CC-BY-4.0
+    notes: >-
+      What this software produces from the prepared input above, under 0.1.0:
+      the workbook, the plots with the numerical values of every curve beside
+      them, the results bundle, the console log, and the settings file that
+      produced all of it.  Cite this instead of the prepared input if you used
+      the results as they are rather than recomputing them.  The slide deck
+      built from this run is deposited separately, at
+      10.5281/zenodo.22085157; it is not listed here because the deck is
+      experimental and is not what the analysis reports.
   - type: data
     title: >-
       Raw animal-level data from government-operated animal shelters in Orange

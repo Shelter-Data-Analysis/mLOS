@@ -20,7 +20,7 @@
 # repository, R side and Python side alike, because one tag produces one
 # archive with one DOI; the test suite holds MLOS_VERSION, CITATION.cff, and
 # pyproject.toml equal. Bump it when the work of a release is done, then tag.
-MLOS_VERSION <- "0.1.0"
+MLOS_VERSION <- "0.1.1"
 
 # Color palette for stratified curves (period, intake type, animal group).
 # One distinct color per stratum: the plot assigns colors positionally and

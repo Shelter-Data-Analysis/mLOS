@@ -16,6 +16,43 @@ before it is tagged claims an artifact nobody can fetch.
 
 ---
 
+## 0.1.1 (2026-08-24)
+
+Documentation. **No number changed**: the analysis sources are untouched apart
+from the version string, and every value a run computes is identical to 0.1.0.
+The version moves because what a citation points at has changed.
+
+Output is not byte-identical, because a run records which version made it.
+Measured against the deposited 0.1.0 run rather than assumed: all 37 curve
+CSVs are identical, and `results.json` is identical except for the
+`mlos_version` line. The version string also appears in the console log header
+and on the Excel cover sheet. So the deposit stays valid and stays pinned at
+0.1.0, and rerunning under 0.1.1 reproduces its numbers exactly.
+
+### Added
+
+- mLOS has a DOI: [10.5281/zenodo.22083814](https://doi.org/10.5281/zenodo.22083814),
+  the concept DOI, which resolves to the newest release. It is in
+  `CITATION.cff`, so the rendered citation now carries it.
+- What the shipped OC2 settings produce is deposited at
+  [10.5281/zenodo.22084231](https://doi.org/10.5281/zenodo.22084231), CC BY 4.0,
+  and is a `references` entry: cite it instead of the prepared input if you
+  used those results as they are rather than recomputing them.
+- The slide deck built from that run is deposited at
+  [10.5281/zenodo.22085157](https://doi.org/10.5281/zenodo.22085157), CC BY 4.0.
+  `README.md` and `presentation_guide.md` name it. `CITATION.cff` does not: the
+  deck builder is experimental, the results deposit is the record, and a
+  citation file should not point a reader at the rendering instead.
+
+### Changed
+
+- `README.md`'s citing section names the three deposits and says which to cite
+  when, rather than saying no DOI exists yet.
+- The deposit each record names as its parent is its direct one. The results
+  deposit is derived from the prepared input rather than from the raw extract,
+  because mLOS never reads the raw extract, and the ancestry stays walkable
+  because the prepared deposit points at the raw one itself.
+
 ## 0.1.0 (2026-08-24)
 
 The first release. There is no earlier version to compare against, so this

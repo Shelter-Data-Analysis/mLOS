@@ -31,7 +31,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mlos-review"
-version = "0.1.0"
+version = "0.1.1"
 description = "Audience-facing documents built from an mLOS results bundle"
 readme = "presentation_guide.md"
 license = { file = "LICENSE" }
