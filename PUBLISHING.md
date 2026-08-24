@@ -196,7 +196,20 @@ check for.
 ### 6. Stage and upload the results deposit
 
 Set the software concept DOI at the top of `tools/make_deposit.py`, re-run it,
-and upload the staged bundle as a new Zenodo upload.
+and upload the three files it names, which is not the same as uploading the
+staged directory.
+
+**Zenodo's uploader discards directories.** Files arrive as a flat list, so
+`OC2/` and `figures/` vanish and every name has to be unique on its own, which
+it is not once a second run is deposited. The script therefore builds a zip,
+and that zip is what carries the structure the manifest describes. `README.md`
+and `MANIFEST.csv` go inside it and are uploaded beside it as well, so the
+record shows the explanation and the digest list without anyone downloading
+anything.
+
+Zip it with the script rather than with Finder. Finder's Compress adds an
+`__MACOSX` directory of resource-fork sidecars, one per file, which is
+harmless and looks like debris in a citable record.
 
 - **Type** Dataset, **License** CC BY 4.0, matching the prepared-data deposit
   it derives from.
