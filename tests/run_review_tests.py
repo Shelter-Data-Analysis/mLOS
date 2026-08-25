@@ -3661,6 +3661,138 @@ def _structure_agrees(name: str, source: str, pandoc: str | None) -> None:
                      html.count(closer))
 
 
+# Two documents number their sections, and a § names neither: it is written
+# bare, so it can only mean the one the writing cites. That is the math
+# methods, and documentation_rules.md is numbered but never cited this way.
+# Both halves are checked rather than assumed, so a third numbered document, or
+# a § aimed at the rules, fails here and asks to be taught which is meant.
+NUMBERED_DOCUMENTS = ["mlos_math_methods.md", "documentation_rules.md"]
+SECTION_SYMBOL_MEANS = "mlos_math_methods.md"
+
+# Where a §-reference can be written: everything in the repository a person
+# writes prose into. The golden .txt and .csv under tests/cases are output
+# rather than writing, and results/ is regenerable, so neither can hold a
+# citation for a reader to follow.
+REFERENCE_SUFFIXES = {".md", ".R", ".py", ".yaml", ".sh", ".toml", ".ipynb"}
+REFERENCE_SKIP = {".git", "results", "mlos_review.egg-info", "__pycache__"}
+
+# A reference, and the range it may open: §5.3, §§7.1–7.5, §6.5–6.7. Only the
+# endpoints of a range are named; the interior follows from the sequence check.
+REFERENCE = re.compile(r"§§?\s*(\d+(?:\.\d+)*(?:\s*[–\-]\s*\d+(?:\.\d+)*)*)")
+NUMBERED_HEADING = re.compile(r"^(#{1,6}) (\d+(?:\.\d+)*)\.?\s", re.M)
+
+
+def _section_numbers(name: str, source: str) -> set[str]:
+    """The numbers a § may cite in one document, checked as they are read.
+
+    Sequence is the half nothing else can check. A reference names a number and
+    no renderer recomputes it, so a document that runs 5.6, 5.8 leaves every
+    citation of 5.7 indistinguishable from a typo, and one that repeats 5.6
+    sends two citations to two different places.
+
+    Which heading level carries the sections is read from the document rather
+    than fixed, since the math methods number `#` and the rules number `##`.
+    """
+    top = min((len(m.group(1)) for m in NUMBERED_HEADING.finditer(source)),
+              default=None)
+    if top is None:
+        return set()
+
+    numbers: set[str] = set()
+    faults: list[str] = []
+    current, next_section, next_subsection = None, 1, 1
+
+    for match in re.finditer(r"^(#{1,6}) (.+)$", source, re.M):
+        level, text = len(match.group(1)), match.group(2).strip()
+        written = re.match(r"(\d+(?:\.\d+)*)\.?\s", text)
+        number = written.group(1) if written else None
+        parts = number.split(".") if number else []
+
+        if level < top or (level == top and number is None):
+            current = None          # the document title, and the appendix
+        elif level == top:
+            if len(parts) != 1:
+                faults.append(f"section {number} carries a subsection number")
+            elif int(parts[0]) != next_section:
+                faults.append(f"section {number} follows section "
+                              f"{next_section - 1}")
+            current = int(parts[0])
+            next_section, next_subsection = current + 1, 1
+            numbers.add(number)
+        elif level > top + 1:
+            # Signposts inside a subsection carry no number. A dotted one here
+            # is a third level of citation, which §N.M cannot reach and the
+            # contents list does not map.
+            if len(parts) > 1:
+                faults.append(f"{number} is numbered below subsection level")
+        elif current is not None:   # a subsection of the appendix is exempt
+            if number is None:
+                faults.append(f"subsection {text!r} of section {current} "
+                              "carries no number")
+            elif len(parts) != 2:
+                faults.append(f"subsection {number} is not numbered N.M")
+            else:
+                if int(parts[0]) != current:
+                    faults.append(f"subsection {number} sits in section {current}")
+                elif int(parts[1]) != next_subsection:
+                    faults.append(f"subsection {number} follows "
+                                  f"{current}.{next_subsection - 1}")
+                next_subsection = int(parts[1]) + 1
+                numbers.add(number)
+
+    expect_equal(f"{name}: sections are numbered in sequence", faults, [])
+    return numbers
+
+
+def _dangling_references(text: str, numbers: set[str]) -> list[tuple[int, str]]:
+    """Every §-reference in `text` naming no section, with the line it sits on."""
+    dangling = []
+    for match in REFERENCE.finditer(text):
+        line = text.count("\n", 0, match.start()) + 1
+        for cited in re.split(r"\s*[–\-]\s*", match.group(1)):
+            if cited not in numbers:
+                dangling.append((line, cited))
+    return dangling
+
+
+def check_section_references() -> None:
+    """Every §-reference in the repository names a section that exists.
+
+    Nothing renders a §, so a reference to a section that was renumbered away,
+    or was never there, reads exactly like one that works, in the markdown and
+    in the Word export alike. This is the check that fires when a section is
+    inserted or deleted and the citations of everything below it go stale.
+
+    A § naming the wrong existing section is a different failure and survives
+    this: README_TESTS.md cited §5.7 for the census-by-tenure metrics from the
+    initial public release until August 2026, and §5.7 is a real section about
+    something else, so nothing here would have objected. Only a reader catches
+    that one.
+    """
+    section("section references")
+
+    numbered = [name for name in DOCUMENTS
+                if NUMBERED_HEADING.search((REPO_ROOT / name).read_text())]
+    expect_equal("the numbered documents are the ones a § can mean",
+                 sorted(numbered), sorted(NUMBERED_DOCUMENTS))
+
+    numbers = set()
+    for name in numbered:
+        found = _section_numbers(name, (REPO_ROOT / name).read_text())
+        if name == SECTION_SYMBOL_MEANS:
+            numbers = found
+
+    dangling = []
+    for path in sorted(REPO_ROOT.rglob("*")):
+        if (path.suffix not in REFERENCE_SUFFIXES or not path.is_file()
+                or REFERENCE_SKIP & set(path.relative_to(REPO_ROOT).parts)):
+            continue
+        for line, cited in _dangling_references(path.read_text(), numbers):
+            dangling.append(f"{path.relative_to(REPO_ROOT)}:{line} §{cited}")
+    expect_equal(f"and every § in the repository names a section of "
+                 f"{SECTION_SYMBOL_MEANS}", dangling, [])
+
+
 def check_documents() -> None:
     """The guides render the same way on GitHub and in Word.
 
@@ -3723,6 +3855,7 @@ def main(argv: list[str]) -> int:
         check_dependency_declaration,
         check_notebook_file_listing,
         check_documents,
+        check_section_references,
         check_report_archiving,
         check_stacked_underscore_codes,
         check_capitalize_first,

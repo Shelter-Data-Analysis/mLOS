@@ -127,6 +127,31 @@ comparison reports `[SKIP]` with the reason and the summary line counts it, so
 a machine without the tools cannot look like a machine that passed. The
 blank-line rules run either way.
 
+### The section numbers
+
+A `section references` section, right after the one above, checks the numbering
+that a paper cites. Two documents number their sections, the math methods and
+`documentation_rules.md`, and both are read for sequence: a subsection that
+skips a number, repeats one, sits under the wrong section, or carries no number
+at all. Which heading level holds the sections is read from the document, since
+the math methods number `#` and the rules number `##`.
+
+It then sweeps every `.md`, `.R`, `.py`, `.yaml`, `.sh`, `.toml` and `.ipynb`
+in the repository for `§` and checks each one names a real section of the math
+methods. Ranges (`§§7.1–7.5`) are checked at their endpoints, which is enough
+because the sequence check has already established the interior. A `§` is
+written without a document name, so the sweep reads every one as pointing at
+the math methods; that the rules are numbered and never cited this way is
+itself checked, and a third numbered document fails here until the ambiguity is
+settled.
+
+What this catches is a citation of a section that is not there, which is what a
+renumbering leaves behind everywhere below the insertion. What it does not
+catch is a citation of the wrong real section. This file cited math methods
+§5.7 for `expected_census` from the initial public release until August 2026;
+§5.6 was meant, §5.7 is a real section about the in-care tenure profile, and no
+check can tell those apart.
+
 ### The numbers the documents quote
 
 Neither of the above touches the worked examples in the guides and the math
@@ -249,7 +274,7 @@ Which analyses run is driven entirely by which `expected_*` objects
 |---|---|---|
 | `expected_km` | Unified KM (`km_unified_period`) | `median_los`, `restricted_mean`, `n_capped`, `fraction_capped`, `max_time` |
 | `expected_stratified_km` | Stratified KM fits + per-stratum gaps | `period.Period_1.median`, `period.Period_1.rmean`, `group.BIG.n`, `n_strata_gaps`, `gap.Animal Group.SLOW.start` |
-| `expected_census` | Census-by-tenure companion of the stratified KM (math methods §5.7): per-stratum intake rate, Little's-law predicted census, and the daily census profile | `period.Period_1.lambda`, `period.Period_1.predicted_census`, `group.SMALL.day5` |
+| `expected_census` | Census-by-tenure companion of the stratified KM (math methods §5.6): per-stratum intake rate, Little's-law predicted census, and the daily census profile | `period.Period_1.lambda`, `period.Period_1.predicted_census`, `group.SMALL.day5` |
 | `expected_cox` | Cox regression | `has_analysis`, `n`, `n_events`, `HR_animal_groupBIG` |
 | `expected_weibull` | Weibull regression (needs `parametric_regression: WEIBULL` in the case's settings) | `shape`, `TR_intake_typeOWNER` (LOS ratio), `HRw_intake_typeOWNER` (implied HR), `shape_unified` |
 | `expected_aj` | Pooled AJ competing-risk CIFs | `CIF_L_day10`, `CIF_Any_day3`, `CondRem_N_day5`, `n_outcome_states` |
