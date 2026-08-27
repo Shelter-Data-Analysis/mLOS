@@ -909,20 +909,26 @@ CARE_DAYS_DELIVERED = "total_animal_days"
 # these three slides the reader's question is always counted-or-fitted, and a
 # header that answered it in a parenthesis after five other words would be
 # answering it last.
+# A share is headed by the quantity it divides, not by a bare "Pct". On the
+# slides the neighbouring column supplies that, but a sheet is read a column at
+# a time and its order is not fixed, so a heading that leans on its neighbour
+# is one column move away from being wrong. It was: the intake share sat beside
+# the study-window day total for want of the intakes column, and read as a
+# share of those days.
 WORKLOAD_HEADERS = {
     WORKLOAD_INTAKES: "Intakes/day",
-    "intake_share": "Pct",
+    "intake_share": "Intakes, pct",
     WORKLOAD_RESIDENTS: "Census, counted",
-    "resident_share": "Pct",
+    "resident_share": "Census counted, pct",
     WORKLOAD_RESIDENTS_FITTED: "Census, fitted",
-    "fitted_share": "Pct",
+    "fitted_share": "Census fitted, pct",
     WORKLOAD_TENURE: "Tenure, counted",
     WORKLOAD_TENURE_FITTED: "Tenure, fitted",
     WORKLOAD_REMAINING_FITTED: "Remaining, fitted",
     WORKLOAD_DAYS: "Animal-days, counted",
     WORKLOAD_DAYS_FITTED: "Animal-days, fitted",
     WORKLOAD_DAYS_OWED: "Days owed, fitted",
-    "owed_share": "Share",
+    "owed_share": "Days owed, pct",
     CARE_DAYS_DELIVERED: "Days given, whole window",
 }
 
@@ -1063,6 +1069,23 @@ WORKLOAD_SLIDE_HEADERS = {
     WORKLOAD_DAYS_FITTED: "Fitted",
     WORKLOAD_DAYS_OWED: "Owed",
 }
+
+# The workbook's reading order, which is its own rather than the slides'.
+# Deriving it from WORKLOAD_SECTIONS made the sheet inherit the slides' budget:
+# a column no slide had room for was dropped from the workbook too, against
+# what `workload_full_table` promises. Two went that way, the intakes per day
+# and the share of the days owed, and losing the first stranded the intake
+# share beside the study-window day total. Each share now follows the column it
+# divides, which is also the order WORKLOAD_SHARE_OF states.
+WORKLOAD_WORKBOOK_ORDER = [
+    CARE_DAYS_DELIVERED,
+    WORKLOAD_INTAKES, "intake_share",
+    WORKLOAD_RESIDENTS, "resident_share",
+    WORKLOAD_RESIDENTS_FITTED, "fitted_share",
+    WORKLOAD_TENURE, WORKLOAD_TENURE_FITTED, WORKLOAD_REMAINING_FITTED,
+    WORKLOAD_DAYS, WORKLOAD_DAYS_FITTED,
+    WORKLOAD_DAYS_OWED, "owed_share",
+]
 
 WORKLOAD_FORMATS = {
     WORKLOAD_INTAKES: Format(1),
@@ -1241,10 +1264,8 @@ def workload_full_table(bundle: Bundle, stratifier: str, vocab,
     """
     frame = _workload_frame(bundle, stratifier)
     if columns is None:
-        order = ([CARE_DAYS_DELIVERED]
-                 + [name for section, _ in WORKLOAD_SECTIONS.values()
-                    for name in section])
-        columns = [name for name in order if name in frame.columns]
+        columns = [name for name in WORKLOAD_WORKBOOK_ORDER
+                   if name in frame.columns]
     frame = frame.reindex(columns=list(columns))
 
     footnotes = []
@@ -1271,13 +1292,10 @@ def workload_columns(bundle: Bundle, stratifiers: Sequence[str]) -> list[str]:
     some stratifiers can fill appears for all of them and is empty where it
     cannot be filled.
     """
-    order = ([CARE_DAYS_DELIVERED]
-             + [name for section, _ in WORKLOAD_SECTIONS.values()
-                for name in section])
     present = set()
     for stratifier in stratifiers:
         present.update(_workload_frame(bundle, stratifier).columns)
-    return [name for name in order if name in present]
+    return [name for name in WORKLOAD_WORKBOOK_ORDER if name in present]
 
 
 def requires_full_table(bundle: Bundle, stratifier: str) -> bool:

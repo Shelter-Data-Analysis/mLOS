@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260824_001. Read it in any markdown reader,
+presentation guide, version 20260827_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -2014,6 +2014,13 @@ census beside the census; here every column sits together, and a stratifier
 whose levels do not divide the standing population carries its share columns
 empty rather than dropping them, so the family still stacks under one row of
 headings.
+
+Each share column follows the column it divides, and its header names that
+quantity: `Intakes, pct` after `Intakes/day`, `Census counted, pct` after
+`Census, counted`. The slides can head a share `Pct` because the column beside
+it says what of; a sheet is read a column at a time and its order is not fixed,
+so a header that leans on its neighbor is one column move away from being
+wrong.
 
 Two things differ from the slide rendering, both because a sheet is where a
 reader goes to check a number rather than to take an impression of it. Headers

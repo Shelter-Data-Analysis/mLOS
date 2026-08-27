@@ -16,6 +16,33 @@ before it is tagged claims an artifact nobody can fetch.
 
 ---
 
+## Unreleased
+
+Deck workbook correction. **No analysis number changed**: the R side is
+untouched, and every value a run computes is identical. What moved is the
+`Workload_By_Stratum` sheet of the deck builder's workbook, which now carries
+two columns it had been dropping and heads its share columns unambiguously.
+
+- The workbook's column order was derived from the three workload slides'
+  sections, so a column no slide had room for was dropped from the sheet as
+  well, against what `workload_full_table` documents. `Intakes/day` and the
+  share of the days owed went that way. Both are now present, from a workbook
+  order of its own (`WORKLOAD_WORKBOOK_ORDER`).
+- Losing `Intakes/day` left the intake share sitting beside `Days given, whole
+  window`, headed only `Pct`, where it read as a share of those days. It is not:
+  it is the share of intakes, and for the large dogs of **OC2** the two differ
+  by nearly a factor of two, 38.4% against 69.7%. The value was always correct;
+  the header and its neighbor were not.
+- The four share headers now name what they divide (`Intakes, pct`,
+  `Census counted, pct`, `Census fitted, pct`, `Days owed, pct`) instead of a
+  bare `Pct` or `Share`, so a share does not depend on its neighbor to be read.
+
+Slides are unaffected: they use their own header map and their own column
+sections, neither of which changed. Anyone who read a share out of the deposited
+deck workbook should recheck it against the corrected column.
+
+---
+
 ## 0.1.1 (2026-08-24)
 
 Documentation. **No number changed**: the analysis sources are untouched apart
