@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260827_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260827_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -402,7 +402,21 @@ $$\sum_{d = 0}^{\tau - 1}p(d)\,\text{Remaining LOS}(d)\mspace{6mu} = \mspace{6mu
 
 with terms set to $0$ whenever $\widehat{S}(d) = 0$, exactly as in §5.6. This is 1 plus `per_resident_past_days`, and equals `per_resident_future_days`, the future workload per resident reported in §5.6. The remaining LOS metrics are distinct from this, and reported beside it, as `remaining_days_at_mean_tenure`, `remaining_days_at_median_tenure`, and `remaining_days_at_p90_tenure` (§8.4). Each is computed from its own stratum's fit at that stratum's own tenure statistic, so they are available per stratum even though only the unified curve is marked in the plot. The two readings differ by a Jensen gap whose sign follows the curvature of Remaining LOS over the bulk of $p$. Where the curve is concave, the usual shape when the discharge hazard falls steeply early and then flattens, the mark sits above the resident average. On **OC1** the gap is wide, 74.9 days at the mean tenure against 53.7 days averaged over residents. The mark answers what a resident of typical tenure still owes. `per_resident_future_days` answers what the standing population owes per head.
 
-# 6. Cox Proportional-Hazards Regression
+# 6. Regressions on the Three Factors
+
+Two regression families are fitted on the same counting-process rows and the
+same three factors: Cox, which leaves the baseline hazard unspecified, and an
+optional Weibull, which gives it a parametric form and so reports a
+length-of-stay ratio directly. In their pooled form both hand every covariate
+pattern a single baseline shape.
+
+The order below is Cox first (§6.1 to §6.5), then the Weibull and its shape
+variants (§6.6 and §6.7), then the stratified Cox (§6.8). The last two are the
+two answers to one objection, that a single baseline shape for every covariate
+pattern is an assumption rather than a finding. §6.7 relaxes it parametrically,
+by freeing the Weibull shape. §6.8 relaxes it nonparametrically, by giving each
+combination of the other factors its own baseline. That order is deliberate, and
+§6.8 closes by comparing the verdicts the two reach on the same data.
 
 ## 6.1 Model and predictors
 
