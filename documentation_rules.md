@@ -126,6 +126,12 @@ practitioners. The documents keep `predictor`, because 152 code sites and every
 with it. If it is ever switched, switch the bare word in the same pass or the
 sentences stop making sense.
 
+Terminology worth changing later, and names in the results JSON that are
+inconsistent with a sibling, are listed under "Decisions, deferred" in
+`PUBLISHING.md`. They are kept there rather than here because this file says
+what to write now, and a term listed here as changeable is one an editor will
+hedge around.
+
 **Define an abbreviation at first use, then use it.** Exceptions worth keeping:
 a quoted title, and a sentence about the audience's own vocabulary.
 

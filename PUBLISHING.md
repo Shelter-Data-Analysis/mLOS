@@ -16,6 +16,7 @@ The house style in `documentation_rules.md` applies here too.
 - [Which DOI to cite](#which-doi-to-cite)
 - [The pre-publication sweep](#the-pre-publication-sweep)
 - [Decisions, settled](#decisions-settled)
+- [Decisions, deferred](#decisions-deferred)
 - [The citable identifiers](#the-citable-identifiers)
 
 ---
@@ -338,6 +339,56 @@ choosing not to regenerate it cannot block an OC2 deposit.
 further: it adds a single filter cutting the LARGE animal size, to make one
 point about the shape floor. It stays in the repository because
 `tests/README_TESTS.md` names it as an input to `scan_shape_floor.R`.
+
+## Decisions, deferred
+
+Changes worth making that are not worth making on their own account. Recorded
+so they are found when something else opens the door, and so nobody re-derives
+the same list from scratch.
+
+**Nothing here is a commitment.** A name in this list is a candidate, not a
+deprecation. The JSON keys in particular are a published interface: the OC2
+results deposit is named by them, `mlos_render.R` reads them, and the guides
+document them. None of them moves except on a `schema_version` bump that a
+real change has already forced.
+
+### Terminology in the guides
+
+| Candidate | Why it is deferred |
+|---|---|
+| `predictor` to `factor` | The paper uses `factor` and reads better for it. Measured cost: 94 bare `predictor` in the guides and 152 in code. The hyphenated `per-predictor` cannot move alone, since sentences like "the per-predictor Cox regression, which gives the other predictors' combinations their own baselines" stop parsing when only half of them changes. Needs its own pass, with the bare word swept in the same commit. |
+| `stratifier` beside `factor` | The paper reserves `stratifier` for an axis actually being stratified on, and uses `factor` for a categorical predictor in a regression. The guides use `stratifier` for both. Most doc uses are already about real stratification, so this is a read-and-judge pass rather than a sweep. |
+| `HistLOS` in the guides | The paper names three computations, HistLOS, ExitLOS and AnimLOS. The guides define the last two and describe the first without naming it. |
+| "survival" | Every section that uses it stops to say it means "still in care". The honest replacement is "in-care probability", but `survival` is the R package, the `Surv` object and the field's own word, so the apology may be cheaper than the divergence. |
+
+### Names in the results JSON
+
+Grouped by whether the change is a real inconsistency or only a tidier word.
+The first group is worth carrying on any schema break. The second is not worth
+one by itself.
+
+**Inconsistent with a sibling, so a reader has to learn an exception:**
+
+| Key | Against | Note |
+|---|---|---|
+| `strata.intake`, `strata.group` | `strata.period`, and the columns `intake_type` and `animal_group` | Two of the three stratifier keys are abbreviated and one is not, so joining the JSON to a CSV column needs a lookup nobody documented. Same keys appear under `cox.stratified_variants` and `weibull.shape_variants`. |
+| `incidence_overall_per_100_animal_days` | `aj_final_cif_Any`, `aj_rmtl_Any` | `Any` is the established code for all outcome types, used 77 times. `overall` is used here and nowhere else. |
+| `daily_mean_total_in_care_days` | `mean_daily_intakes`, `mean_daily_outcomes` | "daily mean" against "mean daily" for the same construction. |
+| `weibull_pooled_los_ratio` beside `weibull_freed_shape_los_ratio` | each other | The qualifiers are not parallel: one names the model, the other names what was relaxed. |
+
+**Only a tidier word, and not worth a break on its own:**
+
+| Key | Note |
+|---|---|
+| `total_in_care_days_sum` | `total_` and `_sum` say the same thing twice. |
+| `capped_at_restricted_stay_cap` | Says cap three times. |
+| `per_resident_in_care_days` against `per_resident_past_days` | The first is counted and the second fitted, which the names do not say, while `expected_` marks that distinction elsewhere. Renaming risks more confusion than it removes. |
+
+**Deliberately not on this list**, so they are not proposed again:
+`km_still_in_care_at_cap` beside `fraction_capped` looks like two names for one
+thing and is not. One is read off the fitted curve and one is a tally of rows,
+and the guides say to compare them. `pooled`, `unified` and `crude` are settled
+(`documentation_rules.md` §5) and each already matches its identifier.
 
 ## The citable identifiers
 
