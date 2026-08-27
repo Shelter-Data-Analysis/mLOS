@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260827_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260827_003. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -411,12 +411,12 @@ length-of-stay ratio directly. In their pooled form both hand every covariate
 pattern a single baseline shape.
 
 The order below is Cox first (§6.1 to §6.5), then the Weibull and its shape
-variants (§6.6 and §6.7), then the stratified Cox (§6.8). The last two are the
-two answers to one objection, that a single baseline shape for every covariate
-pattern is an assumption rather than a finding. §6.7 relaxes it parametrically,
-by freeing the Weibull shape. §6.8 relaxes it nonparametrically, by giving each
-combination of the other factors its own baseline. That order is deliberate, and
-§6.8 closes by comparing the verdicts the two reach on the same data.
+variants (§6.6 and §6.7), then the stratified Cox (§6.8). The last two allow the
+covariate pattern to affect the shape of the LOS distribution or the hazard
+function. §6.7 relaxes the LOS distribution parametrically, by freeing the
+Weibull shape. §6.8 relaxes the hazard function nonparametrically, by giving
+each combination of the other factors its own baseline. §6.8 closes by comparing
+what the two approaches to relaxation say on the same data.
 
 ## 6.1 Model and predictors
 
