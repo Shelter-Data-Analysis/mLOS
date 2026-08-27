@@ -232,6 +232,31 @@ deposit rather than at the prepared data. Do this in the same sitting: the
 deck bundle records the analysis version and run timestamp of the run behind
 it, so the two deposits describe the same run.
 
+### 7a. Re-deposit the deck when a correction changes what it says
+
+A new version of the deck deposit, rather than a quiet replacement of the
+files: someone may already have quoted a figure from the version being
+corrected, and only a version record lets them tell which one they read.
+
+The version note names the old label, not just the new one. A reader who
+quoted the wrong number is searching for the wrong label, so a note that
+describes only the corrected state does not reach them. The correction of
+2026-08-27 reads:
+
+> Corrects a column header in the `Workload_By_Stratum` sheet of the table
+> workbook. In version 1 the share of intakes was headed `Pct` and sat
+> immediately after `Days given, whole window`, with no `Intakes/day` column
+> between them, so it could be read as a share of the days of care given. It
+> was always the share of intakes, and for the large dogs of the OC2 example
+> the two differ by nearly a factor of two: 38.4% of intakes against 69.7% of
+> the days. The column is now headed `Intakes, pct` and follows `Intakes/day`.
+> Two further columns the sheet had been dropping, the share of the fitted
+> census and the share of the days owed, are also present. No analysis value
+> changed, and the slides are unaffected.
+
+Nothing else in the deposit moves: the analysis behind it is the same run, so
+the results deposit it is derived from stays pinned at its own version.
+
 ### 8. Cut the documentation release that catches the DOIs
 
 None of the DOIs can be inside the release that produced them, so a second

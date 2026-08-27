@@ -21,13 +21,14 @@ before it is tagged claims an artifact nobody can fetch.
 Deck workbook correction. **No analysis number changed**: the R side is
 untouched, and every value a run computes is identical. What moved is the
 `Workload_By_Stratum` sheet of the deck builder's workbook, which now carries
-two columns it had been dropping and heads its share columns unambiguously.
+three columns it had been dropping and heads its share columns unambiguously.
 
 - The workbook's column order was derived from the three workload slides'
   sections, so a column no slide had room for was dropped from the sheet as
-  well, against what `workload_full_table` documents. `Intakes/day` and the
-  share of the days owed went that way. Both are now present, from a workbook
-  order of its own (`WORKLOAD_WORKBOOK_ORDER`).
+  well, against what `workload_full_table` documents. Three went that way:
+  `Intakes/day`, the share of the fitted census, and the share of the days
+  owed. All three are now present, from a workbook order of its own
+  (`WORKLOAD_WORKBOOK_ORDER`).
 - Losing `Intakes/day` left the intake share sitting beside `Days given, whole
   window`, headed only `Pct`, where it read as a share of those days. It is not:
   it is the share of intakes, and for the large dogs of **OC2** the two differ
