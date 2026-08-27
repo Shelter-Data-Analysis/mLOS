@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260827_001. Read it in any markdown reader,
+presentation guide, version 20260827_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -1522,7 +1522,7 @@ cannot drift from it.
 `regression.py` turns the bundle's two Cox regressions into frames, and is the
 one place in the package that derives a number.
 
-`pooled(bundle)` is the main Cox regression of the methods document's §6.1:
+`pooled(bundle)` is the pooled Cox regression of the methods document's §6.1:
 every stratifier in one linear predictor, all of them sharing one baseline
 hazard. `stratified(bundle)` is the per-predictor fits of §6.8: one model per
 stratifier, carrying that stratifier alone while the others move inside

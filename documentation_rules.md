@@ -102,6 +102,30 @@ grow, and a future run inherits a claim nobody checked.
 says it. Introducing "axis" where the rest says "field" makes a reader wonder
 what changed.
 
+**Four reserved words, for the four things that "pooled" used to mean.** Each
+already matches an identifier, so prose and code agree without renaming
+anything:
+
+| Word | Means | Identifier it matches |
+|---|---|---|
+| `unified` | the whole sample, no factor split | `km_survival_unified`, `By_All`, `strata.all` |
+| `pooled` | the regression carrying every factor at once, fully adjusted | `cox_pooled_hazard_ratio`, `Cox_Pooled` |
+| `crude` | the same fit with covariate terms dropped | the crude Weibull keys |
+| `all-cause` | every outcome type together, as against per-outcome | — |
+
+Use `marginal` for a curve that is not split by a factor, where `unified` would
+overstate it: the crude fit's own shape is marginal over animal group but still
+carries period. Do not write "pooled" as a bare adjective for any of these; it
+names one fit and nothing else. "Pooled across all periods and all animals",
+with the object spelled out, is ordinary English and stays.
+
+**`predictor` is the regression term.** The paper draft uses `factor` for the
+same three axes, which is equally correct and reads better in prose aimed at
+practitioners. The documents keep `predictor`, because 152 code sites and every
+`per-predictor` heading use it, and switching would pull about 110 prose sites
+with it. If it is ever switched, switch the bare word in the same pass or the
+sentences stop making sense.
+
 **Define an abbreviation at first use, then use it.** Exceptions worth keeping:
 a quoted title, and a sentence about the audience's own vocabulary.
 
