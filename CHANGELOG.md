@@ -18,10 +18,12 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
-Deck workbook correction. **No analysis number changed**: the R side is
-untouched, and every value a run computes is identical. What moved is the
+Deck workbook correction, and a documentation pass on terminology. **No
+analysis number changed**: the R analysis sources are untouched, and every
+value a run computes is identical. What moved is the
 `Workload_By_Stratum` sheet of the deck builder's workbook, which now carries
-three columns it had been dropping and heads its share columns unambiguously.
+three columns it had been dropping and heads its share columns unambiguously,
+and the wording of the three guides.
 
 - The workbook's column order was derived from the three workload slides'
   sections, so a column no slide had room for was dropped from the sheet as
@@ -41,6 +43,28 @@ three columns it had been dropping and heads its share columns unambiguously.
 Slides are unaffected: they use their own header map and their own column
 sections, neither of which changed. Anyone who read a share out of the deposited
 deck workbook should recheck it against the corrected column.
+
+Documentation, in the same window:
+
+- **One name for the fit that carries every factor at once.** It had answered to
+  "general Weibull", "main Cox" and "unified Cox" depending on the page, while
+  `pooled` was separately naming four different things. Four words are now
+  reserved, each already matching an identifier so no code was renamed:
+  `unified` for the whole sample, `pooled` for the all-factor fully adjusted
+  fit, `crude` for that fit with covariate terms dropped, `all-cause` for every
+  outcome type together, plus `marginal` for a curve `unified` would overstate.
+  27 sites across the four guides. Recorded in `documentation_rules.md` §5.
+- **A contradiction fixed.** The user guide said the per-predictor stratified
+  Cox fits were "in `results.json` but on no worksheet", and forty lines later
+  said the workbook shows their hazard ratios. The second is right, and
+  `mlos_excel_export.R` writes them.
+- **Section 6 of the math methods document retitled** to "Regressions on the
+  Three Factors", which is what it holds, with a roadmap paragraph saying why
+  the stratified Cox sits after the Weibull rather than beside the other Cox
+  material. No section renumbered.
+- **`PUBLISHING.md` gained "Decisions, deferred"**, listing terminology and
+  results-JSON names worth changing later, and saying plainly that nothing in
+  it is a commitment.
 
 ---
 

@@ -255,6 +255,11 @@ describes only the corrected state does not reach them. The correction of
 > census and the share of the days owed, are also present. No analysis value
 > changed, and the slides are unaffected.
 
+**Rebuild the deck before staging it.** `reports/` is not tracked, so a fresh
+clone has no deck and the corrected files exist only wherever the last build
+ran. Re-run the analysis if `results/results.json` is not there either, then
+`python3 -m mlos_review.deck`, and check the corrected column before uploading.
+
 Nothing else in the deposit moves: the analysis behind it is the same run, so
 the results deposit it is derived from stays pinned at its own version.
 
