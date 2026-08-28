@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260827_002. Read it in any markdown reader,
+presentation guide, version 20260828_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -173,7 +173,7 @@ is enough to look at what it produces.
 ### Running it, and what it writes
 
 A deck built from the shipped OC2 settings is deposited at
-[10.5281/zenodo.22085157](https://doi.org/10.5281/zenodo.22085157), with its
+[10.5281/zenodo.22135419](https://doi.org/10.5281/zenodo.22135419), with its
 table workbook, its figures, and the settings file it was built under, so the
 output described below can be read without running anything. That deposit is
 derived from the results deposit rather than standing on its own, and the

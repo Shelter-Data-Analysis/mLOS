@@ -397,7 +397,7 @@ and the guides say to compare them. `pooled`, `unified` and `crude` are settled
 
 ## The citable identifiers
 
-All fourteen exist, and all fourteen were checked against Zenodo rather than
+All fifteen exist, and all fifteen were checked against Zenodo rather than
 copied from a page. Rows 4 and 5 are ShelterDataPrep's own release DOIs. They
 are that repository's to maintain and nothing here depends on them, but a data
 availability statement is written once from one list, and sending its author
@@ -422,6 +422,7 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 12 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
 | 13 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
 | 14 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 15 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
