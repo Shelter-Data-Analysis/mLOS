@@ -193,9 +193,11 @@ takes it from the tag name rather than from `CITATION.cff`, so the record reads
 and the version. This has needed doing on every release so far, so it is part
 of publishing rather than something to check for.
 
-It applies only to records Zenodo builds from a GitHub release. A deposit
-uploaded by hand has a free-text version field, so type the bare number there
-and there is nothing to correct afterward.
+It is not confined to records built from a GitHub release. A deposit uploaded
+by hand has arrived with a `v` too, so check the version field on every record
+you publish rather than only on the software ones. Check it in the Zenodo
+interface at the time; reading a record back afterward shows its current state,
+not what was minted.
 
 The bare form is the right one, and not merely a preference: semantic
 versioning treats `v0.1.0` as a tag name and `0.1.0` as the version. Adopting
@@ -226,6 +228,9 @@ harmless and looks like debris in a citable record.
   it derives from.
 - **Title** naming the tool version, because the deposit is a snapshot of one
   version by construction.
+- **Version** `1`, typed in explicitly. An empty version field is not neutral:
+  `CITATION.cff` cites data deposits by version, so a blank field leaves the
+  citation naming something the record does not say.
 - **Related identifiers**, which are what make the deposits a chain rather than
   a set of orphans:
   - *is derived from* the prepared data, `10.5281/zenodo.22051368`. Not the

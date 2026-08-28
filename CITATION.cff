@@ -34,8 +34,10 @@
 ####      a run log reads `0.1.0`, and the pair a reader checks is the DOI and
 ####      the version.  This has needed doing on every release so far, so
 ####      treat it as part of publishing rather than as something to check
-####      for.  It applies only to records built from a GitHub release; a
-####      deposit uploaded by hand takes whatever version is typed into it.
+####      for.  It is not confined to records built from a GitHub release; a
+####      deposit uploaded by hand has arrived with a `v` too, so check every
+####      record.  Check it in the Zenodo interface at the time: reading a
+####      record back afterward shows its current state, not what was minted.
 ####      The bare form is correct rather than merely preferred: semantic
 ####      versioning treats `v0.1.0` as a tag name and `0.1.0` as the version.
 #
