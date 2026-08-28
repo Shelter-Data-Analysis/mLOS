@@ -16,7 +16,7 @@ before it is tagged claims an artifact nobody can fetch.
 
 ---
 
-## Unreleased
+## 0.1.2 (2026-08-28)
 
 Deck workbook correction, and a documentation pass on terminology. **No
 analysis number changed**: the R analysis sources are untouched, and every

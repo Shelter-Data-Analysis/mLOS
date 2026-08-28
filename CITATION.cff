@@ -64,8 +64,8 @@ authors:
   - family-names: "Mavrovouniotis"
     given-names: "Michael Loizos"
     orcid: "https://orcid.org/0009-0009-9896-2761"
-version: "0.1.1"
-date-released: "2026-08-24"
+version: "0.1.2"
+date-released: "2026-08-28"
 license: MIT
 doi: "10.5281/zenodo.22083814"
 repository-code: "https://github.com/Shelter-Data-Analysis/mLOS"
