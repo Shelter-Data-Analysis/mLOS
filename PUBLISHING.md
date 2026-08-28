@@ -190,9 +190,19 @@ wants.
 Then edit the Zenodo record's `version` field to drop the leading `v`. Zenodo
 takes it from the tag name rather than from `CITATION.cff`, so the record reads
 `v0.1.0` where a run log reads `0.1.0`, and the pair a reader checks is the DOI
-and the version. This has needed doing on every release so far, three for three
-across both repositories, so it is part of publishing rather than something to
-check for.
+and the version. This has needed doing on every release so far, so it is part
+of publishing rather than something to check for.
+
+It applies only to records Zenodo builds from a GitHub release. A deposit
+uploaded by hand has a free-text version field, so type the bare number there
+and there is nothing to correct afterward.
+
+The bare form is the right one, and not merely a preference: semantic
+versioning treats `v0.1.0` as a tag name and `0.1.0` as the version. Adopting
+the `v` everywhere instead is not open to us anyway, because Python normalizes
+a leading `v` out of a package version, so `pyproject.toml` would report the
+bare form whatever it was given and the three declarations would stop
+agreeing.
 
 ### 6. Stage and upload the results deposit
 

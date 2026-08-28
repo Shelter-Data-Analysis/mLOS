@@ -32,9 +32,12 @@
 ####      to drop the leading `v`.  Zenodo takes that field from the tag name
 ####      rather than from `version` below, so the record reads `v0.1.0` where
 ####      a run log reads `0.1.0`, and the pair a reader checks is the DOI and
-####      the version.  This has needed doing on every release so far, three
-####      for three across both repositories, so treat it as part of
-####      publishing rather than as something to check for.
+####      the version.  This has needed doing on every release so far, so
+####      treat it as part of publishing rather than as something to check
+####      for.  It applies only to records built from a GitHub release; a
+####      deposit uploaded by hand takes whatever version is typed into it.
+####      The bare form is correct rather than merely preferred: semantic
+####      versioning treats `v0.1.0` as a tag name and `0.1.0` as the version.
 #
 ####   LICENSE.  `license` below names the license of the code, which is what
 ####   this file is metadata for.  The two guides, mlos_user_guide.md and
