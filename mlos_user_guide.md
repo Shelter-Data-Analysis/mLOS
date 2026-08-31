@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260827_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260831_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -274,7 +274,7 @@ The three `km_survival_by_*` plots can optionally show the same style of shaded 
 
 For the unified KM curve and for each stratified KM plot, a companion remaining-LOS plot shows the expected number of days still in care for an animal that has already spent X days in the shelter, as a function of X. This is an end-of-day quantity: "X days in the shelter" means the animal is still in care at the end of day X, so the remaining LOS value is never below 1: even an animal leaving tomorrow accrues one more counted day. At X = 0 the value equals the restricted mean, providing a consistency check. The computation uses the conditional survival formula: Remaining LOS(X) = 1 + (1/S(X)) × Σ S(t) for t = X+1 to τ−1, where S(t) is the KM survival probability and τ is `restricted_stay_cap`.  This cap is an upper bound for the stay, beyond which we stop tracking outcomes for statistical purposes.
 
-The "Days Already in Care" axis on this and the next two plot families (census by tenure, in-care tenure) is the **elapsed** count: X = 0 is the intake day, one less than the animal's inclusive days in care (which is 1 on the intake day). See "Which day counts? Who is in the census?" for the full convention.
+The "Days Already in Care" axis, here and on every other day-indexed plot in the tool, is the **elapsed** count: X = 0 is the intake day, one less than the animal's inclusive days in care (which is 1 on the intake day). See "Which day counts? Who is in the census?" for the full convention.
 
 | File | Description |
 |---|---|
@@ -1213,7 +1213,7 @@ Three metrics summarize shelter population load per stratum:
 
 - **total_animal_days** — total days of care provided.  It equals the sum of `days_at_risk` across all animals in the period. Counts both the arrival and departure days of each stay. Includes same-day (intraday) animals.
 - **mean_census_inventory** — average number of animals in care.  It equals `total_animal_days` divided by the period length in days. It is a mean daily census, but it counts both arrival and departure days (and intraday animals). The mean overnight census (a morning-rounds headcount) equals the `mean_census_inventory` minus the `mean_daily_intakes`.
-- **daily_mean_total_in_care_days** — the total in-care days accumulated by the animals in care overnight, averaged across the period. Excludes same-day arrivals/departures, since intraday animals contribute nothing to an overnight count. This is a cumulative-load metric (how much accumulated care the in-care population represents), not a headcount. It counts exactly the same nights as the overnight census (boundary nights are credited to the period containing the following morning), so dividing it by the mean overnight census gives exactly the average tenure so far of the animals in the shelter.
+- **daily_mean_total_in_care_days** — the total in-care days accumulated by the animals in care overnight, averaged across the period. Excludes same-day arrivals/departures, since intraday animals contribute nothing to an overnight count. This is a cumulative-load metric (how much accumulated care the in-care population represents), not a headcount. It counts exactly the same nights as the overnight census (boundary nights are credited to the period containing the following morning), so dividing it by the mean overnight census gives exactly the average tenure of the animals in the shelter.
 
 The KM block reports the curve's terminal value as `km_still_in_care_at_cap`, the fitted probability that an animal has reached the stay cap without an outcome. The block also reports the 95% confidence interval. Read this value beside `fraction_capped` in the observation block, which counts the rows that actually reached the cap. One is a tally and the other is an estimate from the fitted curve, so they answer the same question by different routes and are worth comparing. A wide gap says the curve is being pulled by censoring the tally cannot see. The bounds are blank where the curve has reached zero, which is `survfit` declining to bracket a boundary value, rather than a missing number.
 

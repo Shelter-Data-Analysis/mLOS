@@ -1156,8 +1156,11 @@ break_down_by_period <- function(data, references) {
 
 
 #' Calculate daily mean of total in-care days by period
-#' On each night an animal is in care it contributes its accumulated days-in-care
-#' so far. Nights are credited to the period containing the following morning --
+#' On each night an animal is in care it contributes its days in care as of that
+#' night, on the inclusive count, which is also the number of nights it has been
+#' held since intake, including that night. Equivalently, this is the elapsed
+#' count on the next morning.
+#' Nights are credited to the period containing the following morning --
 #' the same convention as the overnight census (mean_census minus mean daily
 #' intakes) -- so the two metrics count exactly the same nights, and a stay
 #' split across periods contributes LOS - 1 nights in total (period splitting

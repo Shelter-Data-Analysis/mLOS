@@ -245,7 +245,7 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
   .with_png(save_file, {
     lwd <- .png_lwd(2)
     plot(cif_df$days, cif_df[[cif_cols[1]]], type = "n",
-         xlab = "Days in Care", ylab = "Cumulative Incidence",
+         xlab = "Days Already in Care", ylab = "Cumulative Incidence",
          main = "AJ Competing-Risk CIF", xlim = c(0, x_limit), ylim = c(0, 1))
 
     # CIFs are step functions (jumps at event times), like the KM curve, so
@@ -309,7 +309,7 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
 
   .with_png(save_file, {
     plot(c(0, x_limit), c(0, 1), type = "n",
-         xlab = "Days in Care (x)", ylab = ylab, main = main)
+         xlab = "Days Already in Care (x)", ylab = ylab, main = main)
     .plot_grid()
     y_cum <- matrix(0, nrow = nrow(y), ncol = ncol(y))
     for (j in seq_len(ncol(y))) {
@@ -473,7 +473,7 @@ plot_aj_conditional_unified <- function(aj_results, references, save_file = NULL
   .with_png(save_file, {
     lwd <- .png_lwd(2)
     plot(c(0, x_limit), c(0, 1), type = "n",
-         xlab = "Days in Care (x)",
+         xlab = "Days Already in Care (x)",
          ylab = "Conditional Probability by Outcome Type",
          main = "Conditional Remaining Outcome Probability")
     .plot_grid()
@@ -750,7 +750,7 @@ aj_by_stratifier <- function(period_data,
     if (!too_many && emit_png) {
       .with_png(png_file, {
         plot(c(0, x_limit), c(y_min, y_max), type = "n",
-             xlab = "Days in Care (x)",
+             xlab = "Days Already in Care (x)",
              ylab = ylab,
              main = paste0(main_prefix, outcome_title, main_suffix))
         .plot_grid()

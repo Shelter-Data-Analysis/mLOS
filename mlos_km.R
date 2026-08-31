@@ -208,7 +208,7 @@ plot_km_curve <- function(km_results, references, title = "Kaplan-Meier Survival
     # Plot KM curve (main estimate only; CI is drawn as a shaded ribbon below)
     plot(km_results$km_fit,
          conf.int = FALSE,
-         xlab = "Days in Care",
+         xlab = "Days Already in Care",
          ylab = "Probability Still in Care",
          main = title,
          col = "blue",
@@ -1168,7 +1168,7 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
     if (isTRUE(draw_png)) .with_png(filename, {
       plot(km_fit,
            conf.int = FALSE,
-           xlab = "Days in Care",
+           xlab = "Days Already in Care",
            ylab = "Probability Still in Care",
            main = title,
            col = cols,
