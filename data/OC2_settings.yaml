@@ -145,6 +145,10 @@ restricted_stay_cap: 365
 # Plots are truncated at this day on the x-axis (does not affect statistics). Must be <= restricted_stay_cap.
 plot_stay_cap: 58
 
+# Interval width in days for the two probability-mass stacks, a side view that bins
+# the AJ curves. 0 draws neither. Must be <= restricted_stay_cap.
+probability_mass_width: 5
+
 # Scale font sizes in PNG plots (1.0 = default; increase for presentations or high-DPI screens).
 png_pointsize_factor: 1.5
 
