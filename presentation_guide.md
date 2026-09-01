@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260828_001. Read it in any markdown reader,
+presentation guide, version 20260831_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -1627,9 +1627,9 @@ select.
 
 **Vocabulary rule, inherited from the analysis**: "in care" and "in-care"
 belong to the residents present at a moment, and a total number of days is a
-stay or an LOS. `per_resident_past_days` is resident-view of days so far;
-`km_restricted_mean` is a duration of the whole stay. The deck reports both
-views side by side and they diverge hard.
+stay or an LOS. `per_resident_past_days` is resident-view of days already in
+care; `km_restricted_mean` is a duration of the whole stay. The deck reports
+both views side by side and they diverge hard.
 
 #### Entry shape
 
