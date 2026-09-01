@@ -59,6 +59,29 @@ MLOS_VERSION <- "0.1.2"
 # type size without labels touching.
 .MASS_MAX_TICKS <- 12L
 
+# The x-axis tick under the remainder bar. Deliberately not "capped": this
+# project already uses that word for fraction_capped, the OBSERVED count of
+# stays that reached the cap, while the bar draws the fitted probability of
+# still being in care there. On OC2 they read 0.32% and 0.34%, and the user
+# guide keeps them apart on purpose. "at cap" names where the bar sits without
+# claiming either reading; the legend spells out which one it is.
+.MASS_REMAINDER_TICK <- "at cap"
+
+# A probability as a percentage, for a plot label. Two decimals below one
+# percent, where the remainder bar usually lands and a single decimal would
+# round a real quantity to nothing.
+.mass_percent <- function(p) {
+  pct <- 100 * p
+  ifelse(is.na(pct), "", sprintf(ifelse(pct < 1, "%.2f%%", "%.1f%%"), pct))
+}
+
+# Type size for the interval plots' legend and per-bar labels, and the share of
+# the panel kept clear above the bars for that legend. One bar label has to fit
+# inside one bar's width, and the legend spans the panel in a single row, so
+# both are set below the axis type rather than at it.
+.MASS_LABEL_CEX <- 0.8
+.MASS_HEADROOM  <- 1.22
+
 # Human-readable outcome labels for legends, tables, and plot titles
 # @param code Outcome code: "L", "T", or "N"
 .outcome_label <- function(code) {

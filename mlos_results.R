@@ -886,6 +886,18 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
        value_meaning = "probability that a stay ends with this outcome having been in care for a length of time inside this interval; a bar's total is the fall in the KM survival curve across the same interval, and the remainder bar is the probability of still being in care at the cap, so every bar together sums to 1",
        aggregate = NULL,
        description = "Unified competing-risk probability mass by interval, as a stack. Numbers in aj$probability_mass."),
+  # The share companion to the mass stack: the same intervals, each normalised
+  # to its own total. No bundle field of its own, since every number in it is
+  # aj$probability_mass divided by its row sum.
+  list(kind = "aj_fraction", scope = "unified", stem = "aj_fraction_unified_stack",
+       variant = "stack",
+       x_column = "interval",
+       x_note = .X_NOTE_MASS,
+       columns = "one band per outcome, stacked to full height",
+       value_units = "probability",
+       value_meaning = "share of the stays ending inside this interval that end with this outcome; each bar is labelled with the interval's own share of every stay, and the bar at the cap is empty because a normalised remainder would be full height by construction",
+       aggregate = NULL,
+       description = "Unified outcome share within each interval, as a stack. Row-normalised aj$probability_mass."),
   list(kind = "aj_cif", scope = "stratified_outcome", stem = "aj_cif",
        x_note = .X_NOTE_AJ,
        columns = .COLUMNS_STRATIFIED_CI,

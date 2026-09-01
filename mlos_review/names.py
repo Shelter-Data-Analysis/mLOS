@@ -320,6 +320,7 @@ KINDS: dict[str, Name] = {
     "aj_cif": Name("cumulative incidence", "incidence"),
     "aj_conditional": Name("conditional outcome mix by day", "outcome mix"),
     "aj_mass": Name("probability mass by interval", "exit timing"),
+    "aj_fraction": Name("outcome share by interval", "outcome share"),
 }
 
 # Stratifier ids, which appear inside titles ("LOS by animal group") rather

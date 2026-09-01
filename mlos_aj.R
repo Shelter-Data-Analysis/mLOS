@@ -439,35 +439,46 @@ aj_probability_mass <- function(aj_results, references) {
 }
 
 
-# Shared renderer for a stacked probability-mass histogram: one bar per bin,
-# segments stacked in the order the columns arrive, and a final bar for the
-# remainder set apart by a gap and drawn in the remainder color.
+# Shared renderer for the two stacked interval plots: one bar per interval,
+# segments stacked in the order the columns arrive, and a last bar, set apart
+# by a gap, for the stays the intervals cannot hold.
 #
-# The remainder earns a bar rather than being left as the space under a y-axis
-# fixed at 1. Its own height is what a reader needs, and on a population that
-# mostly leaves early an axis running to 1 spends most of the panel on nothing.
-# It is annotated with its value because it can be a hairline: on OC2 it is
-# 0.34% of the distribution against a first bar of 59%.
+# `heights` is already whatever is to be drawn, a bin per row and a state per
+# column, so this draws mass and share alike and neither reading is computed
+# here. `remainder` is the height of that last bar, and 0 draws it empty: the
+# share plot keeps the slot so that the two figures put every bar at the same
+# x, which is what lets one be read directly above the other.
 #
-# Bars touch, since neighbouring intervals do, and a bin holding no mass shows
-# as a gap in a row of bars rather than as missing furniture. The bar for the
-# final interval is drawn the same width as the rest while spanning many times
-# their days, which is why the axis is labelled with interval ends.
-.plot_mass_stack <- function(masses, edges, remainder, states, main, ylab, xlab,
-                             remainder_label, remainder_tick, save_file) {
+# `bar_labels` prints above each bar, thinned with the axis so the two agree.
+# The share plot needs it, since normalising throws away how much of the
+# distribution each bar speaks for: on OC2 the seven-week bar stands as tall as
+# the first-week bar while holding 153 stays against 9,571.
+#
+# Bars touch, since neighbouring intervals do, and an interval holding nothing
+# shows as a gap in a row of bars rather than as missing furniture. The bar for
+# the final interval is drawn the same width as the rest while spanning many
+# times their days, which is why the axis is labelled with interval ends.
+.plot_interval_stack <- function(heights, edges, remainder, states, main, ylab, xlab,
+                                 remainder_label, remainder_tick, save_file,
+                                 bar_labels = NULL, ylim_max = NULL) {
   cols <- c(.outcome_state_colors(states), .MASS_REMAINDER_COLOR)
 
   # Rows are stack segments and columns are bars, which is the layout barplot
   # stacks. The remainder is a segment present only in its own bar, so it takes
   # a row of its own that is zero everywhere else.
-  height <- rbind(t(masses), 0)
-  height <- cbind(height, c(rep(0, length(states)), remainder))
+  bars <- rbind(t(heights), 0)
+  bars <- cbind(bars, c(rep(0, length(states)), remainder))
   ticks <- c(as.character(edges[-1]), remainder_tick)
   # The remainder bar stands off the row by two bar widths. It is not on the
   # day axis the others sit on, and the gap is also what leaves its label room
   # beside the last interval's end, which is the widest label on the axis.
-  space <- c(rep(0, nrow(masses)), 2)
-  ylim  <- c(0, max(colSums(height, na.rm = TRUE), na.rm = TRUE) * 1.12)
+  space <- c(rep(0, nrow(heights)), 2)
+  # Headroom for a legend that sits above the bars rather than on them. The
+  # share plot fills its panel to the top of every bar, so there is no corner
+  # left to put a box in, and both plots reserve the same band so that the pair
+  # reads as one layout.
+  top   <- if (is.null(ylim_max)) max(colSums(bars, na.rm = TRUE), na.rm = TRUE) else ylim_max
+  ylim  <- c(0, top * .MASS_HEADROOM)
 
   # Which interval ends get printed. Left to barplot, a narrow width crowds the
   # axis and R drops whichever labels collide, which took the last interval's
@@ -475,31 +486,42 @@ aj_probability_mass <- function(aj_results, references) {
   # neighbours lost the only thing that said so. Thinning from the right
   # instead keeps that end whatever the width, and the remainder bar is always
   # labelled since it stands apart from the axis it is not on.
-  n_bin <- nrow(masses)
+  n_bin <- nrow(heights)
   step  <- ceiling(n_bin / .MASS_MAX_TICKS)
   shown <- rev(seq(n_bin, 1L, by = -step))
+  at    <- c(shown, n_bin + 1L)
 
   .with_png(save_file, {
-    bar_x <- barplot(height, col = cols, border = NA, space = space,
-                     names.arg = rep("", ncol(height)), las = 1, ylim = ylim,
+    bar_x <- barplot(bars, col = cols, border = NA, space = space,
+                     names.arg = rep("", ncol(bars)), las = 1, ylim = ylim,
                      xlab = xlab, ylab = ylab, main = main)
     # mtext rather than axis: axis drops labels it judges to collide, and at a
     # narrow width the two it dropped were the last interval's end and the
     # remainder, the two the reader most needs. Thinning is decided above.
-    at <- c(shown, n_bin + 1L)
     mtext(ticks[at], side = 1, at = bar_x[at], line = .PLOT_MGP[2])
     # Drawn between two identical bar passes so the grid sits behind the bars:
     # barplot has no panel.first, and a grid over solid fills reads as texture.
     .plot_grid()
-    barplot(height, col = cols, border = NA, space = space,
-            names.arg = rep("", ncol(height)), axes = FALSE, add = TRUE)
+    barplot(bars, col = cols, border = NA, space = space,
+            names.arg = rep("", ncol(bars)), axes = FALSE, add = TRUE)
 
-    text(bar_x[length(bar_x)], remainder, pos = 3,
-         labels = sprintf("%.2f%%", 100 * remainder))
+    if (is.null(bar_labels)) {
+      # Nothing above the bars means their heights are the quantity, and only
+      # the remainder needs saying, because it can be a hairline: on OC2 it is
+      # 0.34% of the distribution against a first bar of 59%.
+      text(bar_x[n_bin + 1L], remainder, pos = 3,
+           labels = .mass_percent(remainder))
+    } else {
+      # Smaller than the axis type: a bar is one slot wide and these labels sit
+      # one per bar, so they are the one text on the panel that has to fit a
+      # width rather than merely be legible.
+      text(bar_x[at], colSums(bars, na.rm = TRUE)[at], pos = 3,
+           labels = bar_labels[at], cex = .MASS_LABEL_CEX)
+    }
 
-    legend("topright",
+    legend("top", horiz = TRUE, bty = "n", cex = .MASS_LABEL_CEX,
            legend = c(sapply(states, .outcome_label), remainder_label),
-           fill = cols, bg = "white")
+           fill = cols)
   })
   if (!is.null(save_file)) {
     cat("\nPlot saved to:", save_file, "\n")
@@ -530,8 +552,8 @@ plot_aj_probability_mass_stack <- function(aj_results, references, save_file = N
   }
 
   cap <- references$restricted_stay_cap
-  .plot_mass_stack(
-    masses = mass$masses,
+  .plot_interval_stack(
+    heights = mass$masses,
     edges = mass$edges,
     remainder = mass$remainder,
     states = mass$states,
@@ -539,8 +561,67 @@ plot_aj_probability_mass_stack <- function(aj_results, references, save_file = N
     ylab = "Probability Mass by Outcome Type",
     xlab = "Days Already in Care (x), interval upper end",
     remainder_label = paste0("still in care at ", cap),
-    remainder_tick = "in care",
+    remainder_tick = .MASS_REMAINDER_TICK,
     save_file = save_file
+  )
+}
+
+
+#' Plot the outcome share within each interval as a stack
+#'
+#' The same intervals as `plot_aj_probability_mass_stack`, each normalised to
+#' its own total, so every bar is full height and what varies is the split
+#' between outcomes. It answers a question the mass stack cannot: of the stays
+#' that end in this stretch of days, which outcome do they end with. In a mass
+#' stack only the bottom segment has a common baseline, so a band floating on
+#' top is read by length and its trend is lost.
+#'
+#' The bar for the stays still in care at the cap is kept as an empty slot
+#' rather than dropped. Normalised it would be full height by construction and
+#' say nothing; kept empty, it holds the x positions of the two figures in step
+#' and still carries its share of the distribution as a label.
+#'
+#' Each bar is labelled with the interval's share of every stay, the same
+#' number the mass stack draws as a height, which is what the normalisation
+#' would otherwise throw away.
+#'
+#' @param aj_results Results from compute_aj_cif_results
+#' @param references References list; see aj_probability_mass
+#' @param save_file Optional filename for PNG output
+plot_aj_fraction_stack <- function(aj_results, references, save_file = NULL) {
+  mass <- aj_probability_mass(aj_results, references)
+  if (is.null(mass)) {
+    cat("No AJ probability-mass bins to plot.\n")
+    return(invisible(NULL))
+  }
+
+  totals <- rowSums(mass$masses)
+  # An interval that caught no mass has no composition to show. Its bar is left
+  # empty rather than filled from a 0/0, which is the honest drawing and the
+  # one a reader can tell apart from an even split.
+  shares <- mass$masses / ifelse(totals > 0, totals, NA_real_)
+  shares[is.na(shares)] <- 0
+
+  # Every stay is the denominator, not every departure: the remainder bar is
+  # part of the distribution being divided up, and it is the reason these add
+  # to 100% with it included.
+  labels <- .mass_percent(c(totals, mass$remainder))
+
+  .plot_interval_stack(
+    heights = shares,
+    edges = mass$edges,
+    remainder = 0,
+    states = mass$states,
+    main = "AJ Outcome Share by Interval",
+    ylab = "Outcome Share Within Interval",
+    xlab = "Days Already in Care (x), interval upper end",
+    remainder_label = paste0("still in care at ", references$restricted_stay_cap),
+    remainder_tick = .MASS_REMAINDER_TICK,
+    save_file = save_file,
+    bar_labels = labels,
+    # Fixed at 1 rather than taken from the bars, so an interval with no mass
+    # does not rescale the panel and the two figures keep the same bar tops.
+    ylim_max = 1
   )
 }
 

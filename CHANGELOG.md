@@ -30,9 +30,17 @@ it computes and writes exactly what it did before.
 - The intervals run at the requested width until one of them contains
   `plot_stay_cap`, which is kept whole, and a single interval then covers the
   rest of the way to `restricted_stay_cap`.
-- The numbers travel in the bundle as `aj$probability_mass` and on the
-  workbook's `General` sheet. This figure ships no companion CSV: its bars are
-  neither a day grid nor a redrawing of one, so the bundle is where they live.
+- `aj_fraction_unified_stack` draws the same intervals normalized to their own
+  totals, so every bar is full height and what varies is the outcome split.
+  Each bar carries its share of the distribution as a label, since normalizing
+  hides how much of the data a bar speaks for. The bar at the cap is kept as an
+  empty slot so the two figures put every bar at the same x.
+- The numbers travel in the bundle as `aj$probability_mass` and reach no
+  worksheet. The figures ship no companion CSV: their bars are neither a day
+  grid nor a redrawing of one, so the bundle is where they live. They stay out
+  of the workbook because the intervals are a reading choice made for a
+  picture, and a workbook column that moves with a plot setting invites being
+  quoted as though it did not.
 
 ## 0.1.2 (2026-08-28)
 

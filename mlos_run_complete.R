@@ -205,6 +205,11 @@ if (isTRUE(aj_results$has_analysis)) {
     aj_results, references,
     save_file = output_path("aj_mass_unified_stack.png"))
 
+  cat("\n>>> Generating outcome share plot...\n")
+  plot_aj_fraction_stack(
+    aj_results, references,
+    save_file = output_path("aj_fraction_unified_stack.png"))
+
   cat("\n>>> Generating conditional outcome distribution plot...\n")
   plot_aj_conditional_unified_stack(aj_results, references,
                                     save_file = output_path("aj_conditional_unified_stack.png"))
