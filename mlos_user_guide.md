@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260901_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260901_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -363,13 +363,15 @@ The `aj_cif_<stratifier>_outcome_*` plots can optionally show the same style of 
 | `aj_conditional_unified` | Conditional outcome probability, pooled across all strata: given that an animal is still in care at day X, the probability the animal leaves by each outcome type before the end of the AJ analysis window. All three outcome types as separate lines, one per outcome. |
 | `aj_conditional_unified_stack` | The same pooled conditional outcome probability as `aj_conditional_unified`, drawn instead as a stacked area so the three outcome types visibly sum to the total probability of having left by the end of the window at each day. Same underlying numbers, different picture. PNG only, no CSV. |
 | `aj_cif_unified_stack` | The same cumulative incidence as `aj_cif_unified`, drawn as a stacked area. The bands sum to the overall CIF, so the top of the stack reads as the probability of having departed by that day and the white space above it as the probability of still being in care. PNG only, and without the confidence-interval ribbons the line version carries. |
-| `aj_mass_unified_stack` | How much of the distribution falls in each interval of days rather than how much has accumulated by each day: one stacked bar per interval, split by outcome type, with a gray bar at the right for the stays still in care at `restricted_stay_cap`. A bar's total height is the fall in the KM survival curve across that interval, so the bars and the gray one together sum to 1. Drawn only when [`probability_mass_width`](#probability_mass_width) is set. PNG only; the numbers are in `results.json`, as `aj$probability_mass`. |
-| `aj_fraction_unified_stack` | The same intervals, each normalized to its own total, so every bar is full height and what varies is the split between outcome types. It answers what the mass stack cannot: of the stays ending in this stretch of days, which outcome they end with. Each bar is labelled with the interval's share of every stay, which the normalization would otherwise hide. The bar at the cap is an empty slot, kept so the two figures put every bar at the same place and can be read one above the other. Drawn with the mass stack, from the same setting. PNG only; row-normalize `aj$probability_mass` to recover it. |
+| `aj_mass_unified_stack` | One stacked bar per interval of days, split by outcome type, with a gray bar for the stays still in care at `restricted_stay_cap`. A bar's total is the fall in the KM survival curve across that interval, and all the bars sum to 1. PNG only; the numbers are `aj$probability_mass` in `results.json`. |
+| `aj_fraction_unified_stack` | The same intervals normalized to their own totals, so every bar is full height and what varies is the outcome split. Each bar is labelled with its share of all stays, which the normalization hides. The slot at the cap is left empty so the two figures line up. PNG only; row-normalize `aj$probability_mass`. |
 | `aj_conditional_<stratifier>_outcome_L` | Conditional outcome probability for L (community live outcome), with one line per stratum. |
 | `aj_conditional_<stratifier>_outcome_T` | Conditional outcome probability for T (other live outcome), with one line per stratum. |
 | `aj_conditional_<stratifier>_outcome_N` | Conditional outcome probability for N (non-live outcome), with one line per stratum. |
 
 Two of the stacks redraw a plot they are named after, so only the line version carries the companion CSV: `aj_cif_unified.csv` serves `aj_cif_unified_stack.png`, and `aj_conditional_unified.csv` serves `aj_conditional_unified_stack.png`. Read those stacks for composition and the lines for individual curves and their confidence intervals. The mass and share stacks are the exception: their bars are a quantity of their own, and the numbers behind them are in `results.json` rather than in a CSV.
+
+The last two are a side view, drawn only when [`probability_mass_width`](#probability_mass_width) is set. They bin what the KM survival curve and the AJ cumulative incidence already show, and those curves stay the primary reading: they carry confidence intervals, they need no interval width chosen for them, and every statistic the tool reports is taken from them.
 
 Line plots are drawn in staircase form, changing only on integer days, which is how the underlying estimates actually behave; stacked area plots interpolate between days instead, purely for improved visual presentation.
 
@@ -1107,13 +1109,11 @@ Positive integer, must be ≤ `restricted_stay_cap`. If provided, KM and AJ plot
 probability_mass_width: 7
 ```
 
-Non-negative integer, must be ≤ `restricted_stay_cap`. The width in days of the intervals in `aj_mass_unified_stack` and `aj_fraction_unified_stack`. Default is 0, which draws neither plot. One width serves both, so they can be read side by side.
+Non-negative integer, must be ≤ `restricted_stay_cap`. The width in days of the intervals in the two side-view plots, `aj_mass_unified_stack` and `aj_fraction_unified_stack`. Default is 0, which draws neither. One width serves both.
 
-The interval masses reach `results.json` as `aj$probability_mass` and reach no worksheet. They are not in the workbook because the intervals are a reading choice made for a picture, not a property of the data: a different width gives a different table of the same distribution, and a workbook column that moves with a plot setting invites being quoted as though it did not.
+Intervals are right-closed: a width of 7 gives (0,7], (7,14], and so on, so a stay of exactly 7 days falls in the first. They continue at that width until one of them contains [`plot_stay_cap`](#plot_stay_cap), and that interval is kept whole rather than cut short, since a narrower interval collects less mass and would read as a fall in the exit rate. A single interval then runs to `restricted_stay_cap`, drawn the same width as the others while covering many more days, so the bars are amounts and not rates.
 
-Intervals are right-closed and run from intake: a width of 7 gives (0,7], (7,14], and so on, so a stay of exactly 7 days falls in the first. They continue at that width until one of them contains [`plot_stay_cap`](#plot_stay_cap), and that interval is kept whole rather than cut short, since a narrower interval collects less mass and would read as a fall in the exit rate. A single interval then runs from there to `restricted_stay_cap` and holds everything beyond the plotted range. It is drawn the same width as the others while spanning many times their days, which is why the axis is labelled with interval ends rather than being read as a rate.
-
-The choice of width decides what the picture says. On a population that mostly leaves in the first week, a width of 7 puts most of the distribution in one bar and leaves the rest as stubs; a width of 1 or 2 shows the shape of that first week instead. Try more than one.
+The masses reach `results.json` as `aj$probability_mass` and no worksheet, because the intervals are a choice made for a picture: a different width gives a different table of the same distribution. For the same reason, try more than one. A width of 7 puts most of a shelter's distribution in the first bar; 1 or 2 shows the shape inside that week.
 
 #### `max_plot_strata`
 

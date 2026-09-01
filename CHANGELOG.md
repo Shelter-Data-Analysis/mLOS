@@ -18,7 +18,8 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
-A new figure and the setting that turns it on. **No existing analysis number
+Two auxiliary figures and the setting that turns them on. They bin curves the
+tool already draws and add no estimator. **No existing analysis number
 changed**: `probability_mass_width` defaults to 0, so a run that does not set
 it computes and writes exactly what it did before.
 

@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260831_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260901_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -593,6 +593,8 @@ reported as `cif_Any`: the probability of having left care for any classified re
 The fitted state-occupancy probabilities, with their pointwise 95% confidence bounds, are tabulated on the daily grid $d = 0,\ldots,\tau^{\ast}$ by forward fill (0 before the first fitted time). The horizon $\tau^{\ast}$ is the largest fitted time in the standard run, and it is less than or equal to the cap $\tau$, since all intervals are capped there. The User Guide calls the interval $\lbrack 0,\, \tau^{\ast} \rbrack$ the **AJ analysis window**.
 
 A cumulative incidence is filled with $0$ before the first fitted time rather than the $1.0$ of a survival curve, and its grid stops at $\tau^{\ast}$ rather than running to the cap as the KM grids do (§5.5), since holding it flat past the last event would misrepresent unresolved cases as resolved (§9). `cif_Any` is the row sum of the cause-specific CIF columns. Its own pointwise bounds come ready-made from the same fit, since $\mathrm{CIF_{\text{Any}}} = 1 - P(\text{in care})$ means its lower and upper bounds are the complements of the in-care state's upper and lower bounds. The unified CIF plot shows each $\widehat F_{k}$ with a shaded confidence ribbon. The companion CSV carries the CIF, lower, and upper columns for each state and for `cif_Any`. The same unified curves are also drawn as a stacked area (`aj_cif_unified_stack`): the bands sum to the overall CIF, so the top of the stack is `cif_Any` (the probability of having departed by that day) and the space above it the probability of still being in care (the KM survival function). As a stack it carries neither confidence ribbons nor a companion CSV of its own (§8.2).
+
+Where the `probability_mass_width` setting asks for them, two further figures bin the same $\widehat F_{k}$ instead of plotting it: the mass in an interval $(a, b]$ is $\widehat F_{k}(b) - \widehat F_{k}(a)$, read at the interval ends from the grid above, and the bar left over is $1 - \mathrm{CIF_{\text{Any}}}$ at the cap. No estimator, risk set, or interval construction enters that a curve in this section does not already use, and no confidence bounds are offered for a difference of two bounded quantities. The curves stay the reading these summarize.
 
 ## 7.4 Conditional remaining-outcome distribution
 
