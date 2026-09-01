@@ -469,10 +469,11 @@ aj_probability_mass <- function(aj_results, references) {
   bars <- rbind(t(heights), 0)
   bars <- cbind(bars, c(rep(0, length(states)), remainder))
   ticks <- c(as.character(edges[-1]), remainder_tick)
-  # The remainder bar stands off the row by two bar widths. It is not on the
-  # day axis the others sit on, and the gap is also what leaves its label room
-  # beside the last interval's end, which is the widest label on the axis.
-  space <- c(rep(0, nrow(heights)), 2)
+  # The remainder bar stands off the row. It is not on the day axis the others
+  # sit on, and the gap is also what leaves its label room beside the last
+  # interval's end, which is the widest label on the axis. See .mass_gap_units
+  # for why the size is a share of the panel and not a count of bar widths.
+  space <- c(rep(0, nrow(heights)), .mass_gap_units(nrow(heights) + 1L))
   # Headroom for a legend that sits above the bars rather than on them. The
   # share plot fills its panel to the top of every bar, so there is no corner
   # left to put a box in, and both plots reserve the same band so that the pair
@@ -519,7 +520,14 @@ aj_probability_mass <- function(aj_results, references) {
            labels = bar_labels[at], cex = .MASS_LABEL_CEX)
     }
 
-    legend("top", horiz = TRUE, bty = "n", cex = .MASS_LABEL_CEX,
+    # Hung just inside the top border rather than centred on it, which put the
+    # swatches across the border line itself. A boxed legend in the top right
+    # is not open to these two: the box measures a third of the panel against a
+    # gap of a sixteenth, and on the share plot every bar it would cover is
+    # full height.
+    legend(x = mean(par("usr")[1:2]), y = ylim[2] * 0.99,
+           xjust = 0.5, yjust = 1,
+           horiz = TRUE, bty = "n", cex = .MASS_LABEL_CEX,
            legend = c(sapply(states, .outcome_label), remainder_label),
            fill = cols)
   })

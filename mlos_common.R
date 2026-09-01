@@ -82,6 +82,19 @@ MLOS_VERSION <- "0.1.2"
 .MASS_LABEL_CEX <- 0.8
 .MASS_HEADROOM  <- 1.22
 
+# The share of the panel between the last interval's bar and the remainder bar,
+# and the bar widths that come to. barplot measures spacing in bar widths, which
+# is the wrong unit here: a gap fixed at that scale is 15% of the panel at ten
+# intervals and 6% at thirty, so it wastes the panel where bars are wide and
+# closes where they are narrow. Held at a fixed share instead, it stays the same
+# on the page whatever the width, which is what the two ticks either side of it
+# need: at thirty intervals "365" and "at cap" are 210 px apart, and they want
+# about 165.
+.MASS_GAP_FRACTION <- 0.06
+.mass_gap_units <- function(n_bars) {
+  .MASS_GAP_FRACTION * n_bars / (1 - .MASS_GAP_FRACTION)
+}
+
 # Human-readable outcome labels for legends, tables, and plot titles
 # @param code Outcome code: "L", "T", or "N"
 .outcome_label <- function(code) {
