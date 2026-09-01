@@ -881,12 +881,16 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
   in_plot         <- x_vals <= references$plot_stay_cap
 
   if (isTRUE(spec$draw)) .with_png(spec$filename, {
-    # Initialise an empty plot with the right axes
+    # Y scaled to the part of the curves the plot shows: the table runs out to
+    # restricted_stay_cap, but only the rows within plot_stay_cap are drawn, and
+    # a remaining-LOS curve that keeps climbing past the cap would otherwise
+    # flatten everything visible into the bottom of the panel.
     y_lim <- if (is.null(spec$ylim)) {
-      c(0, max(unlist(companion_table[series_names]), na.rm = TRUE))
+      c(0, max(unlist(companion_table[in_plot, series_names, drop = FALSE]), na.rm = TRUE))
     } else {
       spec$ylim
     }
+    # Initialise an empty plot with the right axes
     plot(NULL,
          xlim = c(0, references$plot_stay_cap),
          ylim = y_lim,

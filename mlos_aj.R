@@ -730,8 +730,18 @@ aj_by_stratifier <- function(period_data,
       next
     }
 
-    y_vals <- plot_df[[value_col]]
+    # Scaled to the days the panel shows, not the whole tabulated range: the
+    # series run to restricted_stay_cap while lines() below crops them at
+    # x_limit, and a CIF still climbing past the cap would squash the visible
+    # part of every stratum into the bottom of the panel. A stratum whose
+    # values all sit past the cap falls back to the full range, there being
+    # nothing in view to scale to.
+    y_vals <- plot_df[[value_col]][plot_df$days <= x_limit]
     y_vals <- y_vals[is.finite(y_vals)]
+    if (length(y_vals) == 0) {
+      y_vals <- plot_df[[value_col]]
+      y_vals <- y_vals[is.finite(y_vals)]
+    }
     if (length(y_vals) == 0) {
       cat("No finite y-values to plot for outcome:", outcome, "\n")
       next
