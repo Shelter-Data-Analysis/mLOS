@@ -48,6 +48,17 @@ MLOS_VERSION <- "0.1.2"
 .OUTCOME_COLORS <- setNames(.STRATIFIED_COLORS[seq_along(.OUTCOME_STATE_LEVELS)],
                              .OUTCOME_STATE_LEVELS)
 
+# The probability-mass histogram's remainder bar: the stays still in care when
+# the analysis window closes, which belong to no outcome. Light enough to read
+# as the absence of an outcome beside the three filled ones, and outside
+# .STRATIFIED_COLORS so it can never collide with an outcome color.
+.MASS_REMAINDER_COLOR <- "gray85"
+
+# How many interval ends the probability-mass axis prints before it starts
+# thinning them. Twelve is what fits across the standard canvas at the standard
+# type size without labels touching.
+.MASS_MAX_TICKS <- 12L
+
 # Human-readable outcome labels for legends, tables, and plot titles
 # @param code Outcome code: "L", "T", or "N"
 .outcome_label <- function(code) {
@@ -309,6 +320,73 @@ stratifiers <- list(
 .forward_fill <- function(times, values, days, fill) {
   unname(c(fill, values))[findInterval(days, times) + 1]
 }
+
+# =======================================================================
+# Probability-mass binning
+# =======================================================================
+
+# Right-closed bin edges for a probability-mass histogram, returned as
+# c(0, width, 2 * width, ..., last_regular, analysis_cap).
+#
+# Bins run at the requested width until one of them contains plot_cap, and that
+# bin is kept whole rather than cut at the cap. A cut bin spans less time than
+# its neighbours and so collects less mass, which the eye reads as a fall in
+# the exit rate rather than as a narrower interval.
+#
+# The single bin from there to analysis_cap carries everything past the plotted
+# range, so the bars account for every stay the analysis window resolves. It is
+# far wider than the others in days while being drawn the same width, which is
+# why the plot labels it as an interval rather than leaving it to be read as a
+# rate. A regular edge closer to analysis_cap than one full width is dropped
+# into it, since the alternative is a sliver bin at the right-hand end.
+#
+# Width 0 returns NULL, which is how the whole feature stays off.
+.mass_bin_edges <- function(width, plot_cap, analysis_cap) {
+  if (length(width) != 1 || is.na(width) || width <= 0) return(NULL)
+  width <- as.integer(width)
+  analysis_cap <- as.integer(analysis_cap)
+  if (is.na(analysis_cap) || analysis_cap <= 0) return(NULL)
+
+  plot_cap <- min(as.integer(plot_cap), analysis_cap)
+  last_regular <- min(ceiling(plot_cap / width) * width, analysis_cap)
+  regular <- seq(0L, last_regular, by = width)
+  # Edge 0 always survives: with a width wider than the cap it is the only
+  # regular edge there is, and the result is the single bin (0, analysis_cap].
+  regular <- regular[regular == 0L | (analysis_cap - regular) >= width]
+
+  edges <- unique(c(regular, analysis_cap))
+  if (length(edges) < 2) return(NULL)
+  as.integer(edges)
+}
+
+# Interval labels for those edges, in the notation the bins actually use.
+.mass_bin_labels <- function(edges) {
+  sprintf("(%d,%d]", edges[-length(edges)], edges[-1])
+}
+
+# The mass each bin takes out of one or more cumulative series, as a matrix
+# with a row per bin and a column per series.
+#
+# `cumulative` holds non-decreasing series on the `days` grid, read at the bin
+# edges as the step functions they are: the value at an edge is the value at
+# the last day at or before it, so an edge past the end of the grid takes the
+# last fitted value. Holding a series flat past its last observation is what
+# the estimators themselves do, and it is why an edge at the analysis cap needs
+# no grid running that far.
+#
+# Nothing here is specific to an estimator: any cumulative grid differences the
+# same way, whether it is a CIF, a distribution function, or 1 - S.
+.cumulative_bin_masses <- function(days, cumulative, edges) {
+  cumulative <- as.matrix(cumulative)
+  at_edge <- vapply(seq_len(ncol(cumulative)),
+                    function(j) .forward_fill(days, cumulative[, j], edges, 0),
+                    numeric(length(edges)))
+  masses <- at_edge[-1, , drop = FALSE] - at_edge[-nrow(at_edge), , drop = FALSE]
+  rownames(masses) <- .mass_bin_labels(edges)
+  colnames(masses) <- colnames(cumulative)
+  masses
+}
+
 
 # 1-based start/end positions of one stratum's block within a survfit object's
 # time-ordered vectors ($time, $surv, $lower, ...). A fit with no strata

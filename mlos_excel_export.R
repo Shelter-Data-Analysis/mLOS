@@ -543,6 +543,7 @@ write_general_sheet <- function(wb, bundle, title_style,
   }
   settings_metrics <- c(
     "Restricted stay cap (days)",
+    "Probability mass width (days)",
     "Period reference",
     "Intake type reference",
     "Animal group reference",
@@ -558,6 +559,7 @@ write_general_sheet <- function(wb, bundle, title_style,
   )
   settings_values <- list(
     settings$restricted_stay_cap,
+    settings$probability_mass_width,
     settings$period_reference,
     fmt_ref(settings$intake_type_reference),
     fmt_ref(settings$animal_group_reference),
@@ -638,6 +640,27 @@ write_general_sheet <- function(wb, bundle, title_style,
     mapping_df <- mapping_df[order(mapping_df$canonical_code, mapping_df$your_label), ]
     next_row <- write_section("Outcome type mapping", mapping_df, next_row,
                               note = "your labels to L/T/N")
+  }
+
+  # The probability mass the AJ figure draws, present only when the run asked
+  # for bins. It sits on General rather than on By_All because the stratum
+  # sheets hold the same measure on the same worksheet line as each other, and
+  # a table that exists for the whole sample alone would move every row below
+  # it out of step on one sheet of the four.
+  #
+  # The blanks in the last row are the point: no outcome claims the stays still
+  # in care when the window closes, so only Total carries that mass. Read down
+  # Total and the column sums to 1.
+  mass <- bundle$aj$probability_mass
+  if (!is.null(mass)) {
+    mass_df <- data.frame(Interval = rownames(mass), mass,
+                          check.names = FALSE, row.names = NULL,
+                          stringsAsFactors = FALSE)
+    next_row <- .write_stratum_section(
+      wb, "General", next_row, "Probability mass by interval", mass_df,
+      title_style, num_style_int, num_style_float,
+      note = "AJ; a row's Total is the KM mass over the same interval"
+    )
   }
 
 }

@@ -5,7 +5,9 @@
 #      .map_period_subsets, .plot_csv_filename, .write_plot_csv, .forward_fill,
 #      .cif_normalized_rmean, .prepend_restricted_mean_row,
 #      .ci_ribbon_stair_xy,
-#      .strata_info, .stratum_gaps
+#      .strata_info, .stratum_gaps,
+#      .mass_bin_edges, .cumulative_bin_masses, .MASS_REMAINDER_COLOR,
+#      .plot_grid
 #      from mlos_common.R
 
 #' Build AJ CIF results table and conditional remaining probabilities
@@ -385,6 +387,159 @@ plot_aj_conditional_unified_stack <- function(aj_results, references, save_file 
     references = references,
     main = "Outcome Type Stack After Day x",
     ylab = "Conditional Probability by Outcome Type",
+    save_file = save_file
+  )
+}
+
+
+#' The competing-risk probability mass, binned into intervals
+#'
+#' The CIF curves answer how much has happened by day d; this answers how much
+#' happens between one day and the next boundary, which is the quantity an
+#' audience hears as "how many leave in the first week". Each bin holds the
+#' rise in each outcome's CIF across it, so summing a bin over the outcomes
+#' gives the fall in the KM survival curve across the same interval.
+#'
+#' `remainder` is the probability of still being in care when the analysis
+#' window closes, the one part of the distribution no interval can hold.
+#' Bin masses and remainder together sum to 1.
+#'
+#' @param aj_results Results from compute_aj_cif_results
+#' @param references References list; uses references$probability_mass_width,
+#'   references$plot_stay_cap and references$restricted_stay_cap
+#' @return NULL when the width setting is 0 or the fit has nothing to bin;
+#'   otherwise a list of edges, masses (a bin-by-outcome matrix), remainder,
+#'   and states
+aj_probability_mass <- function(aj_results, references) {
+  if (!isTRUE(aj_results$has_analysis)) return(NULL)
+
+  edges <- .mass_bin_edges(references$probability_mass_width,
+                           references$plot_stay_cap,
+                           references$restricted_stay_cap)
+  if (is.null(edges)) return(NULL)
+
+  df <- aj_results$cif_df
+  # cif_Any is the sum of the per-outcome CIFs, so it is the top of the stack
+  # rather than a band in it, and it serves here as the departed-by-now total
+  # the remainder is measured against.
+  cif_cols <- setdiff(grep("^cif_", names(df), value = TRUE), "cif_Any")
+  if (length(cif_cols) == 0) return(NULL)
+
+  masses <- .cumulative_bin_masses(df$days, df[, cif_cols, drop = FALSE], edges)
+  colnames(masses) <- sub("^cif_", "", cif_cols)
+
+  last_edge <- edges[length(edges)]
+  departed <- .forward_fill(df$days, df$cif_Any, last_edge, 0)
+  list(
+    edges     = edges,
+    masses    = masses,
+    remainder = 1 - departed,
+    states    = colnames(masses)
+  )
+}
+
+
+# Shared renderer for a stacked probability-mass histogram: one bar per bin,
+# segments stacked in the order the columns arrive, and a final bar for the
+# remainder set apart by a gap and drawn in the remainder color.
+#
+# The remainder earns a bar rather than being left as the space under a y-axis
+# fixed at 1. Its own height is what a reader needs, and on a population that
+# mostly leaves early an axis running to 1 spends most of the panel on nothing.
+# It is annotated with its value because it can be a hairline: on OC2 it is
+# 0.34% of the distribution against a first bar of 59%.
+#
+# Bars touch, since neighbouring intervals do, and a bin holding no mass shows
+# as a gap in a row of bars rather than as missing furniture. The bar for the
+# final interval is drawn the same width as the rest while spanning many times
+# their days, which is why the axis is labelled with interval ends.
+.plot_mass_stack <- function(masses, edges, remainder, states, main, ylab, xlab,
+                             remainder_label, remainder_tick, save_file) {
+  cols <- c(.outcome_state_colors(states), .MASS_REMAINDER_COLOR)
+
+  # Rows are stack segments and columns are bars, which is the layout barplot
+  # stacks. The remainder is a segment present only in its own bar, so it takes
+  # a row of its own that is zero everywhere else.
+  height <- rbind(t(masses), 0)
+  height <- cbind(height, c(rep(0, length(states)), remainder))
+  ticks <- c(as.character(edges[-1]), remainder_tick)
+  # The remainder bar stands off the row by two bar widths. It is not on the
+  # day axis the others sit on, and the gap is also what leaves its label room
+  # beside the last interval's end, which is the widest label on the axis.
+  space <- c(rep(0, nrow(masses)), 2)
+  ylim  <- c(0, max(colSums(height, na.rm = TRUE), na.rm = TRUE) * 1.12)
+
+  # Which interval ends get printed. Left to barplot, a narrow width crowds the
+  # axis and R drops whichever labels collide, which took the last interval's
+  # end with it: the one bar that spans a different number of days from its
+  # neighbours lost the only thing that said so. Thinning from the right
+  # instead keeps that end whatever the width, and the remainder bar is always
+  # labelled since it stands apart from the axis it is not on.
+  n_bin <- nrow(masses)
+  step  <- ceiling(n_bin / .MASS_MAX_TICKS)
+  shown <- rev(seq(n_bin, 1L, by = -step))
+
+  .with_png(save_file, {
+    bar_x <- barplot(height, col = cols, border = NA, space = space,
+                     names.arg = rep("", ncol(height)), las = 1, ylim = ylim,
+                     xlab = xlab, ylab = ylab, main = main)
+    # mtext rather than axis: axis drops labels it judges to collide, and at a
+    # narrow width the two it dropped were the last interval's end and the
+    # remainder, the two the reader most needs. Thinning is decided above.
+    at <- c(shown, n_bin + 1L)
+    mtext(ticks[at], side = 1, at = bar_x[at], line = .PLOT_MGP[2])
+    # Drawn between two identical bar passes so the grid sits behind the bars:
+    # barplot has no panel.first, and a grid over solid fills reads as texture.
+    .plot_grid()
+    barplot(height, col = cols, border = NA, space = space,
+            names.arg = rep("", ncol(height)), axes = FALSE, add = TRUE)
+
+    text(bar_x[length(bar_x)], remainder, pos = 3,
+         labels = sprintf("%.2f%%", 100 * remainder))
+
+    legend("topright",
+           legend = c(sapply(states, .outcome_label), remainder_label),
+           fill = cols, bg = "white")
+  })
+  if (!is.null(save_file)) {
+    cat("\nPlot saved to:", save_file, "\n")
+  }
+  invisible(NULL)
+}
+
+
+#' Plot the competing-risk probability mass as a stack
+#'
+#' One bar per interval, each split by outcome, with a remainder bar for the
+#' stays still in care at the cap. Stacking is what lets one figure carry both
+#' readings: a bar's total is the KM mass over that interval, and its segments
+#' divide that total among the outcomes.
+#'
+#' Carries no companion CSV. Its numbers are neither a day grid nor anywhere
+#' else on disk, so they travel in the results bundle instead, where the
+#' workbook and every downstream reader can reach them.
+#'
+#' @param aj_results Results from compute_aj_cif_results
+#' @param references References list; see aj_probability_mass
+#' @param save_file Optional filename for PNG output
+plot_aj_probability_mass_stack <- function(aj_results, references, save_file = NULL) {
+  mass <- aj_probability_mass(aj_results, references)
+  if (is.null(mass)) {
+    cat("No AJ probability-mass bins to plot.\n")
+    return(invisible(NULL))
+  }
+
+  cap <- references$restricted_stay_cap
+  .plot_mass_stack(
+    masses = mass$masses,
+    edges = mass$edges,
+    remainder = mass$remainder,
+    states = mass$states,
+    main = "AJ Probability Mass Stack",
+    ylab = "Probability Mass by Outcome Type",
+    xlab = "Days Already in Care (x), interval upper end",
+    remainder_label = paste0("still in care at ", cap),
+    remainder_tick = "in care",
     save_file = save_file
   )
 }

@@ -200,6 +200,11 @@ if (isTRUE(aj_results$has_analysis)) {
   cat("\n>>> Generating stacked CIF plot...\n")
   plot_aj_cif_unified_stack(aj_results, references, save_file = output_path("aj_cif_unified_stack.png"))
 
+  cat("\n>>> Generating probability mass plot...\n")
+  plot_aj_probability_mass_stack(
+    aj_results, references,
+    save_file = output_path("aj_mass_unified_stack.png"))
+
   cat("\n>>> Generating conditional outcome distribution plot...\n")
   plot_aj_conditional_unified_stack(aj_results, references,
                                     save_file = output_path("aj_conditional_unified_stack.png"))

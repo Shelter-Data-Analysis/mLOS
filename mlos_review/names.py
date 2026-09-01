@@ -319,6 +319,7 @@ KINDS: dict[str, Name] = {
     "km_in_care_tenure": Name("in-care tenure profile", "tenure profile"),
     "aj_cif": Name("cumulative incidence", "incidence"),
     "aj_conditional": Name("conditional outcome mix by day", "outcome mix"),
+    "aj_mass": Name("probability mass by interval", "exit timing"),
 }
 
 # Stratifier ids, which appear inside titles ("LOS by animal group") rather

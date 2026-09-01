@@ -659,16 +659,39 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
   TRUE
 }
 
+# The binned probability mass as one matrix: a row per interval, a column per
+# outcome, the row total beside them, and a last row for the stays still in
+# care when the window closes.
+#
+# It travels in the bundle rather than in a companion CSV because it is a
+# summary and not a day grid: schema 4 moved the AJ day grid out to the CSVs,
+# and a dozen interval masses is the other kind of thing. The figure that draws
+# it ships no CSV, so these are the only copy.
+#
+# The remainder row is empty under each outcome, since none of them claims it,
+# and carries its value in Total. That column then sums to exactly 1: the whole
+# distribution, intervals and leftover together.
+#
+# NULL when probability_mass_width is 0, which is what an absent setting means.
+.aj_probability_mass_matrix <- function(aj, references) {
+  mass <- aj_probability_mass(aj, references)
+  if (is.null(mass)) return(NULL)
+  m <- cbind(mass$masses, Total = rowSums(mass$masses))
+  rbind(m, still_in_care_at_cap = c(rep(NA_real_, length(mass$states)),
+                                    mass$remainder))
+}
+
 # The serializable half of a compute_aj_cif_results value: everything except
 # the fit object itself.
-.aj_bundle <- function(aj) {
+.aj_bundle <- function(aj, references) {
   if (is.null(aj) || !isTRUE(aj$has_analysis)) return(list(has_analysis = FALSE))
   list(
     has_analysis = TRUE,
     outcome_states = aj$outcome_states,
     max_time = aj$max_time,
     rmtl = aj$rmtl,
-    rmtl_cap = aj$rmtl_cap
+    rmtl_cap = aj$rmtl_cap,
+    probability_mass = .aj_probability_mass_matrix(aj, references)
   )
 }
 
@@ -713,6 +736,7 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
 .X_NOTE_KM   <- "integer tenure; the grid runs 0..restricted_stay_cap - 1"
 .X_NOTE_AJ   <- "integer tenure; the grid runs 0..the AJ analysis window (the last fitted time, at most restricted_stay_cap)"
 .X_NOTE_COND <- "integer tenure; only the days within the AJ analysis window where the conditional probabilities are defined"
+.X_NOTE_MASS <- "right-closed day intervals at the probability_mass_width setting, the last running to restricted_stay_cap, followed by a remainder bar that is not an interval"
 
 # What the remaining-LOS families' summary row is, said once for both scopes.
 # What the two stratified families that have pointwise bounds say about their
@@ -849,6 +873,19 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
        value_meaning = "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end",
        aggregate = NULL,
        description = "Conditional outcome mix as a stack. Same data as aj_conditional_unified.csv."),
+  # PNG-only for a different reason from the two stack families above: this one
+  # draws numbers that appear in no CSV at all. They are a binned summary rather
+  # than a day grid, so they travel in the bundle (aj$probability_mass), which
+  # is where a consumer reads them.
+  list(kind = "aj_mass", scope = "unified", stem = "aj_mass_unified_stack",
+       variant = "stack",
+       x_column = "interval",
+       x_note = .X_NOTE_MASS,
+       columns = "one band per outcome, stacked, plus a remainder bar",
+       value_units = "probability",
+       value_meaning = "probability that a stay ends with this outcome having been in care for a length of time inside this interval; a bar's total is the fall in the KM survival curve across the same interval, and the remainder bar is the probability of still being in care at the cap, so every bar together sums to 1",
+       aggregate = NULL,
+       description = "Unified competing-risk probability mass by interval, as a stack. Numbers in aj$probability_mass."),
   list(kind = "aj_cif", scope = "stratified_outcome", stem = "aj_cif",
        x_note = .X_NOTE_AJ,
        columns = .COLUMNS_STRATIFIED_CI,
@@ -889,7 +926,11 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
       outcome     = outcome,
       variant     = if (is.null(family$variant)) "lines" else family$variant,
       description = family$description,
-      x = list(column = "days", units = "days since intake",
+      # Days unless the family says otherwise: every grid is indexed by day,
+      # but a binned figure is indexed by interval and would otherwise claim a
+      # column its data does not have.
+      x = list(column = if (is.null(family$x_column)) "days" else family$x_column,
+               units = "days since intake",
                note = family$x_note),
       values = list(columns = family$columns, units = family$value_units,
                     meaning = family$value_meaning),
@@ -1248,6 +1289,9 @@ build_results_bundle <- function(cox_results,
     # dropped because nothing else records them.
     settings = list(
       restricted_stay_cap      = references$restricted_stay_cap,
+      # Substantive rather than presentational: it sets the intervals of
+      # aj$probability_mass, so it is in the settings the workbook shows.
+      probability_mass_width   = references$probability_mass_width,
       period_reference         = references$period_reference,
       intake_type_reference    = references$intake_type_reference,
       animal_group_reference   = references$animal_group_reference,
@@ -1345,7 +1389,7 @@ build_results_bundle <- function(cox_results,
     data_preparation = .data_preparation_bundle(period_data),
     cox     = .cox_bundle(cox_results),
     weibull = .weibull_bundle(cox_results$weibull),
-    aj      = .aj_bundle(aj_results),
+    aj      = .aj_bundle(aj_results, references),
     strata  = strata,
     # Filled in by attach_output_manifest once rendering has happened; the
     # manifest records what was written, which is not known yet.

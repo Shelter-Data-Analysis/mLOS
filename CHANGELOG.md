@@ -16,6 +16,24 @@ before it is tagged claims an artifact nobody can fetch.
 
 ---
 
+## Unreleased
+
+A new figure and the setting that turns it on. **No existing analysis number
+changed**: `probability_mass_width` defaults to 0, so a run that does not set
+it computes and writes exactly what it did before.
+
+- `aj_mass_unified_stack` draws how much of the distribution falls in each
+  interval of days, one stacked bar per interval split by outcome type, with a
+  gray bar for the stays still in care at the cap. A bar's total is the fall in
+  the KM survival curve over the same interval, so the bars and the gray one
+  sum to 1.
+- The intervals run at the requested width until one of them contains
+  `plot_stay_cap`, which is kept whole, and a single interval then covers the
+  rest of the way to `restricted_stay_cap`.
+- The numbers travel in the bundle as `aj$probability_mass` and on the
+  workbook's `General` sheet. This figure ships no companion CSV: its bars are
+  neither a day grid nor a redrawing of one, so the bundle is where they live.
+
 ## 0.1.2 (2026-08-28)
 
 Deck workbook correction, and a documentation pass on terminology. **No

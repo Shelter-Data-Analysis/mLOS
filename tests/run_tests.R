@@ -385,8 +385,8 @@ flatten_cif_cells <- function(df, prefix = "") {
 # aj_competing_risk_analysis() -> has_analysis, max_time, n_outcome_states,
 # and one entry per (column, day) cell of cif_df actually populated, named
 # "<column>_day<day>", e.g. "cif_L_day10", "condrem_N_day5", "cif_Any_day3".
-flatten_aj <- function(aj_results) {
-  aj <- .aj_bundle(aj_results)
+flatten_aj <- function(aj_results, references) {
+  aj <- .aj_bundle(aj_results, references)
   flat <- list(has_analysis = as.numeric(isTRUE(aj$has_analysis)))
   if (!isTRUE(aj$has_analysis)) return(flat)
 
@@ -1957,8 +1957,33 @@ run_fixture_case <- function(case_dir) {
     aj_results <- aj_competing_risk_analysis(period_data, max_time = km_results$max_time,
                                              rmean_cap = references$restricted_stay_cap)
     if (!is.null(expected_env$expected_aj)) {
-      check_fields(paste0(case_name, ": aj"), flatten_aj(aj_results), expected_env$expected_aj,
+      check_fields(paste0(case_name, ": aj"), flatten_aj(aj_results, references), expected_env$expected_aj,
                    tol = case_tol)
+    }
+
+    # The probability-mass bins, checked on every fixture that fits an AJ
+    # rather than on the ones whose settings ask for them. The width is forced
+    # here for the same reason --generate-outputs runs every analysis on every
+    # fixture: the interesting inputs for binning are the awkward ones (a cap
+    # of a few days, a single outcome state, one constant length of stay), and
+    # none of those fixtures would otherwise reach this code.
+    #
+    # What is asserted is the closure property rather than any particular
+    # number: the intervals plus the remainder are the whole distribution, so
+    # they sum to 1 whatever the fit did, and no interval can hold negative
+    # mass because a CIF cannot fall.
+    for (width in c(1, 7, references$restricted_stay_cap)) {
+      mass <- aj_probability_mass(aj_results,
+                                  modifyList(references,
+                                             list(probability_mass_width = width)))
+      if (is.null(mass)) next
+      label <- paste0(case_name, ": aj mass w=", width)
+      expect_equal(paste0(label, ": bins and remainder sum to 1"),
+                   sum(mass$masses) + mass$remainder, 1, tol = 1e-9)
+      expect_equal(paste0(label, ": no negative mass"),
+                   as.numeric(any(mass$masses < -1e-12)), 0)
+      expect_equal(paste0(label, ": one row per interval"),
+                   nrow(mass$masses), length(mass$edges) - 1)
     }
   }
 
@@ -2927,6 +2952,40 @@ run_suite_checks <- function() {
     expect_equal("stratifier wiring: term/id lookups follow the registry unaided",
                  as.numeric(identical(unname(.stratifier_ids_by_model_term()[["breed_group"]]),
                                       "breed")), 1)
+  })
+
+  cat("\n=== probability-mass bins ===\n")
+
+  # The edge rules, on the cases that decide them. Everything else about the
+  # binning is checked against real fits in the fixture loop above; what is
+  # here is the arithmetic that picks the boundaries, where the awkward inputs
+  # are easier to state than to find in a dataset.
+  local({
+    expect_equal("mass bins: width 0 is the off switch",
+                 as.numeric(is.null(.mass_bin_edges(0, 58, 365))), 1)
+    # The bin holding plot_stay_cap is kept whole, so 58 is covered by (56,63]
+    # and the tail runs from there.
+    same <- function(actual, expected) as.numeric(identical(as.numeric(actual),
+                                                            as.numeric(expected)))
+    expect_equal("mass bins: the bin containing plot_stay_cap is kept whole",
+                 same(.mass_bin_edges(7, 58, 365),
+                      c(0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 365)), 1)
+    # With the two caps equal there is no tail to speak of, and the last full
+    # width would leave a one-day sliver at 364. It is absorbed instead.
+    expect_equal("mass bins: no sliver at the right-hand end",
+                 same(tail(.mass_bin_edges(7, 365, 365), 2), c(357, 365)), 1)
+    expect_equal("mass bins: a width wider than the cap gives one interval",
+                 same(.mass_bin_edges(400, 58, 365), c(0, 365)), 1)
+    expect_equal("mass bins: labels name the intervals they bound",
+                 as.numeric(identical(.mass_bin_labels(c(0, 7, 365)),
+                                      c("(0,7]", "(7,365]"))), 1)
+    # Read as step functions: an edge past the end of the grid takes the last
+    # fitted value rather than falling off it, which is what lets the tail edge
+    # sit at the cap while a curve stops short of it.
+    cum <- cbind(A = c(0, 0.4, 0.6, 0.6))
+    masses <- .cumulative_bin_masses(0:3, cum, c(0, 1, 3, 10))
+    expect_equal("mass bins: a cumulative grid differences into its intervals",
+                 max(abs(as.numeric(masses[, "A"]) - c(0.4, 0.2, 0))), 0)
   })
 
   cat("\n=== output family naming ===\n")

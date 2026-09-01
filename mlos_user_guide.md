@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260831_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260831_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -72,6 +72,7 @@
         - [`weibull_shape_crossing`](#weibull_shape_crossing)
     - [Plots and output selection](#plots-and-output-selection)
         - [`plot_stay_cap`](#plot_stay_cap)
+        - [`probability_mass_width`](#probability_mass_width)
         - [`max_plot_strata`](#max_plot_strata)
         - [`show_km_ci_ribbons`](#show_km_ci_ribbons)
         - [`show_aj_cif_ci_ribbons`](#show_aj_cif_ci_ribbons)
@@ -362,11 +363,12 @@ The `aj_cif_<stratifier>_outcome_*` plots can optionally show the same style of 
 | `aj_conditional_unified` | Conditional outcome probability, pooled across all strata: given that an animal is still in care at day X, the probability the animal leaves by each outcome type before the end of the AJ analysis window. All three outcome types as separate lines, one per outcome. |
 | `aj_conditional_unified_stack` | The same pooled conditional outcome probability as `aj_conditional_unified`, drawn instead as a stacked area so the three outcome types visibly sum to the total probability of having left by the end of the window at each day. Same underlying numbers, different picture. PNG only, no CSV. |
 | `aj_cif_unified_stack` | The same cumulative incidence as `aj_cif_unified`, drawn as a stacked area. The bands sum to the overall CIF, so the top of the stack reads as the probability of having departed by that day and the white space above it as the probability of still being in care. PNG only, and without the confidence-interval ribbons the line version carries. |
+| `aj_mass_unified_stack` | How much of the distribution falls in each interval of days rather than how much has accumulated by each day: one stacked bar per interval, split by outcome type, with a gray bar at the right for the stays still in care at `restricted_stay_cap`. A bar's total height is the fall in the KM survival curve across that interval, so the bars and the gray one together sum to 1. Drawn only when [`probability_mass_width`](#probability_mass_width) is set. PNG only; the numbers are in the workbook and in `results.json`. |
 | `aj_conditional_<stratifier>_outcome_L` | Conditional outcome probability for L (community live outcome), with one line per stratum. |
 | `aj_conditional_<stratifier>_outcome_T` | Conditional outcome probability for T (other live outcome), with one line per stratum. |
 | `aj_conditional_<stratifier>_outcome_N` | Conditional outcome probability for N (non-live outcome), with one line per stratum. |
 
-Each `_stack` plot draws the same numbers as the plot it is named after, so only the line version carries the companion CSV: `aj_cif_unified.csv` serves `aj_cif_unified_stack.png`, and `aj_conditional_unified.csv` serves `aj_conditional_unified_stack.png`. Read the stacks for composition and the lines for individual curves and their confidence intervals.
+Two of the stacks redraw a plot they are named after, so only the line version carries the companion CSV: `aj_cif_unified.csv` serves `aj_cif_unified_stack.png`, and `aj_conditional_unified.csv` serves `aj_conditional_unified_stack.png`. Read those stacks for composition and the lines for individual curves and their confidence intervals. `aj_mass_unified_stack` is the exception: its bars are a quantity of their own, and they appear on the `General` worksheet and in `results.json` rather than in a CSV.
 
 Line plots are drawn in staircase form, changing only on integer days, which is how the underlying estimates actually behave; stacked area plots interpolate between days instead, purely for improved visual presentation.
 
@@ -471,9 +473,10 @@ Every sheet is laid out in vertical sections with a blank row as the separator. 
 
 - **Period metadata** — the start date, exclusive end date, and duration of each period. This is the same table that leads `By_Period`.
 - **Observation gaps** — placed high, right after the period metadata, so that it is not overlooked. It is shaded green when no risk-set gaps were found and red when any were. See the Observation gaps section.
-- **Analysis settings** — the settings that shape the numbers or their interpretation: the restricted stay cap, the Cox reference levels for period, intake type, and animal group, the columns that compose the animal-group dimension, whether a Weibull fit was run alongside Cox, the two row-discard flags, the intake, animal-group, and other value filters, and the outcome labels deleted outright or reclassified as still-in-care.
+- **Analysis settings** — the settings that shape the numbers or their interpretation: the restricted stay cap, the probability-mass interval width, the Cox reference levels for period, intake type, and animal group, the columns that compose the animal-group dimension, whether a Weibull fit was run alongside Cox, the two row-discard flags, the intake, animal-group, and other value filters, and the outcome labels deleted outright or reclassified as still-in-care.
 - **Unified KM detail** — the overall study window, the restricted stay cap and the fraction of stays it bound, and the unified median, 90th percentile, still-in-care-at-cap, and restricted mean. These are the same four KM Length of Stay figures the `By_All` sheet carries per column.
 - The stratification coverage, and the raw-label to L/T/N mapping actually applied.
+- **Probability mass by interval** — the numbers behind `aj_mass_unified_stack`, present only when [`probability_mass_width`](#probability_mass_width) is set: a row per interval, a column per outcome type, and a Total column that is the KM mass over the same interval. The last row holds the stays still in care at the cap, which belong to no outcome, so only its Total is filled; read down Total and the column sums to 1. It sits here rather than on `By_All` because the stratum sheets keep the same measure on the same worksheet line as each other, and a whole-sample table would push one of them out of step.
 
 Plot-only settings are deliberately left out of the analysis settings: the axis caps, the point and line sizing, the maximum plotted strata, the confidence-ribbon toggles, and the flags that only select which stratified plots and CSVs are written.
 
@@ -1097,6 +1100,18 @@ plot_stay_cap: 60
 ```
 
 Positive integer, must be ≤ `restricted_stay_cap`. If provided, KM and AJ plots are truncated at this day on the x-axis. Does not affect any computed statistics. Defaults to `restricted_stay_cap` if omitted. Useful when the distribution is visually informative in the first few weeks but computation of the restricted mean must extend further for accuracy.
+
+#### `probability_mass_width`
+
+```yaml
+probability_mass_width: 7
+```
+
+Non-negative integer, must be ≤ `restricted_stay_cap`. The width in days of the intervals in `aj_mass_unified_stack`. Default is 0, which draws no such plot and puts no interval table in the workbook.
+
+Intervals are right-closed and run from intake: a width of 7 gives (0,7], (7,14], and so on, so a stay of exactly 7 days falls in the first. They continue at that width until one of them contains [`plot_stay_cap`](#plot_stay_cap), and that interval is kept whole rather than cut short, since a narrower interval collects less mass and would read as a fall in the exit rate. A single interval then runs from there to `restricted_stay_cap` and holds everything beyond the plotted range. It is drawn the same width as the others while spanning many times their days, which is why the axis is labelled with interval ends rather than being read as a rate.
+
+The choice of width decides what the picture says. On a population that mostly leaves in the first week, a width of 7 puts most of the distribution in one bar and leaves the rest as stubs; a width of 1 or 2 shows the shape of that first week instead. Try more than one.
 
 #### `max_plot_strata`
 

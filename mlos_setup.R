@@ -255,7 +255,7 @@ extract_references <- function(settings, periods) {
   # making the tool behave as if the (misspelled) setting were never given.
   known_keys <- c(
     "period_dates", "period_labels",
-    "restricted_stay_cap", "plot_stay_cap",
+    "restricted_stay_cap", "plot_stay_cap", "probability_mass_width",
     "outcome_type_L", "outcome_type_T", "outcome_type_N",
     "outcome_type_delete", "outcome_type_in_care",
     "animal_group_columns", "animal_group_reference", "intake_type_reference",
@@ -288,6 +288,17 @@ extract_references <- function(settings, periods) {
       stop(key_name, " must be a positive integer (found: ", raw_value, ").")
     }
     as.integer(cap)
+  }
+
+  parse_nonnegative_integer <- function(raw_value, key_name) {
+    value <- suppressWarnings(as.numeric(raw_value))
+    if (length(value) != 1 || is.na(value) || !is.finite(value)) {
+      stop(key_name, " must be a single non-negative integer in the settings file.")
+    }
+    if (value < 0 || value != floor(value)) {
+      stop(key_name, " must be a non-negative integer (found: ", raw_value, ").")
+    }
+    as.integer(value)
   }
 
   parse_positive_numeric <- function(raw_value, key_name) {
@@ -358,6 +369,20 @@ extract_references <- function(settings, periods) {
   }
   if (plot_stay_cap > restricted_stay_cap) {
     stop("plot_stay_cap must be less than or equal to restricted_stay_cap.")
+  }
+
+  # Bin width in days for the probability-mass histogram. Zero draws no plot
+  # and puts no mass matrix in the bundle, and that is what an absent setting
+  # resolves to. The width doubles as the switch because zero describes no
+  # interval, so there is no second key that could disagree with it.
+  if (!is.null(settings[["probability_mass_width"]])) {
+    probability_mass_width <- parse_nonnegative_integer(
+      settings[["probability_mass_width"]], "probability_mass_width")
+  } else {
+    probability_mass_width <- 0L
+  }
+  if (probability_mass_width > restricted_stay_cap) {
+    stop("probability_mass_width must be less than or equal to restricted_stay_cap.")
   }
 
   png_pointsize_factor  <- parse_positive_numeric_default("png_pointsize_factor", 1)
@@ -523,6 +548,7 @@ extract_references <- function(settings, periods) {
     has_period             = n_periods > 1,
     restricted_stay_cap    = restricted_stay_cap,
     plot_stay_cap          = plot_stay_cap,
+    probability_mass_width = probability_mass_width,
     png_pointsize_factor   = png_pointsize_factor,
     png_line_width_factor  = png_line_width_factor,
     max_plot_strata        = max_plot_strata,
