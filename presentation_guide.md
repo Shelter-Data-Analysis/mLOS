@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260902_002. Read it in any markdown reader,
+presentation guide, version 20260902_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -708,7 +708,14 @@ ten produce none at all. What each rule looks for is under
 ### Educational
 
 **One section sits behind everything else**, including the robustness check,
-and teaches a way of reading rather than reporting a result.
+and teaches a way of reading rather than reporting a result. Its divider says
+`Extra: educational`, the way the robustness divider says `Extra:`, because to
+a presenter the two are the same kind of thing: reached when a question from
+the floor asks for them, and not walked through otherwise.
+
+The section stays in the deck rather than moving into a variant. What is here
+is what every deck should carry, and it is also the pool a variant borrows
+from: an outline that wants the opening diagram inserts it by name.
 
 **An educational slide carries no findings and no recommendations.** The
 section drops both from every slide it builds rather than asking each rule to
@@ -772,7 +779,10 @@ Not part of the presentation.
 - Every step down is a day on which somebody left
   - How far it steps is what share of those still here left that day
 
-@stub A worked example of left truncation
+@stub Left truncation, worked
+
+- One animal, admitted before the period opened
+- What the period knows about it, and what it does not
 ```
 
 `#` opens a slide and `##` is that slide's standing line, which an opening
@@ -783,8 +793,15 @@ is a paragraph of speaker notes rather than markdown's blockquote.
 
 `@insert` borrows a slide by its exact title and brings its continuation pages
 with it, which is why the Findings section is named through its head and not
-page by page. `@stub` holds a gap open for a slide nobody has written, and
-every stub left in a deck is warned about at build time.
+page by page. It takes no body: a borrowed slide arrives whole, and a bullet
+written under one would have nowhere to go, so it is refused rather than lost.
+
+`@stub` holds a gap open for a slide nobody has written, and takes the same
+body a `#` slide takes, which is where the note saying what the missing slide
+is about belongs. Its own title is set at the divider's size and wants to stay
+short. Every stub left in a deck is warned about at build time, and so is any
+title long enough to wrap: a title box grows down over the body rather than
+shrinking its type, and the writer is the only one who can shorten the words.
 
 **Borrowed slides are built again, not copied out of the deck file.** A slide
 in a `.pptx` has its numbers formatted into strings and its geometry fixed at

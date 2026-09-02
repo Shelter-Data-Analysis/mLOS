@@ -725,7 +725,7 @@ def check_deck_with_figures(case: str, bundle: Bundle, directory: Path) -> None:
                 expect_equal(f"{case}: the section runs divider, opener, "
                              f"intervals",
                              titles[-3:],
-                             ["Educational", "Looking at Length of Stay (LOS)",
+                             ["Extra: educational", "Looking at Length of Stay (LOS)",
                               interval])
                 page = list(deck.slides)[at]
                 pictures = [sh for sh in page.shapes if sh.shape_type == 13]
@@ -815,7 +815,8 @@ def check_educational_section() -> None:
     slides = educational_section(bundle, vocab)
     expect(f"the section is built", bool(slides))
     titles = [slide.title for slide in slides]
-    expect_equal("it opens with its divider", titles[0], "Educational")
+    expect_equal("it opens with its divider", titles[0],
+                 "Extra: educational")
     expect_equal("the LOS opener comes first",
                  titles[1], "Looking at Length of Stay (LOS)")
     # Carried on the golden bundles, which name no interval figure, so the

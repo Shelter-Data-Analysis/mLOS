@@ -46,7 +46,8 @@ from mlos_review.figures import FigureSet
 from mlos_review.names import Vocabulary
 from mlos_review.output import prepare_output
 from mlos_review.render_pptx import (Bullet, Slide, bullet_pages, lead_height,
-                                     render, template_band, text_budget)
+                                     render, template_band, text_budget,
+                                     title_lines)
 from mlos_review.settings import (Settings, SettingsError,
                                   load as load_settings, parse_template)
 
@@ -68,8 +69,11 @@ DIRECTIVES = ("@insert", "@stub")
 
 # What a stub says on the slide it makes. Loud on purpose: it is a gap held
 # open for a slide nobody has written, and a gap that reads as finished work is
-# worse than no gap at all.
+# worse than no gap at all. The prefix is why a stub wants a SHORT title: it is
+# set at the divider's size, and a sentence there wraps onto the body beneath.
+# What the slide is to be about goes in its body, like any other slide's.
 STUB_PREFIX = "TO WRITE"
+STUB_EMPTY = "Nothing here yet."
 
 # Deepest indent a sub-bullet may carry. With two levels there is nothing to
 # count, so any indent is level 1 and this is only a guard: past one tab a
@@ -128,7 +132,11 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
           - a bullet       level 1, at any indent up to one tab
         > a note           a paragraph of speaker notes
         @insert <title>    the deck's slide of that title, and its run
-        @stub <text>       a gap, held open and warned about
+        @stub <title>      a gap, held open and warned about
+
+    A `@stub` takes the same body a `#` slide takes, which is where the note
+    saying what the missing slide is about belongs; its own title is set at the
+    divider's size and wants to stay short.
     """
     pages: list[Page] = []
     problems: list[tuple[int, str]] = []
@@ -137,6 +145,11 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
     def opened(number: int, what: str) -> bool:
         if current is None:
             problems.append((number, f"{what} before the first heading."))
+            return False
+        if current.kind == "INSERT":
+            problems.append((number, f"{what} after '@insert "
+                                     f"{current.title}', which borrows a slide "
+                                     f"whole and has nowhere to put it."))
             return False
         return True
 
@@ -292,12 +305,15 @@ def compose(pages: list[Page], base: list[Slide], source: str = "outline",
                 continue
             slides.extend(deepcopy(slide) for slide in run)
         elif page.kind == "STUB":
-            slides.append(Slide(title=f"{STUB_PREFIX}: {page.title}",
-                                bullets=[Bullet("Nothing here yet.")],
-                                notes=["A gap held open by the outline. The "
-                                       "slide that belongs here has not been "
-                                       "written."],
-                                layout="TITLE"))
+            slides.append(Slide(
+                title=f"{STUB_PREFIX}: {page.title}",
+                lead=page.lead,
+                bullets=list(page.bullets) or ([] if page.lead
+                                               else [Bullet(STUB_EMPTY)]),
+                notes=page.notes or ["A gap held open by the outline. The "
+                                     "slide that belongs here has not been "
+                                     "written."],
+                layout="TITLE"))
         else:
             slides.extend(_written_slides(page, budget))
 
@@ -422,6 +438,17 @@ def build_variant(results: str | Path | Bundle, outline_path: str | Path,
     warnings.extend(
         f"{outline_path.name}:{page.line}: stub slide {page.title!r} left in "
         f"the deck." for page in pages if page.kind == "STUB")
+    # A title the outline wrote that will not fit on its line. Said here rather
+    # than left to be discovered in the deck, because a title box grows down
+    # over the body instead of shrinking its type, and the writer is the only
+    # one who can shorten the words.
+    written = {page.title for page in pages if page.kind != "INSERT"}
+    warnings.extend(
+        f"{slide.title!r} is too long for its line and wraps over the body. "
+        f"Shorten it; what the slide is about can go in its bullets."
+        for slide in slides
+        if slide.title in written or slide.title.startswith(f"{STUB_PREFIX}: ")
+        if title_lines(slide.title, slide.layout) > 1)
 
     figures.write_manifest()
     out_path, archived = prepare_output(out_path)

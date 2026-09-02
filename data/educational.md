@@ -25,4 +25,12 @@ Not part of the presentation.
 > completed stays throws away everyone still in care, and those are the long
 > ones, so it reads short.
 
-@stub A worked example of left truncation, on one animal
+@stub Left truncation, worked
+
+- One animal, admitted before the period opened and still here when it began
+- What the period knows about it, and what it does not
+  - Not how long it had already been here, unless the intake date says so
+  - Only that it lasted at least as long as the period saw
+
+> Draw the one case on the board. The diagram two slides back shows four at
+> once, which is right for the definition and too much for a first pass.

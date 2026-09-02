@@ -1787,9 +1787,11 @@ def probability_intervals_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | No
     )
 
 
-# What the educational section is called and what it is for, said once so the
-# divider and the guide cannot drift.
-EDUCATIONAL_TITLE = "Educational"
+# What the educational section is called, said once so the divider and the
+# guide cannot drift. "Extra:" the way the reserve divider says it, because the
+# two sections are the same kind of thing to a presenter: behind the closing
+# sections, reached when a question from the floor asks for them.
+EDUCATIONAL_TITLE = "Extra: educational"
 
 
 def educational_section(bundle: Bundle, vocab: Vocabulary) -> list[Slide]:

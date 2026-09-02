@@ -557,15 +557,20 @@ def _word_width(text: str, size: Pt) -> int:
     return max([_text_width(word, size) for word in text.split()] or [0])
 
 
-def _wrapped_lines(text: str, size: Pt, width: int) -> int:
-    """How many lines a string takes in a cell of this width.
+def _wrapped_lines(text: str, size: Pt, width: int,
+                   padding: int = CELL_PADDING) -> int:
+    """How many lines a string takes in a box of this width.
 
     Greedy, breaking at spaces, which is what PowerPoint does. Crude like
     everything else here, and it only has to decide how tall a row wants to be:
     a header that wraps is fine, a header that wraps into a row sized for one
     line is what puts a footnote over the last row of a table.
+
+    `padding` is what the box costs beyond its text, a table cell's insets by
+    default. A plain textbox is charged its own, which is why `title_lines`
+    passes them.
     """
-    room = width - CELL_PADDING
+    room = width - padding
     if room <= 0:
         return len(text.split()) or 1
     lines, current = 1, 0
@@ -740,6 +745,20 @@ def _shade_alternate_rows(grid) -> None:
         for cell in row.cells:
             cell.fill.solid()
             cell.fill.fore_color.rgb = BAND_COLOR
+
+
+def title_lines(text: str, layout: str = "STACKED") -> int:
+    """How many lines a slide title takes, at the size its layout sets it in.
+
+    A title is drawn in a box one line tall and pptx grows the box downward
+    rather than shrinking the type, so a title that wraps is a title written
+    over the body beneath it. Offered because a caller composing slides from
+    hand-written text can be told that before the deck is opened, which is the
+    only moment it is cheap to fix.
+    """
+    size = OPENING_TITLE_PT if layout == "TITLE" else TITLE_PT
+    return _wrapped_lines(capitalize_first(text), size,
+                          int(SLIDE_WIDTH - 2 * MARGIN), int(TEXT_BOX_INSETS))
 
 
 def _add_title(slide, text: str, size: Pt = TITLE_PT,
