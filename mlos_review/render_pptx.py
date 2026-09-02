@@ -163,6 +163,29 @@ FOOTNOTE_LINE_HEIGHT = Inches(0.18)
 FOOTNOTE_HEIGHT = Inches(0.35)
 
 
+@dataclass(frozen=True)
+class Bullet:
+    """One bullet line, and how far in it sits.
+
+    A plain string is a level 0 bullet, which is what every rule with no
+    sub-list passes and why `bullets` still takes strings. Depth is a field
+    rather than a marker inside the text, for the reason flags travel beside a
+    number rather than inside it: a depth written into prose has to be parsed
+    back out by every consumer, and the one that forgets shows the marker to
+    the audience.
+
+    One level of nesting is what the renderer draws. A deeper list on a slide
+    is a document.
+    """
+
+    text: str
+    level: int = 0
+
+
+def _as_bullet(entry: Bullet | str) -> Bullet:
+    return entry if isinstance(entry, Bullet) else Bullet(str(entry))
+
+
 @dataclass
 class Slide:
     """One page: a title, zero or more figures, an optional table, notes.
@@ -234,7 +257,7 @@ class Slide:
     figures: list[Path] = field(default_factory=list)
     table: Table | None = None
     tables: list[Table] = field(default_factory=list)
-    bullets: list[str] = field(default_factory=list)
+    bullets: list[Bullet | str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     findings: list[str] = field(default_factory=list)
     recommendations: list[str] = field(default_factory=list)
@@ -627,30 +650,7 @@ def _add_table(slide, table: Table, vocab: Vocabulary, top: Emu, height: Emu,
                 mark.font.size = FLAG_PT
 
 
-@dataclass(frozen=True)
-class Bullet:
-    """One bullet line, and how far in it sits.
-
-    A plain string is a level 0 bullet, which is what every rule with no
-    sub-list passes and why `bullets` still takes strings. Depth is a field
-    rather than a marker inside the text, for the reason flags travel beside a
-    number rather than inside it: a depth written into prose has to be parsed
-    back out by every consumer, and the one that forgets shows the marker to
-    the audience.
-
-    One level of nesting is what the renderer draws. A deeper list on a slide
-    is a document.
-    """
-
-    text: str
-    level: int = 0
-
-
-def _as_bullet(entry) -> Bullet:
-    return entry if isinstance(entry, Bullet) else Bullet(str(entry))
-
-
-def bullet_height(line, width: Emu | None = None) -> int:
+def bullet_height(line: Bullet | str, width: Emu | None = None) -> int:
     """Height one bullet needs once it wraps, including the space beneath it.
 
     Estimated from the character count, like the table column widths and for
@@ -687,7 +687,8 @@ def lead_height(text: str) -> int:
     return lines * BULLET_LINE_HEIGHT + int(LEAD_SPACING)
 
 
-def bullet_pages(bullets: list[str], reserved: int = 0) -> list[list[str]]:
+def bullet_pages(bullets: list[Bullet | str],
+                 reserved: int = 0) -> list[list[Bullet | str]]:
     """Split bullets into pages that fit a slide, keeping their order.
 
     Geometry lives here rather than in the rule that gathers the bullets: how
@@ -702,8 +703,8 @@ def bullet_pages(bullets: list[str], reserved: int = 0) -> list[list[str]]:
     second page onward.
     """
     budget = SLIDE_HEIGHT - (MARGIN + TITLE_HEIGHT) - MARGIN
-    pages: list[list[str]] = []
-    page: list[str] = []
+    pages: list[list[Bullet | str]] = []
+    page: list[Bullet | str] = []
     used = reserved
     for line in bullets:
         height = bullet_height(line)
@@ -717,7 +718,7 @@ def bullet_pages(bullets: list[str], reserved: int = 0) -> list[list[str]]:
     return pages
 
 
-def _add_bullets(slide, bullets: list, top: Emu, height: Emu,
+def _add_bullets(slide, bullets: list[Bullet | str], top: Emu, height: Emu,
                  width: Emu | None = None) -> None:
     box = slide.shapes.add_textbox(
         MARGIN, top, (SLIDE_WIDTH - 2 * MARGIN) if width is None else width,
