@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260902_003. Read it in any markdown reader,
+presentation guide, version 20260902_004. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -779,10 +779,15 @@ Not part of the presentation.
 - Every step down is a day on which somebody left
   - How far it steps is what share of those still here left that day
 
-@stub Left truncation, worked
+@stub Left truncation, worked   <!-- somebody has to draw this -->
 
 - One animal, admitted before the period opened
 - What the period knows about it, and what it does not
+
+<!--
+# Switched off while a shorter version is tried
+- this slide and its bullets are not built
+-->
 ```
 
 `#` opens a slide and `##` is that slide's standing line, which an opening
@@ -818,6 +823,12 @@ below will carry. Titles hold vocabulary labels, so an outline written for one
 dataset can fail against another; that failure is loud, and `--list` says what
 the titles are. Every deck's titles are unique apart from continuation runs,
 which the test suite checks on every fixture.
+
+`<!-- ... -->` is a comment, in markdown's own spelling, so a reader
+previewing the outline sees nothing where one sits. It may end a line, take a
+whole line, or run over several, which is also how a slide is switched off
+while a shorter talk is tried. A comment opened and never closed is refused,
+naming the line it opened on, because everything after it would be swallowed.
 
 Templates belong in `templates/`, which git ignores wholesale. A template is
 usually somebody else's file, carrying their branding, and committing one would

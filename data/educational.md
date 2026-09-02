@@ -1,3 +1,6 @@
+<!-- The educational section as a deck of its own. The base deck carries its
+     own two-slide version; this is where a longer one is written. -->
+
 # Educational {divider}
 
 Not part of the presentation.
@@ -10,7 +13,7 @@ Not part of the presentation.
 
 > Use them when a question is about how a figure works. Skip them otherwise.
 
-@insert Looking at Length of Stay (LOS)
+@insert Looking at Length of Stay (LOS)   <!-- the truncation diagram -->
 
 # What a survival curve is reading
 ## The height is a share of the arrivals, not a count of the animals

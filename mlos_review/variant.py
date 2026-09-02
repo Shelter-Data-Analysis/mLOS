@@ -81,6 +81,11 @@ STUB_EMPTY = "Nothing here yet."
 # writer meant a third level the renderer does not draw.
 MAX_INDENT = 4
 
+# A comment, in markdown's own spelling, so a reader previewing the outline
+# sees nothing where one sits. Whole-line, trailing, or several lines at once,
+# which is also how a slide is switched off while a shorter talk is tried.
+COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
+
 BULLET_LINE = re.compile(r"^(\s*)-\s+(.*\S)\s*$")
 HEADING_LINE = re.compile(r"^(#{1,2})\s+(.*\S)\s*$")
 PROPERTY_TAIL = re.compile(r"^(.*\S)\s*\{([^{}]*)\}$")
@@ -133,6 +138,8 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
         > a note           a paragraph of speaker notes
         @insert <title>    the deck's slide of that title, and its run
         @stub <title>      a gap, held open and warned about
+        <!-- anything -->  a comment, at the end of a line or on its own,
+                           over as many lines as it takes
 
     A `@stub` takes the same body a `#` slide takes, which is where the note
     saying what the missing slide is about belongs; its own title is set at the
@@ -141,6 +148,10 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
     pages: list[Page] = []
     problems: list[tuple[int, str]] = []
     current: Page | None = None
+    lines, unclosed = _uncommented(text.splitlines())
+    if unclosed:
+        problems.append((unclosed, "a comment opened here and is never closed, "
+                                   "so everything after it is swallowed."))
 
     def opened(number: int, what: str) -> bool:
         if current is None:
@@ -153,7 +164,7 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
             return False
         return True
 
-    for number, raw in enumerate(text.splitlines(), 1):
+    for number, raw in enumerate(lines, 1):
         line = raw.rstrip()
         if not line.strip():
             continue
@@ -219,6 +230,33 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
     if problems:
         raise OutlineError(source, problems)
     return pages
+
+
+def _uncommented(lines: list[str]) -> tuple[list[str], int]:
+    """The outline with its comments taken out, and where one was left open.
+
+    One line out for one line in, blanked rather than dropped, so a problem
+    reported on line 30 is on line 30 of the file the writer is looking at. A
+    line left holding nothing is a blank line, which the parser already skips.
+    """
+    result: list[str] = []
+    opened_at = 0
+    for number, line in enumerate(lines, 1):
+        kept: list[str] = []
+        while line:
+            if opened_at:
+                _, marker, line = line.partition(COMMENT_CLOSE)
+                if not marker:
+                    break
+                opened_at = 0
+            else:
+                head, marker, line = line.partition(COMMENT_OPEN)
+                kept.append(head)
+                if not marker:
+                    break
+                opened_at = number
+        result.append("".join(kept))
+    return result, opened_at
 
 
 def _open_page(title: str, number: int,
