@@ -3064,7 +3064,7 @@ def check_field_summary(case: str, bundle: Bundle, vocab, wanted, stays_by_level
                    summary.loc[row, "smallest"] != summary.loc[row, "smallest"])
 
 
-def check_deck(case: str, bundle: Bundle, directory: Path) -> None:
+def check_deck(case: str, bundle: Bundle, directory: Path) -> list:
     from pptx import Presentation
 
     from mlos_review.deck import (AUTOMATION_CAVEAT, findings_section,
@@ -3264,6 +3264,57 @@ def check_deck(case: str, bundle: Bundle, directory: Path) -> None:
     else:
         expect(f"{case}: no closing pages when nothing was found",
                closing == [])
+
+    # The mirror, handed on. It is the deck's slides as objects, which is what
+    # a variant deck composes from, and what check_slide_titles_addressable
+    # needs in order to ask its question of the titles rather than of a
+    # rendered file.
+    return opening + section_slides + closing + reserve + educational
+
+
+def check_slide_titles_addressable(case: str, slides: list) -> None:
+    """Every slide the deck builds can be named, once, from an outline.
+
+    A variant deck addresses a base slide by its exact title, so a title used
+    twice is a slide nobody can ask for. The one intended exception is a
+    continuation run, which `_gathered_section` names `T` then `T, continued`
+    repeated and unnumbered: the run is addressed as a set, through its head,
+    because which sentence lands on which page is decided by height.
+
+    This is the contract a variant relies on, checked where the slides are
+    built rather than trusted.
+    """
+    from mlos_review.variant import CONTINUATION, compose, parse_outline, runs
+
+    orphans = [index + 1 for index, slide in enumerate(slides)
+               if slide.title.endswith(CONTINUATION)
+               and (index == 0
+                    or slides[index - 1].title not in
+                    (slide.title, slide.title[:-len(CONTINUATION)]))]
+    expect_equal(f"{case}: no continuation page without its head",
+                 orphans, [])
+
+    seen, repeated = set(), []
+    for slide in slides:
+        if slide.title.endswith(CONTINUATION):
+            continue
+        if slide.title in seen:
+            repeated.append(slide.title)
+        seen.add(slide.title)
+    expect_equal(f"{case}: every slide title is addressable, once",
+                 sorted(repeated), [])
+    if repeated:
+        return
+
+    # The round trip, which is the assertion that actually pins the contract:
+    # what an outline gets back for a title is the whole run, in order.
+    grouped = runs(slides)
+    for head, run in grouped.items():
+        borrowed = compose(parse_outline(f"@insert {head}", "test"), slides)
+        expect_equal(f"{case}: @insert {head!r} borrows its whole run",
+                     [s.title for s in borrowed], [s.title for s in run])
+    expect_equal(f"{case}: the runs account for every slide",
+                 sum(len(run) for run in grouped.values()), len(slides))
 
 
 # ---------------------------------------------------------------------------
@@ -3612,7 +3663,9 @@ def run_fixture(case: str, directory: Path) -> None:
             run_check(check_stratified_outlook, case, bundle, stratifier)
         run_check(check_highlights, case, bundle, stratifier, full)
         run_check(check_findings, case, bundle, stratifier, full)
-    run_check(check_deck, case, bundle, directory)
+    slides = run_check(check_deck, case, bundle, directory, required=True)
+    if slides is not None:
+        run_check(check_slide_titles_addressable, case, slides)
     run_check(check_deck_with_figures, case, bundle, directory)
 
 
@@ -3764,8 +3817,19 @@ def _structure_agrees(name: str, source: str, pandoc: str | None) -> None:
     tokens = MarkdownIt("commonmark", {"html": True}).enable("table").parse(source)
     mdit_heads = [(int(t.tag[1]), _heading_text(tokens[i + 1].content))
                   for i, t in enumerate(tokens) if t.type == "heading_open"]
-    written = [(len(m.group(1)), _heading_text(m.group(2)))
-               for m in re.finditer(r"^(#{1,6}) (.*)$", source, re.M)]
+    # Fenced blocks are skipped, the way the sibling check above skips them. A
+    # `#` line inside a fence is a heading nobody wrote: the variant outline
+    # the guide shows is markdown ABOUT markdown, and a scan that read its
+    # example as document headings would report three that markdown-it was
+    # right not to parse.
+    written, in_fence = [], False
+    for line in source.split("\n"):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        match = None if in_fence else re.match(r"^(#{1,6}) (.*)$", line)
+        if match:
+            written.append((len(match.group(1)), _heading_text(match.group(2))))
 
     # A heading in the file but not in the parse was swallowed by the block
     # above it, which is the blank-line rule failing where the naive scan

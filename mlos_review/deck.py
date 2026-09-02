@@ -25,6 +25,7 @@ archiving any deck already there.
 
 from __future__ import annotations
 
+import json
 import sys
 from collections.abc import Sequence
 from dataclasses import replace
@@ -113,6 +114,9 @@ from mlos_review import workbook
 # and it is a thing people do.
 WORKBOOK_SUFFIX = "_tables.xlsx"
 FIGURE_SUFFIX = "_figures"
+# What the deck holds, listed beside it: the file a variant deck reads to check
+# that the slides it is about to borrow are the slides this deck actually has.
+MANIFEST_SUFFIX = "_slides.json"
 
 
 def workbook_path(deck_path: str | Path) -> Path:
@@ -1872,34 +1876,44 @@ def missing_pinned_levels(bundle: Bundle, settings: Settings) -> dict[str, list[
     return missing
 
 
-def build(results: str | Path | Bundle, out_path: str | Path | None = None,
-          settings: Settings | None = None) -> tuple[Path, Path | None]:
-    """Write a deck. Returns where it went and what it displaced, if anything.
+def resolved_settings(bundle: Bundle,
+                      settings: Settings | None = None) -> Settings:
+    """Settings read against this dataset, before anything asks a question.
 
-    The archived path is RETURNED rather than left on the function for a caller
-    to pick up afterwards, so two calls cannot report each other's archive.
+    Every rule then sees one answer: on a run with a single analysis dimension,
+    a stratifier the file said nothing about defaults to ALWAYS rather than to
+    a comparison it has no competitor for.
 
-    `results` may be a results directory or an already-loaded Bundle. Not for
-    speed, the bundle is small; it lets a caller that inspected the bundle
-    first (as `main` does for its pinned-levels warning) build from the same
-    object it inspected.
+    Idempotent, since `for_dataset` moves the default only on a single
+    stratifier dataset and leaves what the file wrote alone. So a caller that
+    has resolved already loses nothing by passing them in again, and the
+    guarantee does not become something each entry point has to remember.
     """
     settings = settings or Settings()
-    bundle = results if isinstance(results, Bundle) else Bundle.load(results)
-    # Read against the dataset before anything asks them a question, so every
-    # rule below sees one answer: on a run with a single analysis dimension, a
-    # stratifier the file said nothing about defaults to ALWAYS rather than to
-    # a comparison it has no competitor for.
-    settings = settings.for_dataset([s for s in bundle.stratifiers() if s != "all"])
-    vocab = Vocabulary(bundle.data)
+    return settings.for_dataset([s for s in bundle.stratifiers() if s != "all"])
+
+
+def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
+             settings: Settings | None = None) -> list[Slide]:
+    """Every slide the deck holds, in the order it holds them.
+
+    Writes no deck, which is what lets a second entry point compose one of its
+    own from these slides. It does DRAW, though: the ratio and reserve rules
+    put their PNGs in `figures.directory` as they are built, so a caller that
+    wants only the titles hands it a directory it is willing to have written
+    to.
+
+    The FigureSet arrives rather than being built here, because its directory
+    comes from the deck's path and the path is the one thing assembly has no
+    business knowing.
+    """
+    settings = resolved_settings(bundle, settings)
 
     # Built once and passed down: three slides read it, and recomputing it per
     # slide would let one of them silently disagree with another. Empty when
     # the run had no Cox regression or no stratified variant, in which case
     # every rule below it declines.
     comparison = cox_comparison(pooled(bundle), stratified(bundle))
-    out_path = Path(out_path) if out_path is not None else settings.output_path
-    figures = FigureSet(directory=figure_directory(out_path))
 
     # The opening leads and is not negotiable: what the deck is, then what it
     # was computed over. Everything after it is a finding, and a finding read
@@ -2033,6 +2047,60 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     # shelter's data; these answer one about how to read a figure at all, which
     # is a step further from the room's own numbers.
     slides.extend(educational_section(bundle, vocab))
+    return slides
+
+
+# What the sidecar records about one slide. Position is one-based, so it reads
+# as the slide number a presenter sees rather than an index.
+#
+# `head` is the title a variant addresses the slide by, which for a
+# continuation page is the title of the page that opened its run. A reader of
+# the file can therefore see, without knowing the naming rule, which lines are
+# one thing.
+def slide_manifest(slides: Sequence[Slide]) -> list[dict]:
+    """What each slide is, for the sidecar beside the deck.
+
+    Titles rather than ids, because rules have no ids yet. When they do, this
+    is where the id goes and the title stays beside it.
+    """
+    entries, head = [], ""
+    for position, slide in enumerate(slides, 1):
+        continued = bool(head) and slide.title == f"{head}, continued"
+        if not continued:
+            head = slide.title
+        entries.append({"position": position,
+                        "title": slide.title,
+                        "head": head,
+                        "continuation": continued,
+                        "layout": slide.layout})
+    return entries
+
+
+def manifest_path(deck_path: str | Path) -> Path:
+    deck_path = Path(deck_path)
+    return deck_path.parent / (deck_path.stem + MANIFEST_SUFFIX)
+
+
+def build(results: str | Path | Bundle, out_path: str | Path | None = None,
+          settings: Settings | None = None) -> tuple[Path, Path | None]:
+    """Write a deck. Returns where it went and what it displaced, if anything.
+
+    The archived path is RETURNED rather than left on the function for a caller
+    to pick up afterwards, so two calls cannot report each other's archive.
+
+    `results` may be a results directory or an already-loaded Bundle. Not for
+    speed, the bundle is small; it lets a caller that inspected the bundle
+    first (as `main` does for its pinned-levels warning) build from the same
+    object it inspected.
+    """
+    settings = settings or Settings()
+    bundle = results if isinstance(results, Bundle) else Bundle.load(results)
+    settings = resolved_settings(bundle, settings)
+    vocab = Vocabulary(bundle.data)
+    out_path = Path(out_path) if out_path is not None else settings.output_path
+    figures = FigureSet(directory=figure_directory(out_path))
+
+    slides = assemble(bundle, vocab, figures, settings)
 
     # The workbook and the figure manifest are written from the same bundle and
     # the same blocks as the deck, in the same call, so the three cannot come
@@ -2044,6 +2112,13 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     if sheets:
         tables_path, _ = prepare_output(workbook_path(out_path))
         workbook.write(sheets, tables_path, vocab)
+
+    # The slide sidecar, archived like the workbook. It describes one
+    # particular deck, so a stale one left beside a new deck would be worse
+    # than none: a variant checks itself against it and would check against the
+    # wrong run.
+    sidecar, _ = prepare_output(manifest_path(out_path))
+    sidecar.write_text(json.dumps(slide_manifest(slides), indent=2) + "\n")
 
     out_path, archived = prepare_output(out_path)
     render(slides, out_path, vocab, flag_style=settings.high_low_flag,
@@ -2102,7 +2177,8 @@ def main(argv: list[str]) -> int:
     print(f"wrote {path}")
     # The companions are reported too, because a file nobody is told about is a
     # file nobody opens.
-    for companion in (workbook_path(path), figure_directory(path) / "manifest.json"):
+    for companion in (workbook_path(path), manifest_path(path),
+                      figure_directory(path) / "manifest.json"):
         if companion.exists():
             print(f"wrote {companion}")
     return 0

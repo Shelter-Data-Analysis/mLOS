@@ -40,6 +40,13 @@ __pycache__/
 # and by the source commit make_docx.sh writes into the .docx, not by
 # modification time: python3 tests/show_doc_versions.py.
 
+# templates/ is covered by the */ rule above, and that is load-bearing rather
+# than incidental. A deck template is somebody else's file: an organization's
+# branding, carrying their logos and their sponsors' marks, lent for one talk.
+# Committing one would publish it. Keep templates there and point at them with
+# `template:` in a deck settings file or with --template on the command line;
+# the outlines that describe a variant deck are yours and live in data/.
+
 # tools/ is already covered by the */ rule above, and stays that way. It holds
 # make_deposit.py, which stages the Zenodo deposits described in
 # PUBLISHING.md: a local packaging step run between a release and an upload,

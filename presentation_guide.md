@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260902_001. Read it in any markdown reader,
+presentation guide, version 20260902_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -44,6 +44,7 @@ code. Nothing in the last one is needed to read a deck or to build one.
   - [The competing-risks run](#the-competing-risks-run)
   - [Closing sections](#closing-sections)
   - [Educational](#educational)
+  - [Variant decks](#variant-decks)
   - [Speaker notes](#speaker-notes)
   - [The file you get](#the-file-you-get)
 - [What the deck decides](#what-the-deck-decides)
@@ -187,12 +188,14 @@ python3 -m mlos_review.deck
 ```
 
 That reads `results/`, takes its settings from `data/OC_deck_settings.yaml`,
-and writes four things into `reports/`, which is created if needed and is not
+and writes five things into `reports/`, which is created if needed and is not
 tracked by git:
 
 - `mlos_deck.pptx`, the deck;
 - `mlos_deck_tables.xlsx`, every table the build made, including the rows the
   slides had no room for;
+- `mlos_deck_slides.json`, what the deck holds: every slide's position, title,
+  layout, and which run it belongs to;
 - `mlos_deck_figures/*.png`, every figure this package drew;
 - `mlos_deck_figures/manifest.json`, saying what those PNGs are.
 
@@ -201,7 +204,8 @@ holding it, so a second deck built beside the first keeps its own workbook and
 its own figures. Building `mlos_deck_OC1.pptx` next to `mlos_deck.pptx` gives
 you `mlos_deck_OC1_tables.xlsx` and `mlos_deck_OC1_figures/`.
 
-**A deck is never overwritten, and neither is the workbook.** One already at
+**A deck is never overwritten, and neither is the workbook or the slide
+list.** One already at
 either name is renamed to `<stem>_<YYYYMMDD>_<NNN>` first, the same scheme
 `results/` uses to archive an earlier run, so the plain name always holds the
 most recent and older ones stay beside it. Nothing is deleted. The figures are
@@ -384,9 +388,10 @@ when a dataset does.
 ### What you cannot do yet
 
 Detail level, figures-versus-bullets balance, mathematical sophistication, and
-the slide budget are designed and unimplemented. The slide sequence is fixed
-in code rather than planned against a budget. There is no text-centered
-report. The workbook is not an independent product; it just holds the tables
+the slide budget are designed and unimplemented. The deck's own slide sequence
+is fixed in code rather than planned against a budget; a variant deck's is
+written out by hand, which is a plan stated rather than solved. There is no
+text-centered report. The workbook is not an independent product; it just holds the tables
 the slide deck build made.
 
 ---
@@ -727,6 +732,79 @@ alone.
 
 A bullet may sit one level in, which is what the opener's sub-lists use. Deeper
 than one level is a document rather than a slide.
+
+### Variant decks
+
+A variant is a second deck, written as an outline: plain text slides typed by
+hand, plus slides the deck already builds, borrowed as they are. It is what a
+room asks for that the deck does not, a teaching section or a short version,
+and it is the first piece of the deck plan below in its simplest form, a plan
+written out rather than solved against a budget.
+
+```bash
+python3 -m mlos_review.variant data/educational.md
+python3 -m mlos_review.variant --list results
+```
+
+The first writes `reports/educational.pptx` and its figures, named after the
+outline so two variants cannot collide and neither displaces the deck. The
+second prints every title an outline may borrow. `--settings=` and `--template=`
+mean what they mean for the deck. No workbook is written: `workbook.sheets`
+reads the bundle rather than the slides, so a variant's would be the deck's
+under another name.
+
+The outline is markdown a reader can preview:
+
+```markdown
+# Educational {divider}
+
+Not part of the presentation.
+
+- How to read what the analysis draws
+
+> A paragraph of speaker notes.
+
+@insert Looking at Length of Stay (LOS)
+
+# What a survival curve is reading
+## The height is a share, not a count
+
+- Every step down is a day on which somebody left
+  - How far it steps is what share of those still here left that day
+
+@stub A worked example of left truncation
+```
+
+`#` opens a slide and `##` is that slide's standing line, which an opening
+paragraph also sets; setting both is refused. `{divider}` is the only property
+today, and an unrecognized one is refused by name for the settings file's
+reason. Bullets take two levels: no indent, and any indent up to one tab. `>`
+is a paragraph of speaker notes rather than markdown's blockquote.
+
+`@insert` borrows a slide by its exact title and brings its continuation pages
+with it, which is why the Findings section is named through its head and not
+page by page. `@stub` holds a gap open for a slide nobody has written, and
+every stub left in a deck is warned about at build time.
+
+**Borrowed slides are built again, not copied out of the deck file.** A slide
+in a `.pptx` has its numbers formatted into strings and its geometry fixed at
+the page it was laid out for, so a copied one could not be set into a
+template's band or rendered at any other size. What guards against the two
+builds disagreeing is `mlos_deck_slides.json`: a variant compares the slides it
+assembled against the ones the deck recorded and refuses if a title has
+appeared or vanished, naming which. Pagination is exempt, since how many pages
+a run takes is decided by height at render time and a branded variant
+legitimately breaks the findings differently. `--no-check` builds anyway.
+
+Slides are addressed by title, which stands in for the rule ids the registry
+below will carry. Titles hold vocabulary labels, so an outline written for one
+dataset can fail against another; that failure is loud, and `--list` says what
+the titles are. Every deck's titles are unique apart from continuation runs,
+which the test suite checks on every fixture.
+
+Templates belong in `templates/`, which git ignores wholesale. A template is
+usually somebody else's file, carrying their branding, and committing one would
+publish it. Outlines are yours and belong in `data/`.
 
 ### Speaker notes
 
@@ -1544,7 +1622,8 @@ build one.*
   Slide rules       conditions -> slides           (deck.py, provisional)
       |
       v
-  Deck plan         budget, ordering, trimming     (not built)
+  Deck plan         budget, ordering, trimming     (not built; an outline
+      |                                            states one: variant.py)
       |
       +---> pptx renderer                          render_pptx.py
       |         ^
@@ -1555,7 +1634,7 @@ build one.*
 
 Files that exist today: `names.py`, `bundle.py`, `regression.py`, `blocks.py`,
 `figures.py`, `workbook.py`, `settings.py`, `output.py`, `render_pptx.py`,
-`deck.py`.
+`deck.py`, `variant.py`.
 
 ### Reading the bundle
 
@@ -2159,6 +2238,8 @@ python3 -m mlos_review.deck                     # the deck, into reports/
 python3 -m mlos_review.deck results out.pptx    # explicit input and output
 python3 -m mlos_review.deck --settings=x.yaml   # a different settings file
 python3 -m mlos_review.deck --template=b.pptx   # branded, whatever the file says
+python3 -m mlos_review.variant o.md             # a variant deck from an outline
+python3 -m mlos_review.variant --list           # the titles an outline may borrow
 python3 tests/run_review_tests.py               # the test suite
 python3 tests/show_guide_examples.py results/OC1  # the marked numbers
 ```

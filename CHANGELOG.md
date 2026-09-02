@@ -18,6 +18,25 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
+Variant decks, deck templates, and two auxiliary figures. **No existing
+analysis number changed** by any of them: the deck the R run has always
+produced is built slide for slide as it was, and both new features are
+inert unless a settings key or a flag turns them on.
+
+- `python3 -m mlos_review.variant OUTLINE.md` writes a second deck from an
+  outline: plain text slides written by hand, plus slides the deck already
+  builds, borrowed by title. `#` opens a slide, `##` is its standing line,
+  `{divider}` sets it as a section opener, `@insert` borrows, `@stub` holds a
+  gap open, and `--list` says what may be borrowed.
+- The deck now writes `<name>_slides.json` beside itself, recording every
+  slide's position, title, layout and run. A variant checks its own assembly
+  against it and refuses to build against a deck it no longer matches.
+- `template:` in the deck settings file, or `--template=FILE`, lends a
+  one-slide `.pptx`'s artwork to the slides that have room for it: those
+  carrying no figure, plus a schematic that can yield width, and only where
+  the content fits the band the artwork leaves. A slide that would not fit at
+  eighteen point is measured again at sixteen and fourteen.
+
 Two auxiliary figures and the setting that turns them on. They bin curves the
 tool already draws and add no estimator. **No existing analysis number
 changed**: `probability_mass_width` defaults to 0, so a run that does not set
