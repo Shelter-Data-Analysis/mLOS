@@ -312,7 +312,6 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
   .with_png(save_file, {
     plot(c(0, x_limit), c(0, 1), type = "n",
          xlab = "Days Already in Care (x)", ylab = ylab, main = main)
-    .plot_grid()
     y_cum <- matrix(0, nrow = nrow(y), ncol = ncol(y))
     for (j in seq_len(ncol(y))) {
       y_cum[, j] <- rowSums(y[, seq_len(j), drop = FALSE], na.rm = TRUE)
@@ -340,6 +339,11 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
       polygon(c(xs, rev(xs)), c(base_y, rev(top_y)), col = cols[j], border = NA)
       base_y <- top_y
     }
+
+    # The grid goes over the bands rather than under them, as on every stack
+    # plot: solid fills cover it completely, and a reference line that stops at
+    # the first band reads no value off the figure.
+    .plot_grid()
 
     legend_labels <- sapply(states, .outcome_label)
     legend(legend_pos, legend = legend_labels, fill = cols, bg = "white")
@@ -500,11 +504,10 @@ aj_probability_mass <- function(aj_results, references) {
     # narrow width the two it dropped were the last interval's end and the
     # remainder, the two the reader most needs. Thinning is decided above.
     mtext(ticks[at], side = 1, at = bar_x[at], line = .PLOT_MGP[2])
-    # Drawn between two identical bar passes so the grid sits behind the bars:
-    # barplot has no panel.first, and a grid over solid fills reads as texture.
+    # Over the bars rather than behind them, as on every stack plot: solid
+    # fills cover a grid drawn first, and a reference line that stops at the
+    # foot of the bars reads no height off the figure.
     .plot_grid()
-    barplot(bars, col = cols, border = NA, space = space,
-            names.arg = rep("", ncol(bars)), axes = FALSE, add = TRUE)
 
     if (is.null(bar_labels)) {
       # Nothing above the bars means their heights are the quantity, and only
