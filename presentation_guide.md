@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260901_004. Read it in any markdown reader,
+presentation guide, version 20260901_005. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -239,6 +239,14 @@ section openers and three of the four table slides.
 The template sets the page's color scheme and has to be the same page size,
 13.333 by 7.5 inches. Type stays Calibri, which is what the column widths and
 the page breaks are measured in; a wider face wraps a table header mid-word.
+
+`--template=FILE` overrides whatever the settings file says, and is how a
+template that lives outside the repository is used without writing a machine's
+own paths into a tracked file. It is the setting most worth a flag: a template
+belongs to the occasion rather than to the dataset, so the same analysis goes
+branded to one audience and plain to another. Give the branded build its own
+output name, `reports/mlos_deck_with_template.pptx` say, and its workbook and
+figures follow that name rather than displacing the plain deck's.
 
 `emphasis` is one map keyed by stratifier rather than one key per stratifier.
 To wire a fourth stratifier, add it to `STRATIFIER_KEYS` in `settings.py`,
@@ -2135,6 +2143,7 @@ python3 -m mlos_review                          # display-name coverage report
 python3 -m mlos_review.deck                     # the deck, into reports/
 python3 -m mlos_review.deck results out.pptx    # explicit input and output
 python3 -m mlos_review.deck --settings=x.yaml   # a different settings file
+python3 -m mlos_review.deck --template=b.pptx   # branded, whatever the file says
 python3 tests/run_review_tests.py               # the test suite
 python3 tests/show_guide_examples.py results/OC1  # the marked numbers
 ```

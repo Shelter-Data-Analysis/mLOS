@@ -16,6 +16,7 @@ about their being the right slides. See the package docstring; anyone handed a
 deck should be told the same.
 
     python3 -m mlos_review.deck [results_dir] [out.pptx] [--settings=FILE]
+                                [--template=FILE]
 
 With no arguments it reads `results/`, takes its settings from
 `data/OC_deck_settings.yaml` if that exists, and writes `reports/mlos_deck.pptx`,
@@ -26,6 +27,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Sequence
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
@@ -93,7 +95,8 @@ from mlos_review.salience import (earns_slides, findings_for_salience,
                                   salience_notes)
 from mlos_review.render_pptx import (Bullet, Slide, bullet_pages, lead_height,
                                      render, template_band, text_budget)
-from mlos_review.settings import Settings, load as load_settings
+from mlos_review.settings import (Settings, load as load_settings,
+                                  parse_template)
 from mlos_review import workbook
 
 
@@ -2055,18 +2058,28 @@ def main(argv: list[str]) -> int:
     # believes is in force. `--settings` without `=FILE` is the same mistake in
     # a second spelling, most often `--settings my.yaml`, which would also send
     # the file name into the positional arguments.
-    unknown = sorted(set(flags) - {"--settings"})
+    known = ("--settings", "--template")
+    unknown = sorted(set(flags) - set(known))
     if unknown:
         print(f"error: unrecognized flag(s): {', '.join(unknown)}. "
-              f"The only flag is --settings=FILE.", file=sys.stderr)
-        return 1
-    if "--settings" in flags and not flags["--settings"]:
-        print("error: --settings needs a value, as --settings=FILE.",
+              f"The flags are {', '.join(f'{flag}=FILE' for flag in known)}.",
               file=sys.stderr)
         return 1
+    for flag in known:
+        if flag in flags and not flags[flag]:
+            print(f"error: {flag} needs a value, as {flag}=FILE.",
+                  file=sys.stderr)
+            return 1
 
     try:
         settings = load_settings(flags.get("--settings") or None)
+        # After the file, and overriding what it said. A template is the one
+        # setting here that belongs to the occasion rather than to the dataset:
+        # the same analysis is shown branded to one audience and plain to
+        # another, and neither is a reason to edit the settings file.
+        if "--template" in flags:
+            settings = replace(settings,
+                               template=parse_template(flags["--template"]))
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

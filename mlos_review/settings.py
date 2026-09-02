@@ -182,12 +182,14 @@ def _require_flag(name: str, value) -> bool:
     raise SettingsError(f"{name}: {value!r} is not true or false.")
 
 
-def _parse_template(value) -> Path | None:
+def parse_template(value) -> Path | None:
     """The template path, checked for existence where it is written.
 
-    Refused here rather than at render time, because the render is the end of a
-    run that has already read the results and built every slide, and a typo in
-    a path is worth hearing about before that.
+    Refused where it is written rather than at render time, because the render
+    is the end of a run that has already read the results and built every
+    slide, and a typo in a path is worth hearing about before that. Public
+    because `--template` is the same value from the command line and is held to
+    the same rule.
     """
     if value is None:
         return None
@@ -267,7 +269,7 @@ def from_mapping(data: dict) -> Settings:
         ratio_log_scale=_require_flag(
             "figures.ratio_log_scale",
             figures.get("ratio_log_scale", defaults.ratio_log_scale)),
-        template=_parse_template(data.get("template")),
+        template=parse_template(data.get("template")),
         emphasis=emphasis,
     )
 
