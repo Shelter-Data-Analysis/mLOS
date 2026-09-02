@@ -599,6 +599,36 @@ def _expect_no_table_overlap(case: str, number: int, slide) -> None:
         expect(f"{case}: slide {number} keeps its text clear of its tables", True)
 
 
+def _stage_interval_figures(staged: Path, bundle: Bundle) -> list[str]:
+    """Add the two interval stacks to a staged fixture's manifest.
+
+    No golden run sets `probability_mass_width`, so no fixture names those two
+    figures and the educational slide would return None on every one of them:
+    a rule that never builds is a rule nothing checks. Adding the entries to
+    the COPY gives it the manifest a run with the setting on would have, and
+    the placeholder PNGs beside it, without regenerating twenty-eight goldens
+    to exercise one slide.
+
+    Only the manifest is touched. The slide reads its numbers from the tables
+    every other whole-sample slide uses, so nothing here fakes a result.
+    """
+    if not bundle.data.get("aj", {}).get("has_analysis"):
+        return []
+    results = staged / "results.json"
+    data = json.loads(results.read_text())
+    added = []
+    for kind in ("aj_mass", "aj_fraction"):
+        plot = f"{kind}_unified_stack.png"
+        data.setdefault("outputs", []).append({
+            "csv": None, "plot": plot, "kind": kind, "stratifier": "all",
+            "outcome": None, "variant": "stack",
+            "description": "staged for the deck geometry checks",
+        })
+        added.append(plot)
+    results.write_text(json.dumps(data))
+    return added
+
+
 def check_deck_with_figures(case: str, bundle: Bundle, directory: Path) -> None:
     """The half of the deck the golden bundles cannot reach on their own.
 
@@ -629,7 +659,7 @@ def check_deck_with_figures(case: str, bundle: Bundle, directory: Path) -> None:
     with tempfile.TemporaryDirectory() as tmp:
         staged = Path(tmp) / "fixture"
         shutil.copytree(directory, staged)
-        for name in plots:
+        for name in plots + _stage_interval_figures(staged, bundle):
             Image.new("RGB", (300, 200), "white").save(staged / name)
 
         # Anything that depends on a figure EXISTING has to be asserted here
@@ -678,6 +708,36 @@ def check_deck_with_figures(case: str, bundle: Bundle, directory: Path) -> None:
             expect(f"{case}: the {stratifier} outlook slide follows its LOS "
                    f"slide", titles.index(outlook) == titles.index(f"LOS by {label}") + 1,
                    f"{titles}")
+
+        # The educational slide, on every fixture whose staged manifest names
+        # its two figures. Its shape is what is asserted: two figures side by
+        # side over a row of two tables is the one place STACKED draws a row
+        # rather than a single table, and the geometry loop below is what
+        # catches the row colliding with the figures above it.
+        if staged_bundle.figure("aj_mass", "all", variant="stack") is not None:
+            interval = "Working with Probabilities in Time Intervals"
+            expect(f"{case}: the educational slide is built", interval in titles,
+                   f"{titles[-4:]}")
+            if interval in titles:
+                at = titles.index(interval)
+                expect(f"{case}: the educational section sits at the back",
+                       at == len(titles) - 1, f"{titles[at:]}")
+                expect(f"{case}: it follows its own divider",
+                       titles[at - 1] == "Educational", f"{titles[at - 2:]}")
+                page = list(deck.slides)[at]
+                pictures = [sh for sh in page.shapes if sh.shape_type == 13]
+                grids = [sh for sh in page.shapes if sh.has_table]
+                expect_equal(f"{case}: it carries both figures", len(pictures), 2)
+                expect_equal(f"{case}: it carries both tables", len(grids), 2)
+                expect(f"{case}: its figures are side by side",
+                       len({sh.top for sh in pictures}) == 1
+                       and len({sh.left for sh in pictures}) == 2,
+                       f"{[(sh.left, sh.top) for sh in pictures]}")
+                expect(f"{case}: its tables sit below its figures",
+                       min(sh.top for sh in grids)
+                       >= max(sh.top + sh.height for sh in pictures),
+                       f"figures to {max(sh.top + sh.height for sh in pictures)}, "
+                       f"tables from {min(sh.top for sh in grids)}")
 
         drawn = sum(1 for slide in deck.slides
                     for shape in slide.shapes if shape.shape_type == 13)

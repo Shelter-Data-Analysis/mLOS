@@ -57,6 +57,7 @@ from mlos_review.blocks import (
     full_table,
     highlights_table,
     sub_table,
+    INTERVAL_SLIDE_MEASURES,
     LOS_SLIDE_MEASURES,
     OUTLOOK_SLIDE_MEASURES,
     level_counts_table,
@@ -1550,6 +1551,118 @@ def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
     return [divider] + built
 
 
+def probability_intervals_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
+    """How to read a distribution cut into intervals, on the whole sample.
+
+    The two bar figures beside each other rather than above each other, which
+    is how they are drawn to be read: R lines their bars up so one sits over
+    the other on a page. A slide is wider than it is tall, and two 3:2 panels
+    side by side fill it where two stacked panels would each be squeezed to a
+    third of the height.
+
+    The tables under them are the two the deck already shows, narrowed and
+    retitled. They are here so the picture can be reconciled against the
+    numbers the audience has already been given: the median sits inside one of
+    these intervals, and the outcome shares are what the right-hand figure
+    divides interval by interval.
+
+    Built only where the run drew the figures, which is where
+    `probability_mass_width` is set. Nothing here computes a bin; the figures
+    and the interval masses come from the analysis.
+    """
+    figures = [bundle.figure("aj_mass", "all", variant="stack"),
+               bundle.figure("aj_fraction", "all", variant="stack")]
+    # Both or neither. The slide teaches the pair: one figure says how much
+    # falls in each interval, the other what it is made of, and either alone
+    # is half the lesson.
+    if any(figure is None for figure in figures):
+        return None
+
+    outcomes = aj_teaser_table(bundle, vocab)
+    tables = [
+        sub_table(full_table(bundle, "all"), INTERVAL_SLIDE_MEASURES,
+                  title="how long stays last"),
+        sub_table(outcomes, list(outcomes.df.columns),
+                  title="where stays end"),
+    ]
+
+    notes = [
+        "Left: the whole distribution of stays cut into intervals of days. "
+        "Each bar is how much of the distribution ends inside that interval, "
+        "split by outcome type, and the gray bar at the right is the stays "
+        "still in care when the analysis window closes. Every bar together "
+        "sums to 1, so the picture accounts for every animal.",
+        "Right: the same intervals, each divided by its own total. Every bar "
+        "is full height, so what varies along the row is the outcome mix "
+        "rather than the amount, and the label above each bar is the share of "
+        "all stays that bar speaks for. The slot at the cap is left empty "
+        "because a normalized remainder would be full height by construction.",
+        "Read the bars as amounts, not as rates. The intervals are equal in "
+        "days until the last one, which runs from the end of the plotted "
+        "range to the stay cap and so covers many more days than its width on "
+        "the page suggests. The interval width is a presentation choice: a "
+        "wider one collects the early days into a single bar, a narrower one "
+        "opens them up, and the same distribution is underneath either way.",
+        "These bin what the survival and cumulative-incidence curves already "
+        "show. A bar's total height on the left is the fall in the "
+        "Kaplan-Meier survival curve across that interval, and the segments "
+        "divide that fall the way the Aalen-Johansen curves do. The curves "
+        "stay the primary reading: they carry the confidence intervals, they "
+        "need no interval chosen for them, and every number the deck quotes "
+        "comes from them.",
+        "The tables are the ones from the whole-sample slides, so the picture "
+        "can be checked against them. Find the interval holding the median "
+        "and it is the interval where the running total of the left-hand bars "
+        "first passes half. The outcome shares are the totals the right-hand "
+        "figure splits interval by interval, which is what makes the drift "
+        "across the row visible: the outcome mix among stays ending in the "
+        "first days is not the mix among those ending weeks later.",
+    ]
+
+    return Slide(
+        title="Working with Probabilities in Time Intervals",
+        figures=figures,
+        tables=tables,
+        notes=notes,
+    )
+
+
+# What the educational section is called and what it is for, said once so the
+# divider and the guide cannot drift.
+EDUCATIONAL_TITLE = "Educational"
+
+
+def educational_section(bundle: Bundle, vocab: Vocabulary) -> list[Slide]:
+    """Slides that teach a way of reading rather than reporting a result.
+
+    At the very back, behind the closing sections and behind the reserve. What
+    is here is about how to read the analysis, not about this shelter, so a
+    presenter reaches it when a room wants the method rather than the numbers.
+
+    Nothing here is gathered into the closing sections: these slides report no
+    finding of their own, and a teaching slide that fed the summary would put
+    a sentence about method among sentences about the shelter.
+    """
+    built = [slide for slide in (probability_intervals_slide(bundle, vocab),)
+             if slide is not None]
+    if not built:
+        return []
+
+    divider = Slide(
+        title=EDUCATIONAL_TITLE,
+        bullets=["Not part of the presentation.",
+                 "How to read what the analysis draws, for a room that wants "
+                 "the method."],
+        notes=["The slides after this one explain a way of reading the "
+               "results rather than adding to them. They report nothing about "
+               "this shelter that the deck has not already said.",
+               "Use them when a question is about how a figure works. Skip "
+               "them otherwise."],
+        layout="TITLE",
+    )
+    return [divider] + built
+
+
 def findings_section(slides: list[Slide]) -> list[Slide]:
     """Gather what the section slides found into a closing SECTION.
 
@@ -1740,6 +1853,11 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     # these after the closing sections is also what stops the same sentences
     # being counted twice.
     slides.extend(reserve_section(bundle, comparison, vocab, figures, settings))
+
+    # Last of all. The reserve answers a question about the estimator on this
+    # shelter's data; these answer one about how to read a figure at all, which
+    # is a step further from the room's own numbers.
+    slides.extend(educational_section(bundle, vocab))
 
     # The workbook and the figure manifest are written from the same bundle and
     # the same blocks as the deck, in the same call, so the three cannot come

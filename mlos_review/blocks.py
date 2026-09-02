@@ -77,6 +77,15 @@ LOS_SLIDE_MEASURES: list[str] = [
     "km_still_in_care_at_cap", "expected_census", *TENURE_MEASURES,
 ]
 
+# What the educational slide borrows from the whole-sample length-of-stay
+# table. Four columns rather than that slide's nine: it is there to be
+# reconciled against a picture of intervals, and the arrival and census
+# measures answer a question the picture is not asking.
+INTERVAL_SLIDE_MEASURES: list[str] = [
+    "km_median_los", "km_restricted_mean", "km_p90_los",
+    "km_still_in_care_at_cap",
+]
+
 # Interleaved, tenure then what the curve reads at that tenure, so each pair
 # reads as one statement about one animal rather than as two lists to be
 # matched up by eye.

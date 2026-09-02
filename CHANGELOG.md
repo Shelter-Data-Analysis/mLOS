@@ -36,6 +36,14 @@ it computes and writes exactly what it did before.
   Each bar carries its share of the distribution as a label, since normalizing
   hides how much of the data a bar speaks for. The bar at the cap is kept as an
   empty slot so the two figures put every bar at the same x.
+- The deck gains an **Educational** section at the very back, behind the
+  robustness check. Its slide, "Working with Probabilities in Time Intervals",
+  puts the two interval stacks side by side over the whole-sample
+  length-of-stay and outcome tables, so the picture can be reconciled against
+  numbers the audience has already been given. It is built only where the run
+  drew the figures, and contributes nothing to the closing sections.
+- The STACKED layout can hold a row of tables under its figures, which is what
+  that slide needs; slides using its single-table field are unchanged.
 - The numbers travel in the bundle as `aj$probability_mass` and reach no
   worksheet. The figures ship no companion CSV: their bars are neither a day
   grid nor a redrawing of one, so the bundle is where they live. They stay out

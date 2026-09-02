@@ -180,11 +180,11 @@ class Slide:
     make it a type rather than a field.
 
     `table` is the one table a slide holds beside its figures. `tables` is for
-    a slide made OF tables, several of them side by side, and is what the
-    TABLES layout draws. They are separate fields rather than one list because
-    the layouts that place a table against figures place exactly one, and a
-    rule that handed them three would otherwise be silently drawing two of
-    them off the edge.
+    tables read side by side: a slide made OF them, which the TABLES layout
+    draws, or a row of them under a STACKED slide's figures. They are separate
+    fields rather than one list because SPLIT and QUADRANTS place exactly one,
+    and a rule that handed them three would otherwise be silently drawing two
+    of them off the edge.
 
     `footnote` is a line at the foot of the whole slide, as opposed to a
     table's own footnotes, which belong under that table and travel with it.
@@ -202,9 +202,9 @@ class Slide:
 
     `layout` names one of LAYOUT_FUNCTIONS:
 
-        STACKED    figures in one row, table full width beneath them. The
-                   default, and right whenever the figures are two readings of
-                   one thing.
+        STACKED    figures in one row, table full width beneath them, or
+                   `tables` side by side there instead. The default, and right
+                   whenever the figures are two readings of one thing.
         SPLIT      figures left, table right, both vertically centered. For one
                    figure held against a table, and for a run of slides whose
                    figure changes while the table does not.
@@ -821,11 +821,26 @@ def _table_heights(table: Table | None, vocab: Vocabulary | None = None,
 
 def _layout_stacked(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
                     flag_style: str) -> None:
-    """Bullets, then a row of figures, then the table across the full width."""
-    widths = (_fitted_widths(spec.table, vocab, flag_style,
-                             int(SLIDE_WIDTH - 2 * MARGIN))
-              if spec.table is not None else None)
-    table_height, footnote_height = _table_heights(spec.table, vocab, widths)
+    """Bullets, then a row of figures, then the table across the full width.
+
+    `tables` puts several of them side by side beneath the figures instead,
+    each headed by its own title, for a slide whose figures need more than one
+    table read with them. The row is measured and drawn by the code the TABLES
+    layout uses, so a pair of tables under a pair of figures sits at the widths
+    it would have on a slide of its own.
+    """
+    row = list(spec.tables)
+    available = int(SLIDE_WIDTH - 2 * MARGIN)
+    if row:
+        # A titled table's depth already counts its footnotes, so the row asks
+        # for one height and the single-table path keeps its two.
+        table_height, footnote_height = _row_depth(row, vocab, flag_style,
+                                                   available), Emu(0)
+        widths = None
+    else:
+        widths = (_fitted_widths(spec.table, vocab, flag_style, available)
+                  if spec.table is not None else None)
+        table_height, footnote_height = _table_heights(spec.table, vocab, widths)
 
     bullets_height = Emu(0)
     if spec.bullets:
@@ -839,9 +854,12 @@ def _layout_stacked(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu
                         SLIDE_WIDTH - 2 * MARGIN, int(figure_height),
                         valign="top")
 
-    if spec.table is not None:
-        table_top = int(top + bullets_height + figure_height
-                        + (GUTTER if spec.figures else 0))
+    table_top = int(top + bullets_height + figure_height
+                    + (GUTTER if spec.figures else 0))
+    if row:
+        _draw_table_row(slide, row, vocab, MARGIN, table_top, available,
+                        int(table_height), flag_style)
+    elif spec.table is not None:
         _add_table(slide, spec.table, vocab, table_top, table_height,
                    flag_style=flag_style, widths=widths)
         _add_footnotes(slide, spec.table, int(table_top + table_height), flag_style)

@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260831_001. Read it in any markdown reader,
+presentation guide, version 20260901_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -43,6 +43,7 @@ code. Nothing in the last one is needed to read a deck or to build one.
   - [Hazard ratios, then length-of-stay ratios](#hazard-ratios-then-length-of-stay-ratios)
   - [The competing-risks run](#the-competing-risks-run)
   - [Closing sections](#closing-sections)
+  - [Educational](#educational)
   - [Speaker notes](#speaker-notes)
   - [The file you get](#the-file-you-get)
 - [What the deck decides](#what-the-deck-decides)
@@ -648,6 +649,19 @@ suggestion without a tag on every line. Most recommendation rules stay silent
 on a healthy dataset, which is the point: on the twenty-eight test fixtures,
 ten produce none at all. What each rule looks for is under
 [Findings](#findings) and [Recommendations](#recommendations).
+
+### Educational
+
+**One section sits behind everything else**, including the robustness check,
+and teaches a way of reading rather than reporting a result. It is built only
+when the run drew the figures it explains, and it contributes nothing to the
+closing sections: a teaching slide that fed the summary would put a sentence
+about method among sentences about the shelter.
+
+Its slide today is **Working with Probabilities in Time Intervals**, the two
+interval stacks side by side over the two whole-sample tables narrowed to what
+the picture can be checked against. The figures need `probability_mass_width`
+set in the analysis settings; without it the section is absent.
 
 ### Speaker notes
 
