@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260901_005. Read it in any markdown reader,
+presentation guide, version 20260902_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -232,9 +232,24 @@ else, and the renderer copies that artwork onto the slides it fits. The band
 left free is measured from where the artwork sits, so a header, a footer strip
 of logos or both are read as what they are. A slide carrying a figure is left
 plain, the figures being opaque and sized to whatever the body leaves them, and
-so is a slide whose content is taller than the band. On the OC2 deck that is
-twenty of the fifty-two slides: the closing findings, the recommendations, the
-section openers and three of the four table slides.
+so is a slide whose content is taller than the band at any bullet size. On the
+OC2 deck twenty-one of the fifty-two slides are branded: the closing findings,
+the recommendations, the section openers, three of the four table slides, and
+the educational slide that carries the observation-window diagram.
+
+A slide that does not fit at eighteen point is measured again at sixteen and at
+fourteen, and takes the artwork at the largest size that fits. The alternative
+is a slide that loses the branding its neighbours have over a quarter of an
+inch. On OC2 one slide steps down.
+
+`Slide.schematic` is how the diagram slide qualifies at all. It says the
+figures are drawn to be recognized rather than measured, so room taken from
+them costs nothing; the rule that builds the slide sets it, since what a figure
+is showing is the rule's to say. It applies where the figure sits beside the
+text rather than under it, which on the TITLE layout it does: what the figure
+gives up is width it can spare, and under a list it would be giving up the
+height it is read in. On OC2 the diagram goes from 6.17 by 4.16 inches to 6.11
+by 4.12.
 
 The template sets the page's color scheme and has to be the same page size,
 13.333 by 7.5 inches. Type stays Calibri, which is what the column widths and

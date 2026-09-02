@@ -1700,6 +1700,10 @@ def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
         figures=[OPENING_DIAGRAM] if OPENING_DIAGRAM.exists() else [],
         notes=notes,
         layout="TITLE",
+        # The diagram carries no value anyone reads off it: it is three stays
+        # against a period, drawn to be recognized rather than measured. So the
+        # room it gives up to a template's artwork costs the slide nothing.
+        schematic=True,
     )
 
 

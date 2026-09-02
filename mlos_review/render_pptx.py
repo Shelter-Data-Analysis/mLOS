@@ -77,14 +77,23 @@ OPENING_TITLE_PT = Pt(40)
 TABLE_TITLE_PT = VALUE_PT
 TABLE_TITLE_HEIGHT = Inches(0.35)
 
-# What one bullet costs vertically: a line of BULLET_PT with ordinary leading,
+# What one bullet costs vertically at BULLET_PT: a line with ordinary leading,
 # the gap after the paragraph, and a per-character width for working out how
 # many lines it wraps to. The bullet glyph and its two spaces count as
-# characters like any other.
+# characters like any other. All three scale with the size the bullets are
+# actually set in, so a slide set a notch smaller is measured a notch smaller
+# rather than being charged for type it does not use.
 BULLET_LINE_HEIGHT = Inches(0.3)
 BULLET_SPACING = Pt(10)
 BULLET_CHAR_WIDTH = Inches(0.13)
 BULLET_PREFIX_CHARS = 3
+
+# The size a slide's bullets are tried at, in order. A slide that would take a
+# template's artwork and does not fit the band at the first size is measured
+# again at the next, and takes the artwork at whichever size fits. Falling one
+# notch is cheaper than the alternative, which is a slide that loses the
+# branding its neighbours have over a quarter of an inch.
+BULLET_SIZES = (Pt(18), Pt(16), Pt(14))
 
 # How far a sub-bullet sits in, and the glyph it takes. The indent is written
 # onto the paragraph rather than left to `level` alone: a plain text box has no
@@ -274,9 +283,16 @@ class Slide:
                    a figure taking the half beside them if there is one. The
                    opening slide.
 
-    It is the one presentational field a rule sets, because how many figures a
-    slide carries and whether they are peers is something only the rule knows;
-    everything else about geometry is decided here.
+    `schematic` says the figures on this slide are diagrams rather than
+    readings: they carry no value anyone reads off them, so room taken from
+    them costs nothing, and a slide that would otherwise go unbranded can take
+    a template's artwork by giving its diagram the smaller half. A rule sets it
+    about its own figures, since what a figure is showing is the rule's to say.
+
+    `layout` and `schematic` are what a rule declares about presentation,
+    because how many figures a slide carries, whether they are peers and
+    whether they hold values are things only the rule knows; the geometry that
+    follows from them is decided here.
     """
 
     title: str
@@ -290,6 +306,7 @@ class Slide:
     footnote: str = ""
     lead: str = ""
     layout: str = "STACKED"
+    schematic: bool = False
 
 
 # --- Templates -----------------------------------------------------------
@@ -329,10 +346,17 @@ def takes_decoration(spec: "Slide") -> bool:
     sees, and taking an inch off the top and half an inch off the foot of a
     survival curve costs more than a band is worth.
 
+    A schematic is the exception its `Slide` field describes, and only where it
+    sits BESIDE the text rather than under it. On TITLE it does, so what it
+    gives up to the band is width it can spare; under a list it would be giving
+    up the height it is read in.
+
     Whether the artwork FITS is a second question, asked in `render` once the
     slide's content has been measured.
     """
-    return not spec.figures
+    if not spec.figures:
+        return True
+    return spec.schematic and spec.layout == "TITLE"
 
 
 def free_band(shapes) -> tuple[int, int]:
@@ -881,7 +905,8 @@ def _add_table(slide, table: Table, vocab: Vocabulary, top: Emu, height: Emu,
                 mark.font.size = FLAG_PT
 
 
-def bullet_height(line: Bullet | str, width: Emu | None = None) -> int:
+def bullet_height(line: Bullet | str, width: Emu | None = None,
+                  size: Pt = BULLET_PT) -> int:
     """Height one bullet needs once it wraps, including the space beneath it.
 
     Estimated from the character count, like the table column widths and for
@@ -893,15 +918,20 @@ def bullet_height(line: Bullet | str, width: Emu | None = None) -> int:
     `width` is the column the text is set in, defaulting to the full text
     width. A layout that puts bullets beside something passes its own column,
     since the same sentence wraps to twice the lines in half the width.
+
+    `size` is the type the bullets are set in. Both the line and the character
+    it holds scale with it, so a smaller size buys height twice over: shorter
+    lines, and fewer of them.
     """
     bullet = _as_bullet(line)
+    scale = size.pt / BULLET_PT.pt
     full = SLIDE_WIDTH - 2 * MARGIN
     # A sub-bullet is set in a narrower column, so the same sentence wraps to
     # more lines there than it would at the margin.
     column = (full if width is None else width) - bullet.level * BULLET_SUB_INDENT
-    per_line = max(1, int(column / BULLET_CHAR_WIDTH))
+    per_line = max(1, int(column / (BULLET_CHAR_WIDTH * scale)))
     lines = max(1, -(-(len(bullet.text) + BULLET_PREFIX_CHARS) // per_line))
-    return lines * BULLET_LINE_HEIGHT + int(BULLET_SPACING)
+    return int(lines * BULLET_LINE_HEIGHT * scale + int(BULLET_SPACING) * scale)
 
 
 def lead_height(text: str) -> int:
@@ -964,7 +994,7 @@ def bullet_pages(bullets: list[Bullet | str], reserved: int = 0,
 
 
 def _add_bullets(slide, bullets: list[Bullet | str], top: Emu, height: Emu,
-                 width: Emu | None = None) -> None:
+                 width: Emu | None = None, size: Pt = BULLET_PT) -> None:
     box = slide.shapes.add_textbox(
         MARGIN, top, (SLIDE_WIDTH - 2 * MARGIN) if width is None else width,
         height)
@@ -976,8 +1006,8 @@ def _add_bullets(slide, bullets: list[Bullet | str], top: Emu, height: Emu,
         run = paragraph.add_run()
         glyph = BULLET_GLYPHS[min(bullet.level, len(BULLET_GLYPHS) - 1)]
         run.text = f"{glyph}  {bullet.text}"
-        run.font.size = BULLET_PT
-        paragraph.space_after = BULLET_SPACING
+        run.font.size = size
+        paragraph.space_after = Pt(BULLET_SPACING.pt * size.pt / BULLET_PT.pt)
         if bullet.level:
             paragraph.level = min(bullet.level, 8)
             # The indent itself, since a bare text box carries no list master
@@ -1111,7 +1141,8 @@ def _table_heights(table: Table | None, vocab: Vocabulary | None = None,
 
 
 def _layout_stacked(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
-                    flag_style: str) -> None:
+                    flag_style: str,
+                    bullet_pt: Pt = BULLET_PT) -> None:
     """Bullets, then a row of figures, then the table across the full width.
 
     `tables` puts several of them side by side beneath the figures instead,
@@ -1135,8 +1166,10 @@ def _layout_stacked(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu
 
     bullets_height = Emu(0)
     if spec.bullets:
-        bullets_height = sum(bullet_height(line) for line in spec.bullets)
-        _add_bullets(slide, spec.bullets, top, int(bullets_height))
+        bullets_height = sum(bullet_height(line, size=bullet_pt)
+                             for line in spec.bullets)
+        _add_bullets(slide, spec.bullets, top, int(bullets_height),
+                     size=bullet_pt)
 
     figure_height = height - table_height - footnote_height - bullets_height
     if spec.figures:
@@ -1157,7 +1190,8 @@ def _layout_stacked(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu
 
 
 def _layout_split(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
-                  flag_style: str) -> None:
+                  flag_style: str,
+                  bullet_pt: Pt = BULLET_PT) -> None:
     """Figures down the left, table down the right, both vertically centered.
 
     For a slide that shows ONE figure against a table the reader is meant to
@@ -1195,7 +1229,8 @@ def _layout_split(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
 
 
 def _layout_quadrants(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
-                      flag_style: str) -> None:
+                      flag_style: str,
+                      bullet_pt: Pt = BULLET_PT) -> None:
     """Figures and table in a two-column grid, filled in reading order.
 
     NOT USED BY ANY RULE TODAY, and kept deliberately. The slide it was written
@@ -1379,7 +1414,8 @@ def _draw_table_row(slide, tables: list[Table], vocab: Vocabulary, left: Emu,
 
 
 def _layout_tables(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
-                   flag_style: str) -> None:
+                   flag_style: str,
+                   bullet_pt: Pt = BULLET_PT) -> None:
     """A slide made of tables: one row of them, centered on the page.
 
     One, two or three of them on the slides that use it today, and the row
@@ -1408,7 +1444,8 @@ def _layout_tables(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
 
 
 def _layout_title(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
-                  flag_style: str) -> None:
+                  flag_style: str,
+                  bullet_pt: Pt = BULLET_PT) -> None:
     """The opening slide: what the deck is, and what it was computed over.
 
     Bullets, then any tables beneath them, the whole block centered in the body
@@ -1435,13 +1472,15 @@ def _layout_title(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
                         int(SLIDE_WIDTH - MARGIN - text_width), top,
                         text_width, height)
 
-    bullets = sum(bullet_height(line, text_width) for line in spec.bullets)
+    bullets = sum(bullet_height(line, text_width, bullet_pt)
+                  for line in spec.bullets)
     depth = _row_depth(tables, vocab, flag_style, text_width)
     gap = int(GUTTER) if spec.bullets and tables else 0
 
     y = int(top + max(0, height - bullets - gap - depth) / 2)
     if spec.bullets:
-        _add_bullets(slide, spec.bullets, y, int(bullets), width=text_width)
+        _add_bullets(slide, spec.bullets, y, int(bullets), width=text_width,
+                     size=bullet_pt)
         y += int(bullets) + gap
     if tables:
         _draw_table_row(slide, tables, vocab, MARGIN, y, text_width, depth,
@@ -1491,26 +1530,58 @@ def _notes_sections(spec: Slide) -> list[str]:
     return sections
 
 
-def _body_depth(spec: Slide, vocab: Vocabulary, flag_style: str) -> int:
+def _text_column(spec: Slide) -> int:
+    """The width this slide's text is set in, which decides how far it wraps.
+
+    Full width, except where a figure takes the other half: TITLE puts its
+    schematic beside the text rather than under it, and the same sentence wraps
+    to twice the lines in half the column.
+    """
+    width = int(SLIDE_WIDTH - 2 * MARGIN)
+    if spec.layout == "TITLE" and spec.figures:
+        return int((width - GUTTER) / 2)
+    return width
+
+
+def _body_depth(spec: Slide, vocab: Vocabulary, flag_style: str,
+                bullet_pt: Pt = BULLET_PT) -> int:
     """How much height this slide's body needs, measured before it is drawn.
 
     Asked so that a slide whose content is taller than the band a template
     leaves free keeps the whole slide and goes without the artwork, rather than
     running its last table row over a strip of logos. Measured with the same
-    routines the layouts use, so the answer is the one they will reach.
+    routines the layouts use, in the column they will set the text in, so the
+    answer is the one they will reach.
 
-    Full width throughout, which is what the layouts that reach here give their
-    content: a decorated slide carries no figure, so nothing is sharing the
-    page with one.
+    A figure costs no height here. Every slide that reaches this either carries
+    none, or carries a schematic beside the text, which takes width rather than
+    height and shrinks to whatever is left.
     """
-    available = int(SLIDE_WIDTH - 2 * MARGIN)
-    depth = sum(bullet_height(line) for line in spec.bullets)
+    column = _text_column(spec)
+    depth = sum(bullet_height(line, column, bullet_pt) for line in spec.bullets)
     if spec.tables:
-        depth += _row_depth(spec.tables, vocab, flag_style, available)
+        depth += _row_depth(spec.tables, vocab, flag_style, column)
     if spec.table is not None:
-        widths = _fitted_widths(spec.table, vocab, flag_style, available)
+        widths = _fitted_widths(spec.table, vocab, flag_style, column)
         depth += sum(_table_heights(spec.table, vocab, widths))
     return int(depth)
+
+
+def _fitting_size(spec: Slide, vocab: Vocabulary, flag_style: str,
+                  room: int) -> Pt | None:
+    """The largest bullet size this slide fits the band at, or None.
+
+    Tried in order, so a slide takes the artwork at the size it reads best in
+    and steps down only as far as it has to. None is a slide that does not fit
+    at any of them, which keeps the whole plain page instead.
+    """
+    for size in BULLET_SIZES:
+        spent = (int(TITLE_HEIGHT) + _body_depth(spec, vocab, flag_style, size)
+                 + (lead_height(spec.lead) if spec.lead else 0)
+                 + (int(FOOTNOTE_HEIGHT) if spec.footnote else 0))
+        if spent <= room:
+            return size
+    return None
 
 
 def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
@@ -1540,14 +1611,13 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
         # The plain slide's own band when there is no template, or when this
         # slide has no room for one, so everything below reads one pair of
         # numbers and no layout has to know a template is in play.
-        decorated = Decoration()
+        decorated, bullet_pt = Decoration(), BULLET_PT
         if decoration is not None and takes_decoration(spec):
-            spent = (int(TITLE_HEIGHT) + _body_depth(spec, vocab, flag_style)
-                     + (lead_height(spec.lead) if spec.lead else 0)
-                     + (int(FOOTNOTE_HEIGHT) if spec.footnote else 0))
-            if spent <= decoration.bottom - decoration.top:
+            size = _fitting_size(spec, vocab, flag_style,
+                                 decoration.bottom - decoration.top)
+            if size is not None:
                 _stamp(slide, decoration)
-                decorated = decoration
+                decorated, bullet_pt = decoration, size
         artwork = len(slide.shapes)
         _add_title(slide, spec.title,
                    OPENING_TITLE_PT if spec.layout == "TITLE" else TITLE_PT,
@@ -1569,7 +1639,8 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
             body_height -= FOOTNOTE_HEIGHT
             _add_slide_footnote(slide, spec.footnote, decorated.bottom)
         LAYOUT_FUNCTIONS[spec.layout](
-            slide, spec, vocab, body_top, int(body_height), flag_style)
+            slide, spec, vocab, body_top, int(body_height), flag_style,
+            bullet_pt)
         _set_font(slide, artwork)
 
         paragraphs = list(spec.notes) + _notes_sections(spec)
