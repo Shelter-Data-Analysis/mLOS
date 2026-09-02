@@ -13,11 +13,13 @@ one wide figure, not a gap where the other would have been.
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
+from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
@@ -162,6 +164,30 @@ TABLE_ROW_HEIGHT = Inches(0.4)
 FOOTNOTE_LINE_HEIGHT = Inches(0.18)
 FOOTNOTE_HEIGHT = Inches(0.35)
 
+# The typeface everything this file draws is set in, and everything it
+# measures. The column widths, the row heights and the bullet pagination are
+# all estimated against Calibri; a template brings its own theme fonts, and a
+# wider one wraps a table header mid-word and a slide title onto a second line
+# over the lead beneath it. So a template contributes its artwork and its
+# colors, and the type stays what the geometry was measured in.
+BODY_FONT = "Calibri"
+
+# How close a decorated slide's content comes to the artwork above and below
+# it. Narrower than MARGIN, because artwork ruled off from the body is already
+# a boundary and a second one the width of a page margin reads as a gap.
+DECORATION_GUTTER = Inches(0.15)
+
+# The name a template's empty layout goes by, before the fallback of taking
+# whichever layout carries the fewest placeholders.
+BLANK_LAYOUT = "Blank"
+
+# How far a template's page may be from this renderer's before it is refused.
+# Not an equality test: SLIDE_WIDTH is Inches(13.333) and PowerPoint writes the
+# same page as 12192000 EMU, which is 13 and a third, so the two differ by four
+# ten-thousandths of an inch. A tenth of an inch is the width of a hairline at
+# the edge of a projected slide and is not a different page.
+SIZE_TOLERANCE = Inches(0.1)
+
 
 @dataclass(frozen=True)
 class Bullet:
@@ -264,6 +290,209 @@ class Slide:
     footnote: str = ""
     lead: str = ""
     layout: str = "STACKED"
+
+
+# --- Templates -----------------------------------------------------------
+#
+# A template is an ordinary one-slide .pptx whose slide carries decoration and
+# nothing else: a header band, a footer strip of logos. Its artwork is copied
+# onto the slides that have room for it rather than being put on the master,
+# because the figures are opaque white PNGs and a master would put the artwork
+# behind a rectangle. Which slides have room is `takes_decoration`.
+#
+# What a template brings beyond its artwork is its theme, so the deck is set in
+# the template's fonts and reads its color scheme, and that applies to every
+# slide whether decorated or not.
+
+
+@dataclass(frozen=True)
+class Decoration:
+    """A template's artwork, and the band of the slide it leaves free.
+
+    `top` and `bottom` bound the tallest horizontal band no template shape sits
+    in. A decorated slide draws everything between them: its title, its body
+    and its footnote, so the shrinking is charged once and every layout
+    inherits it without knowing a template is in play.
+    """
+
+    elements: tuple = ()
+    images: dict = field(default_factory=dict)
+    top: int = int(MARGIN)
+    bottom: int = int(SLIDE_HEIGHT - MARGIN)
+
+
+def takes_decoration(spec: "Slide") -> bool:
+    """Whether a template's artwork is worth putting on this slide.
+
+    A slide carrying a figure is not. The figures are opaque white PNGs sized
+    to whatever the body leaves them, so artwork behind one is artwork nobody
+    sees, and taking an inch off the top and half an inch off the foot of a
+    survival curve costs more than a band is worth.
+
+    Whether the artwork FITS is a second question, asked in `render` once the
+    slide's content has been measured.
+    """
+    return not spec.figures
+
+
+def free_band(shapes) -> tuple[int, int]:
+    """The tallest horizontal band of a slide that no shape sits in.
+
+    Measured rather than assumed, so a template with its artwork all at the
+    foot, or split above and below, is read as what it is. Overlapping shapes
+    are merged as the scan goes, since a logo strip is usually a group with a
+    rule across it.
+    """
+    spans = sorted((int(shape.top), int(shape.top + shape.height))
+                   for shape in shapes
+                   if shape.top is not None and shape.height is not None)
+    best, floor = (0, 0), 0
+    for top, bottom in spans + [(int(SLIDE_HEIGHT), int(SLIDE_HEIGHT))]:
+        if top - floor > best[1] - best[0]:
+            best = (floor, top)
+        floor = max(floor, bottom)
+    return best
+
+
+def template_band(path: str | Path | None) -> Decoration:
+    """The band a template leaves free, without its shapes.
+
+    For a caller that has to know how much room a page has before the renderer
+    is reached: the closing sections paginate their bullets, and a page broken
+    against the full slide would run its last lines under the footer strip.
+    A template of None answers with the undecorated slide, so the caller can
+    ask unconditionally.
+    """
+    if path is None:
+        return Decoration()
+    deck = Presentation(str(path))
+    _require_slide_size(deck, path)
+    if not deck.slides:
+        return Decoration()
+    top, bottom = free_band(deck.slides[0].shapes)
+    return Decoration(top=top + int(DECORATION_GUTTER),
+                      bottom=bottom - int(DECORATION_GUTTER))
+
+
+def _require_slide_size(deck, path) -> None:
+    """Refuse a template of another size rather than stretching its artwork.
+
+    Every measurement in this file is taken from SLIDE_WIDTH and SLIDE_HEIGHT,
+    so a template of another shape would have to move all of them. Resizing
+    the template instead is the caller's one line, and it is the line that
+    keeps the artwork the proportions it was drawn at.
+    """
+    if (abs(deck.slide_width - SLIDE_WIDTH) <= SIZE_TOLERANCE
+            and abs(deck.slide_height - SLIDE_HEIGHT) <= SIZE_TOLERANCE):
+        return
+    raise ValueError(
+        f"Template '{path}' is {Emu(deck.slide_width).inches:g} by "
+        f"{Emu(deck.slide_height).inches:g} inches; this renderer draws "
+        f"{Emu(SLIDE_WIDTH).inches:g} by {Emu(SLIDE_HEIGHT).inches:g}. "
+        "Resize the template to match.")
+
+
+def _read_decoration(deck, path) -> Decoration:
+    """Lift the artwork off the template's own slide, leaving the slide there.
+
+    The slide goes at the end of the render, not here. It is what keeps the
+    template's images reachable while the deck is built, and pptx names a new
+    image part after the ones the package already holds: with the template
+    slide gone, the first figure added is offered `image1.png`, which the
+    template is still holding, and both are written into the file under that
+    one name.
+    """
+    _require_slide_size(deck, path)
+    if not deck.slides:
+        return Decoration()
+    source = deck.slides[0]
+    images = {rid: rel.target_part for rid, rel in source.part.rels.items()
+              if rel.reltype == RT.IMAGE and not rel.is_external}
+    top, bottom = free_band(source.shapes)
+    return Decoration(
+        elements=tuple(deepcopy(shape._element) for shape in source.shapes),
+        images=images,
+        top=top + int(DECORATION_GUTTER),
+        bottom=bottom - int(DECORATION_GUTTER))
+
+
+def _drop_template_slide(deck) -> None:
+    """Take the template's own slide back out, once the deck is built.
+
+    Dropped rather than kept and skipped over: what was wanted from it is its
+    shapes, and a template that printed its own page would put a blank one at
+    the front of the deck. Its images stay, every slide stamped with them
+    having related to them by now.
+    """
+    entries = deck.slides._sldIdLst
+    if len(entries):
+        deck.part.drop_rel(entries[0].rId)
+        entries.remove(entries[0])
+
+
+# Where a copied shape names the image it draws. The second is a linked rather
+# than embedded picture, and the SVG beside a fallback PNG is reached the same
+# way, from an extension element the scan below walks into like any other.
+IMAGE_REFERENCES = (qn("r:embed"), qn("r:link"))
+
+
+def _stamp(slide, decoration: Decoration) -> None:
+    """Put the artwork on this slide, behind whatever is drawn next.
+
+    Called before the content, which settles two things at once: shapes early
+    in the tree are at the back of the z-order, and the ids pptx hands the
+    content are numbered above the ones copied here.
+    """
+    tree = slide.shapes._spTree
+    for element in decoration.elements:
+        copy = deepcopy(element)
+        fresh: dict[str, str] = {}
+        for node in copy.iter():
+            for name in IMAGE_REFERENCES:
+                rid = node.get(name)
+                if rid not in decoration.images:
+                    continue
+                if rid not in fresh:
+                    fresh[rid] = slide.part.relate_to(
+                        decoration.images[rid], RT.IMAGE)
+                node.set(name, fresh[rid])
+        tree.append(copy)
+
+
+def _set_font(slide, skip: int = 0) -> None:
+    """Set the deck's typeface on everything drawn on this slide.
+
+    Applied to the whole slide at the end rather than at each of the dozen
+    places a run is written, so a drawing routine added later inherits it
+    without having to remember. `skip` is how many shapes were already there,
+    which is the template's artwork: that is set in the template's own type and
+    is not this file's to restyle.
+    """
+    for shape in list(slide.shapes)[skip:]:
+        frames = []
+        if shape.has_text_frame:
+            frames.append(shape.text_frame)
+        if shape.has_table:
+            frames.extend(cell.text_frame for row in shape.table.rows
+                          for cell in row.cells)
+        for frame in frames:
+            for paragraph in frame.paragraphs:
+                for run in paragraph.runs:
+                    run.font.name = BODY_FONT
+
+
+def _blank_layout(deck):
+    """The layout to build every slide on: the one with nothing already on it.
+
+    Found by name, then by placeholder count, rather than by the index that is
+    Blank in the default template. A template is someone else's file, and a
+    layout carrying a title box would print that box, empty, on every slide.
+    """
+    for layout in deck.slide_layouts:
+        if layout.name == BLANK_LAYOUT:
+            return layout
+    return min(deck.slide_layouts, key=lambda layout: len(layout.placeholders))
+
 
 
 def _format_cell(value, fmt: Format) -> str:
@@ -489,8 +718,10 @@ def _shade_alternate_rows(grid) -> None:
             cell.fill.fore_color.rgb = BAND_COLOR
 
 
-def _add_title(slide, text: str, size: Pt = TITLE_PT) -> None:
-    box = slide.shapes.add_textbox(MARGIN, MARGIN, SLIDE_WIDTH - 2 * MARGIN, TITLE_HEIGHT)
+def _add_title(slide, text: str, size: Pt = TITLE_PT,
+               top: int = int(MARGIN)) -> None:
+    box = slide.shapes.add_textbox(MARGIN, top, SLIDE_WIDTH - 2 * MARGIN,
+                                   TITLE_HEIGHT)
     frame = box.text_frame
     frame.text = capitalize_first(text)
     frame.paragraphs[0].runs[0].font.size = size
@@ -687,8 +918,18 @@ def lead_height(text: str) -> int:
     return lines * BULLET_LINE_HEIGHT + int(LEAD_SPACING)
 
 
-def bullet_pages(bullets: list[Bullet | str],
-                 reserved: int = 0) -> list[list[Bullet | str]]:
+def text_budget(decoration: Decoration | None = None) -> int:
+    """Height a slide of nothing but bullets has for its list.
+
+    Takes the band a template leaves free when there is one, since a bullets
+    slide carries no figure and is therefore decorated.
+    """
+    decoration = decoration or Decoration()
+    return decoration.bottom - decoration.top - int(TITLE_HEIGHT)
+
+
+def bullet_pages(bullets: list[Bullet | str], reserved: int = 0,
+                 budget: int | None = None) -> list[list[Bullet | str]]:
     """Split bullets into pages that fit a slide, keeping their order.
 
     Geometry lives here rather than in the rule that gathers the bullets: how
@@ -701,8 +942,12 @@ def bullet_pages(bullets: list[Bullet | str],
     line costs. Only the first, because that is where a lead goes;
     charging every page for it would break the section a bullet early from the
     second page onward.
+
+    `budget` is how tall a page is, defaulting to the undecorated slide. A
+    caller building against a template passes the smaller band, because a page
+    broken against the full slide runs its last lines under the artwork.
     """
-    budget = SLIDE_HEIGHT - (MARGIN + TITLE_HEIGHT) - MARGIN
+    budget = text_budget() if budget is None else budget
     pages: list[list[Bullet | str]] = []
     page: list[Bullet | str] = []
     used = reserved
@@ -811,7 +1056,8 @@ def _add_footnotes(slide, table: Table, top: Emu, flag_style: str,
     frame.paragraphs[0].runs[0].font.italic = True
 
 
-def _add_slide_footnote(slide, text: str) -> None:
+def _add_slide_footnote(slide, text: str,
+                        bottom: int = int(SLIDE_HEIGHT - MARGIN)) -> None:
     """A line at the foot of the page, in the same voice as a table's footnote.
 
     Same size and italics deliberately: it is the same kind of remark, a
@@ -819,7 +1065,7 @@ def _add_slide_footnote(slide, text: str) -> None:
     typography would make it look like a finding.
     """
     box = slide.shapes.add_textbox(
-        MARGIN, int(SLIDE_HEIGHT - MARGIN - FOOTNOTE_HEIGHT),
+        MARGIN, int(bottom - FOOTNOTE_HEIGHT),
         SLIDE_WIDTH - 2 * MARGIN, FOOTNOTE_HEIGHT)
     frame = box.text_frame
     frame.word_wrap = True
@@ -1245,21 +1491,70 @@ def _notes_sections(spec: Slide) -> list[str]:
     return sections
 
 
+def _body_depth(spec: Slide, vocab: Vocabulary, flag_style: str) -> int:
+    """How much height this slide's body needs, measured before it is drawn.
+
+    Asked so that a slide whose content is taller than the band a template
+    leaves free keeps the whole slide and goes without the artwork, rather than
+    running its last table row over a strip of logos. Measured with the same
+    routines the layouts use, so the answer is the one they will reach.
+
+    Full width throughout, which is what the layouts that reach here give their
+    content: a decorated slide carries no figure, so nothing is sharing the
+    page with one.
+    """
+    available = int(SLIDE_WIDTH - 2 * MARGIN)
+    depth = sum(bullet_height(line) for line in spec.bullets)
+    if spec.tables:
+        depth += _row_depth(spec.tables, vocab, flag_style, available)
+    if spec.table is not None:
+        widths = _fitted_widths(spec.table, vocab, flag_style, available)
+        depth += sum(_table_heights(spec.table, vocab, widths))
+    return int(depth)
+
+
 def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
-           flag_style: str = "MARK") -> Path:
-    """Write a deck. Blank layout throughout: this file owns the geometry."""
-    deck = Presentation()
-    deck.slide_width = SLIDE_WIDTH
-    deck.slide_height = SLIDE_HEIGHT
-    blank = deck.slide_layouts[6]
+           flag_style: str = "MARK",
+           template: str | Path | None = None) -> Path:
+    """Write a deck. Blank layout throughout: this file owns the geometry.
+
+    `template` is a one-slide .pptx whose artwork is stamped onto the slides
+    that have room for it and whose theme the whole deck is set in. Without
+    one the deck is built on pptx's default template, as it always was.
+    """
+    if template is None:
+        deck = Presentation()
+        deck.slide_width = SLIDE_WIDTH
+        deck.slide_height = SLIDE_HEIGHT
+        decoration = None
+    else:
+        # The template's own page is left as it was written, having been
+        # checked against this renderer's. Setting it here instead would move
+        # the artwork by whatever the two rounded differently.
+        deck = Presentation(str(template))
+        decoration = _read_decoration(deck, template)
+    blank = _blank_layout(deck)
 
     for spec in slides:
         slide = deck.slides.add_slide(blank)
+        # The plain slide's own band when there is no template, or when this
+        # slide has no room for one, so everything below reads one pair of
+        # numbers and no layout has to know a template is in play.
+        decorated = Decoration()
+        if decoration is not None and takes_decoration(spec):
+            spent = (int(TITLE_HEIGHT) + _body_depth(spec, vocab, flag_style)
+                     + (lead_height(spec.lead) if spec.lead else 0)
+                     + (int(FOOTNOTE_HEIGHT) if spec.footnote else 0))
+            if spent <= decoration.bottom - decoration.top:
+                _stamp(slide, decoration)
+                decorated = decoration
+        artwork = len(slide.shapes)
         _add_title(slide, spec.title,
-                   OPENING_TITLE_PT if spec.layout == "TITLE" else TITLE_PT)
+                   OPENING_TITLE_PT if spec.layout == "TITLE" else TITLE_PT,
+                   decorated.top)
 
-        body_top = MARGIN + TITLE_HEIGHT
-        body_height = SLIDE_HEIGHT - body_top - MARGIN
+        body_top = decorated.top + int(TITLE_HEIGHT)
+        body_height = decorated.bottom - body_top
         if spec.lead:
             # Drawn first and then taken out of the body, the same bargain the
             # footnote strikes: the layout is told what room is left rather
@@ -1272,9 +1567,10 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
             # The layout is told about the space the footnote takes rather than
             # the footnote being drawn over whatever the layout put there.
             body_height -= FOOTNOTE_HEIGHT
-            _add_slide_footnote(slide, spec.footnote)
+            _add_slide_footnote(slide, spec.footnote, decorated.bottom)
         LAYOUT_FUNCTIONS[spec.layout](
             slide, spec, vocab, body_top, int(body_height), flag_style)
+        _set_font(slide, artwork)
 
         paragraphs = list(spec.notes) + _notes_sections(spec)
         if paragraphs:
@@ -1283,6 +1579,8 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
             for note in paragraphs[1:]:
                 frame.add_paragraph().text = note
 
+    if template is not None:
+        _drop_template_slide(deck)
     path = Path(path)
     deck.save(str(path))
     return path

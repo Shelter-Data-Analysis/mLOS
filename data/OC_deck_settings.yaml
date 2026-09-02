@@ -90,3 +90,19 @@ emphasis:
 # A stratifier set to NEVER above is left out of the competing-risks section
 # too, and is not a candidate for the one TEASER shows.
 aj_coverage: FULL
+
+
+# A one-slide .pptx whose artwork is copied onto the slides that have room for
+# it: a header band, a footer strip of logos, anything the slide carries. The
+# free band is measured from where the artwork sits, and a slide is decorated
+# when its title, body and footnote fit inside that band; the ones that do not,
+# and every slide carrying a figure, keep the whole page and go without.
+#
+# The template must be the same page size, 13.333 by 7.5 inches. It contributes
+# its artwork and its color scheme; the type stays Calibri, which is what the
+# column widths and the page breaks are measured in.
+#
+# Absent, the deck is built plain, which is what it looked like before this
+# setting existed.
+#
+#   template: data/branding.pptx

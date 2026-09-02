@@ -92,7 +92,7 @@ from mlos_review.recommend import (cap_binding, dimension_not_separating,
 from mlos_review.salience import (earns_slides, findings_for_salience,
                                   salience_notes)
 from mlos_review.render_pptx import (Bullet, Slide, bullet_pages, lead_height,
-                                     render)
+                                     render, template_band, text_budget)
 from mlos_review.settings import Settings, load as load_settings
 from mlos_review import workbook
 
@@ -1509,8 +1509,8 @@ def aj_teaser_stratifier(bundle: Bundle, settings: Settings) -> str | None:
     return None if fewest is None else fewest[1]
 
 
-def _gathered_section(slides: list[Slide], gather, title: str,
-                     note: str, lead: str = "") -> list[Slide]:
+def _gathered_section(slides: list[Slide], gather, title: str, note: str,
+                      lead: str = "", budget: int | None = None) -> list[Slide]:
     """One closing section, paginated: the shape both of them share.
 
     Parameterised by an accessor rather than by a field name, so what is
@@ -1541,7 +1541,8 @@ def _gathered_section(slides: list[Slide], gather, title: str,
               notes=[note],
               bullets=page,
               lead=lead if index == 0 else "")
-        for index, page in enumerate(bullet_pages(gathered, lead_height(lead)))
+        for index, page in enumerate(
+            bullet_pages(gathered, lead_height(lead), budget))
     ]
 
 
@@ -1558,7 +1559,8 @@ RECOMMENDATIONS_NOTE = (
     "to, and each names the setting or the data change it would take.")
 
 
-def recommendations_section(slides: list[Slide]) -> list[Slide]:
+def recommendations_section(slides: list[Slide],
+                            budget: int | None = None) -> list[Slide]:
     """Gather what the section slides recommended, after the findings.
 
     After rather than among them, because they are a different speech act: a
@@ -1568,7 +1570,8 @@ def recommendations_section(slides: list[Slide]) -> list[Slide]:
     where a presentation ends.
     """
     return _gathered_section(slides, lambda slide: slide.recommendations,
-                             RECOMMENDATIONS_TITLE, RECOMMENDATIONS_NOTE)
+                             RECOMMENDATIONS_TITLE, RECOMMENDATIONS_NOTE,
+                             budget=budget)
 
 
 def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
@@ -1815,7 +1818,8 @@ def educational_section(bundle: Bundle, vocab: Vocabulary) -> list[Slide]:
     return [divider] + built
 
 
-def findings_section(slides: list[Slide]) -> list[Slide]:
+def findings_section(slides: list[Slide],
+                     budget: int | None = None) -> list[Slide]:
     """Gather what the section slides found into a closing SECTION.
 
     The findings are written where the numbers are, then collected here, so
@@ -1838,7 +1842,8 @@ def findings_section(slides: list[Slide]) -> list[Slide]:
     # It heads the list rather than sitting under it, because a qualification
     # read after the findings is a qualification read too late.
     return _gathered_section(slides, lambda slide: slide.findings,
-                             "Findings", note, lead=AUTOMATION_CAVEAT)
+                             "Findings", note, lead=AUTOMATION_CAVEAT,
+                             budget=budget)
 
 
 def missing_pinned_levels(bundle: Bundle, settings: Settings) -> dict[str, list[str]]:
@@ -2000,7 +2005,12 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     # Both closing sections read the same list, the slides built so far, and
     # both are built before either is appended, so neither can gather the
     # other's pages. The order below is the order they appear in the deck.
-    closing = findings_section(slides) + recommendations_section(slides)
+    # A closing slide carries no figure, so it is one a template decorates and
+    # its pages have to break against the band the artwork leaves rather than
+    # against the whole slide.
+    budget = text_budget(template_band(settings.template))
+    closing = (findings_section(slides, budget)
+               + recommendations_section(slides, budget))
     slides.extend(closing)
 
     # After the closing sections, and deliberately: these are not part of the
@@ -2029,7 +2039,8 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
         workbook.write(sheets, tables_path, vocab)
 
     out_path, archived = prepare_output(out_path)
-    render(slides, out_path, vocab, flag_style=settings.high_low_flag)
+    render(slides, out_path, vocab, flag_style=settings.high_low_flag,
+           template=settings.template)
     return out_path, archived
 
 

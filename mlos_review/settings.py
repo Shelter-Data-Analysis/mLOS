@@ -83,6 +83,10 @@ class Settings:
     # explained from the podium before anything on it can be read. A reader
     # who wants the symmetry asks for it.
     ratio_log_scale: bool = False
+    # A one-slide .pptx whose artwork is stamped onto the slides with room for
+    # it, and whose theme the whole deck is set in. None builds on pptx's own
+    # template, which is what a deck built before this setting existed used.
+    template: Path | None = None
     emphasis: dict[str, Emphasis] = field(default_factory=dict)
     # What a stratifier the file says nothing about is entitled to. A field
     # rather than a constant because one dataset changes the answer: see
@@ -178,6 +182,21 @@ def _require_flag(name: str, value) -> bool:
     raise SettingsError(f"{name}: {value!r} is not true or false.")
 
 
+def _parse_template(value) -> Path | None:
+    """The template path, checked for existence where it is written.
+
+    Refused here rather than at render time, because the render is the end of a
+    run that has already read the results and built every slide, and a typo in
+    a path is worth hearing about before that.
+    """
+    if value is None:
+        return None
+    path = Path(str(value))
+    if not path.exists():
+        raise SettingsError(f"template: no file at '{path}'.")
+    return path
+
+
 def from_mapping(data: dict) -> Settings:
     """Build settings from an already-parsed mapping.
 
@@ -189,7 +208,8 @@ def from_mapping(data: dict) -> Settings:
     if not isinstance(data, dict):
         raise SettingsError("The settings file must be a mapping of keys to values.")
 
-    known = {"output", "tables", "emphasis", "aj_coverage", "figures"}
+    known = {"output", "tables", "emphasis", "aj_coverage", "figures",
+             "template"}
     unknown = sorted(set(data) - known)
     if unknown:
         raise SettingsError(
@@ -247,6 +267,7 @@ def from_mapping(data: dict) -> Settings:
         ratio_log_scale=_require_flag(
             "figures.ratio_log_scale",
             figures.get("ratio_log_scale", defaults.ratio_log_scale)),
+        template=_parse_template(data.get("template")),
         emphasis=emphasis,
     )
 

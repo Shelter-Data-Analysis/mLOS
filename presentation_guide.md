@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260901_003. Read it in any markdown reader,
+presentation guide, version 20260901_004. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -224,6 +224,21 @@ than silently run past.
 | `tables.high_low_flag` | `MARK`, `COLOR` | yes |
 | `emphasis.<stratifier>` | `AUTO`, `ALWAYS`, `NEVER`, or a list of levels | all four, for the one decision salience currently drives |
 | `aj_coverage` | `FULL`, `TEASER`, `NONE` | yes; `TEASER` carries the whole-sample slide and one stratifier's, `FULL` carries every stratifier's |
+| `figures.ratio_log_scale` | yes, no | yes; the log x axis on the two ratio figures |
+| `template` | path to a one-slide `.pptx` | yes, on the slides that have room for it |
+
+A template is branding, not a layout: its slide carries artwork and nothing
+else, and the renderer copies that artwork onto the slides it fits. The band
+left free is measured from where the artwork sits, so a header, a footer strip
+of logos or both are read as what they are. A slide carrying a figure is left
+plain, the figures being opaque and sized to whatever the body leaves them, and
+so is a slide whose content is taller than the band. On the OC2 deck that is
+twenty of the fifty-two slides: the closing findings, the recommendations, the
+section openers and three of the four table slides.
+
+The template sets the page's color scheme and has to be the same page size,
+13.333 by 7.5 inches. Type stays Calibri, which is what the column widths and
+the page breaks are measured in; a wider face wraps a table header mid-word.
 
 `emphasis` is one map keyed by stratifier rather than one key per stratifier.
 To wire a fourth stratifier, add it to `STRATIFIER_KEYS` in `settings.py`,
