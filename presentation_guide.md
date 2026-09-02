@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260902_004. Read it in any markdown reader,
+presentation guide, version 20260902_005. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -793,8 +793,7 @@ Not part of the presentation.
 `#` opens a slide and `##` is that slide's standing line, which an opening
 paragraph also sets; setting both is refused. `{divider}` is the only property
 today, and an unrecognized one is refused by name for the settings file's
-reason. Bullets take two levels: no indent, and any indent up to one tab. `>`
-is a paragraph of speaker notes rather than markdown's blockquote.
+reason. Bullets take two levels: no indent, and any indent up to one tab.
 
 `@insert` borrows a slide by its exact title and brings its continuation pages
 with it, which is why the Findings section is named through its head and not
@@ -823,6 +822,15 @@ below will carry. Titles hold vocabulary labels, so an outline written for one
 dataset can fail against another; that failure is loud, and `--list` says what
 the titles are. Every deck's titles are unique apart from continuation runs,
 which the test suite checks on every fixture.
+
+**Two kinds of writing never reach a slide, and they are spelled differently
+on purpose.** A `>` line is spoken and not shown, and becomes a speaker note.
+A comment is neither spoken nor shown, and is there for whoever maintains the
+outline. Tools that spell speaker notes as an HTML comment, Marp and Slidev
+among them, are left with nothing to write the second kind with. The price of
+keeping both is that `>` is a note here rather than the quotation a markdown
+reader draws, which is at any rate the right shape for an aside, and which
+keeps notes visible while an outline is being written.
 
 `<!-- ... -->` is a comment, in markdown's own spelling, so a reader
 previewing the outline sees nothing where one sits. It may end a line, take a

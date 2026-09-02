@@ -26,6 +26,14 @@ Slides are addressed by title, which is the stand-in for the rule ids the guide
 promises. Titles carry vocabulary labels, so an outline written against one
 dataset can fail against another. That failure is loud, and `--list` says what
 the titles are.
+
+Two kinds of writing never reach a slide, and the format keeps them apart. A
+`>` line is spoken and not shown: it becomes a speaker note. A `<!-- -->`
+comment is neither spoken nor shown, and exists for whoever maintains the
+outline. Tools that spell speaker notes as an HTML comment, Marp and Slidev
+among them, have nothing left to say the second thing with; the cost of
+keeping both is that `>` here is a note rather than the quotation a markdown
+reader draws, which is at least the right shape for an aside.
 """
 
 from __future__ import annotations
