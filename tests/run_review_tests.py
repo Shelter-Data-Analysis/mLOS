@@ -722,8 +722,11 @@ def check_deck_with_figures(case: str, bundle: Bundle, directory: Path) -> None:
                 at = titles.index(interval)
                 expect(f"{case}: the educational section sits at the back",
                        at == len(titles) - 1, f"{titles[at:]}")
-                expect(f"{case}: it follows its own divider",
-                       titles[at - 1] == "Educational", f"{titles[at - 2:]}")
+                expect_equal(f"{case}: the section runs divider, opener, "
+                             f"intervals",
+                             titles[-3:],
+                             ["Educational", "Looking at Length of Stay (LOS)",
+                              interval])
                 page = list(deck.slides)[at]
                 pictures = [sh for sh in page.shapes if sh.shape_type == 13]
                 grids = [sh for sh in page.shapes if sh.has_table]
@@ -791,6 +794,84 @@ LAYOUT_CONTRACTS = {
     "TABLES": (False, 3),
     "TITLE": (False, 1),
 }
+
+
+def check_educational_section() -> None:
+    """The section's standing rules, which no single slide rule can hold.
+
+    Two of them. The order, because the opener asks the question the second
+    slide answers and a section that led with the answer would be a different
+    section. And the guideline: an educational slide contributes no finding and
+    no recommendation, which `educational_section` enforces rather than trusts,
+    so a rule added later cannot leak a sentence about method into a summary of
+    sentences about the shelter.
+    """
+    from mlos_review.deck import educational_section
+
+    section("educational section (synthetic)")
+    bundle = Bundle.load(sorted((REPO_ROOT / "tests" / "golden").glob("*/results.json"))[0].parent)
+    vocab = Vocabulary(bundle.data)
+
+    slides = educational_section(bundle, vocab)
+    expect(f"the section is built", bool(slides))
+    titles = [slide.title for slide in slides]
+    expect_equal("it opens with its divider", titles[0], "Educational")
+    expect_equal("the LOS opener comes first",
+                 titles[1], "Looking at Length of Stay (LOS)")
+    # Carried on the golden bundles, which name no interval figure, so the
+    # opener is the whole section there and the rule below is asserted over
+    # whatever the section did build.
+    for slide in slides:
+        expect_equal(f"{slide.title!r} carries no findings", slide.findings, [])
+        expect_equal(f"{slide.title!r} carries no recommendations",
+                     slide.recommendations, [])
+
+    # A rule that returns findings has them dropped, which is the guarantee
+    # rather than every rule remembering. Asserted by making one do it.
+    import mlos_review.deck as deck_module
+    original = deck_module.los_overview_slide
+
+    def _noisy(bundle, vocab):
+        slide = original(bundle, vocab)
+        slide.findings = ["a finding a teaching slide should not carry"]
+        slide.recommendations = ["nor this"]
+        return slide
+
+    deck_module.los_overview_slide = _noisy
+    try:
+        noisy = deck_module.educational_section(bundle, vocab)
+    finally:
+        deck_module.los_overview_slide = original
+    expect("a rule's findings are dropped rather than gathered",
+           all(not slide.findings and not slide.recommendations
+               for slide in noisy),
+           f"{[(s.title, s.findings, s.recommendations) for s in noisy]}")
+
+
+def check_slide_citations() -> None:
+    """The two DOIs the opener prints, against the files that own them.
+
+    A slide is the one place a citation is read aloud and the one place nothing
+    resolves it, so both are held against their source: the software DOI
+    against CITATION.cff, which is what Zenodo and GitHub read, and the paper
+    against the user guide's reference list. A DOI that drifts here names
+    something that does not exist and nothing else in the suite would notice.
+    """
+    from mlos_review.deck import PAPER_CITATION, SOFTWARE_DOI
+
+    section("slide citations (synthetic)")
+    citation = (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    expect(f"the software DOI is the one in CITATION.cff",
+           f'doi: "{SOFTWARE_DOI}"' in citation, SOFTWARE_DOI)
+
+    paper_doi = PAPER_CITATION.split("doi:")[-1].strip()
+    guide = (REPO_ROOT / "mlos_user_guide.md").read_text(encoding="utf-8")
+    expect("the paper DOI is in the user guide's references",
+           f"doi:{paper_doi}" in guide, paper_doi)
+    # The rest of the line, so a citation cannot keep a live DOI while naming
+    # the wrong journal or year.
+    for part in ("Mavrovouniotis ML.", "PLOS ONE. 2026;21(1):e0342102"):
+        expect(f"the guide carries {part!r}", part in guide)
 
 
 def check_layouts_render() -> None:
@@ -3103,7 +3184,17 @@ def check_deck(case: str, bundle: Bundle, directory: Path) -> None:
     expect_equal(f"{case}: the reserve slides gather nothing",
                  [line for s in reserve for line in s.findings + s.recommendations],
                  [])
-    expected = len(opening) + len(section_slides) + len(closing) + len(reserve)
+    # And the educational section, last of all and gathering nothing either.
+    # Counted here rather than left out, so a slide added to it has to be
+    # accounted for in the deck's length like every other.
+    from mlos_review.deck import educational_section
+    educational = educational_section(bundle, vocab)
+    expect_equal(f"{case}: the educational slides gather nothing",
+                 [line for s in educational
+                  for line in s.findings + s.recommendations],
+                 [])
+    expected = (len(opening) + len(section_slides) + len(closing)
+                + len(reserve) + len(educational))
 
     with tempfile.TemporaryDirectory() as tmp:
         out = Path(tmp) / "deck.pptx"
@@ -3929,6 +4020,8 @@ def main(argv: list[str]) -> int:
         check_single_stratifier_default,
         check_capital_widths,
         check_layouts_render,
+        check_educational_section,
+        check_slide_citations,
     ):
         run_check(check)
 

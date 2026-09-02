@@ -90,7 +90,8 @@ from mlos_review.recommend import (cap_binding, dimension_not_separating,
                                    tail_spread, unestimable_levels)
 from mlos_review.salience import (earns_slides, findings_for_salience,
                                   salience_notes)
-from mlos_review.render_pptx import Slide, bullet_pages, lead_height, render
+from mlos_review.render_pptx import (Bullet, Slide, bullet_pages, lead_height,
+                                     render)
 from mlos_review.settings import Settings, load as load_settings
 from mlos_review import workbook
 
@@ -1551,6 +1552,83 @@ def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
     return [divider] + built
 
 
+# The two citations the educational opener carries. Written here and checked
+# against their sources by the test suite rather than trusted to review:
+# CITATION.cff holds the software DOI, and the user guide's reference list
+# holds the paper, so a slide naming a DOI neither of them names is a citation
+# to something that does not exist.
+PAPER_CITATION = ("Mavrovouniotis ML. PLOS ONE. 2026;21(1):e0342102. "
+                  "doi:10.1371/journal.pone.0342102")
+SOFTWARE_DOI = "10.5281/zenodo.22083814"
+
+
+def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
+    """What length of stay means over a period, before any of it is measured.
+
+    An alternate opening. It asks the question the deck's whole method answers,
+    which is not how long stays last but which stays a period is allowed to
+    count, and it carries the title slide's own diagram because that picture is
+    the answer: a period sees whole stays, and it sees parts of stays that
+    began before it or end after it.
+
+    Deliberately not filled. Its right half is the diagram and its left is a
+    short list, and the room left over is room a figure drawn from the data can
+    take later.
+
+    Built unconditionally. Nothing on it is read from this run except the
+    version in the software citation, so there is no bundle that cannot carry
+    it.
+    """
+    version = bundle.value("run", "mlos_version")
+    software = f"mLOS {version}. doi:{SOFTWARE_DOI}" if version else \
+               f"mLOS. doi:{SOFTWARE_DOI}"
+
+    bullets = [
+        Bullet("How do you compute LOS for a specific period?"),
+        Bullet("Not just animals with outcomes in that period\u2026", 1),
+        Bullet("\u2026 but also animals straddling the beginning or end.", 1),
+        Bullet("Method & software"),
+        Bullet(PAPER_CITATION, 1),
+        Bullet(software, 1),
+        Bullet("Aside from this subtlety, what are good ways to look at"),
+        Bullet("LOS metrics", 1),
+        Bullet("LOS distribution", 1),
+        Bullet("Outcomes by tenure", 1),
+    ]
+
+    notes = [
+        "The question this slide asks is the one the method exists to answer. "
+        "A period's length of stay is not the average of the stays that ended "
+        "in it: that counts an animal only once it has left, which throws away "
+        "everyone still in care and every stay that began earlier, and both "
+        "groups are the long ones.",
+        "The diagram is the same one the deck opens with. A period sees whole "
+        "stays, stays already running when it began, and stays still running "
+        "when it ended, and survival analysis is what lets all three "
+        "contribute what they know without pretending to know the rest.",
+        "The citations are for a room that asks where the method comes from. "
+        "The paper is the definition and the worked examples: Mavrovouniotis "
+        "ML. Use of Kaplan-Meier and Cox regressions in the distribution of "
+        "length of stay in animal shelters for pre-specified calendar "
+        "periods: Definition, computation, and examples of dog length of stay "
+        "in Orange County California. PLOS ONE. 2026;21(1):e0342102. The "
+        "software line names the version that produced these numbers, which "
+        "is what says which release a result came from.",
+        "The three readings at the foot are what the rest of this section, "
+        "and the deck itself, go on to show: summary numbers for how long "
+        "stays last, the whole distribution rather than a summary of it, and "
+        "where stays end read against how long they had been going.",
+    ]
+
+    return Slide(
+        title="Looking at Length of Stay (LOS)",
+        bullets=bullets,
+        figures=[OPENING_DIAGRAM] if OPENING_DIAGRAM.exists() else [],
+        notes=notes,
+        layout="TITLE",
+    )
+
+
 def probability_intervals_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
     """How to read a distribution cut into intervals, on the whole sample.
 
@@ -1639,14 +1717,20 @@ def educational_section(bundle: Bundle, vocab: Vocabulary) -> list[Slide]:
     is here is about how to read the analysis, not about this shelter, so a
     presenter reaches it when a room wants the method rather than the numbers.
 
-    Nothing here is gathered into the closing sections: these slides report no
-    finding of their own, and a teaching slide that fed the summary would put
-    a sentence about method among sentences about the shelter.
+    Nothing here is gathered into the closing sections, and that is enforced
+    below rather than left to each rule: these slides report no finding of
+    their own, and a teaching slide that fed the summary would put a sentence
+    about method among sentences about the shelter. A rule added here that
+    carries findings has them dropped, which is the behaviour to rely on.
     """
-    built = [slide for slide in (probability_intervals_slide(bundle, vocab),)
+    built = [slide for slide in (los_overview_slide(bundle, vocab),
+                                 probability_intervals_slide(bundle, vocab))
              if slide is not None]
     if not built:
         return []
+    for slide in built:
+        slide.findings = []
+        slide.recommendations = []
 
     divider = Slide(
         title=EDUCATIONAL_TITLE,

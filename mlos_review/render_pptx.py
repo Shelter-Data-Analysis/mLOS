@@ -84,6 +84,13 @@ BULLET_SPACING = Pt(10)
 BULLET_CHAR_WIDTH = Inches(0.13)
 BULLET_PREFIX_CHARS = 3
 
+# How far a sub-bullet sits in, and the glyph it takes. The indent is written
+# onto the paragraph rather than left to `level` alone: a plain text box has no
+# list master behind it, so the outline level says what the line is without any
+# renderer being obliged to draw it as anything.
+BULLET_SUB_INDENT = Inches(0.42)
+BULLET_GLYPHS = ("\u2022", "\u2013")
+
 # The gap under a lead line. Wider than the gap between bullets, because it
 # separates two kinds of text rather than two items of one kind.
 LEAD_SPACING = Pt(16)
@@ -620,7 +627,30 @@ def _add_table(slide, table: Table, vocab: Vocabulary, top: Emu, height: Emu,
                 mark.font.size = FLAG_PT
 
 
-def bullet_height(line: str, width: Emu | None = None) -> int:
+@dataclass(frozen=True)
+class Bullet:
+    """One bullet line, and how far in it sits.
+
+    A plain string is a level 0 bullet, which is what every rule with no
+    sub-list passes and why `bullets` still takes strings. Depth is a field
+    rather than a marker inside the text, for the reason flags travel beside a
+    number rather than inside it: a depth written into prose has to be parsed
+    back out by every consumer, and the one that forgets shows the marker to
+    the audience.
+
+    One level of nesting is what the renderer draws. A deeper list on a slide
+    is a document.
+    """
+
+    text: str
+    level: int = 0
+
+
+def _as_bullet(entry) -> Bullet:
+    return entry if isinstance(entry, Bullet) else Bullet(str(entry))
+
+
+def bullet_height(line, width: Emu | None = None) -> int:
     """Height one bullet needs once it wraps, including the space beneath it.
 
     Estimated from the character count, like the table column widths and for
@@ -633,9 +663,13 @@ def bullet_height(line: str, width: Emu | None = None) -> int:
     width. A layout that puts bullets beside something passes its own column,
     since the same sentence wraps to twice the lines in half the width.
     """
+    bullet = _as_bullet(line)
     full = SLIDE_WIDTH - 2 * MARGIN
-    per_line = max(1, int((full if width is None else width) / BULLET_CHAR_WIDTH))
-    lines = max(1, -(-(len(line) + BULLET_PREFIX_CHARS) // per_line))
+    # A sub-bullet is set in a narrower column, so the same sentence wraps to
+    # more lines there than it would at the margin.
+    column = (full if width is None else width) - bullet.level * BULLET_SUB_INDENT
+    per_line = max(1, int(column / BULLET_CHAR_WIDTH))
+    lines = max(1, -(-(len(bullet.text) + BULLET_PREFIX_CHARS) // per_line))
     return lines * BULLET_LINE_HEIGHT + int(BULLET_SPACING)
 
 
@@ -683,7 +717,7 @@ def bullet_pages(bullets: list[str], reserved: int = 0) -> list[list[str]]:
     return pages
 
 
-def _add_bullets(slide, bullets: list[str], top: Emu, height: Emu,
+def _add_bullets(slide, bullets: list, top: Emu, height: Emu,
                  width: Emu | None = None) -> None:
     box = slide.shapes.add_textbox(
         MARGIN, top, (SLIDE_WIDTH - 2 * MARGIN) if width is None else width,
@@ -691,11 +725,21 @@ def _add_bullets(slide, bullets: list[str], top: Emu, height: Emu,
     frame = box.text_frame
     frame.word_wrap = True
     for index, line in enumerate(bullets):
+        bullet = _as_bullet(line)
         paragraph = frame.paragraphs[0] if index == 0 else frame.add_paragraph()
         run = paragraph.add_run()
-        run.text = f"\u2022  {line}"
+        glyph = BULLET_GLYPHS[min(bullet.level, len(BULLET_GLYPHS) - 1)]
+        run.text = f"{glyph}  {bullet.text}"
         run.font.size = BULLET_PT
         paragraph.space_after = BULLET_SPACING
+        if bullet.level:
+            paragraph.level = min(bullet.level, 8)
+            # The indent itself, since a bare text box carries no list master
+            # to turn the level into one. marL moves the whole line in and
+            # indent 0 keeps the glyph with its text rather than hanging it.
+            properties = paragraph._p.get_or_add_pPr()
+            properties.set("marL", str(int(bullet.level * BULLET_SUB_INDENT)))
+            properties.set("indent", "0")
 
 
 def _add_lead(slide, text: str, top: Emu, height: Emu) -> None:

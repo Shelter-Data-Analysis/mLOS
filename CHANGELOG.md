@@ -37,11 +37,16 @@ it computes and writes exactly what it did before.
   hides how much of the data a bar speaks for. The bar at the cap is kept as an
   empty slot so the two figures put every bar at the same x.
 - The deck gains an **Educational** section at the very back, behind the
-  robustness check. Its slide, "Working with Probabilities in Time Intervals",
-  puts the two interval stacks side by side over the whole-sample
-  length-of-stay and outcome tables, so the picture can be reconciled against
-  numbers the audience has already been given. It is built only where the run
-  drew the figures, and contributes nothing to the closing sections.
+  robustness check. An educational slide carries no findings and no
+  recommendations, which the section enforces rather than leaving to each rule.
+  It opens with "Looking at Length of Stay (LOS)", an alternate title slide
+  carrying the truncation diagram, the question of which stays a period may
+  count, and the method and software citations. "Working with Probabilities in
+  Time Intervals" follows, putting the two interval stacks side by side over
+  the whole-sample length-of-stay and outcome tables so the picture can be
+  reconciled against numbers the audience has already been given; it is built
+  only where the run drew those figures.
+- A slide bullet may sit one level in, for a sub-list.
 - The STACKED layout can hold a row of tables under its figures, which is what
   that slide needs; slides using its single-table field are unchanged.
 - The numbers travel in the bundle as `aj$probability_mass` and reach no

@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260901_001. Read it in any markdown reader,
+presentation guide, version 20260901_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -653,15 +653,30 @@ ten produce none at all. What each rule looks for is under
 ### Educational
 
 **One section sits behind everything else**, including the robustness check,
-and teaches a way of reading rather than reporting a result. It is built only
-when the run drew the figures it explains, and it contributes nothing to the
-closing sections: a teaching slide that fed the summary would put a sentence
-about method among sentences about the shelter.
+and teaches a way of reading rather than reporting a result.
 
-Its slide today is **Working with Probabilities in Time Intervals**, the two
-interval stacks side by side over the two whole-sample tables narrowed to what
-the picture can be checked against. The figures need `probability_mass_width`
-set in the analysis settings; without it the section is absent.
+**An educational slide carries no findings and no recommendations.** The
+section drops both from every slide it builds rather than asking each rule to
+remember, so a rule added later cannot leak a sentence about method into a
+summary of sentences about the shelter.
+
+Two slides today, in this order.
+
+**Looking at Length of Stay (LOS)** is an alternate opening. It asks how a
+period's length of stay is computed at all, and carries the title slide's own
+truncation diagram, because the answer is that a period sees whole stays and
+also parts of stays that began before it or end after it. It cites the method
+paper and the software release, and it is left deliberately unfilled: a figure
+drawn from the data can take the space later. Always built.
+
+**Working with Probabilities in Time Intervals** puts the two interval stacks
+side by side over the two whole-sample tables, narrowed to what the picture can
+be checked against. Its figures need `probability_mass_width` set in the
+analysis settings; without it the slide is absent and the section is the opener
+alone.
+
+A bullet may sit one level in, which is what the opener's sub-lists use. Deeper
+than one level is a document rather than a slide.
 
 ### Speaker notes
 
