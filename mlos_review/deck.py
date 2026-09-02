@@ -56,6 +56,7 @@ from mlos_review.blocks import (
     findings_for_stratifier,
     full_table,
     highlights_table,
+    outlook_by_tenure_table,
     sub_table,
     INTERVAL_SLIDE_MEASURES,
     LOS_SLIDE_MEASURES,
@@ -1001,6 +1002,73 @@ def aj_teaser(bundle: Bundle, vocab: Vocabulary,
     )
 
 
+def resident_destination(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
+    """Where the animals in the building today are heading, given their tenure.
+
+    The third whole-sample competing-risk slide, and the one that joins the two
+    questions the deck has asked separately. The length-of-stay section said
+    how much longer a resident of a given tenure has to go; the teaser before
+    this said where stays end. Neither says where THIS animal, already here
+    this long, is going, and that is the question a shelter asks about the
+    animals it is looking at.
+
+    The figures are the two curves the table is read off: remaining stay
+    against tenure on the left, the conditional outcome mix against tenure on
+    the right. A reader can put a finger on a tenure and take a row off both.
+
+    The mix comes from the bundle rather than from the figure's grid, so the
+    number and the line a reader would draw at that tenure name the same day;
+    see `outlook_by_tenure_table`.
+    """
+    table = outlook_by_tenure_table(bundle, vocab)
+    if table is None:
+        return None
+
+    figures = [bundle.figure("km_remaining_los", "all"),
+               bundle.figure("aj_conditional", "all", variant="stack")]
+    figures = [figure for figure in figures if figure is not None]
+
+    notes = [
+        "Left: how much longer an animal has to go, against how long it has "
+        "already been here. Right: the outcome mix it is heading for, against "
+        "the same tenure. The table takes three tenures off both: the median "
+        "resident, the average resident, and the long-staying one at the 90th "
+        "percentile.",
+        "Every outcome column is conditional on having reached that tenure. "
+        "They are not the shares in the teaser before this, which are over all "
+        "stays from intake; an animal that has already been here months has "
+        "left most of the quick exits behind it, and the mix moves as tenure "
+        "grows.",
+        "The columns stop short of 100%, and `at cap` is the rest: still in "
+        "care when the analysis window closes, with no outcome yet to assign. "
+        "It grows with tenure, which is why it is a column rather than a "
+        "footnote.",
+        "The tenures are properties of the standing population, not of an "
+        "arriving animal, so they run longer than the length-of-stay figures "
+        "earlier in the deck. Long stays accumulate in the building while "
+        "short ones pass through.",
+    ]
+    notes.extend(aj_window_notes(bundle, "all"))
+
+    plot_cap = bundle.value("settings", "presentation", "plot_stay_cap")
+    beyond = [label for label, value in
+              zip(table.df.index, table.df[table.df.columns[0]])
+              if plot_cap is not None and value > plot_cap]
+    if beyond:
+        notes.append(
+            f"One row sits beyond the right edge of both figures: "
+            f"{', '.join(beyond)} is past the plotted range, which stops at "
+            f"day {plot_cap}. The number is on the curve either way, the same "
+            f"way a mark that falls off scale keeps its value.")
+
+    return Slide(
+        title="Where residents are heading, given how long they have been here",
+        figures=figures,
+        table=table,
+        notes=notes,
+    )
+
+
 def aj_by_stratifier(bundle: Bundle, stratifier: str, vocab: Vocabulary,
                      settings: Settings | None = None) -> list[Slide]:
     """One competing-risk SECTION for one stratifier: a slide per outcome.
@@ -1921,6 +1989,12 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
                            [vocab.stratifier(s).label for s, _ in built])
         if teaser is not None:
             slides.append(teaser)
+        # Behind the teaser and ahead of any breakdown: it is still the whole
+        # sample, and it answers the teaser's question for the animals in the
+        # building rather than for stays from intake.
+        destination = resident_destination(bundle, vocab)
+        if destination is not None:
+            slides.append(destination)
         slides.extend(slide for _, section in built for slide in section)
 
     # Both closing sections read the same list, the slides built so far, and

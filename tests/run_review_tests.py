@@ -3150,10 +3150,13 @@ def check_deck(case: str, bundle: Bundle, directory: Path) -> None:
     # carries. Both contribute to the closing slide, so this list has to match
     # or the count below counts the wrong findings.
     from mlos_review.blocks import requires_aj_teaser
-    from mlos_review.deck import _aj_figures, aj_by_stratifier, aj_teaser, aj_teaser_stratifier
+    from mlos_review.deck import (_aj_figures, aj_by_stratifier, aj_teaser,
+                                  aj_teaser_stratifier, resident_destination)
 
     pick = aj_teaser_stratifier(bundle, deck_settings)
     aj_slides = [aj_teaser(bundle, vocab)] if requires_aj_teaser(bundle) else []
+    # Behind the teaser and ahead of any breakdown, the way build() places it.
+    aj_slides.append(resident_destination(bundle, vocab))
     if pick is not None:
         aj_slides.extend(aj_by_stratifier(bundle, pick, vocab))
     aj_slides = [s for s in aj_slides if s is not None]

@@ -10,6 +10,7 @@
   },
   "settings": {
     "restricted_stay_cap": 40,
+    "probability_mass_width": 0,
     "period_reference": "OLDEST",
     "intake_type_reference": null,
     "animal_group_reference": null,
@@ -277,7 +278,8 @@
         "ci_upper": [25.701154211768902, 34.034487545102238, 34.034487545102238]
       }
     },
-    "rmtl_cap": 40
+    "rmtl_cap": 40,
+    "probability_mass": null
   },
   "strata": {
     "period": {
@@ -407,6 +409,16 @@
         "columns": ["Period_1"],
         "values": [
           [30]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "columns": ["Period_1"],
+        "values": [
+          [1.0000000000000002],
+          [1.0000000000000002],
+          [1.0000000000000007]
         ]
       },
       "ci": {
@@ -600,6 +612,16 @@
         "columns": ["All"],
         "values": [
           [30]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [1.0000000000000002],
+          [1.0000000000000002],
+          [1.0000000000000007]
         ]
       },
       "ci": {
@@ -797,6 +819,16 @@
         "columns": ["FAST", "SLOW"],
         "values": [
           [25, 30]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "columns": ["FAST", "SLOW"],
+        "values": [
+          [1, 1],
+          [1, 1],
+          [1, 1]
         ]
       },
       "ci": {

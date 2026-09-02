@@ -10,6 +10,7 @@
   },
   "settings": {
     "restricted_stay_cap": 120,
+    "probability_mass_width": 0,
     "period_reference": "OLDEST",
     "intake_type_reference": null,
     "animal_group_reference": "SMALL",
@@ -555,7 +556,8 @@
         "ci_upper": [16.130320119747477, 75.779010488232004, 23.240717638950617, 11.445174186145824, 105.67518332923487]
       }
     },
-    "rmtl_cap": 120
+    "rmtl_cap": 120,
+    "probability_mass": null
   },
   "strata": {
     "period": {
@@ -700,6 +702,22 @@
         "columns": ["Period_1", "Period_2"],
         "values": [
           [120, 120]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["Period_1", "Period_2"],
+        "values": [
+          [0.71859021858371619, 0.71593155442315981],
+          [0.16519591376441592, 0.17410279652406099],
+          [0.095221434478931027, 0.10041496555807745],
+          [0.68742371701822624, 0.68715571368947981],
+          [0.19703982311205023, 0.18722535941742696],
+          [0.08043283911012164, 0.11032229222680266],
+          [0.58362184494836944, 0.6520172588059715],
+          [0.1736887574668935, 0.21803332124074196],
+          [0.12281895337055397, 0.068435994515900142]
         ]
       },
       "ci": {
@@ -1027,6 +1045,22 @@
           [120]
         ]
       },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [0.72200161962082632],
+          [0.16696070097568136],
+          [0.095895976855821241],
+          [0.6851188166986123],
+          [0.19434595036203284],
+          [0.095499677865809735],
+          [0.61500712774540267],
+          [0.19552822709161438],
+          [0.09474761325056659]
+        ]
+      },
       "ci": {
         "type": "matrix",
         "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_overall_per_100_animal_days", "incidence_overall_per_100_animal_days_ci_lower", "incidence_overall_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
@@ -1258,6 +1292,22 @@
         "columns": ["LARGE", "SMALL"],
         "values": [
           [120, 69]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["LARGE", "SMALL"],
+        "values": [
+          [0.66856704491030194, 0.71200623199712176],
+          [0.1875662022801195, 0.20398360689154721],
+          [0.10690691766817269, 0.084010161111331347],
+          [0.66042421530302886, 0.72471341789207877],
+          [0.18187215986927202, 0.19387062326610663],
+          [0.11162067935081049, 0.08141595884181492],
+          [0.56939855111357141, 0.71685668284042747],
+          [0.23237134755288541, 0.20089469528349777],
+          [0.052128168152707079, 0.082248621876077038]
         ]
       },
       "ci": {

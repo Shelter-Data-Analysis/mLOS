@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260901_002. Read it in any markdown reader,
+presentation guide, version 20260901_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -590,8 +590,8 @@ closing sections.
 
 ### The competing-risks run
 
-The competing-risks section is controlled by `aj_coverage`: a whole-sample
-slide, then a run of slides for one stratifier or for every one, and then a
+The competing-risks section is controlled by `aj_coverage`: two whole-sample
+slides, then a run of slides for one stratifier or for every one, and then a
 closing section gathering what each found. `TEASER` is the default.
 
 The whole-sample slide is a teaser and is built to answer the two questions the
@@ -604,6 +604,18 @@ because both questions are about shares of a whole, which is what bands show
 and lines only imply. It carries no per-stratum breakdown and no confidence
 bounds, which is what makes it a teaser rather than the treatment. The line
 versions of both figures are in the stratified slides.
+
+**The second whole-sample slide turns the question on the animals in the
+building.** Where the teaser is about stays from intake, this one is about
+residents: how much longer an animal of a given tenure has to go, and which
+way it is going to leave. Its figures are the two curves it is read off,
+remaining stay and the conditional outcome mix, both against tenure. Its table
+is a row per resident tenure, median, mean and P90, each with the remaining
+stay and the outcome mix at that tenure. Every outcome column is conditional on
+having reached the tenure, and `at cap` closes the row with the share still in
+care when the analysis window ends. The mix comes from the bundle rather than
+off the figure's grid, so a number and the line a reader would draw at that
+tenure name the same day.
 
 A stratifier's run, `aj_by_stratifier`, is a flip-book: one slide per outcome,
 each holding that one outcome's cumulative incidence by level, against a table

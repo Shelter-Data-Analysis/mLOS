@@ -10,6 +10,7 @@
   },
   "settings": {
     "restricted_stay_cap": 60,
+    "probability_mass_width": 0,
     "period_reference": "OLDEST",
     "intake_type_reference": null,
     "animal_group_reference": null,
@@ -277,7 +278,8 @@
         "ci_upper": [39.663769412799134, 49.83656807261049, 19.845108911736549, 55.092340841370557]
       }
     },
-    "rmtl_cap": 60
+    "rmtl_cap": 60,
+    "probability_mass": null
   },
   "strata": {
     "period": {
@@ -416,6 +418,19 @@
         "columns": ["Period_1", "Period_2", "Period_3"],
         "values": [
           [10, 28, null]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["Period_1", "Period_2", "Period_3"],
+        "values": [
+          [0.66666666666666663, 0, null],
+          [0.33333333333333337, null, null],
+          [0.66666666666666663, 0, null],
+          [0.33333333333333337, null, null],
+          [0, null, null],
+          [1, null, null]
         ]
       },
       "ci": {
@@ -627,6 +642,19 @@
         "columns": ["All"],
         "values": [
           [59]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [0],
+          [0],
+          [0],
+          [0],
+          [0],
+          [0]
         ]
       },
       "ci": {

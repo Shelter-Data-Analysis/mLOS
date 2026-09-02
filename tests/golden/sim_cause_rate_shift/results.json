@@ -10,6 +10,7 @@
   },
   "settings": {
     "restricted_stay_cap": 120,
+    "probability_mass_width": 0,
     "period_reference": "OLDEST",
     "intake_type_reference": null,
     "animal_group_reference": null,
@@ -277,7 +278,8 @@
         "ci_upper": [13.177856759220607, 83.899954173604314, 19.734905580949651, 8.210778644687327, 107.9564211285096]
       }
     },
-    "rmtl_cap": 120
+    "rmtl_cap": 120,
+    "probability_mass": null
   },
   "strata": {
     "period": {
@@ -422,6 +424,22 @@
         "columns": ["Period_1", "Period_2"],
         "values": [
           [106, 97]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["Period_1", "Period_2"],
+        "values": [
+          [0.60988943469733226, 0.90992644330229389],
+          [0.30685866090704061, 0.042163373064306668],
+          [0.083251904395626269, 0.047910183633398939],
+          [0.60367115446552078, 0.90708714799247869],
+          [0.30303467344690604, 0.046423141485128619],
+          [0.093294172087572055, 0.046489710522391842],
+          [0.64338553516609898, 0.87660944078922864],
+          [0.2416132231796447, 0.061623216974176123],
+          [0.11500124165425192, 0.061767342236591999]
         ]
       },
       "ci": {
@@ -651,6 +669,22 @@
         "columns": ["All"],
         "values": [
           [106]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [0.73769843269141744],
+          [0.19554982549393174],
+          [0.06675174181465128],
+          [0.72711648552433406],
+          [0.20484618571466612],
+          [0.068037328761000465],
+          [0.70375300655429684],
+          [0.20105329501219038],
+          [0.095193698433515633]
         ]
       },
       "ci": {

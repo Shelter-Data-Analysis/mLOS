@@ -424,6 +424,21 @@ stratifiers <- list(
 }
 
 
+# One value off a curve tabulated by whole day, at an x that need not be one.
+# The step covering x is the day below it, so floor() rather than rounding:
+# that is the step a vertical line drawn at x crosses on the plot, and it is
+# what makes a reported number and the picture beside it agree.
+#
+# `values` is indexed from day 0. NA for an x outside the grid or not finite,
+# which is what a tenure statistic that was never reached gives.
+.grid_value_at <- function(values, x) {
+  if (!isTRUE(is.finite(x))) return(NA_real_)
+  idx <- floor(x) + 1L
+  if (idx < 1L || idx > length(values)) return(NA_real_)
+  values[[idx]]
+}
+
+
 # 1-based start/end positions of one stratum's block within a survfit object's
 # time-ordered vectors ($time, $surv, $lower, ...). A fit with no strata
 # (e.g. survfit(surv_obj ~ 1)) is treated as a single stratum spanning the

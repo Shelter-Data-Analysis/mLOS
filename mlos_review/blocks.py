@@ -2377,6 +2377,101 @@ def aj_levels_table(bundle: Bundle, stratifier: str, vocab) -> Table:
     )
 
 
+# The three resident tenures the outlook table reports, in the order it reports
+# them, paired with the row that holds each one and the remaining-LOS reading
+# taken at it. One list rather than three parallel ones, because a table with
+# the tenures out of step with their own readings would be wrong in a way no
+# column heading would show.
+TENURE_POINTS: list[tuple[str, str, str]] = [
+    ("median tenure", "per_resident_past_days_restricted_median",
+     "remaining_days_at_median_tenure"),
+    ("mean tenure", "per_resident_past_days",
+     "remaining_days_at_mean_tenure"),
+    ("P90 tenure", "per_resident_past_days_restricted_p90",
+     "remaining_days_at_p90_tenure"),
+]
+
+# What heads the two day columns and the leftover share, and the tenure suffix
+# each row's mix is read from.
+TENURE_COLUMN, REMAINING_COLUMN, AT_CAP_COLUMN = "tenure", "remaining", "at cap"
+TENURE_SUFFIXES = {"median tenure": "median_tenure", "mean tenure": "mean_tenure",
+                   "P90 tenure": "p90_tenure"}
+
+
+def outlook_by_tenure_table(bundle: Bundle, vocab) -> Table | None:
+    """The outlook table on its side, with where those animals are going.
+
+    A row per resident tenure rather than the outlook slide's single row of
+    measures. Adding the mix to that row would make it sixteen columns wide;
+    turned on its side it is six, and it reads the way the question is asked:
+    at this tenure, this much longer to go, and this is how it ends.
+
+    The mix columns are the conditional outcome probabilities read at each
+    tenure, which R computes on its own day grid (`aj_condrem_at_tenure`) so
+    that the number and the vertical line a reader would draw on the figure
+    beside it name the same day.
+
+    `at cap` closes each row. The three outcome columns sum to less than one,
+    the shortfall being stays still in care when the AJ window ends, and a row
+    of three shares that visibly fails to add up reads as an error rather than
+    as a fact. It is derived here rather than stored, being one minus a sum of
+    numbers the bundle already carries.
+
+    None when the run has no conditional mix to read, which is any run without
+    an AJ fit.
+    """
+    if not bundle.has("strata", "all", "aj_condrem_at_tenure"):
+        return None
+    census = bundle.matrix("strata", "all", "census")
+    mix = bundle.matrix("strata", "all", "aj_condrem_at_tenure")
+    level = census.index[0]
+
+    # Palette order, so the columns run the way every figure legend does.
+    prefix, suffix = "aj_condrem_", "_at_mean_tenure"
+    found = [column[len(prefix):-len(suffix)] for column in mix.columns
+             if column.startswith(prefix) and column.endswith(suffix)]
+    order = bundle.value("palette", "outcome_order", default=[])
+    order = [order] if isinstance(order, str) else list(order)
+    codes = [code for code in order if code in found]
+    codes += [code for code in found if code not in codes]
+    if not codes:
+        return None
+
+    rows = {}
+    for label, tenure_row, remaining_row in TENURE_POINTS:
+        suffix = TENURE_SUFFIXES[label]
+        shares = {code: mix.loc[level, f"aj_condrem_{code}_at_{suffix}"]
+                  for code in codes}
+        rows[label] = {
+            TENURE_COLUMN: census.loc[level, tenure_row],
+            REMAINING_COLUMN: census.loc[level, remaining_row],
+            **shares,
+            AT_CAP_COLUMN: 1 - sum(shares.values()),
+        }
+
+    frame = pd.DataFrame.from_dict(rows, orient="index")
+    days = Format(decimals=1)
+    share = Format(decimals=1, percent=True)
+    return Table(
+        df=frame,
+        title="an average day's residents, by how long they have been here",
+        formats={TENURE_COLUMN: days, REMAINING_COLUMN: days,
+                 **{code: share for code in codes},
+                 AT_CAP_COLUMN: share},
+        flags=None,
+        headers={TENURE_COLUMN: "tenure (days)",
+                 REMAINING_COLUMN: "remaining (days)",
+                 **{code: code for code in codes},
+                 AT_CAP_COLUMN: AT_CAP_COLUMN},
+        footnotes=[
+            "Outcome columns are conditional on having reached that tenure, "
+            "and are read off the analysis window's own day grid at the day a "
+            "line drawn at that tenure crosses. `at cap` is the rest: still in "
+            "care when the window closes."
+        ],
+    )
+
+
 def aj_teaser_table(bundle: Bundle, vocab) -> Table:
     """The whole sample as one flat row, for the teaser slide.
 

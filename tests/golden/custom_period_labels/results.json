@@ -10,6 +10,7 @@
   },
   "settings": {
     "restricted_stay_cap": 40,
+    "probability_mass_width": 0,
     "period_reference": "OLDEST",
     "intake_type_reference": null,
     "animal_group_reference": null,
@@ -277,7 +278,8 @@
         "ci_upper": [6.3705212791717587, 37.170521279171766, 37.170521279171766]
       }
     },
-    "rmtl_cap": 40
+    "rmtl_cap": 40,
+    "probability_mass": null
   },
   "strata": {
     "period": {
@@ -410,6 +412,16 @@
         "columns": ["Old policy", "New policy"],
         "values": [
           [5, 7]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "columns": ["Old policy", "New policy"],
+        "values": [
+          [null, 1],
+          [null, 1],
+          [null, 1]
         ]
       },
       "ci": {
@@ -603,6 +615,16 @@
         "columns": ["All"],
         "values": [
           [7]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [1.0000000000000002],
+          [1.0000000000000002],
+          [1.0000000000000007]
         ]
       },
       "ci": {

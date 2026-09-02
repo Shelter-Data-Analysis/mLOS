@@ -10,6 +10,7 @@
   },
   "settings": {
     "restricted_stay_cap": 20,
+    "probability_mass_width": 0,
     "period_reference": "OLDEST",
     "intake_type_reference": null,
     "animal_group_reference": null,
@@ -277,7 +278,8 @@
         "ci_upper": [7.8687866749213589, 15.868786674921356, 15.868786674921356]
       }
     },
-    "rmtl_cap": 20
+    "rmtl_cap": 20,
+    "probability_mass": null
   },
   "strata": {
     "period": {
@@ -407,6 +409,16 @@
         "columns": ["Period_1"],
         "values": [
           [11]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "columns": ["Period_1"],
+        "values": [
+          [0.99999999999999944],
+          [0.99999999999999944],
+          [0.99999999999999878]
         ]
       },
       "ci": {
@@ -600,6 +612,16 @@
         "columns": ["All"],
         "values": [
           [11]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [0.99999999999999944],
+          [0.99999999999999944],
+          [0.99999999999999878]
         ]
       },
       "ci": {
@@ -797,6 +819,16 @@
         "columns": ["G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10", "G11"],
         "values": [
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "columns": ["G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10", "G11"],
+        "values": [
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         ]
       },
       "ci": {

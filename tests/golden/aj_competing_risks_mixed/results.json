@@ -10,6 +10,7 @@
   },
   "settings": {
     "restricted_stay_cap": 30,
+    "probability_mass_width": 0,
     "period_reference": "OLDEST",
     "intake_type_reference": null,
     "animal_group_reference": null,
@@ -249,7 +250,8 @@
         "ci_upper": [14.055665342413498, 16.840309842253131, 4.2396128427860047, 1.0000000000000002, 20.055665342413498]
       }
     },
-    "rmtl_cap": 30
+    "rmtl_cap": 30,
+    "probability_mass": null
   },
   "strata": {
     "period": {
@@ -391,6 +393,22 @@
         "columns": ["Period_1"],
         "values": [
           [20]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["Period_1"],
+        "values": [
+          [0.69999999999999996],
+          [0.20000000000000001],
+          [0.10000000000000002],
+          [0.69999999999999996],
+          [0.20000000000000001],
+          [0.10000000000000002],
+          [0],
+          [0.66666666666666663],
+          [0.33333333333333337]
         ]
       },
       "ci": {
@@ -620,6 +638,22 @@
         "columns": ["All"],
         "values": [
           [20]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [0.69999999999999996],
+          [0.20000000000000001],
+          [0.10000000000000002],
+          [0.69999999999999996],
+          [0.20000000000000001],
+          [0.10000000000000002],
+          [0],
+          [0.66666666666666663],
+          [0.33333333333333337]
         ]
       },
       "ci": {

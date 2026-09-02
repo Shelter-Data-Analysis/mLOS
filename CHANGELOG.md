@@ -47,6 +47,13 @@ it computes and writes exactly what it did before.
   reconciled against numbers the audience has already been given; it is built
   only where the run drew those figures.
 - A slide bullet may sit one level in, for a sub-list.
+- **The conditional outcome mix at the three resident tenures** joins the
+  bundle as `aj_condrem_at_tenure`, nine values read off the analysis window's
+  day grid by the same day convention the remaining-LOS readings beside it use.
+  A second whole-sample competing-risk slide reports them: a row per tenure,
+  with the remaining stay, the mix, and the share still in care at the cap.
+  These are conditional on having reached the tenure, so they are not the
+  cumulative incidences the teaser before them shows.
 - The STACKED layout can hold a row of tables under its figures, which is what
   that slide needs; slides using its single-table field are unchanged.
 - The numbers travel in the bundle as `aj$probability_mass` and reach no

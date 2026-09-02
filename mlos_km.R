@@ -511,16 +511,10 @@ REMAINING_AT_TENURE_ROWS <- c("remaining_days_at_mean_tenure",
 RESIDENT_VIEW_ROWS <- c(RESIDENT_TENURE_QUANTILE_ROWS, REMAINING_AT_TENURE_ROWS)
 
 # One value off a tabulated remaining-LOS curve, at a tenure that need not be a
-# whole day: the mean tenure lands between two days and the step covering it is
-# the day below. floor() rather than rounding, because that is the step a
-# vertical line drawn at x crosses on the plot, so the reported number and the
-# picture agree.
-.remaining_los_at <- function(remaining, x) {
-  if (!isTRUE(is.finite(x))) return(NA_real_)
-  idx <- floor(x) + 1L
-  if (idx < 1L || idx > length(remaining)) return(NA_real_)
-  remaining[idx]
-}
+# whole day: the mean tenure lands between two days. The convention is
+# .grid_value_at's, shared with the conditional outcome mix read at the same
+# three tenures, so the two report the same day as each other and as the plots.
+.remaining_los_at <- function(remaining, x) .grid_value_at(remaining, x)
 
 # Quantiles of the in-care tenure distribution p(d) = S(d) / sum_d S(d),
 # d = 0..cap-1 (math methods 5.7), whose mean is the per_resident_past_days the

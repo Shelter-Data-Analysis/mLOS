@@ -10,6 +10,7 @@
   },
   "settings": {
     "restricted_stay_cap": 120,
+    "probability_mass_width": 0,
     "period_reference": "OLDEST",
     "intake_type_reference": null,
     "animal_group_reference": "SMALL",
@@ -349,7 +350,8 @@
         "ci_upper": [17.164304307008639, 73.260101047655269, 22.755129166781046, 12.268395743229709, 104.3259150148625]
       }
     },
-    "rmtl_cap": 120
+    "rmtl_cap": 120,
+    "probability_mass": null
   },
   "strata": {
     "period": {
@@ -494,6 +496,22 @@
         "columns": ["Period_1", "Period_2", "Period_3"],
         "values": [
           [120, 120, 120]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["Period_1", "Period_2", "Period_3"],
+        "values": [
+          [0.72550332912870275, 0.6809262046839818, 0.71714717055251465],
+          [0.16352135583612615, 0.21452594421400162, 0.1963664468692474],
+          [0.098206359445789829, 0.097574340779267951, 0.082738591822572927],
+          [0.72515620226458655, 0.68100685193094401, 0.72337428877557297],
+          [0.13526218735429424, 0.2166292885194159, 0.20016850782065038],
+          [0.11855016924576331, 0.092227054635365652, 0.071266845168039633],
+          [0.6391208509102323, 0.73809616898543573, 0.79500135446275777],
+          [0.17425039493667574, 0.098655542096344917, 0.15201735844349035],
+          [0.11662764521837039, 0.11711188274766628, 0.033682842585664334]
         ]
       },
       "ci": {
@@ -756,6 +774,22 @@
           [120]
         ]
       },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [0.70715350656059728],
+          [0.19320001781202009],
+          [0.091874431407013346],
+          [0.71131790141367313],
+          [0.18987810546363043],
+          [0.087230524503227949],
+          [0.73607934536906006],
+          [0.13731056415490964],
+          [0.08049124678539589]
+        ]
+      },
       "ci": {
         "type": "matrix",
         "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_overall_per_100_animal_days", "incidence_overall_per_100_animal_days_ci_lower", "incidence_overall_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
@@ -987,6 +1021,22 @@
         "columns": ["LARGE", "SMALL"],
         "values": [
           [120, 69]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["LARGE", "SMALL"],
+        "values": [
+          [0.70385500427311565, 0.68090106401653117],
+          [0.1969321180804654, 0.20199829603878361],
+          [0.087773526378694081, 0.11710063994468584],
+          [0.71102357273165284, 0.66742133533692072],
+          [0.18405148829667173, 0.21059604117719549],
+          [0.089883139149060459, 0.12198262348588446],
+          [0.73976621444170387, 0.74101798304175404],
+          [0.11754675031674115, 0.14269138001001824],
+          [0.088419335797114126, 0.11629063694823055]
         ]
       },
       "ci": {

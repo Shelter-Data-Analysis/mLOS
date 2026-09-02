@@ -10,6 +10,7 @@
   },
   "settings": {
     "restricted_stay_cap": 120,
+    "probability_mass_width": 0,
     "period_reference": "OLDEST",
     "intake_type_reference": null,
     "animal_group_reference": null,
@@ -277,7 +278,8 @@
         "ci_upper": [11.654526713935608, 79.725764090816938, 21.815979116058742, 12.287623438060251, 109.53648716239982]
       }
     },
-    "rmtl_cap": 120
+    "rmtl_cap": 120,
+    "probability_mass": null
   },
   "strata": {
     "period": {
@@ -422,6 +424,22 @@
         "columns": ["Period_1", "Period_2", "Period_3"],
         "values": [
           [87, 92, 53]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["Period_1", "Period_2", "Period_3"],
+        "values": [
+          [0.73544051658501319, 0.71997125832753239, 0.67503440257432101],
+          [0.1484553609588618, 0.16276127858623307, 0.23331187133816467],
+          [0.11243587521376258, 0.11726746308623381, 0.091653726087513432],
+          [0.75417087390858584, 0.73233003514092354, 0.69003118810016684],
+          [0.14174429550452386, 0.15033264139597513, 0.22512623220100131],
+          [0.099083908100391166, 0.11733732346310051, 0.084842579698830717],
+          [0.80320858611083967, 0.71583104357534422, 0.7424955444437199],
+          [0.13837412281744962, 0.1488829691846896, 0.16111724426550059],
+          [0.042503704595609863, 0.13528598723996327, 0.096387211290776389]
         ]
       },
       "ci": {
@@ -651,6 +669,22 @@
         "columns": ["All"],
         "values": [
           [92]
+        ]
+      },
+      "aj_condrem_at_tenure": {
+        "type": "matrix",
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_T_at_median_tenure", "aj_condrem_N_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_T_at_mean_tenure", "aj_condrem_N_at_mean_tenure", "aj_condrem_L_at_p90_tenure", "aj_condrem_T_at_p90_tenure", "aj_condrem_N_at_p90_tenure"],
+        "columns": ["All"],
+        "values": [
+          [0.71554672888862425],
+          [0.18009387407814148],
+          [0.10435939703323364],
+          [0.71587847813700134],
+          [0.17326309411601853],
+          [0.11085842774697921],
+          [0.75009096272000941],
+          [0.16798720322781366],
+          [0.081921834052174]
         ]
       },
       "ci": {

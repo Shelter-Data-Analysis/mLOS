@@ -363,6 +363,51 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
     )))
   }
 
+  # The conditional outcome mix read at the three resident-tenure statistics,
+  # the same three the census block reports and the remaining-LOS curve is
+  # already read at. It answers what the curves cannot be read off by eye: for
+  # an animal that has been here as long as the median resident, which way is
+  # it going to leave.
+  #
+  # Here rather than in a consumer because the numbers are a day grid's rows,
+  # and that grid is CSV-only. A report wanting these would have to open
+  # aj_cif_unified.csv and reproduce the day convention, which is what
+  # .grid_value_at exists to keep in one place: the mix and the remaining-LOS
+  # figure beside it name the same day, and both name the day a vertical line
+  # at that tenure crosses.
+  #
+  # The columns of one tenure's rows sum to less than 1. The shortfall is the
+  # stays still in care when the AJ window closes, which is aj_window above,
+  # and no consumer needs it stored: it is one minus a sum of numbers already
+  # here.
+  aj_condrem_at_tenure <- NULL
+  if (valid_aj_available) {
+    tenure_rows <- c(median_tenure = "per_resident_past_days_restricted_median",
+                     mean_tenure   = "per_resident_past_days",
+                     p90_tenure    = "per_resident_past_days_restricted_p90")
+    condrem_at <- function(lbl, outcome, tenure_row) {
+      res <- aj_per_stratum[[lbl]]
+      if (is.null(res) || !isTRUE(res$has_analysis)) return(NA_real_)
+      column <- paste0("condrem_", outcome)
+      if (!column %in% names(res$cif_df)) return(NA_real_)
+      if (!tenure_row %in% rownames(census_matrix)) return(NA_real_)
+      .grid_value_at(res$cif_df[[column]], census_matrix[tenure_row, lbl])
+    }
+    condrem_rows <- list()
+    for (point in names(tenure_rows)) {
+      for (outcome in outcome_levels) {
+        condrem_rows[[paste0("aj_condrem_", outcome, "_at_", point)]] <-
+          metric_row(as.list(sapply(labels, condrem_at, outcome,
+                                    tenure_rows[[point]])))
+      }
+    }
+    if (length(condrem_rows) > 0) {
+      aj_condrem_at_tenure <- do.call(rbind, condrem_rows)
+      rownames(aj_condrem_at_tenure) <- names(condrem_rows)
+      colnames(aj_condrem_at_tenure) <- labels
+    }
+  }
+
   ci_matrix <- do.call(rbind, c(ci_rows, aj_ci_rows))
   colnames(ci_matrix) <- labels
 
@@ -380,6 +425,7 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
     aj_restricted_mean = aj_restricted_mean,
     aj_rmtl            = aj_rmtl,
     aj_window          = aj_window,
+    aj_condrem_at_tenure = aj_condrem_at_tenure,
     ci                 = ci_matrix
   )
 }

@@ -395,10 +395,32 @@ OUTCOME_TEMPLATES = [
         "{code} RMT",
     ),
     (re.compile(r"^aj_rmtl_(\w+)$"), "RMTL for {outcome}", "{code} RMTL"),
+    # The conditional mix read at each of the three resident tenures. One
+    # template per tenure because the mechanism formats a single capture, and
+    # the tenure is what the reader is being told the mix is conditional ON, so
+    # it cannot be dropped from either form. Short forms name the tenure alone:
+    # they head columns on a table whose rows are the tenures, where the code
+    # is already at the head of the column.
+    (
+        re.compile(r"^aj_condrem_(\w+)_at_median_tenure$"),
+        "chance of {outcome} for an animal at median tenure",
+        "{code} at median",
+    ),
+    (
+        re.compile(r"^aj_condrem_(\w+)_at_mean_tenure$"),
+        "chance of {outcome} for an animal at mean tenure",
+        "{code} at mean",
+    ),
+    (
+        re.compile(r"^aj_condrem_(\w+)_at_p90_tenure$"),
+        "chance of {outcome} for an animal at P90 tenure",
+        "{code} at P90",
+    ),
 ]
 
 # Units for the outcome-templated measures, keyed by the template's index.
-OUTCOME_UNITS = [None, "fraction", "per 100 animal-days", "probability", "days", "days"]
+OUTCOME_UNITS = [None, "fraction", "per 100 animal-days", "probability", "days", "days",
+                 "probability", "probability", "probability"]
 
 
 def _tokenize(name: str) -> str:
