@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260904_004. Read it in any markdown reader,
+presentation guide, version 20260904_005. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -2005,6 +2005,16 @@ a single stratifier and the default moved (see `Settings.for_dataset`). When
 
 `build` resolves the settings against the dataset once, before any rule is
 called, so two rules cannot disagree about the same stratifier on the same run.
+`resolved_settings` does it and is idempotent, so a second entry point that
+resolves again loses nothing.
+
+`assemble` is the seam that separates choosing slides from writing a deck: it
+returns the whole list and writes no file, which is how `variant.py` composes
+a second deck from the same rules rather than reading one back out of a
+`.pptx`. It draws, though, putting the ratio and reserve figures in the
+directory it is handed, so a caller wanting only the titles gives it one it is
+willing to have written to. `build` is that call plus the output: the workbook,
+the figure manifest, the slide sidecar, and the render.
 
 The first two are the opening, gathered by `opening_slides`. The title slide is
 the one rule with no condition: a deck always has a title. The study window and
@@ -2094,7 +2104,7 @@ It knows nothing about what any of them mean.
 it, because the figure count varies. Figures preserve their 4:3 aspect ratio
 for consistency.
 
-A slide names one of five **layouts**, which is the presentational vocabulary
+A slide names one of six **layouts**, which is the presentational vocabulary
 a rule has. How many figures a slide carries and whether they are peers is
 something only the rule knows; the geometry is the renderer's.
 
@@ -2119,6 +2129,12 @@ one-column tally could sit beside a five-column summary. The row adapts to
 one, two, or three tables without branching on the count, and a single table
 arrives centered. Their tops are shared so the titles line up.
 
+`COLUMN` puts them one above another instead, each centered on its own width
+so its title sits over its own first column. For tables wide enough that a row
+would squeeze both to half a slide and would invite a reader to compare them
+column against column when they share none. Two is its capacity, a column
+spending the slide's height where a row spends its width.
+
 A table's own title is drawn only where the slide's title does not name it;
 for example on a slide of several tables, or the opening slide. A title is
 also allowed to **set** the width that table occupies, because a title is
@@ -2131,6 +2147,13 @@ larger. The vertical centering is the whole difference from `STACKED` carrying
 the same pieces, and a title slide hung flush under its title looks like one
 that lost its figure. A figure moves that column into the left half and takes
 the right.
+
+Every table row is one line tall, header included, and pptx reads that as a
+minimum: a header that genuinely wraps grows, and one that does not costs
+nothing. The height a table is given counts the header as as many lines as the
+width estimate predicts, and that estimate is deliberately generous; left to
+divide evenly, the room reserved for a second header line was spread over the
+data rows too.
 
 Separately from a table's own footnotes, a slide may carry **one footnote of
 its own**, drawn at the foot of the page whatever the layout, for what is true

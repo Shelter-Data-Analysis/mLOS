@@ -27,6 +27,9 @@ number changed**: this is the deck's geometry and nothing it computes.
   a 4.90 inch body against a plain slide's 5.90, and brand 18 of the OC2 deck's
   48 slides. A check holds it to a band deep enough to be worth showing, since
   deepening a bar quietly stops the branding reaching the table slides.
+- `data/educational.md` and `data/extended_variant_features.md` are tracked as
+  the two worked outlines: one written to be presented, one written to be read
+  beside the guide.
 - `data/extended_variant_features.md` exercises every part of the outline
   format, including the parts a presentation would not want: a stub, an insert
   that borrows a whole run of continuation pages, and a written page long
