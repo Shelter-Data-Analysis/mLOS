@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260904_005. Read it in any markdown reader,
+presentation guide, version 20260904_006. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -754,11 +754,10 @@ paper and the software release, and it is left deliberately unfilled: a figure
 drawn from the data can take the space later. Always built.
 
 **Working with Metrics: Just numbers, no plots** carries the two whole-sample
-tables and nothing drawn, read down the page rather than across because they
-are wide and share no column. Above them is the identity an audience can check
-by hand, mean stay times daily arrivals against the census, which is why that
-table carries the arrival rate and the census as well as the stay. Below them
-is where to go next. Built wherever both tables exist.
+tables and nothing drawn, on the `COLUMN` layout. Above them is the identity an
+audience can check by hand, mean stay times daily arrivals against the census,
+which is why that table carries the arrival rate and the census as well as the
+stay. Below them is where to go next. Built wherever both tables exist.
 
 **Working with Probabilities in Time Intervals** puts the two interval stacks
 side by side, and carries no table: the numbers are read on the slide before
