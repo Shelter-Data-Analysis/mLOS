@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260904_001. Read it in any markdown reader,
+presentation guide, version 20260904_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -801,6 +801,8 @@ Not part of the presentation.
 - Every step down is a day on which somebody left
   - How far it steps is what share of those still here left that day
 
+Which is what the next slide is about.
+
 @stub Left truncation, worked   <!-- somebody has to draw this -->
 
 - One animal, admitted before the period opened
@@ -812,10 +814,21 @@ Not part of the presentation.
 -->
 ```
 
-`#` opens a slide and `##` is that slide's standing line, which an opening
-paragraph also sets; setting both is refused. `{divider}` is the only property
-today, and an unrecognized one is refused by name for the settings file's
-reason. Bullets take two levels: no indent, and any indent up to one tab.
+`#` opens a slide. `{divider}` is the only property today, and an unrecognized
+one is refused by name for the settings file's reason. Bullets take two levels:
+no indent, and any indent up to one tab.
+
+**A paragraph is a standing line, and which side of the bullets it sits on says
+which one.** Above them it is the slide's lead, the qualification everything
+below is read under, and `##` sets the same thing. Below them it is the line
+the slide closes on: what it concludes, or what it hands to the slide after it.
+Both are set at bullet size in italic, so neither reads as an item of the list,
+and both are placed by `render` rather than by a layout, so they cost the same
+on every kind of slide. The closing line sits above a footnote where a slide
+has one, provenance not being a conclusion. Two paragraphs on the same side of
+the bullets is refused, naming both lines: each is one string the renderer
+sizes, and running two together makes a slide that overflows rather than one
+that says more.
 
 `@insert` borrows a slide by its exact title and brings its continuation pages
 with it, which is why the Findings section is named through its head and not

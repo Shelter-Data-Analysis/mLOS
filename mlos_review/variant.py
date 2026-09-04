@@ -134,6 +134,8 @@ class Page:
     layout: str = "STACKED"
     lead: str = ""
     lead_line: int = 0
+    close: str = ""
+    close_line: int = 0
     bullets: list[Bullet] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
@@ -149,6 +151,7 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
         a paragraph        also that slide's lead
         - a bullet         level 0
           - a bullet       level 1, at any indent up to one tab
+        a paragraph        under the bullets, the line the slide closes on
         > a note           speaker notes; plain lines run on into one
         > - a note item    paragraph, while a blank line, a bare `>`, a `- `
                            item, or two spaces ending a line start another
@@ -268,9 +271,7 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
         if not opened(number, "text"):
             continue
         if current.bullets:
-            problems.append((number, "a paragraph after a bullet. Start it with "
-                                     "'- ' to make it a bullet, or '> ' to make "
-                                     "it a speaker note."))
+            _set_close(current, line.strip(), number, problems)
         else:
             _set_lead(current, line.strip(), number, problems)
 
@@ -340,6 +341,23 @@ def _set_lead(page: Page, text: str, number: int,
                                  f"already has one from line {page.lead_line}."))
         return
     page.lead, page.lead_line = text, number
+
+
+def _set_close(page: Page, text: str, number: int,
+               problems: list[tuple[int, str]]) -> None:
+    """The line the slide ends on: a conclusion, or a hand to the next slide.
+
+    A paragraph written under the bullets rather than above them. One of them,
+    for the lead's reason: `Slide.close` is a single string the renderer sizes
+    and takes out of the body, and two run together make a slide that overflows
+    rather than one that says more.
+    """
+    if page.close:
+        problems.append((number, f"a second closing line for {page.title!r}, "
+                                 f"which already has one from line "
+                                 f"{page.close_line}."))
+        return
+    page.close, page.close_line = text, number
 
 
 def runs(slides: list[Slide]) -> dict[str, list[Slide]]:
@@ -438,12 +456,18 @@ def _written_slides(page: Page, budget: int | None) -> list[Slide]:
     name their pages, so a hand-written list too long for a slide behaves like
     a generated one instead of running off the bottom.
     """
-    pages = bullet_pages(page.bullets, lead_height(page.lead) if page.lead else 0,
-                         budget) or [[]]
+    # The closing line is charged to every page rather than to the last one
+    # alone, which is where it lands. bullet_pages reserves height on the first
+    # page only, and a hand-written page that breaks at all is rare enough that
+    # breaking it one bullet early costs less than a second reservation rule.
+    room = None if budget is None else budget - lead_height(page.close)
+    pages = bullet_pages(page.bullets, lead_height(page.lead), room) or [[]]
+    last = len(pages) - 1
     return [Slide(title=page.title if index == 0
                   else f"{page.title}{CONTINUATION}",
                   bullets=list(bullets),
                   lead=page.lead if index == 0 else "",
+                  close=page.close if index == last else "",
                   notes=list(page.notes) if index == 0 else [],
                   layout=page.layout)
             for index, bullets in enumerate(pages)]

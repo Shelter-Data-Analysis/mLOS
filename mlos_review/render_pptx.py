@@ -265,6 +265,12 @@ class Slide:
     seeing. Both are placed by `render`, which then tells the layout how much
     room is left, so neither depends on which layout the slide uses.
 
+    `close` is the same line at the foot of the body: what the page concludes,
+    or what it hands to the page after it. Set like the lead, since it is the
+    same kind of remark read from the other end, and placed by `render` for the
+    same reason. It sits above the footnote, which stays at the very foot
+    because provenance is not a conclusion.
+
     `layout` names one of LAYOUT_FUNCTIONS:
 
         STACKED    figures in one row, table full width beneath them, or
@@ -305,6 +311,7 @@ class Slide:
     recommendations: list[str] = field(default_factory=list)
     footnote: str = ""
     lead: str = ""
+    close: str = ""
     layout: str = "STACKED"
     schematic: bool = False
 
@@ -970,7 +977,7 @@ def bullet_height(line: Bullet | str, width: Emu | None = None,
 
 
 def lead_height(text: str) -> int:
-    """Height a lead line needs, wrapping included.
+    """Height a standing line needs, wrapping included. Also the close's.
 
     Measured like a bullet minus the glyph, since it is set at the same size in
     the same column: what it does not have is the bullet and its two spaces.
@@ -1053,12 +1060,13 @@ def _add_bullets(slide, bullets: list[Bullet | str], top: Emu, height: Emu,
             properties.set("indent", "0")
 
 
-def _add_lead(slide, text: str, top: Emu, height: Emu) -> None:
-    """The standing qualification above a page's body.
+def _add_standing_line(slide, text: str, top: Emu, height: Emu) -> None:
+    """A qualification standing above a page's body, or a conclusion below it.
 
     Bullet size, so it is read rather than skipped, and italic, so a reader can
-    see at a glance that it is not one of the lines below it. No bullet glyph,
-    for the same reason.
+    see at a glance that it is not one of the lines it sits against. No bullet
+    glyph, for the same reason. One routine for both ends, because a lead and a
+    close are the same remark read from opposite sides of the list.
     """
     box = slide.shapes.add_textbox(
         MARGIN, top, SLIDE_WIDTH - 2 * MARGIN, height)
@@ -1612,7 +1620,7 @@ def _fitting_size(spec: Slide, vocab: Vocabulary, flag_style: str,
     """
     for size in BULLET_SIZES:
         spent = (int(TITLE_HEIGHT) + _body_depth(spec, vocab, flag_style, size)
-                 + (lead_height(spec.lead) if spec.lead else 0)
+                 + lead_height(spec.lead) + lead_height(spec.close)
                  + (int(FOOTNOTE_HEIGHT) if spec.footnote else 0))
         if spent <= room:
             return size
@@ -1665,7 +1673,7 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
             # footnote strikes: the layout is told what room is left rather
             # than the lead being written over what the layout put there.
             lead = lead_height(spec.lead)
-            _add_lead(slide, spec.lead, body_top, lead)
+            _add_standing_line(slide, spec.lead, body_top, lead)
             body_top += lead
             body_height -= lead
         if spec.footnote:
@@ -1673,6 +1681,14 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
             # the footnote being drawn over whatever the layout put there.
             body_height -= FOOTNOTE_HEIGHT
             _add_slide_footnote(slide, spec.footnote, decorated.bottom)
+        if spec.close:
+            # Taken off the bottom of what is left, so it lands under whatever
+            # the layout draws and above the footnote. The layout is told the
+            # smaller body, the same bargain the lead and the footnote strike.
+            closing = lead_height(spec.close)
+            body_height -= closing
+            _add_standing_line(slide, spec.close,
+                               int(body_top + body_height), closing)
         LAYOUT_FUNCTIONS[spec.layout](
             slide, spec, vocab, body_top, int(body_height), flag_style,
             bullet_pt)
