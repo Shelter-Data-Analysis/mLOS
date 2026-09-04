@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260902_007. Read it in any markdown reader,
+presentation guide, version 20260904_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -258,6 +258,28 @@ by 4.12.
 The template sets the page's color scheme and has to be the same page size,
 13.333 by 7.5 inches. Type stays Calibri, which is what the column widths and
 the page breaks are measured in; a wider face wraps a table header mid-word.
+
+`data/deck_example_template.pptx` is a working one, and the shape to copy: a
+bar across the top, a bar across the foot, and a line of text inside each.
+
+```bash
+python3 -m mlos_review.deck --template=data/deck_example_template.pptx
+```
+
+**How deep the bars are is the decision that matters.** They set the band, and
+the band decides how much of a deck can carry the branding. Measured as the
+room left under a slide's title:
+
+| | body | branded, of the OC2 deck |
+|---|---|---|
+| a plain slide | 5.90in | |
+| `deck_example_template.pptx`, bars of 0.8in and 0.7in | 4.90in | 18 of 48 |
+| bars of about 1.3in each | 4.12in | 20 of 52 |
+
+The three-table opening slide needs 4.71 inches and so brands under the first
+and not the second, which is the kind of thing deepening a bar by half an inch
+costs. Slide counts differ because the closing sections repaginate against the
+band.
 
 `--template=FILE` overrides whatever the settings file says, and is how a
 template that lives outside the repository is used without writing a machine's
@@ -855,7 +877,9 @@ naming the line it opened on, because everything after it would be swallowed.
 
 Templates belong in `templates/`, which git ignores wholesale. A template is
 usually somebody else's file, carrying their branding, and committing one would
-publish it. Outlines are yours and belong in `data/`.
+publish it. Outlines are yours and belong in `data/`, and so does
+`deck_example_template.pptx`, which is this repository's own and is tracked so
+that the example above is a file rather than a description.
 
 ### Speaker notes
 

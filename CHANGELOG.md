@@ -18,9 +18,15 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
-Table rows are one line tall unless their text needs more. **No analysis
+A worked template ships with the repository, and table rows are one line tall
+unless their text needs more. **No analysis
 number changed**: this is the deck's geometry and nothing it computes.
 
+- `data/deck_example_template.pptx` is a template that works, so the guide's
+  example is a file rather than a description. Bars of 0.8 and 0.7 inches leave
+  a 4.90 inch body against a plain slide's 5.90, and brand 18 of the OC2 deck's
+  48 slides. A check holds it to a band deep enough to be worth showing, since
+  deepening a bar quietly stops the branding reaching the table slides.
 - A table's height counts its header as as many lines as the width estimate
   says it wraps to, and pptx divides that height evenly among the rows. The
   room reserved for a second header line was therefore spread over every data

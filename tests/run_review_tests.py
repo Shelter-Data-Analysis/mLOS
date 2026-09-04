@@ -1491,6 +1491,47 @@ def check_notebook_file_listing() -> None:
     expect_equal("and lists exactly the files the package has", listed, present)
 
 
+def check_example_template() -> None:
+    """The template the guide points at still brands most of a deck.
+
+    Shipped rather than described, so the guide's example is a file a reader
+    can run. What makes a template worth having is the band its artwork leaves,
+    and that is a property of how deep somebody drew the bars: deepen them and
+    the branding quietly stops reaching the slides that carry tables, with
+    nothing to say so. The floor below is not a design rule; it is the point
+    at which the example stops demonstrating anything.
+    """
+    from mlos_review.render_pptx import (SLIDE_HEIGHT, SLIDE_WIDTH,
+                                         TITLE_HEIGHT, Decoration, Emu,
+                                         template_band)
+
+    section("example template")
+    path = REPO_ROOT / "data" / "deck_example_template.pptx"
+    expect("the guide's example template is in the repository", path.exists())
+    if not path.exists():
+        return
+
+    deck = Presentation(str(path))
+    expect_equal("it holds one slide, which is its artwork", len(deck.slides), 1)
+    expect("it is the page size the renderer draws",
+           abs(deck.slide_width - SLIDE_WIDTH) <= Inches(0.1)
+           and abs(deck.slide_height - SLIDE_HEIGHT) <= Inches(0.1),
+           f"got {Emu(deck.slide_width).inches:.3f} by "
+           f"{Emu(deck.slide_height).inches:.3f} inches")
+
+    band = template_band(path)
+    plain = Decoration()
+    body = band.bottom - band.top - int(TITLE_HEIGHT)
+    # Room for the three-table opening slide, which is the tallest thing in the
+    # OC2 deck carrying no figure, and so what a band is really tested by. It
+    # wants 4.71 inches of body; the floor is set just under that because the
+    # number is one dataset's and the example should not be held to it exactly.
+    expect(f"its band leaves a usable body ({Emu(body).inches:.2f}in)",
+           body >= Inches(4.7), f"{Emu(body).inches:.2f}in is under 4.7in")
+    expect("which is less than a plain slide's, or it is not artwork",
+           band.bottom - band.top < plain.bottom - plain.top)
+
+
 def check_stacked_underscore_codes() -> None:
     """An outcome code containing an underscore survives the reshape whole.
 
@@ -4073,6 +4114,7 @@ def main(argv: list[str]) -> int:
         check_schema_version,
         check_dependency_declaration,
         check_notebook_file_listing,
+        check_example_template,
         check_documents,
         check_section_references,
         check_report_archiving,
