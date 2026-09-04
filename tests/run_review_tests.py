@@ -11,7 +11,7 @@ skipping it would disable the checks that were asked for.
 
 Each check is run isolated. One that raises is recorded as a failure and
 the run continues, because a suite built on running every check against
-every fixture should not lose twenty-seven fixtures to one KeyError.
+every fixture should not lose twenty-eight fixtures to one KeyError.
 
 Same philosophy as run_tests.R, and deliberately the same shape: a minimal
 assertion harness, no test framework dependency, and every check run against
@@ -606,7 +606,7 @@ def _stage_interval_figures(staged: Path, bundle: Bundle) -> list[str]:
     figures and the educational slide would return None on every one of them:
     a rule that never builds is a rule nothing checks. Adding the entries to
     the COPY gives it the manifest a run with the setting on would have, and
-    the placeholder PNGs beside it, without regenerating twenty-eight goldens
+    the placeholder PNGs beside it, without regenerating twenty-nine goldens
     to exercise one slide.
 
     Only the manifest is touched. The slide reads its numbers from the tables
@@ -4167,7 +4167,7 @@ def main(argv: list[str]) -> int:
         # a check itself raises, so what reaches here is the scaffolding
         # around them -- loading the bundle, listing its stratifiers, asking
         # whether a table is available. One fixture whose bundle will not open
-        # costs that fixture, not the twenty-seven after it.
+        # costs that fixture, not the twenty-eight after it.
         try:
             run_fixture(case, path.parent)
         except Exception as exc:  # noqa: BLE001 - any escape is this fixture failing

@@ -51,7 +51,7 @@ Python checks are named functions taking a bundle, so each is isolated
 individually, with a second guard around the whole fixture for the
 scaffolding between them. The R fixture checks are inline code sharing one
 set of fitted results, so the unit there is the case: a fixture that stops
-costs that fixture, and the other twenty-seven and the suite-wide checks still
+costs that fixture, and the other twenty-eight and the suite-wide checks still
 run. Finer guards inside an R case would mostly report the same failure
 again as a cascade of "object not found".
 
@@ -72,7 +72,7 @@ It reads the committed golden bundles rather than re-running R, so it needs
 but does not need R itself. It imports the deck builder, so it needs the same
 packages `mlos_review` does, the ones `pyproject.toml` declares.
 
-Checks come in two kinds. Fixture checks assert invariants over all 28 golden
+Checks come in two kinds. Fixture checks assert invariants over all 29 golden
 bundles, dispatching on what each contains, which is where the awkward shapes
 live: eleven levels, an unreached median, a single constant-LOS period, an
 eleven-way tie on intake rate, selectively disabled outputs. Synthetic checks

@@ -1,0 +1,55 @@
+# Test fixture: massive_daily_ties (hand-built, deterministic)
+# -----------------------------------------------------------------------
+# WHAT THE TIE RULE ESTIMATES, on data built so the three candidate
+# answers are far apart. Every animal arrives on 2024-01-01, so there is
+# no left truncation and every risk set is the whole group; exits are
+# then placed so that a fixed fraction of each group's risk set leaves
+# every day.
+#
+#   LARGE: 128 of 256 leave the same day, 64 of the remaining 128 the
+#          next day, then 32 of 64, 16, 8, 4, 2, 1. Daily outcome
+#          probability q = 0.5 exactly.
+#   SMALL: 192 of 256, then 48 of 64, 12 of 16, 3 of 4. q = 0.75 exactly.
+#
+# Each schedule stops at the first day whose exit count would not be a
+# whole animal, and the one survivor is censored at the period end. That
+# is what keeps every count an exact fraction of its risk set with no
+# padding: both groups run 255 exits and one censored animal, and the
+# tie structure carries no arbitrary choices to be sensitive to.
+#
+# SMALL's within-day outcome rate is exactly TWICE LARGE's, in the
+# outcome-window sense of the math document Section 6.2: survival
+# through a day is raised to the power 2, and 1 - 0.75 = (1 - 0.5)^2.
+# The true within-day rate ratio is therefore exactly 2.
+#
+# Three estimands that nearly coincide on shelter-scale daily
+# probabilities are pulled apart here, which is the point of the case:
+#   within-day rate ratio  = 2    (what Efron targets)
+#   daily probability ratio = 1.5  (0.75 / 0.50)
+#   daily odds ratio        = 3    ((0.75/0.25) / (0.5/0.5))
+# The tie rule moves the answer by more than a third of a hazard ratio,
+# and Breslow lands on the probability ratio instead (see expected.R for
+# both fitted values). On OC-scale daily probabilities (q around 0.06)
+# the same contrast is 0.06 wide, which is why this case exists rather
+# than a realistic one.
+#
+# Efron is an approximation, and at q this large it does not reach 2
+# either: the large-sample Efron value for these two rates is 1.891.
+# Section 6.2's claim that Efron targets the rate ratio is a small-q
+# claim, sound to within 0.25% for q <= 0.12 and 5.5% out at q = 0.5.
+# So expected.R pins the fitted value, not the truth of 2.
+#
+# Single period, one outcome type, no intake_type column: the model has
+# animal_group as its only predictor, and LARGE is the reference, so the
+# reported coefficient is SMALL against LARGE. Large dogs stay longer,
+# which is the direction the sign carries here.
+#
+# The period ends on 2024-01-09, the first day past LARGE's last exit,
+# so the two censored animals are censored at day 8. restricted_stay_cap
+# is 30, well past that, so it never binds.
+
+period_dates:
+  - 2024-01-01
+  - 2024-01-09
+
+restricted_stay_cap: 30

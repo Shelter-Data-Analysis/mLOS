@@ -18,18 +18,25 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
-The Cox fits name their tie handling, and two fixtures hold them to it. **No
-analysis number changed**: `ties = "efron"` is the `coxph` default.
+The Cox fits name their tie handling, and a fixture built for it holds them
+there. **No analysis number changed**: `ties = "efron"` is the `coxph` default.
 
 - `ties = "efron"` is passed at both `coxph` call sites in `mlos_cox.R`. Event
   times are whole days, so every event day is a tie, and the tie rule decides
   what the hazard ratio estimates.
-- `sim_geometric_period_effect` pins the pooled fit's period 2 hazard ratio and
-  `sim_intake_mix_shift` the stratified variant's, each on the period whose
-  truth its sibling period already carries. Breslow misses both by twelve
-  tolerances while passing every other check in the suite, and sampling error
-  is twice the gap between the two rules, so a committed-sample pin is what
-  separates them.
+- `tests/cases/massive_daily_ties` puts the candidate answers far enough apart
+  to be told apart. 128 of 256 large dogs leave the same day, then 64 of 128
+  and 32 of 64, against 192 of 256 small dogs and 48 of 64: the within-day rate
+  ratio is exactly 2, the daily probability ratio 1.5, the odds ratio 3. Efron
+  returns 1.836 and Breslow 1.471. Each group's schedule stops one animal short
+  of a fractional day and censors the survivor, so every count is an exact
+  fraction of its risk set and the pin is built rather than sampled.
+- `sim_intake_mix_shift` pins the stratified variant, the second `coxph` call,
+  which a single-factor fixture cannot reach.
+- Math methods 6.2 now says how far the Efron approximation carries: within a
+  quarter of a percent of the within-day rate ratio while the daily probability
+  stays under about 0.12, and 5% short of it at 0.5. Breslow returns the daily
+  probability ratio instead.
 
 A worked template ships with the repository, and table rows are one line tall
 unless their text needs more. **No analysis
