@@ -75,10 +75,15 @@ expected_cox_stratified_period <- list(
   n_strata             = 2,
   n_strata_with_events = 2,
   lr_df                = 2,  # three periods, two contrasts
-  # Both periods share the true hazard ratio of 1.5, as in expected_cox: the
-  # same truth checked twice, now under a free per-size baseline.
-  HR_periodPeriod_2 = c(1.5, 0.38),
-  HR_periodPeriod_3 = c(1.5, 0.38)
+  # Period_3 carries the true hazard ratio of 1.5, as in expected_cox, now
+  # under a free per-size baseline.
+  HR_periodPeriod_3 = c(1.5, 0.38),
+  # Both periods share that truth, which frees Period_2 to pin the variant
+  # fit's tie rule, as sim_geometric_period_effect pins the pooled fit's.
+  # The variant is a separate coxph call, so it needs its own pin: Breslow
+  # returns 1.4955 here, twelve tolerances out. Committed-sample value,
+  # moving with a fresh seed.
+  HR_periodPeriod_2 = c(1.531008, 0.003)
 )
 
 expected_cox_stratified_group <- list(

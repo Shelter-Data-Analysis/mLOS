@@ -200,12 +200,20 @@ cox_regression_analysis <- function(period_data, references) {
   cat("\n=== Cox Regression Model ===\n")
   cat("Model formula: ", formula_parts, "\n", sep = "")
 
-  # Fit the model (always clustered on animal_id for robust SE)
+  # Fit the model (always clustered on animal_id for robust SE).
+  #
+  # ties = "efron" is named rather than left to the default because it is a
+  # modelling choice, not a numerical detail: event times are whole days, so
+  # every day with more than one outcome is a tie, and the tie rule decides
+  # what the reported hazard ratio estimates. Efron targets the within-day
+  # rate ratio (math methods Section 6.2), which is the quantity the
+  # sim_geometric_period_effect fixture pins against its generating truth.
   cox_model <- survival::coxph(
     as.formula(formula_parts),
     data = period_data,
     cluster = animal_id,
-    robust = TRUE
+    robust = TRUE,
+    ties = "efron"
   )
 
   cox_summary <- summary(cox_model)
@@ -381,7 +389,7 @@ cox_regression_analysis <- function(period_data, references) {
 
     fit <- tryCatch(
       survival::coxph(as.formula(variant_formula), data = period_data,
-                      cluster = animal_id, robust = TRUE),
+                      cluster = animal_id, robust = TRUE, ties = "efron"),
       error = function(e) e
     )
     if (inherits(fit, "error")) {

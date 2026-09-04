@@ -39,10 +39,16 @@ expected_cox <- list(
   # and 1 - q2 = (1 - q1)^2 is the grouped form of proportional hazards
   # with ratio 2, which the Efron tie handling targets (math document
   # Section 6.2; pseudo-truth measured 1.994/2.013 at authoring time).
-  # Periods 2 and 3 share the same true hazard, so these two fields
-  # check the SAME truth twice. tol = ~4 robust SE on the log scale.
-  HR_periodPeriod_2 = c(2.0, 0.7),
-  HR_periodPeriod_3 = c(2.0, 0.7)
+  # Period_3 carries that check, at tol = ~4 robust SE on the log scale.
+  HR_periodPeriod_3 = c(2.0, 0.7),
+  # Periods 2 and 3 share the same true hazard, so Period_2 is free for
+  # what a truth check cannot reach: the tie rule the fit used. Event
+  # times are whole days, so every event day is a tie, and the rule
+  # moves the estimate. Breslow returns 1.9570 on this same sample,
+  # twelve tolerances out, while sampling error (robust SE 0.13 on the
+  # HR scale) is twice that gap. Separating the two therefore takes a
+  # committed-sample pin, which moves with a fresh seed like the counts.
+  HR_periodPeriod_2 = c(2.017070, 0.005)
 )
 
 expected_stratified_km <- list(

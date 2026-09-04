@@ -18,6 +18,19 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
+The Cox fits name their tie handling, and two fixtures hold them to it. **No
+analysis number changed**: `ties = "efron"` is the `coxph` default.
+
+- `ties = "efron"` is passed at both `coxph` call sites in `mlos_cox.R`. Event
+  times are whole days, so every event day is a tie, and the tie rule decides
+  what the hazard ratio estimates.
+- `sim_geometric_period_effect` pins the pooled fit's period 2 hazard ratio and
+  `sim_intake_mix_shift` the stratified variant's, each on the period whose
+  truth its sibling period already carries. Breslow misses both by twelve
+  tolerances while passing every other check in the suite, and sampling error
+  is twice the gap between the two rules, so a committed-sample pin is what
+  separates them.
+
 A worked template ships with the repository, and table rows are one line tall
 unless their text needs more. **No analysis
 number changed**: this is the deck's geometry and nothing it computes.
