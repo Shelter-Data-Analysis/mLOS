@@ -30,7 +30,9 @@ inert unless a settings key or a flag turns them on.
   gap open, `<!-- ... -->` is a comment that also switches slides off, and
   `--list` says what may be borrowed. Speaker notes written under an `@insert`
   head the borrowed slide's own, marked with a `*`; nothing else may be added
-  to a borrowed slide.
+  to a borrowed slide. Notes follow markdown's blockquote: consecutive lines
+  run on, and a blank line, a bare `>`, a `- ` item or a trailing hard break
+  starts the next paragraph.
 - The deck now writes `<name>_slides.json` beside itself, recording every
   slide's position, title, layout and run. A variant checks its own assembly
   against it and refuses to build against a deck it no longer matches.

@@ -149,7 +149,9 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
         a paragraph        also that slide's lead
         - a bullet         level 0
           - a bullet       level 1, at any indent up to one tab
-        > a note           a paragraph of speaker notes
+        > a note           speaker notes; plain lines run on into one
+        > - a note item    paragraph, while a blank line, a bare `>`, a `- `
+                           item, or two spaces ending a line start another
         @insert <title>    the deck's slide of that title, and its run
         @stub <title>      a gap, held open and warned about
         <!-- anything -->  a comment, at the end of a line or on its own,
@@ -185,8 +187,14 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
             return False
         return True
 
+    # Whether the line just read was a note with something on it, which is what
+    # decides if the next one continues its paragraph. Reset at the top of
+    # every line and set again only by the note branch, so any other kind of
+    # line closes the paragraph without having to say so.
+    running = False
+
     for number, raw in enumerate(lines, 1):
-        line = raw.rstrip()
+        line, running, was_running = raw.rstrip(), False, running
         if not line.strip():
             continue
 
@@ -221,8 +229,29 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
             continue
 
         if line.startswith(">"):
-            if opened(number, "a note", notes=True):
-                current.notes.append(line[1:].strip())
+            if not opened(number, "a note", notes=True):
+                continue
+            # Markdown's own blockquote, so the outline reads in a markdown
+            # reader the way it comes out in the notes pane. Plain lines run
+            # on, which is what lets a sentence be wrapped in the source; a
+            # blank line, a bare `>`, or a list item starts a paragraph.
+            content = line[1:].rstrip()
+            if not content.strip():
+                continue
+            if was_running and not content.lstrip().startswith("- "):
+                current.notes[-1] += " " + content.strip()
+            else:
+                # One space after the marker is the marker's, not the text's.
+                # Anything past that is the writer indenting a sub-item, and it
+                # is kept: a notes pane draws no glyphs, so the dash and the
+                # indent ARE the list.
+                current.notes.append(content[1:] if content.startswith(" ")
+                                     else content)
+            # Markdown's hard line break, two spaces at the end of a line, ends
+            # the paragraph here. A notes pane has paragraphs and no line
+            # breaks within one, and the writer asking for a break where the
+            # sentence does not end is asking for the next line to stand apart.
+            running = not raw.endswith("  ")
             continue
 
         bullet = BULLET_LINE.match(line)

@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260902_006. Read it in any markdown reader,
+presentation guide, version 20260902_007. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -831,6 +831,12 @@ below will carry. Titles hold vocabulary labels, so an outline written for one
 dataset can fail against another; that failure is loud, and `--list` says what
 the titles are. Every deck's titles are unique apart from continuation runs,
 which the test suite checks on every fixture.
+
+**Speaker notes follow markdown's blockquote.** Consecutive `>` lines run on
+into one paragraph, so a sentence may be wrapped in the source and arrives
+whole. A blank line, a bare `>`, a `- ` item, or two spaces ending a line
+starts the next paragraph. A notes pane draws no glyphs, so a `- ` and any
+indent before it are kept: they are what makes a list read as one.
 
 **Two kinds of writing never reach a slide, and they are spelled differently
 on purpose.** A `>` line is spoken and not shown, and becomes a speaker note.
