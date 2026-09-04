@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260902_005. Read it in any markdown reader,
+presentation guide, version 20260902_006. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -797,8 +797,17 @@ reason. Bullets take two levels: no indent, and any indent up to one tab.
 
 `@insert` borrows a slide by its exact title and brings its continuation pages
 with it, which is why the Findings section is named through its head and not
-page by page. It takes no body: a borrowed slide arrives whole, and a bullet
-written under one would have nowhere to go, so it is refused rather than lost.
+page by page.
+
+**An outline may annotate a slide it borrows, not alter it.** Speaker notes
+written under an `@insert` go in front of the slide's own, each marked with a
+`*` so a presenter reading from a lectern can see which paragraphs came from
+the outline and which the deck wrote. On a borrowed run they head the first
+page only: a remark about why the section is here is read on arrival, not
+again on every continuation page. Anything else under an `@insert`, a bullet
+or a subheading, is refused rather than lost, because it would have to displace
+something the deck put on the page. That line is what keeps an outline a plan
+rather than a program.
 
 `@stub` holds a gap open for a slide nobody has written, and takes the same
 body a `#` slide takes, which is where the note saying what the missing slide

@@ -83,6 +83,12 @@ DIRECTIVES = ("@insert", "@stub")
 STUB_PREFIX = "TO WRITE"
 STUB_EMPTY = "Nothing here yet."
 
+# What marks a note the outline added to a slide it borrowed. The deck wrote
+# the paragraphs under it and this outline wrote the ones above; a presenter
+# reading from a lectern should be able to see which is which without having
+# to remember what the deck says about a slide.
+NOTE_MARK = "*"
+
 # Deepest indent a sub-bullet may carry. With two levels there is nothing to
 # count, so any indent is level 1 and this is only a guard: past one tab a
 # markdown reader stops seeing a list and starts seeing a code block, and the
@@ -152,6 +158,12 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
     A `@stub` takes the same body a `#` slide takes, which is where the note
     saying what the missing slide is about belongs; its own title is set at the
     divider's size and wants to stay short.
+
+    An `@insert` takes speaker notes and nothing else. What an outline may do
+    to a slide it borrows is annotate it, not alter it: a note joins the
+    presenter's own column, where there is room and where the audience never
+    sees it, while a bullet or a subheading would have to displace something
+    the deck put on the page.
     """
     pages: list[Page] = []
     problems: list[tuple[int, str]] = []
@@ -161,14 +173,15 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
         problems.append((unclosed, "a comment opened here and is never closed, "
                                    "so everything after it is swallowed."))
 
-    def opened(number: int, what: str) -> bool:
+    def opened(number: int, what: str, notes: bool = False) -> bool:
         if current is None:
             problems.append((number, f"{what} before the first heading."))
             return False
-        if current.kind == "INSERT":
+        if current.kind == "INSERT" and not notes:
             problems.append((number, f"{what} after '@insert "
                                      f"{current.title}', which borrows a slide "
-                                     f"whole and has nowhere to put it."))
+                                     f"as it is. A speaker note is the one "
+                                     f"thing that can be added to one."))
             return False
         return True
 
@@ -208,7 +221,7 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
             continue
 
         if line.startswith(">"):
-            if opened(number, "a note"):
+            if opened(number, "a note", notes=True):
                 current.notes.append(line[1:].strip())
             continue
 
@@ -349,7 +362,14 @@ def compose(pages: list[Page], base: list[Slide], source: str = "outline",
             if run is None:
                 problems.append((page.line, _no_such_slide(page.title, available)))
                 continue
-            slides.extend(deepcopy(slide) for slide in run)
+            borrowed = [deepcopy(slide) for slide in run]
+            # Notes written under the insert go in front of the slide's own,
+            # marked, and on the FIRST page only: a run is borrowed whole, and
+            # a remark about why it is here is read once, on arrival, rather
+            # than repeated on every continuation page.
+            borrowed[0].notes = [f"{NOTE_MARK} {note}" for note in page.notes] \
+                + borrowed[0].notes
+            slides.extend(borrowed)
         elif page.kind == "STUB":
             slides.append(Slide(
                 title=f"{STUB_PREFIX}: {page.title}",

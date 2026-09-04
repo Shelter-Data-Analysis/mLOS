@@ -28,7 +28,9 @@ inert unless a settings key or a flag turns them on.
   builds, borrowed by title. `#` opens a slide, `##` is its standing line,
   `{divider}` sets it as a section opener, `@insert` borrows, `@stub` holds a
   gap open, `<!-- ... -->` is a comment that also switches slides off, and
-  `--list` says what may be borrowed.
+  `--list` says what may be borrowed. Speaker notes written under an `@insert`
+  head the borrowed slide's own, marked with a `*`; nothing else may be added
+  to a borrowed slide.
 - The deck now writes `<name>_slides.json` beside itself, recording every
   slide's position, title, layout and run. A variant checks its own assembly
   against it and refuses to build against a deck it no longer matches.
