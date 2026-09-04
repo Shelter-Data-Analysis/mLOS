@@ -33,13 +33,14 @@ expected_cox <- list(
   # which one the fit goes after: Efron reaches 1.835975 and Breslow
   # 1.470990, landing near the probability ratio instead.
   #
-  # Efron is an approximation, so 1.835975 is not 2 and no tolerance
-  # should pretend otherwise: at q this large the large-sample Efron
-  # value for these two rates is 1.891, and this finite construction
-  # sits a little below it. The pin is therefore the fitted value. It
-  # holds to the last digit on rerun, because the data are built rather
-  # than sampled, and it sits 3600 tolerances from Breslow.
-  HR_animal_groupSMALL = c(1.835975, 1e-4),
+  # Efron is an approximation, so this is not 2 and no tolerance should
+  # pretend otherwise: at q this large the large-sample Efron value for
+  # these two rates is 1.891, and this finite construction sits a little
+  # below it. The pin is therefore the fitted value. The data are built
+  # rather than sampled and the fit converges to 1e-11 from starting
+  # values anywhere in [-2, 2], so the tolerance below is five orders
+  # looser than the arithmetic and still leaves Breslow 365,000 out.
+  HR_animal_groupSMALL = c(1.835975452, 1e-6),
   # OWNER and STRAY are the same 512 animals twice, so this one is not a
   # fitted value at all: the score at zero is zero and the coefficient
   # is exactly 1 under any tie rule.
@@ -48,11 +49,12 @@ expected_cox <- list(
 
 # strata(intake_type): each half goes back on the schedule a single
 # group of 256 would have run, which is why this differs from the
-# pooled 1.835975 in the fourth decimal. Duplicating a dataset changes
-# how many events are tied, and Efron's correction reads that count.
-# Breslow's does not, and returns 1.470990 for the pooled fit and this
-# one alike, so the pair also catches the two coxph calls disagreeing
-# about the rule.
+# pooled 1.835975452 in the fourth decimal. Duplicating a dataset
+# changes how many events are tied, and Efron's correction reads that
+# count. Breslow's does not, and returns 1.470990 for the pooled fit and
+# this one alike, so the pair also catches the two coxph calls
+# disagreeing about the rule. The two pins stand 197 tolerances apart,
+# which is what makes them a pair rather than one value written twice.
 expected_cox_stratified_group <- list(
   has_analysis         = 1,
   n                    = 1024,
@@ -60,7 +62,7 @@ expected_cox_stratified_group <- list(
   n_strata             = 2,
   n_strata_with_events = 2,
   lr_df                = 1,
-  HR_animal_groupSMALL = c(1.835779, 1e-4)
+  HR_animal_groupSMALL = c(1.835778524, 1e-6)
 )
 
 # strata(animal_group): the null factor under a free baseline per size,
