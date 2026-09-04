@@ -36,11 +36,13 @@ expected_cox <- list(
   # Efron is an approximation, so this is not 2 and no tolerance should
   # pretend otherwise: at q this large the large-sample Efron value for
   # these two rates is 1.891, and this finite construction sits a little
-  # below it. The pin is therefore the fitted value. The data are built
-  # rather than sampled and the fit converges to 1e-11 from starting
-  # values anywhere in [-2, 2], so the tolerance below is five orders
-  # looser than the arithmetic and still leaves Breslow 365,000 out.
-  HR_animal_groupSMALL = c(1.835975452, 1e-6),
+  # below it. The pin is therefore the fitted value, and it is pinned
+  # hard, because the data are built rather than sampled: the fit moves
+  # by 6e-12 across starting values anywhere in [-2, 2], and not at all
+  # to fifteen decimals between survival 3.8.9 and 3.8.11. The tolerance
+  # below sits three orders above that spread and leaves Breslow 3.6e8
+  # out.
+  HR_animal_groupSMALL = c(1.835975451924, 1e-9),
   # OWNER and STRAY are the same 512 animals twice, so this one is not a
   # fitted value at all: the score at zero is zero and the coefficient
   # is exactly 1 under any tie rule.
@@ -53,8 +55,9 @@ expected_cox <- list(
 # changes how many events are tied, and Efron's correction reads that
 # count. Breslow's does not, and returns 1.470990 for the pooled fit and
 # this one alike, so the pair also catches the two coxph calls
-# disagreeing about the rule. The two pins stand 197 tolerances apart,
-# which is what makes them a pair rather than one value written twice.
+# disagreeing about the rule. The two pins stand 197,000 tolerances
+# apart, which is what makes them a pair rather than one value written
+# twice.
 expected_cox_stratified_group <- list(
   has_analysis         = 1,
   n                    = 1024,
@@ -62,7 +65,7 @@ expected_cox_stratified_group <- list(
   n_strata             = 2,
   n_strata_with_events = 2,
   lr_df                = 1,
-  HR_animal_groupSMALL = c(1.835778524, 1e-6)
+  HR_animal_groupSMALL = c(1.835778523953, 1e-9)
 )
 
 # strata(animal_group): the null factor under a free baseline per size,
