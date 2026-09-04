@@ -27,6 +27,13 @@ number changed**: this is the deck's geometry and nothing it computes.
   a 4.90 inch body against a plain slide's 5.90, and brand 18 of the OC2 deck's
   48 slides. A check holds it to a band deep enough to be worth showing, since
   deepening a bar quietly stops the branding reaching the table slides.
+- The educational section gains **Working with Metrics: Just numbers, no
+  plots**, which carries the two whole-sample tables under an identity a room
+  can check by hand and over a line saying where to look next. The slide after
+  it keeps the two interval figures and gives up the tables it used to carry
+  under them, so neither page asks for the numbers and the picture at once. A
+  COLUMN layout draws the tables down the page instead of across, for tables
+  wide enough that a row would squeeze both to half a slide.
 - `Slide.close` is a line at the foot of the body, the lead read from the other
   end: what a slide concludes, or what it hands to the next one. In an outline
   it is a paragraph written under the bullets, where one was refused before. It

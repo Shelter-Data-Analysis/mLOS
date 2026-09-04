@@ -1711,6 +1711,74 @@ def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
     )
 
 
+# What the metrics slide says above its tables and below them. The first is
+# the identity the two summaries are there to let a reader check by hand; the
+# second is what to do with the numbers once the identity has landed, and it
+# hands over to the slide that follows.
+METRICS_IDENTITY = "(Mean LOS) * (Mean daily intakes) = (Mean census)"
+METRICS_NEXT = "Next look at the P90 rather than the median"
+
+# What the first table shows: the arrival rate, the stay, and the census the
+# two of them produce, so the identity above the table has all three of its
+# terms on the page. The tenure measures are left out, being what the slide
+# after the next one is about.
+METRICS_SLIDE_MEASURES = ["mean_daily_intakes", "km_median_los",
+                          "km_restricted_mean", "km_p90_los",
+                          "km_still_in_care_at_cap", "expected_census"]
+
+
+def interval_metrics_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
+    """The same two summaries as the slide after it, with nothing drawn.
+
+    Numbers first and the picture second, which is the order the section
+    teaches in: a room that has read these two tables knows what the bars are
+    made of before it is asked to read bars at all.
+
+    Read down rather than across. They are wide, and they share no column: one
+    says how long stays last, the other where they end.
+
+    The first table carries the arrival rate and the census as well as the
+    stay, which the interval slide's version of it does not: the line above
+    them is an identity, and an identity a reader cannot check by hand against
+    the numbers under it is decoration.
+    """
+    if not (requires_full_table(bundle, "all") and requires_aj_teaser(bundle)):
+        return None
+    outcomes = aj_teaser_table(bundle, vocab)
+    tables = [
+        sub_table(full_table(bundle, "all"), METRICS_SLIDE_MEASURES,
+                  title="how long stays last"),
+        sub_table(outcomes, list(outcomes.df.columns),
+                  title="where stays end"),
+    ]
+
+    notes = [
+        "Two tables the deck has already shown, put together so the room can "
+        "hold them in one view before any figure is drawn. Nothing here is "
+        "new; what is new is being asked to read them as numbers rather than "
+        "as a caption under a picture.",
+        "The line above them is the identity worth checking by hand: an "
+        "average day's population is the average length of a stay multiplied "
+        "by the number of animals arriving in a day. It is Little's law, and "
+        "it is why a shelter that shortens stays sees its census fall without "
+        "taking fewer animals in.",
+        "The line below them is where to go next. A median says where the "
+        "middle animal is and stops; the P90 says how long the last tenth "
+        "waits, and those are the animals a shelter plans capacity around. "
+        "The slide that follows opens the whole distribution rather than "
+        "quoting another point on it.",
+    ]
+
+    return Slide(
+        title="Working with Metrics: Just numbers, no plots",
+        tables=tables,
+        lead=METRICS_IDENTITY,
+        close=METRICS_NEXT,
+        notes=notes,
+        layout="COLUMN",
+    )
+
+
 def probability_intervals_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
     """How to read a distribution cut into intervals, on the whole sample.
 
@@ -1720,11 +1788,10 @@ def probability_intervals_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | No
     side by side fill it where two stacked panels would each be squeezed to a
     third of the height.
 
-    The tables under them are the two the deck already shows, narrowed and
-    retitled. They are here so the picture can be reconciled against the
-    numbers the audience has already been given: the median sits inside one of
-    these intervals, and the outcome shares are what the right-hand figure
-    divides interval by interval.
+    The two tables that reconcile the picture against the numbers are on the
+    slide before this one, which carries them and nothing else. A room reads
+    them first and then reads the bars; putting them under the bars asked for
+    both at once and gave the figures half a page to do it in.
 
     Built only where the run drew the figures, which is where
     `probability_mass_width` is set. Nothing here computes a bin; the figures
@@ -1737,14 +1804,6 @@ def probability_intervals_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | No
     # is half the lesson.
     if any(figure is None for figure in figures):
         return None
-
-    outcomes = aj_teaser_table(bundle, vocab)
-    tables = [
-        sub_table(full_table(bundle, "all"), INTERVAL_SLIDE_MEASURES,
-                  title="how long stays last"),
-        sub_table(outcomes, list(outcomes.df.columns),
-                  title="where stays end"),
-    ]
 
     notes = [
         "Left: the whole distribution of stays cut into intervals of days. "
@@ -1770,8 +1829,8 @@ def probability_intervals_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | No
         "stay the primary reading: they carry the confidence intervals, they "
         "need no interval chosen for them, and every number the deck quotes "
         "comes from them.",
-        "The tables are the ones from the whole-sample slides, so the picture "
-        "can be checked against them. Find the interval holding the median "
+        "The tables on the slide before this one are what the picture can be "
+        "checked against. Find the interval holding the median "
         "and it is the interval where the running total of the left-hand bars "
         "first passes half. The outcome shares are the totals the right-hand "
         "figure splits interval by interval, which is what makes the drift "
@@ -1782,7 +1841,6 @@ def probability_intervals_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | No
     return Slide(
         title="Working with Probabilities in Time Intervals",
         figures=figures,
-        tables=tables,
         notes=notes,
     )
 
@@ -1808,6 +1866,7 @@ def educational_section(bundle: Bundle, vocab: Vocabulary) -> list[Slide]:
     carries findings has them dropped, which is the behaviour to rely on.
     """
     built = [slide for slide in (los_overview_slide(bundle, vocab),
+                                 interval_metrics_slide(bundle, vocab),
                                  probability_intervals_slide(bundle, vocab))
              if slide is not None]
     if not built:

@@ -709,11 +709,12 @@ def check_deck_with_figures(case: str, bundle: Bundle, directory: Path) -> None:
                    f"slide", titles.index(outlook) == titles.index(f"LOS by {label}") + 1,
                    f"{titles}")
 
-        # The educational slide, on every fixture whose staged manifest names
-        # its two figures. Its shape is what is asserted: two figures side by
-        # side over a row of two tables is the one place STACKED draws a row
-        # rather than a single table, and the geometry loop below is what
-        # catches the row colliding with the figures above it.
+        # The last two educational slides, on every fixture whose staged
+        # manifest names the interval figures. Their shapes are what is
+        # asserted, and they are asserted together because the pair is the
+        # point: the numbers are read on one slide and the picture on the
+        # next, so the tables are on the first and the figures on the second
+        # and neither carries both.
         if staged_bundle.figure("aj_mass", "all", variant="stack") is not None:
             interval = "Working with Probabilities in Time Intervals"
             expect(f"{case}: the educational slide is built", interval in titles,
@@ -722,25 +723,38 @@ def check_deck_with_figures(case: str, bundle: Bundle, directory: Path) -> None:
                 at = titles.index(interval)
                 expect(f"{case}: the educational section sits at the back",
                        at == len(titles) - 1, f"{titles[at:]}")
+                metrics = "Working with Metrics: Just numbers, no plots"
                 expect_equal(f"{case}: the section runs divider, opener, "
-                             f"intervals",
-                             titles[-3:],
-                             ["Extra: educational", "Looking at Length of Stay (LOS)",
+                             f"metrics, intervals",
+                             titles[-4:],
+                             ["Extra: educational",
+                              "Looking at Length of Stay (LOS)", metrics,
                               interval])
+
                 page = list(deck.slides)[at]
                 pictures = [sh for sh in page.shapes if sh.shape_type == 13]
-                grids = [sh for sh in page.shapes if sh.has_table]
-                expect_equal(f"{case}: it carries both figures", len(pictures), 2)
-                expect_equal(f"{case}: it carries both tables", len(grids), 2)
+                expect_equal(f"{case}: the intervals slide carries both figures",
+                             len(pictures), 2)
+                expect_equal(f"{case}: and no table, those having moved",
+                             [sh for sh in page.shapes if sh.has_table], [])
                 expect(f"{case}: its figures are side by side",
                        len({sh.top for sh in pictures}) == 1
                        and len({sh.left for sh in pictures}) == 2,
                        f"{[(sh.left, sh.top) for sh in pictures]}")
-                expect(f"{case}: its tables sit below its figures",
-                       min(sh.top for sh in grids)
-                       >= max(sh.top + sh.height for sh in pictures),
-                       f"figures to {max(sh.top + sh.height for sh in pictures)}, "
-                       f"tables from {min(sh.top for sh in grids)}")
+
+                before = list(deck.slides)[at - 1]
+                grids = [sh for sh in before.shapes if sh.has_table]
+                expect_equal(f"{case}: the metrics slide carries both tables",
+                             len(grids), 2)
+                expect_equal(f"{case}: and no figure, being just numbers",
+                             [sh for sh in before.shapes if sh.shape_type == 13],
+                             [])
+                # Down the page rather than across, which is what COLUMN is
+                # for: two wide tables side by side would each be squeezed to
+                # half a slide.
+                expect(f"{case}: its tables are stacked, not in a row",
+                       len({sh.top for sh in grids}) == 2,
+                       f"{[(sh.left, sh.top) for sh in grids]}")
 
         drawn = sum(1 for slide in deck.slides
                     for shape in slide.shapes if shape.shape_type == 13)
@@ -780,9 +794,9 @@ def check_deck_with_figures(case: str, bundle: Bundle, directory: Path) -> None:
 
 # What each layout is for, and so what it must draw when it is handed one of
 # everything: how many figures, and how many tables. The layouts that hold a
-# table beside figures take it in `table` and place exactly one; TABLES takes
-# `tables` and places all of them; TITLE draws no figure and puts its one table
-# under the bullets.
+# table beside figures take it in `table` and place exactly one; TABLES and
+# COLUMN take `tables` and place all of them, across and down respectively;
+# TITLE draws no figure and puts its one table under the bullets.
 #
 # A layout added to LAYOUT_FUNCTIONS and not listed here fails the coverage
 # assertion below, which is the point: an untested layout is the failure mode
@@ -792,6 +806,11 @@ LAYOUT_CONTRACTS = {
     "SPLIT": (True, 1),
     "QUADRANTS": (True, 1),
     "TABLES": (False, 3),
+    # Two, where the row layouts take three: a column spends a slide's height
+    # rather than its width, and three tables of this depth do not fit on one.
+    # That is the layout's capacity and not a shortfall, a column being for the
+    # wide tables that a row would squeeze.
+    "COLUMN": (False, 2),
     "TITLE": (False, 1),
 }
 

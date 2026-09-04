@@ -285,6 +285,9 @@ class Slide:
         TABLES     `tables` in one row, each headed by its own title. For a
                    slide whose subject is several small tables that answer one
                    question between them.
+        COLUMN     `tables` one above another instead, centered as a block.
+                   For wide tables, which side by side would be squeezed to
+                   half a page each and would look like they shared columns.
         TITLE      bullets and tables in a column, centered in the body, with
                    a figure taking the half beside them if there is one. The
                    opening slide.
@@ -1486,6 +1489,46 @@ def _layout_tables(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
                     available, min(int(height), depth), flag_style)
 
 
+def _column_depth(tables: list[Table], vocab: Vocabulary, flag_style: str,
+                  available: Emu) -> int:
+    """How deep a column of titled tables runs: all of them, plus the gaps."""
+    if not tables:
+        return 0
+    return sum(_titled_table_height(
+        table, vocab, _fitted_widths(table, vocab, flag_style, available))
+        for table in tables) + int(GUTTER) * (len(tables) - 1)
+
+
+def _layout_column(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
+                   flag_style: str,
+                   bullet_pt: Pt = BULLET_PT) -> None:
+    """Tables one above another, each at its natural width, centered as a block.
+
+    For a slide whose tables are read DOWN rather than across. Two wide
+    summaries of one sample set side by side would each be squeezed to half a
+    page, and would invite a reader to compare them column against column when
+    they have no columns in common.
+
+    Each table is centered on its own width rather than run to the margin, so
+    its title sits over its own first column instead of over the whitespace
+    beside it.
+    """
+    tables = _spec_tables(spec)
+    if not tables:
+        return
+    available = int(SLIDE_WIDTH - 2 * MARGIN)
+    y = int(top + max(0, height - _column_depth(tables, vocab, flag_style,
+                                                available)) / 2)
+    for table in tables:
+        columns = _fitted_widths(table, vocab, flag_style, available)
+        width = sum(columns)
+        depth = _titled_table_height(table, vocab, columns)
+        _add_titled_table(slide, table, vocab,
+                          int(MARGIN + (available - width) / 2), y, width,
+                          depth, flag_style)
+        y += depth + int(GUTTER)
+
+
 def _layout_title(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
                   flag_style: str,
                   bullet_pt: Pt = BULLET_PT) -> None:
@@ -1535,6 +1578,7 @@ LAYOUT_FUNCTIONS = {
     "SPLIT": _layout_split,
     "QUADRANTS": _layout_quadrants,
     "TABLES": _layout_tables,
+    "COLUMN": _layout_column,
     "TITLE": _layout_title,
 }
 
@@ -1603,7 +1647,8 @@ def _body_depth(spec: Slide, vocab: Vocabulary, flag_style: str,
     column = _text_column(spec)
     depth = sum(bullet_height(line, column, bullet_pt) for line in spec.bullets)
     if spec.tables:
-        depth += _row_depth(spec.tables, vocab, flag_style, column)
+        stack = _column_depth if spec.layout == "COLUMN" else _row_depth
+        depth += stack(spec.tables, vocab, flag_style, column)
     if spec.table is not None:
         widths = _fitted_widths(spec.table, vocab, flag_style, column)
         depth += sum(_table_heights(spec.table, vocab, widths))

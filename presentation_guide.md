@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260904_002. Read it in any markdown reader,
+presentation guide, version 20260904_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -744,7 +744,7 @@ section drops both from every slide it builds rather than asking each rule to
 remember, so a rule added later cannot leak a sentence about method into a
 summary of sentences about the shelter.
 
-Two slides today, in this order.
+Three slides today, in this order.
 
 **Looking at Length of Stay (LOS)** is an alternate opening. It asks how a
 period's length of stay is computed at all, and carries the title slide's own
@@ -753,11 +753,18 @@ also parts of stays that began before it or end after it. It cites the method
 paper and the software release, and it is left deliberately unfilled: a figure
 drawn from the data can take the space later. Always built.
 
+**Working with Metrics: Just numbers, no plots** carries the two whole-sample
+tables and nothing drawn, read down the page rather than across because they
+are wide and share no column. Above them is the identity an audience can check
+by hand, mean stay times daily arrivals against the census, which is why that
+table carries the arrival rate and the census as well as the stay. Below them
+is where to go next. Built wherever both tables exist.
+
 **Working with Probabilities in Time Intervals** puts the two interval stacks
-side by side over the two whole-sample tables, narrowed to what the picture can
-be checked against. Its figures need `probability_mass_width` set in the
-analysis settings; without it the slide is absent and the section is the opener
-alone.
+side by side, and carries no table: the numbers are read on the slide before
+it and the picture on this one, so neither page asks for both at once. Its
+figures need `probability_mass_width` set in the analysis settings; without it
+the slide is absent and the metrics slide closes the section.
 
 A bullet may sit one level in, which is what the opener's sub-lists use. Deeper
 than one level is a document rather than a slide.
