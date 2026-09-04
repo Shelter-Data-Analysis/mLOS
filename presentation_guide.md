@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260904_003. Read it in any markdown reader,
+presentation guide, version 20260904_004. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -788,6 +788,13 @@ second prints every title an outline may borrow. `--settings=` and `--template=`
 mean what they mean for the deck. No workbook is written: `workbook.sheets`
 reads the bundle rather than the slides, so a variant's would be the deck's
 under another name.
+
+Two outlines ship with the repository. `data/educational.md` is written to be
+presented: a path from what shelters already do towards what mLOS adds.
+`data/extended_variant_features.md` is written to be read beside this section,
+and exercises every part of the format on the slides that use it, including the
+ones a presentation would not want: a stub, a borrowed run of continuation
+pages, and a page long enough to break in two.
 
 The outline is markdown a reader can preview:
 
