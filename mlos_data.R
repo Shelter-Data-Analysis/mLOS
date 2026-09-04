@@ -539,11 +539,12 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
   # values become an explicit "_UNKNOWN_" level (see .fill_missing_level)
   # rather than NA. For a constructed animal_group this is a no-op, since
   # its source columns were already filled before concatenation.
-  # factor() with no levels argument sorts the levels alphabetically, and
-  # that is deliberate: these categories have no natural order, so
-  # alphabetical serves as a stable convention (see .stratum_levels_present
-  # in mlos_common.R for the full ordering rationale, including why
-  # frequency ordering was rejected).
+  # factor() with no levels argument sorts the levels, and that is
+  # deliberate: these categories have no natural order, so the sorted order
+  # serves as a stable convention (see .stratum_levels_present in
+  # mlos_common.R for the full ordering rationale, including why frequency
+  # ordering was rejected). The sort is byte order, held there by the
+  # LC_COLLATE pin, so the levels come out the same on every machine.
   #
   # The optional intake_type_map / animal_group_map recodes are applied HERE,
   # between the fill and the factor conversion, which places them before

@@ -3025,6 +3025,50 @@ run_suite_checks <- function() {
                               all(grepl(.KM_FILENAME_TOKEN, survival_stems, fixed = TRUE))), 1)
   })
 
+  cat("\n=== collation order ===\n")
+
+  # Stratum order is the byte order of the level labels, and byte order is only
+  # what sorting gives under the C locale. Any UTF-8 locale collates punctuation
+  # ahead of letters, which moves the "_UNKNOWN_" fill from last to first among
+  # upper-case labels and swaps composite animal_group values against each
+  # other. That reorders plot colors, CSV columns, and worksheet columns, and
+  # breaks the Cox frequency tie the other way, so mlos_common.R pins
+  # LC_COLLATE. Checked here as a setting and as behaviour, because the pin is
+  # one line with nothing else pointing at it.
+  expect_equal("collation: LC_COLLATE is pinned to C",
+               as.numeric(identical(Sys.getlocale("LC_COLLATE"), "C")), 1)
+
+  fill_labels <- c("SMALL", "_UNKNOWN_", "LARGE")
+  expect_equal("collation: the _UNKNOWN_ fill sorts after upper-case labels",
+               as.numeric(identical(levels(factor(fill_labels)),
+                                    c("LARGE", "SMALL", "_UNKNOWN_"))), 1)
+
+  composite_labels <- c("F__UNKNOWN_", "F_LARGE")
+  expect_equal("collation: composite group labels sort by byte",
+               as.numeric(identical(sort(composite_labels),
+                                    c("F_LARGE", "F__UNKNOWN_"))), 1)
+
+  # The pin has to survive a hostile ambient locale, which is the case that
+  # actually bites: a shell exporting LANG. Move collation away, confirm the
+  # order really does flip (so the check has teeth), then re-source the file
+  # that pins it and confirm it comes back. mlos_common.R defines constants and
+  # functions only, so sourcing it twice changes nothing else.
+  suppressWarnings(Sys.setlocale("LC_COLLATE", "C.UTF-8"))
+  # Whether that took is not what Sys.setlocale reports: an exported LC_ALL
+  # overrides LC_COLLATE and the call still returns the name it was given. The
+  # order itself is the only honest signal, so ask it.
+  if (identical(levels(factor(fill_labels))[1], "_UNKNOWN_")) {
+    source(file.path(project_root, "mlos_common.R"))
+    expect_equal("collation: sourcing mlos_common.R restores the C order",
+                 as.numeric(identical(Sys.getlocale("LC_COLLATE"), "C") &&
+                              identical(levels(factor(fill_labels)),
+                                        c("LARGE", "SMALL", "_UNKNOWN_"))), 1)
+  } else {
+    suppressWarnings(Sys.setlocale("LC_COLLATE", "C"))
+    cat("  [SKIP] collation: no reordering locale reachable here",
+        "(C.UTF-8 missing, or LC_ALL pins collation)\n")
+  }
+
   cat("\n=== release metadata ===\n")
 
   # One repository, one tag, one archive, so one version number. Three files

@@ -14,6 +14,22 @@
 #          .stratum_ci_steps, .stair_step_xy, .ci_ribbon_stair_xy,
 #          .cif_normalized_rmean, .prepend_restricted_mean_row
 
+# Collation order for every character sort in this project, pinned to the C
+# locale (byte order) so that stratum order is the same on every machine.
+# Under any UTF-8 locale, punctuation collates before letters, which moves
+# the "_UNKNOWN_" fill from last to first among upper-case labels and swaps
+# composite animal_group values against each other ("F_LARGE" against
+# "F__UNKNOWN_"). Stratum order is not cosmetic: it sets the positional
+# color assignment of .STRATIFIED_COLORS, the column order of every plot
+# CSV and worksheet, and the tie-break when a Cox reference level is chosen
+# by frequency. Pinned here rather than at each sort site because this file
+# is sourced first by both mlos_run_complete.R and tests/run_tests.R, so one
+# line covers the sorts and the bare factor() calls alike, and it matches the
+# code-point order the Python side sorts in. The cost is that non-ASCII
+# labels sort after all ASCII rather than by locale rules. LC_COLLATE governs
+# collation only; number and date formatting are unaffected.
+invisible(Sys.setlocale("LC_COLLATE", "C"))
+
 # Version of the tool, reported in the console log, in results.json, and on the
 # Excel cover sheet. A published result is checkable only as a pair: the DOI of
 # the archive and the version a run reported. One number covers the whole
@@ -213,14 +229,15 @@ stratifiers <- list(
 
 # Canonical present-level order for a stratum column. The factor levels set
 # once at data construction are THE canonical order: chronological for
-# period_label (break_down_by_period), alphabetical for intake_type and
+# period_label (break_down_by_period), byte order for intake_type and
 # animal_group (read_and_prepare_data).
 #
 # Why those two orders differ: periods are intervals of dates with a natural
 # sequence, and a user shown anything else would rightly read it as wrong
 # (Period_10 before Period_2). Intake types and animal groups have NO
-# natural order, so alphabetical is chosen purely as a stable convention:
-# on a fixed set of categories it never changes from run to run. Ordering
+# natural order, so byte order is chosen purely as a stable convention: on
+# a fixed set of categories it never changes from run to run, and the
+# LC_COLLATE pin at the top of this file holds it the same on every machine. Ordering
 # them by frequency was considered and rejected: when two categories have
 # similar counts, a slight tweak to the data (e.g. a small shift of the
 # study period) can swap their positions, which makes runs hard to compare
@@ -230,8 +247,8 @@ stratifiers <- list(
 # so it cannot drift between the models, the plots, and the worksheets. The
 # intersect restricts to levels actually present (consumers must tolerate a
 # level whose rows all fell outside the observation window or past the stay
-# cap) while preserving level order. Non-factor columns fall back to
-# alphabetical, by the same stable-convention reasoning.
+# cap) while preserving level order. Non-factor columns fall back to the
+# same byte order, by the same stable-convention reasoning.
 .stratum_levels_present <- function(column) {
   values <- as.character(column)
   values <- unique(values[!is.na(values)])

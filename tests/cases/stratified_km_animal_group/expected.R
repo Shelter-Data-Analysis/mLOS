@@ -35,10 +35,15 @@ expected_km <- list(
 # _UNKNOWN_ (n=2, days 9,10): S = 0.5, 0 -> S(9) = 0.5 is an exact tie,
 #   so the median is the midpoint of that step: 9.5.
 # .pos pins the KM output order (legend/CSV column order): animal_group is
-# canonically ALPHABETICAL, so LARGE, SMALL, then _UNKNOWN_ (the filled
-# missing-value level sorts last). This is the counterpart to the chronological
-# period order pinned in custom_period_labels; both come from the factor levels
-# set at data construction and read back through .stratum_levels_present.
+# canonically in byte order, so LARGE, SMALL, then _UNKNOWN_. The fill lands
+# last because these labels are upper case and the underscore's byte sits
+# above them; against lower-case labels the same rule puts it first. Byte
+# order is the C locale's, held there by the LC_COLLATE pin at the top of
+# mlos_common.R, without which a UTF-8 locale collates the underscore ahead
+# of every letter and this order reverses. This is the counterpart to the
+# chronological period order pinned in custom_period_labels; both come from
+# the factor levels set at data construction and read back through
+# .stratum_levels_present.
 expected_stratified_km <- list(
   group.SMALL.n          = 3,
   group.SMALL.events     = 3,
