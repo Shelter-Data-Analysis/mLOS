@@ -6,16 +6,26 @@
 # then placed so that a fixed fraction of each group's risk set leaves
 # every day.
 #
-#   LARGE: 128 of 256 leave the same day, 64 of the remaining 128 the
-#          next day, then 32 of 64, 16, 8, 4, 2, 1. Daily outcome
+#   LARGE: 256 of 512 leave the same day, 128 of the remaining 256 the
+#          next day, then 64 of 128, 32, 16, 8, 4, 2. Daily outcome
 #          probability q = 0.5 exactly.
-#   SMALL: 192 of 256, then 48 of 64, 12 of 16, 3 of 4. q = 0.75 exactly.
+#   SMALL: 384 of 512, then 96 of 128, 24 of 32, 6 of 8. q = 0.75
+#          exactly.
 #
 # Each schedule stops at the first day whose exit count would not be a
-# whole animal, and the one survivor is censored at the period end. That
+# whole animal, and the survivors are censored at the period end. That
 # is what keeps every count an exact fraction of its risk set with no
-# padding: both groups run 255 exits and one censored animal, and the
+# padding: both groups run 510 exits and two censored animals, and the
 # tie structure carries no arbitrary choices to be sensitive to.
+#
+# intake_type is a NULL two-level factor, carried so the stratified Cox
+# variants have a second stratifier to run on. Each group is split into
+# two identical halves of 256, so OWNER and STRAY are the same dataset
+# twice: their hazard ratio is exactly 1, and the group variant's
+# strata(intake_type) puts each half back on the schedule a single group
+# of 256 would have run. Doubling the animals is what lets the split be
+# exact, since 256, 128, 64, 32, 16, 8, 4, 2 halves evenly and 384, 96,
+# 24, 6 splits into 192, 48, 12, 3 twice.
 #
 # SMALL's within-day outcome rate is exactly TWICE LARGE's, in the
 # outcome-window sense of the math document Section 6.2: survival
@@ -39,10 +49,18 @@
 # claim, sound to within 0.25% for q <= 0.12 and 5.5% out at q = 0.5.
 # So expected.R pins the fitted value, not the truth of 2.
 #
-# Single period, one outcome type, no intake_type column: the model has
-# animal_group as its only predictor, and LARGE is the reference, so the
-# reported coefficient is SMALL against LARGE. Large dogs stay longer,
-# which is the direction the sign carries here.
+# Single period, one outcome type. LARGE and OWNER are the references,
+# so the reported coefficients are SMALL against LARGE and STRAY against
+# OWNER. Large dogs stay longer, which is the direction the sign carries
+# here.
+#
+# The pooled fit and the group variant are the two coxph calls in
+# mlos_cox.R, and this case pins both. Their Efron values differ in the
+# fourth decimal, because duplicating a dataset changes how many events
+# are tied and Efron's correction reads that count. Breslow's does not:
+# it returns the same value for both, since a duplicated dataset squares
+# its partial likelihood and leaves the maximum where it was. So the
+# case also catches the two calls disagreeing about the rule.
 #
 # The period ends on 2024-01-09, the first day past LARGE's last exit,
 # so the two censored animals are censored at day 8. restricted_stay_cap

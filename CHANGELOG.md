@@ -25,14 +25,19 @@ there. **No analysis number changed**: `ties = "efron"` is the `coxph` default.
   times are whole days, so every event day is a tie, and the tie rule decides
   what the hazard ratio estimates.
 - `tests/cases/massive_daily_ties` puts the candidate answers far enough apart
-  to be told apart. 128 of 256 large dogs leave the same day, then 64 of 128
-  and 32 of 64, against 192 of 256 small dogs and 48 of 64: the within-day rate
-  ratio is exactly 2, the daily probability ratio 1.5, the odds ratio 3. Efron
-  returns 1.836 and Breslow 1.471. Each group's schedule stops one animal short
-  of a fractional day and censors the survivor, so every count is an exact
-  fraction of its risk set and the pin is built rather than sampled.
-- `sim_intake_mix_shift` pins the stratified variant, the second `coxph` call,
-  which a single-factor fixture cannot reach.
+  to be told apart. 256 of 512 large dogs leave the same day, then 128 of 256
+  and 64 of 128, against 384 of 512 small dogs and 96 of 128: the within-day
+  rate ratio is exactly 2, the daily probability ratio 1.5, the odds ratio 3.
+  Efron returns 1.836 and Breslow 1.471. Each schedule stops short of a
+  fractional day and censors the survivors, so every count is an exact fraction
+  of its risk set and the pin is built rather than sampled.
+- The case pins both `coxph` calls. A null two-level `intake_type` splits each
+  group into identical halves, which gives the stratified variants a second
+  stratifier to run on and a hazard ratio of exactly 1 to return. The variant's
+  Efron value differs from the pooled one in the fourth decimal, because
+  duplicating a dataset changes how many events are tied and Efron's correction
+  reads that count while Breslow's does not, so the pair also catches the two
+  calls disagreeing about the rule.
 - Math methods 6.2 now says how far the Efron approximation carries: within a
   quarter of a percent of the within-day rate ratio while the daily probability
   stays under about 0.12, and 5% short of it at 0.5. Breslow returns the daily

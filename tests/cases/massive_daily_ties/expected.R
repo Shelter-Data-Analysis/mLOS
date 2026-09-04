@@ -4,14 +4,13 @@
 # value below is a dyadic rational, exact rather than approximate.
 
 expected_km <- list(
-  # Pooled, both groups: at risk 512, 192, 80, 36, 17, 9, 5, 3, with
-  # events 320, 112, 44, 19, 8, 4, 2, 1 on days 1 to 8. S runs 0.375,
-  # 0.15625, 0.0703125, 0.033203125, 0.017578125, 0.009765625,
-  # 0.005859375, 0.00390625, and one animal of each group is censored
-  # at day 8.
-  n_total    = 512,
-  n_events   = 510,
-  n_censored = 2,
+  # Pooled, all four cells: at risk 1024, 384, 160, 72, 34, 18, 10, 6,
+  # with events 640, 224, 88, 38, 16, 8, 4, 2 on days 1 to 8. S runs
+  # 0.375, 0.15625, 0.0703125, 0.033203125, 0.017578125, 0.009765625,
+  # 0.005859375, 0.00390625, and four animals are censored at day 8.
+  n_total    = 1024,
+  n_events   = 1020,
+  n_censored = 4,
   n_capped   = 0,     # cap 30, last observation at day 8
 
   # Everyone arrives together and the risk set is never empty, so the
@@ -25,36 +24,78 @@ expected_km <- list(
 
 expected_cox <- list(
   has_analysis = 1,
-  n            = 512,
-  n_events     = 510,
+  n            = 1024,
+  n_events     = 1020,
   # WHAT THE TIE RULE ESTIMATES. SMALL's within-day outcome rate is
   # exactly twice LARGE's, so the true within-day rate ratio is 2, the
   # daily probability ratio is 0.75/0.50 = 1.5 and the daily odds ratio
   # is 3. At q = 0.5 these three are far apart, and the tie rule decides
-  # which one the fit goes after: Efron reaches 1.835779 and Breslow
+  # which one the fit goes after: Efron reaches 1.835975 and Breslow
   # 1.470990, landing near the probability ratio instead.
   #
-  # Efron is an approximation, so 1.835779 is not 2 and no tolerance
+  # Efron is an approximation, so 1.835975 is not 2 and no tolerance
   # should pretend otherwise: at q this large the large-sample Efron
   # value for these two rates is 1.891, and this finite construction
   # sits a little below it. The pin is therefore the fitted value. It
   # holds to the last digit on rerun, because the data are built rather
   # than sampled, and it sits 3600 tolerances from Breslow.
+  HR_animal_groupSMALL = c(1.835975, 1e-4),
+  # OWNER and STRAY are the same 512 animals twice, so this one is not a
+  # fitted value at all: the score at zero is zero and the coefficient
+  # is exactly 1 under any tie rule.
+  HR_intake_typeSTRAY = 1
+)
+
+# strata(intake_type): each half goes back on the schedule a single
+# group of 256 would have run, which is why this differs from the
+# pooled 1.835975 in the fourth decimal. Duplicating a dataset changes
+# how many events are tied, and Efron's correction reads that count.
+# Breslow's does not, and returns 1.470990 for the pooled fit and this
+# one alike, so the pair also catches the two coxph calls disagreeing
+# about the rule.
+expected_cox_stratified_group <- list(
+  has_analysis         = 1,
+  n                    = 1024,
+  n_events             = 1020,
+  n_strata             = 2,
+  n_strata_with_events = 2,
+  lr_df                = 1,
   HR_animal_groupSMALL = c(1.835779, 1e-4)
 )
 
-# Per group, with the same exactness. LARGE halves from 256 and SMALL
-# quarters from 256, each stopping one animal short of a fractional day.
+# strata(animal_group): the null factor under a free baseline per size,
+# still exactly 1.
+expected_cox_stratified_intake <- list(
+  has_analysis         = 1,
+  n                    = 1024,
+  n_events             = 1020,
+  n_strata             = 2,
+  n_strata_with_events = 2,
+  lr_df                = 1,
+  HR_intake_typeSTRAY  = 1
+)
+
+# Per stratum, with the same exactness. LARGE halves from 512 and SMALL
+# quarters from 512, each stopping two animals short of a fractional
+# day. The two intake_type strata are identical, so both reproduce the
+# pooled curve.
 expected_stratified_km <- list(
-  group.LARGE.n      = 256,
-  group.LARGE.events = 255,
+  group.LARGE.n      = 512,
+  group.LARGE.events = 510,
   # S(1) = 0.5 EXACTLY, so the median is the midpoint of the flat
   # stretch [1, 2) under the documented exact-tie convention.
   group.LARGE.median = 1.5,
-  group.SMALL.n      = 256,
-  group.SMALL.events = 255,
+  group.SMALL.n      = 512,
+  group.SMALL.events = 510,
   group.SMALL.median = 1,   # S(1) = 0.25, under half on the first day
 
-  # Both groups are at risk from day 0 without a break.
+  intake.OWNER.n      = 512,
+  intake.OWNER.events = 510,
+  intake.OWNER.median = 1,  # the pooled curve, S(1) = 0.375
+  intake.STRAY.n      = 512,
+  intake.STRAY.events = 510,
+  intake.STRAY.median = 1,
+
+  # Every stratum is at risk from day 0 without a break.
   n_strata_gaps = 0
 )
