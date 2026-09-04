@@ -10,7 +10,7 @@ Salience is computed HERE, never in R. It is a presentation heuristic, not a
 finding: in results.json it would sit beside estimates that survived a test
 suite and would read as a claim about the shelter rather than a claim about the
 deck. It is also expected to be tuned, and tuning it in R would cost a re-run
-and twenty-eight regenerated golden files per adjustment.
+and every golden file regenerated per adjustment.
 
 Everything below is arithmetic over numbers R already published and tested: the
 levels' restricted means, their standard errors, and their intake counts.

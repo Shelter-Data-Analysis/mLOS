@@ -43,7 +43,7 @@ summary line says how many of the failures stopped rather than compared
 badly. This matters more here than the wording suggests, because a suite
 whose whole design is to run every check against every fixture is exactly the
 suite that has the most to lose from one `KeyError` in the third case
-aborting the twenty-five after it and printing a traceback where the summary
+aborting every case after it and printing a traceback where the summary
 belongs.
 
 The granularity differs between the two, and it follows their structure. The
@@ -51,7 +51,7 @@ Python checks are named functions taking a bundle, so each is isolated
 individually, with a second guard around the whole fixture for the
 scaffolding between them. The R fixture checks are inline code sharing one
 set of fitted results, so the unit there is the case: a fixture that stops
-costs that fixture, and the other twenty-eight and the suite-wide checks still
+costs that fixture, and every other fixture and the suite-wide checks still
 run. Finer guards inside an R case would mostly report the same failure
 again as a cascade of "object not found".
 
@@ -72,8 +72,8 @@ It reads the committed golden bundles rather than re-running R, so it needs
 but does not need R itself. It imports the deck builder, so it needs the same
 packages `mlos_review` does, the ones `pyproject.toml` declares.
 
-Checks come in two kinds. Fixture checks assert invariants over all 29 golden
-bundles, dispatching on what each contains, which is where the awkward shapes
+Checks come in two kinds. Fixture checks assert invariants over every golden
+bundle, dispatching on what each contains, which is where the awkward shapes
 live: eleven levels, an unreached median, a single constant-LOS period, an
 eleven-way tie on intake rate, selectively disabled outputs. Synthetic checks
 build a small frame by hand for behavior no fixture pins down at the
@@ -296,6 +296,16 @@ default. A case can widen this in its `expected.R`: a top-level
 `tolerance <- 0.05` sets the case-wide tolerance, and any individual field
 written as `c(value, tol)` overrides it for that field alone.
 
+A new case also moves three things the documentation states rather than
+derives: the golden bundles this repository ships, the list of simulation
+cases below, and the presentation guide's count of how many fixtures the
+recommendation rules stay silent on. `check_fixture_inventory` in
+`run_review_tests.py` measures all three against the cases themselves, so a
+fixture added without them fails the Python suite with the numbers to write.
+Regenerate the goldens first (`Rscript tests/run_tests.R --update-golden`): a
+case with no bundle is a fixture the Python suite never runs, which is the
+first thing that check reports.
+
 ## Simulation fixtures (`sim_*`): statistical tests with known truth
 
 Fixtures whose name starts with `sim_` hold **randomized samples from a
@@ -374,6 +384,15 @@ Current simulation cases:
   first sim to fit two predictors jointly, with all three true
   coefficients known in closed form (period HR 1.5 twice, group HR
   0.238); period 2 is the transition and deliberately unchecked.
+- **`sim_crossed_shape`** — a Weibull shape that belongs to a *pairing*
+  rather than to either predictor: two intake types, two animal groups, a
+  common scale of 20 days, and a checkerboard of shapes (0.70 on the
+  OWNER/G1 and STRAY/G2 cells, 1.30 on the other two). The row means and
+  the column means are equal, so both main effects are zero on the log
+  scale and only the crossed shape formula recovers the pattern. It
+  carries a third qualifying predictor, which is what makes a shape
+  variant's crossed and additive formulas differ at all; the two
+  variants with no true interaction serve as the null calibration.
 
 House conventions, learned the hard way and documented in the existing
 fixtures: derive values by hand first, then verify against the code before

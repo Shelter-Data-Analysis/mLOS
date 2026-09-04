@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260904_006. Read it in any markdown reader,
+presentation guide, version 20260904_007. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -723,7 +723,7 @@ recommendation the run's own numbers triggered, each naming the setting to
 change or the data to fix. They are separate because they are different speech
 acts, and an audience reading a single list cannot tell a finding from a
 suggestion without a tag on every line. Most recommendation rules stay silent
-on a healthy dataset, which is the point: on the twenty-eight test fixtures,
+on a healthy dataset, which is the point: on the twenty-nine test fixtures,
 ten produce none at all. What each rule looks for is under
 [Findings](#findings) and [Recommendations](#recommendations).
 
@@ -1246,7 +1246,7 @@ Where that lands:
   below what it can carry, since a fitted census of 0.4 animals owing 1.2 days
   reads as nonsense rather than as a small number.
 - **Recommendations.** Silent by default: one that fires on every deck stops
-  being read. On the twenty-eight test fixtures, ten produce none at all.
+  being read. On the twenty-nine test fixtures, ten produce none at all.
 - **Shape.** One crossed Weibull variant silences the shape recommendation for
   the whole run, rather than leaving it resting on whichever variants stayed
   additive. See [Recommendations](#recommendations).
@@ -1657,8 +1657,8 @@ significant, so p-values cannot order slides.
 a finding; in `results.json` it would sit beside estimates that survived a test
 suite and would read as a claim about the shelter rather than a claim about the
 deck. It is also expected to be tuned, and tuning it in R would cost a re-run
-and twenty-eight regenerated golden files per adjustment. Move it into R only if
-it ever becomes a reported quantity.
+and every golden file regenerated per adjustment. Move it into R only if it
+ever becomes a reported quantity.
 
 ### Every threshold in one place
 
@@ -2349,7 +2349,7 @@ rather than a bug fix.
 6. **Every table a build makes is written out.** A table shown on a slide is
    shown in the rows that fit; the workbook has all of them. See
    [Everything a build writes](#everything-a-build-writes) for what qualifies.
-7. **Every rule runs against every fixture.** Twenty-eight bundles in
+7. **Every rule runs against every fixture.** The bundles in
    `tests/golden/` cover eleven animal groups, an unreached median, a single
    constant-LOS period, observation gaps both pooled and per stratum, and
    selectively disabled outputs.

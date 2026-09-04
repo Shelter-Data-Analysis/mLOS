@@ -11,7 +11,7 @@ skipping it would disable the checks that were asked for.
 
 Each check is run isolated. One that raises is recorded as a failure and
 the run continues, because a suite built on running every check against
-every fixture should not lose twenty-eight fixtures to one KeyError.
+every fixture should not lose the rest of the fixtures to one KeyError.
 
 Same philosophy as run_tests.R, and deliberately the same shape: a minimal
 assertion harness, no test framework dependency, and every check run against
@@ -606,7 +606,7 @@ def _stage_interval_figures(staged: Path, bundle: Bundle) -> list[str]:
     figures and the educational slide would return None on every one of them:
     a rule that never builds is a rule nothing checks. Adding the entries to
     the COPY gives it the manifest a run with the setting on would have, and
-    the placeholder PNGs beside it, without regenerating twenty-nine goldens
+    the placeholder PNGs beside it, without regenerating every golden
     to exercise one slide.
 
     Only the manifest is touched. The slide reads its numbers from the tables
@@ -4105,6 +4105,104 @@ def check_documents() -> None:
         _structure_agrees(name, source, pandoc)
 
 
+# Spelled-out counts, because the guides spell them: "twenty-nine test
+# fixtures", not "29 test fixtures". Only the range a fixture count can
+# plausibly reach is covered, and anything outside it reads as not-a-number,
+# which the comparison below reports rather than raises on.
+_UNITS = ["zero", "one", "two", "three", "four", "five", "six", "seven",
+          "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen",
+          "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"]
+_TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60,
+         "seventy": 70, "eighty": 80, "ninety": 90}
+
+
+def _spelled(word: str) -> int | None:
+    """The integer a documented count spells, or None if it spells no number.
+
+    None rather than an exception, so a reworded sentence costs a failed
+    comparison with the word in the message instead of a traceback.
+    """
+    word = word.strip(".,").lower()
+    if word.isdigit():
+        return int(word)
+    if word in _TENS:
+        return _TENS[word]
+    if word in _UNITS:
+        return _UNITS.index(word)
+    tens, _, unit = word.partition("-")
+    if tens in _TENS and unit in _UNITS[1:10]:
+        return _TENS[tens] + _UNITS.index(unit)
+    return None
+
+
+# The sentences that carry a fixture count. Elsewhere the prose says "every
+# fixture" instead of a number, which is why there is a short list here: a
+# count in the documentation earns its place when it is a measurement, and is
+# drift bait when it is decoration.
+SILENCE_CLAIM = re.compile(
+    r"[Oo]n the (\S+) test fixtures, (\S+) produce none at all")
+SIM_CASE_BULLET = re.compile(r"^- \*\*`(sim_\w+)`\*\*", re.M)
+
+
+def check_fixture_inventory() -> None:
+    """What the documentation says the fixtures are, against the fixtures.
+
+    Three claims go stale the day a fixture is added, and nothing else here
+    reaches any of them: that the golden bundles this suite runs are the cases
+    the R suite defines, README_TESTS.md's list of the simulation cases, and
+    the presentation guide's count of how many fixtures the recommendation
+    rules stay silent on. The last is a measurement rather than a label, so it
+    also moves when a threshold is tuned and no fixture is added at all.
+
+    The silence count costs a deck assembly per bundle, which is most of this
+    check's runtime. It is the price of measuring the claim the guide makes
+    rather than a proxy for it: the recommendations a deck carries are the ones
+    assembly gathered, and any cheaper route would be a second implementation
+    of the rule set that could agree with itself while disagreeing with the
+    deck.
+    """
+    section("fixture inventory")
+
+    cases = sorted(path.name for path in (REPO_ROOT / "tests" / "cases").iterdir()
+                   if (path / "settings.yaml").is_file())
+    goldens = sorted(path.parent.name for path in
+                     (REPO_ROOT / "tests" / "golden").glob("*/results.json"))
+    # A case with no golden is a fixture this suite silently never runs, which
+    # is the failure this catches: nothing below it would report a shortfall.
+    expect_equal("every case has a golden bundle, and every bundle a case",
+                 goldens, cases)
+
+    readme = (REPO_ROOT / "tests" / "README_TESTS.md").read_text()
+    expect_equal("README_TESTS.md lists every simulation case",
+                 sorted(SIM_CASE_BULLET.findall(readme)),
+                 [case for case in cases if case.startswith("sim_")])
+
+    from mlos_review.deck import assemble
+    from mlos_review.figures import FigureSet
+    from mlos_review.names import Vocabulary as _Vocab
+
+    silent = 0
+    with tempfile.TemporaryDirectory() as tmp:
+        for case in goldens:
+            bundle = Bundle.load(REPO_ROOT / "tests" / "golden" / case)
+            # Assembly draws as it builds, so it is handed a directory it may
+            # write to rather than the fixture it read.
+            drawn = Path(tmp) / case
+            drawn.mkdir()
+            slides = assemble(bundle, _Vocab(bundle.data),
+                              FigureSet(directory=drawn))
+            if not any(slide.recommendations for slide in slides):
+                silent += 1
+
+    guide = " ".join((REPO_ROOT / "presentation_guide.md").read_text().split())
+    claims = SILENCE_CLAIM.findall(guide)
+    expect_equal("the guide states the silence count where it is documented",
+                 len(claims), 2)
+    for total, none in claims:
+        expect_equal("the guide counts the fixtures", _spelled(total), len(goldens))
+        expect_equal("the guide counts the silent fixtures", _spelled(none), silent)
+
+
 def _flag_value(argv: list[str], flag: str) -> str | None:
     """The value after `flag`, or None if it was not given.
 
@@ -4135,6 +4233,7 @@ def main(argv: list[str]) -> int:
         check_notebook_file_listing,
         check_example_template,
         check_documents,
+        check_fixture_inventory,
         check_section_references,
         check_report_archiving,
         check_stacked_underscore_codes,
@@ -4167,7 +4266,7 @@ def main(argv: list[str]) -> int:
         # a check itself raises, so what reaches here is the scaffolding
         # around them -- loading the bundle, listing its stratifiers, asking
         # whether a table is available. One fixture whose bundle will not open
-        # costs that fixture, not the twenty-eight after it.
+        # costs that fixture, not the ones after it.
         try:
             run_fixture(case, path.parent)
         except Exception as exc:  # noqa: BLE001 - any escape is this fixture failing
