@@ -872,6 +872,22 @@ def _add_table(slide, table: Table, vocab: Vocabulary, top: Emu, height: Emu,
     for column, column_width in zip(grid.columns, widths):
         column.width = column_width
 
+    # One line's height for every row, header included. pptx divides the height
+    # it is handed evenly among the rows, and that height counts the header as
+    # as many lines as _header_lines estimates: the room reserved for a second
+    # line was being spread over every DATA row as well, so a table under a
+    # header thought to wrap stood half again as tall as its numbers needed.
+    #
+    # A row height is a MINIMUM to pptx, so a header that really does wrap
+    # still grows to hold itself. That is the point of setting it here: the
+    # estimate stays conservative where it has to be, reserving the space so
+    # nothing below can be overlapped, while what is DRAWN is measured by the
+    # renderer, which knows the font. The estimate reads "Expected census" as a
+    # hair too wide for its column and Calibri does not, and a table should not
+    # carry a blank line for a wrap that never happens.
+    for row in grid.rows:
+        row.height = int(TABLE_ROW_HEIGHT)
+
     # Units are not repeated per column; they go in the table's footnote. Most
     # of the measures on an LOS table are in days, so a units line under every
     # header was spending a row of the reader's attention to say "days" over

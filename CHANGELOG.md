@@ -18,6 +18,18 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
+Table rows are one line tall unless their text needs more. **No analysis
+number changed**: this is the deck's geometry and nothing it computes.
+
+- A table's height counts its header as as many lines as the width estimate
+  says it wraps to, and pptx divides that height evenly among the rows. The
+  room reserved for a second header line was therefore spread over every data
+  row as well, so a table under a header thought to wrap stood half again as
+  tall as its numbers needed. Every row is now set to one line's height, which
+  pptx treats as a minimum, so a header that really wraps still grows and one
+  that does not costs nothing. Table positions are unchanged; 18 of the OC2
+  deck's 43 tables lose the padding.
+
 Variant decks, deck templates, and two auxiliary figures. **No existing
 analysis number changed** by any of them: the deck the R run has always
 produced is built slide for slide as it was, and both new features are
