@@ -1088,6 +1088,15 @@ check_json_round_trip <- function(case_name, excel_file, json_file, results_dir)
   expect_equal(paste0(case_name, ": json: tool version recorded"),
                as.numeric(identical(from_file$run$mlos_version, MLOS_VERSION)), 1)
 
+  # Blanked by the golden comparison for the same reason and checked here for
+  # the same reason: a golden that pinned them would fail on every machine
+  # whose packages moved, whether or not a number did.
+  expected_versions <- c(r = as.character(getRversion()), mlos_package_versions())
+  names(expected_versions) <- paste0(names(expected_versions), "_version")
+  expect_equal(paste0(case_name, ": json: package versions recorded"),
+               as.numeric(identical(unlist(from_file$run[names(expected_versions)]),
+                                    expected_versions)), 1)
+
   live_sheets <- openxlsx::getSheetNames(excel_file)
   file_sheets <- openxlsx::getSheetNames(rendered)
   expect_equal(paste0(case_name, ": json: same sheets"),
@@ -1663,16 +1672,19 @@ write_case_outputs <- function(case_name, results_dir,
   invisible(bundle)
 }
 
-# results.json with the three things that legitimately change between runs
-# blanked, so the file can be compared literally: the generation timestamp, the
-# project root that prefixes every path in the run block, and the tool version.
-# All three are honest provenance in a real run, so they are normalized here
-# rather than in mlos_results.R -- what has to be portable is the committed
-# golden, not the file a user gets. Without the root substitution the goldens
-# only match on the machine that generated them; without the version
-# substitution a release would rewrite every golden, which teaches whoever
-# regenerates them to stop reading the diff. The version is checked instead in
-# check_json_round_trip, where a missing field fails rather than normalizing to
+# results.json with everything that legitimately changes between runs blanked,
+# so the file can be compared literally: the generation timestamp, the project
+# root that prefixes every path in the run block, the tool version, and the R
+# and package versions beside it. All of them are honest provenance in a real
+# run, so they are normalized here rather than in mlos_results.R -- what has to
+# be portable is the committed golden, not the file a user gets. Without the
+# root substitution the goldens only match on the machine that generated them;
+# without the tool-version substitution a release would rewrite every golden,
+# which teaches whoever regenerates them to stop reading the diff; and pinning
+# the package versions here would fail every machine whose packages moved,
+# whether or not a number did. Which versions the goldens came from is recorded
+# once, in tests/golden/environment.txt. The fields are checked instead in
+# check_json_round_trip, where a missing one fails rather than normalizing to
 # nothing. Every other value in the file is a deterministic function of the
 # fixture.
 .golden_json_lines <- function(json_file) {
@@ -1680,6 +1692,9 @@ write_case_outputs <- function(case_name, results_dir,
   lines <- readLines(json_file, warn = FALSE)
   lines <- sub('"generated_at": ".*"', '"generated_at": "(run time)"', lines)
   lines <- sub('"mlos_version": ".*"', '"mlos_version": "(version)"', lines)
+  lines <- sub(paste0('"(', paste(c("r", MLOS_PACKAGES), collapse = "|"),
+                      ')_version": ".*"'),
+               '"\\1_version": "(version)"', lines)
   gsub(project_root, "(project root)", lines, fixed = TRUE)
 }
 
@@ -1737,12 +1752,12 @@ check_golden <- function(case_name, results_dir, golden_dir, update) {
 # -----------------------------------------------------------------------
 # The environment the goldens were built in
 # -----------------------------------------------------------------------
-# The byte-for-byte comparison pins more than the code: survival decides the
-# last digits of every curve and fit, flexsurv those of the Weibull companion,
-# jsonlite the layout of results.json, and R itself how a double is written
-# out. A golden diff is evidence of a code change only when it comes from the
-# environment the goldens were written in, so --update-golden records that
-# environment next to them and a comparison run reports it.
+# The byte-for-byte comparison pins more than the code: the packages named in
+# MLOS_PACKAGES decide the last digits of every curve and fit, the layout of
+# results.json and how a settings value parses, and R itself decides how a
+# double is written out. A golden diff is evidence of a code change only when
+# it comes from the environment the goldens were written in, so --update-golden
+# records that environment next to them and a comparison run reports it.
 #
 # The report is a report, not a check. Golden failures are the signal that the
 # numbers moved; this says whether the environment is the likely reason. A
@@ -1751,15 +1766,9 @@ check_golden <- function(case_name, results_dir, golden_dir, update) {
 # Colab (newest CRAN survival) on every run.
 golden_environment_file <- file.path(suite_dir, "golden", "environment.txt")
 
-.version_or_absent <- function(pkg) {
-  if (requireNamespace(pkg, quietly = TRUE)) as.character(packageVersion(pkg)) else "not installed"
-}
-
 current_golden_environment <- function() {
-  c(paste0("R: ", getRversion()),
-    paste0("survival: ", .version_or_absent("survival")),
-    paste0("flexsurv: ", .version_or_absent("flexsurv")),
-    paste0("jsonlite: ", .version_or_absent("jsonlite")))
+  versions <- c(R = as.character(getRversion()), mlos_package_versions())
+  paste0(names(versions), ": ", versions)
 }
 
 # Set when the live environment differs from the recorded one, so the summary

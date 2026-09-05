@@ -226,11 +226,11 @@ all plots and CSVs to `tests/results/<name>/` for visual inspection. It also:
   instance), so this asserts they land in the same place rather than removing
   one of them;
 - compares every generated CSV **byte-for-byte** against the committed golden
-  copy under `tests/golden/<name>/`, does the same for `results.json` (with the
-  three things that legitimately vary replaced by placeholders: the generation
-  timestamp, the tool version, and the project root that prefixes the paths in
-  the run block, so the goldens match on any machine rather than only the one
-  that wrote them),
+  copy under `tests/golden/<name>/`, does the same for `results.json` (with
+  everything that legitimately varies replaced by placeholders: the generation
+  timestamp, the tool version, the R and package versions beside it, and the
+  project root that prefixes the paths in the run block, so the goldens match
+  on any machine rather than only the one that wrote them),
   and checks that every PNG listed in that case's `png_manifest.txt` was produced
   (PNG bytes vary across R/graphics versions, so only their existence is
   checked).
@@ -241,9 +241,11 @@ The byte-for-byte comparison pins the package versions that generated the
 goldens: a different `survival` version can shift last-digit floating-point
 values (and the NA-vs-0 representation of degenerate AJ confidence bounds),
 which shows up as golden failures with no statistical meaning.
-`--update-golden` records the versions that reach a golden byte in
+`--update-golden` records R and every package in `MLOS_PACKAGES` in
 `tests/golden/environment.txt`, and every `--generate-outputs` run prints the
-live versions beside that record. A difference is reported rather than failed:
+live versions beside that record. The same versions go into the `run` block of
+each run's own `results.json`, where the golden comparison blanks them and
+`check_json_round_trip` asserts them instead. A difference is reported rather than failed:
 it names the likely reason for a golden diff, while a version that shifts
 nothing leaves every golden passing. On a machine that differs, rely on the
 plain run's expected-value checks.

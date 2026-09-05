@@ -3,6 +3,12 @@
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
+    "r_version": "(version)",
+    "survival_version": "(version)",
+    "yaml_version": "(version)",
+    "jsonlite_version": "(version)",
+    "openxlsx_version": "(version)",
+    "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/sim_size_mixture/data.csv",
     "settings_file": "(project root)/tests/cases/sim_size_mixture/settings.yaml",
     "output_dir": "(project root)/tests/results/sim_size_mixture",

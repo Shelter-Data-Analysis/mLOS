@@ -1,4 +1,6 @@
 R: 4.4.2
 survival: 3.8.9
-flexsurv: 2.3.2
+yaml: 2.3.10
 jsonlite: 1.8.9
+openxlsx: 4.2.8.1
+flexsurv: 2.3.2

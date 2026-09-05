@@ -18,6 +18,35 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
+A run records the versions it ran under, and the goldens record theirs.
+**No analysis number changed**: every CSV is byte-identical to the release
+before.
+
+- The `run` block of `results.json` gains `r_version` and one field per package
+  in `MLOS_PACKAGES`. `survival` sets the last digits of every curve and fit,
+  `flexsurv` those of the Weibull companion, `yaml` how a settings value parses,
+  `jsonlite` the layout of the file, and `openxlsx` the workbook, so an archived
+  run says what produced its numbers rather than leaving a reader to guess.
+  A machine missing an optional package writes `not installed` rather than a
+  shorter block, which keeps two runs comparable field for field. The schema
+  version stays 5: adding a field does not move it.
+- The Excel cover sheet lists the same fields under Run metadata. Every cell
+  falls back to `(not recorded)`, so a bundle written before this renders with
+  its two columns balanced instead of only the tool version being covered.
+- `tests/golden/environment.txt` records those versions beside the goldens,
+  written by a full `--update-golden` and printed by every `--generate-outputs`
+  run. A difference is reported rather than failed: a newer `survival` that
+  shifts no number would fail a version assertion while every golden passed,
+  and would fail on Colab every run, which compiles the newest CRAN `survival`.
+  What already fails when the numbers move is the golden itself; the record
+  says whether the environment is why. A prefixed `--update-golden` leaves the
+  record alone and warns, since regenerating one case there would build the
+  tree half on each environment.
+- The golden comparison blanks the new `results.json` fields for that same
+  reason, and `check_json_round_trip` asserts them against the live versions
+  instead, so a field that stopped being written fails rather than normalizing
+  to nothing.
+
 The Cox fits name their tie handling, and a fixture built for it holds them
 there. **No analysis number changed**: `ties = "efron"` is the `coxph` default.
 

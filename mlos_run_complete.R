@@ -19,7 +19,7 @@ source("mlos_excel_export.R")
 run_via_rscript <- any(grepl("^--file=", commandArgs()))
 
 # Check required packages once at startup
-for (pkg in c("survival", "yaml")) {
+for (pkg in MLOS_PACKAGES_REQUIRED) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
     cat("\n*** ERROR: required package '", pkg, "' is not installed ***\n", sep = "")
     cat("Install with: install.packages('", pkg, "')\n", sep = "")

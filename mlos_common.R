@@ -1,7 +1,8 @@
 # mLOS - Shared Constants and Helpers
 # ========================================================
 # Source this file first when running the pipeline.
-# Defines: MLOS_VERSION,
+# Defines: MLOS_VERSION, MLOS_PACKAGES_REQUIRED, MLOS_PACKAGES,
+#          mlos_package_versions,
 #          .STRATIFIED_COLORS, .OUTCOME_STATE_LEVELS, .OUTCOME_COLORS,
 #          .outcome_label, .outcome_state_colors, .palette_hex, .make_surv_obj,
 #          stratifiers, .strata_info, .stratum_levels_present,
@@ -37,6 +38,31 @@ invisible(Sys.setlocale("LC_COLLATE", "C"))
 # archive with one DOI; the test suite holds MLOS_VERSION, CITATION.cff, and
 # pyproject.toml equal. Bump it when the work of a release is done, then tag.
 MLOS_VERSION <- "0.1.2"
+
+# Every package the tool can call. A result is checkable against the code that
+# made it only alongside the versions that ran: survival sets the last digits
+# of every curve and fit, flexsurv those of the Weibull companion, yaml how a
+# settings value parses, jsonlite the layout of results.json, and openxlsx the
+# workbook. Required first, then the three loaded only when the work reaches
+# them. mlos_run_complete.R checks the required pair at startup, the run block
+# of results.json records all five, and the test suite records them beside the
+# goldens.
+MLOS_PACKAGES_REQUIRED <- c("survival", "yaml")
+MLOS_PACKAGES <- c(MLOS_PACKAGES_REQUIRED, "jsonlite", "openxlsx", "flexsurv")
+
+# Package -> version as a named character vector, in MLOS_PACKAGES order. An
+# absent optional package reads "not installed" rather than dropping out, so
+# the recorded field set is the same on every machine and two records compare
+# line for line.
+mlos_package_versions <- function(packages = MLOS_PACKAGES) {
+  setNames(vapply(packages, function(pkg) {
+    if (requireNamespace(pkg, quietly = TRUE)) {
+      as.character(packageVersion(pkg))
+    } else {
+      "not installed"
+    }
+  }, character(1)), packages)
+}
 
 # Color palette for stratified curves (period, intake type, animal group).
 # One distinct color per stratum: the plot assigns colors positionally and

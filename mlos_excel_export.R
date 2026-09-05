@@ -467,18 +467,20 @@ write_general_sheet <- function(wb, bundle, title_style,
     data_row + nrow(df) + 2
   }
 
+  # A field is absent from a bundle written before the tool recorded it, and
+  # rendering such a bundle is the point of mlos_render.R, so every cell falls
+  # back to "(not recorded)" rather than dropping out of the vector and
+  # unbalancing the two columns.
+  run_items <- c("mlos_version", "generated_at", "r_version",
+                 paste0(MLOS_PACKAGES, "_version"),
+                 "data_file", "settings_file", "output_dir", "log_file")
   run_info <- data.frame(
-    Item = c("mlos_version", "generated_at", "data_file", "settings_file",
-             "output_dir", "log_file"),
-    # mlos_version is absent from a bundle written before the tool recorded it.
-    # Rendering such a bundle is the point of mlos_render.R, so the cell reads
-    # "(not recorded)" rather than dropping out of the vector and unbalancing
-    # the two columns.
-    Value = c(if (is.null(bundle$run$mlos_version)) "(not recorded)"
-              else bundle$run$mlos_version,
-              bundle$run$generated_at, bundle$run$data_file,
-              bundle$run$settings_file, bundle$run$output_dir, bundle$run$log_file),
-    stringsAsFactors = FALSE
+    Item  = run_items,
+    Value = vapply(run_items, function(item) {
+      value <- bundle$run[[item]]
+      if (is.null(value)) "(not recorded)" else as.character(value)
+    }, character(1)),
+    stringsAsFactors = FALSE, row.names = NULL
   )
   next_row <- write_section("Run metadata", run_info, next_row)
 
