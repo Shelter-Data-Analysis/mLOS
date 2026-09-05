@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260904_007. Read it in any markdown reader,
+presentation guide, version 20260904_008. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -2381,8 +2381,11 @@ Dependencies are declared in `pyproject.toml` at the repository root, which is
 the one place they are stated: `pandas`, `python-pptx`, `PyYAML`, `matplotlib`,
 and `openpyxl`, on Python 3.9 or newer. All five are needed by an ordinary
 build: matplotlib draws the hazard-ratio figure and is imported the moment
-`deck` is, and openpyxl writes the companion workbook every run produces. To
-install them, from the repository root:
+`deck` is, and openpyxl writes the companion workbook every run produces.
+Neither pandas major is preferred: `pyproject.toml` sets no ceiling, so an
+install picks pandas 3 on Python 3.11 or newer and pandas 2 below it, and
+continuous integration runs the suite against both. To install them, from the
+repository root:
 
 ```bash
 pip install -e .

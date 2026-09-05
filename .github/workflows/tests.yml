@@ -69,15 +69,30 @@ jobs:
         run: Rscript tests/run_tests.R
 
   python-suite:
-    name: Python suite (${{ matrix.python }})
+    name: Python suite (${{ matrix.python }}, pandas ${{ matrix.pandas-name }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        # The floor and the current release. 3.9 is the one that catches a
-        # module losing `from __future__ import annotations`, which pyproject
-        # records as load-bearing rather than habit.
-        python: ["3.9", "3.13"]
+        # pyproject declares pandas>=2.0 with no ceiling, so whoever installs
+        # this today gets pandas 3 unless their Python is too old for it. Both
+        # majors are therefore in use in the wild and both are tested. pandas 3
+        # requires Python 3.11, which is what makes the floor leg pandas 2 by
+        # necessity rather than by choice.
+        #
+        # 3.9 is the floor pyproject declares, and the leg that catches a module
+        # losing `from __future__ import annotations`, which pyproject records
+        # as load-bearing rather than habit.
+        include:
+          - python: "3.9"
+            pandas: "<3"
+            pandas-name: "2"
+          - python: "3.13"
+            pandas: "<3"
+            pandas-name: "2"
+          - python: "3.13"
+            pandas: ">=3"
+            pandas-name: "3"
     env:
       # figures.py imports matplotlib at module scope, so a runner with no
       # display needs a backend that asks for none.
@@ -90,11 +105,24 @@ jobs:
           python-version: ${{ matrix.python }}
 
       # Installing rather than running from the tree also checks that
-      # pyproject.toml declares what the package actually needs.
+      # pyproject.toml declares what the package actually needs. The pandas
+      # bound goes on the same command so the resolver satisfies it alongside
+      # the declared dependencies rather than installing and then downgrading.
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install .
+          pip install . "pandas${{ matrix.pandas }}"
+
+      # What the resolver actually chose, said out loud. Without this the log
+      # records the bound asked for rather than the version that ran.
+      - name: Versions in force
+        run: |
+          python - <<'EOF'
+          import sys, importlib.metadata as md
+          print("python", sys.version.split()[0])
+          for pkg in ("pandas", "python-pptx", "PyYAML", "matplotlib", "openpyxl"):
+              print(pkg, md.version(pkg))
+          EOF
 
       - name: Run the suite
         run: python tests/run_review_tests.py

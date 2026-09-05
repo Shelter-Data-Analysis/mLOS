@@ -23,7 +23,11 @@ code the analysis calls.
 
 - `.github/workflows/tests.yml` runs `tests/run_tests.R` and
   `tests/run_review_tests.py`. The R suite runs under a UTF-8 locale and under
-  `LC_ALL=C`, the Python suite on 3.9 and 3.13.
+  `LC_ALL=C`; the Python suite on 3.9 with pandas 2, and on 3.13 with each of
+  pandas 2 and 3. `pyproject.toml` sets no ceiling on pandas, so both majors
+  are in use in the wild and both are tested; pandas 3 requires Python 3.11,
+  which leaves the floor leg on pandas 2. Each Python leg prints the versions
+  the resolver chose.
 - The UTF-8 leg is the one that tests the collation pin. `LC_ALL=C` satisfies
   the pin in `mlos_common.R` from outside, so the suite's collation check
   reports itself skipped rather than passing; a locale that collates

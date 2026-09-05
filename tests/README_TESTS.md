@@ -194,6 +194,25 @@ additionally uses `jsonlite` for the results bundle and `openxlsx` for the
 workbook checks (the latter skipped with a note if it isn't installed). Exit
 status is nonzero if any check fails.
 
+## On every push
+
+`.github/workflows/tests.yml` runs the plain R suite and `run_review_tests.py`
+on GitHub Actions. Three things about it are decisions rather than defaults.
+
+The R suite runs under a UTF-8 locale and under `LC_ALL=C`. The UTF-8 leg is
+the one that tests the collation pin: `LC_ALL=C` satisfies the pin in
+`mlos_common.R` from outside, so the collation check reports itself skipped
+rather than passing, 1502 checks instead of 1503.
+
+The Python suite runs on 3.9 with pandas 2, and on 3.13 with each of pandas 2
+and 3. `pyproject.toml` sets no ceiling on pandas, so both majors are in use;
+pandas 3 requires Python 3.11, which is what leaves the floor leg on pandas 2.
+Each leg prints the versions the resolver chose before running.
+
+The goldens are not compared there, for the reason given above: a runner
+installs what CRAN holds today, and `tests/golden/environment.txt` records
+something else. `--generate-outputs` stays a local step.
+
 ## What each mode does
 
 **Plain run** — every fixture under `tests/cases/<name>/` is run through the
