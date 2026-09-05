@@ -1,0 +1,4 @@
+R: 4.4.2
+survival: 3.8.9
+flexsurv: 2.3.2
+jsonlite: 1.8.9

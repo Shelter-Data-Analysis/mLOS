@@ -44,7 +44,9 @@
 # (PNG bytes can vary across R/graphics versions, so only their existence
 # is checked). Pass --update-golden (implies --generate-outputs) after an
 # INTENDED output change to regenerate the golden files; review the git
-# diff of tests/golden/ before committing it.
+# diff of tests/golden/ before committing it. A full regeneration also
+# records the package versions it ran under in tests/golden/environment.txt,
+# which every --generate-outputs run prints beside the live ones.
 #
 # --prefix <value> restricts the run to the fixture cases whose directory
 # name starts with <value> (e.g. --prefix sim runs only the sim_* simulation
@@ -1733,6 +1735,80 @@ check_golden <- function(case_name, results_dir, golden_dir, update) {
 }
 
 # -----------------------------------------------------------------------
+# The environment the goldens were built in
+# -----------------------------------------------------------------------
+# The byte-for-byte comparison pins more than the code: survival decides the
+# last digits of every curve and fit, flexsurv those of the Weibull companion,
+# jsonlite the layout of results.json, and R itself how a double is written
+# out. A golden diff is evidence of a code change only when it comes from the
+# environment the goldens were written in, so --update-golden records that
+# environment next to them and a comparison run reports it.
+#
+# The report is a report, not a check. Golden failures are the signal that the
+# numbers moved; this says whether the environment is the likely reason. A
+# newer survival that happens to shift nothing would fail a version assertion
+# while every golden passed, which is a false alarm, and one that would land on
+# Colab (newest CRAN survival) on every run.
+golden_environment_file <- file.path(suite_dir, "golden", "environment.txt")
+
+.version_or_absent <- function(pkg) {
+  if (requireNamespace(pkg, quietly = TRUE)) as.character(packageVersion(pkg)) else "not installed"
+}
+
+current_golden_environment <- function() {
+  c(paste0("R: ", getRversion()),
+    paste0("survival: ", .version_or_absent("survival")),
+    paste0("flexsurv: ", .version_or_absent("flexsurv")),
+    paste0("jsonlite: ", .version_or_absent("jsonlite")))
+}
+
+# Set when the live environment differs from the recorded one, so the summary
+# can repeat it: by then the banner has scrolled past the failures it explains.
+golden_environment_differs <- FALSE
+
+report_golden_environment <- function() {
+  current   <- current_golden_environment()
+  recorded  <- if (file.exists(golden_environment_file)) {
+    readLines(golden_environment_file, warn = FALSE)
+  } else NULL
+
+  cat("\n=== golden environment ===\n")
+  cat("  this run:  ", paste(current, collapse = ",  "), "\n", sep = "")
+
+  # A prefixed update rewrites one case. Writing the whole tree's environment
+  # record from it would claim the other 28 cases came from here too, so the
+  # record is written only by a full regeneration, and a prefixed one on a
+  # different environment says what it is about to leave behind.
+  if (update_golden && !nzchar(case_prefix)) {
+    writeLines(current, golden_environment_file)
+    cat("  recorded in ", golden_environment_file, "\n", sep = "")
+    return(invisible(NULL))
+  }
+
+  if (is.null(recorded)) {
+    cat("  [GOLDEN] no environment record; run --update-golden without --prefix to write one\n")
+    return(invisible(NULL))
+  }
+
+  cat("  goldens:   ", paste(recorded, collapse = ",  "), "\n", sep = "")
+  if (identical(current, recorded)) return(invisible(NULL))
+
+  golden_environment_differs <<- TRUE
+  moved <- setdiff(current, recorded)
+  cat("  [GOLDEN] environment differs from the goldens': ",
+      paste(moved, collapse = ",  "), "\n", sep = "")
+  if (update_golden) {
+    cat("  [GOLDEN] --prefix regenerates this case here while the rest stay on the\n")
+    cat("           recorded environment; regenerate all of them, or none.\n")
+  } else {
+    cat("  [GOLDEN] treat golden failures as unexplained only after ruling this out.\n")
+  }
+  invisible(NULL)
+}
+
+if (generate_outputs) report_golden_environment()
+
+# -----------------------------------------------------------------------
 # Discover and run each fixture
 # -----------------------------------------------------------------------
 
@@ -3151,6 +3227,9 @@ if (.n_error > 0) {
   summary_line <- sprintf("%s (%d of them stopped)", summary_line, .n_error)
 }
 cat(summary_line, "\n", sep = "")
+if (golden_environment_differs && .n_fail > 0) {
+  cat("This run's package versions are not the goldens'; see the golden environment section.\n")
+}
 cat("=======================================================================\n")
 
 if (!interactive()) {

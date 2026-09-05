@@ -227,22 +227,30 @@ all plots and CSVs to `tests/results/<name>/` for visual inspection. It also:
   one of them;
 - compares every generated CSV **byte-for-byte** against the committed golden
   copy under `tests/golden/<name>/`, does the same for `results.json` (with the
-  two things that legitimately vary replaced by placeholders: the generation
-  timestamp, and the project root that prefixes the paths in the run block, so
-  the goldens match on any machine rather than only the one that wrote them),
+  three things that legitimately vary replaced by placeholders: the generation
+  timestamp, the tool version, and the project root that prefixes the paths in
+  the run block, so the goldens match on any machine rather than only the one
+  that wrote them),
   and checks that every PNG listed in that case's `png_manifest.txt` was produced
   (PNG bytes vary across R/graphics versions, so only their existence is
   checked).
 
 `tests/results/` is regenerable and git-ignored; `tests/golden/` is committed.
 
-The byte-for-byte comparison implicitly pins the package versions that
-generated the goldens: a different `survival` version can shift
-last-digit floating-point values (and the NA-vs-0 representation of
-degenerate AJ confidence bounds), which shows up as golden failures
-with no statistical meaning. The goldens are maintained against this
-project's reference machine; on a machine with other package versions,
-rely on the plain run's expected-value checks instead.
+The byte-for-byte comparison pins the package versions that generated the
+goldens: a different `survival` version can shift last-digit floating-point
+values (and the NA-vs-0 representation of degenerate AJ confidence bounds),
+which shows up as golden failures with no statistical meaning.
+`--update-golden` records the versions that reach a golden byte in
+`tests/golden/environment.txt`, and every `--generate-outputs` run prints the
+live versions beside that record. A difference is reported rather than failed:
+it names the likely reason for a golden diff, while a version that shifts
+nothing leaves every golden passing. On a machine that differs, rely on the
+plain run's expected-value checks.
+
+A prefixed `--update-golden` regenerates one case, so it leaves the record
+alone and warns when the environment differs. The alternative is a golden tree
+built half on each.
 
 ## Golden files: the important workflow
 
