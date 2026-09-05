@@ -1330,23 +1330,22 @@ build_results_bundle <- function(cox_results,
       .model_reference_level(cox_results, stratifier$id))
   }
 
-  # Provenance, one flat field per version. Every other entry in this block is
-  # a scalar, and a reader after one version reaches it by name rather than by
-  # unpacking a container. The set is fixed by MLOS_PACKAGES, so a machine
-  # missing an optional package writes "not installed" in its field instead of
-  # writing a shorter block.
-  package_fields <- as.list(setNames(mlos_package_versions(),
-                                     paste0(MLOS_PACKAGES, "_version")))
+  # Provenance, one flat field per version, from the same list the console
+  # header prints. Every other entry in this block is a scalar, and a reader
+  # after one version reaches it by name rather than by unpacking a container.
+  # The set is fixed by MLOS_PACKAGES, so a machine missing an optional package
+  # writes "not installed" in its field instead of writing a shorter block.
+  version_fields <- mlos_environment_versions()
+  names(version_fields) <- paste0(tolower(names(version_fields)), "_version")
 
   list(
     schema_version = MLOS_RESULTS_SCHEMA_VERSION,
     run = c(
       list(
         mlos_version = MLOS_VERSION,
-        generated_at = as.character(Sys.time()),
-        r_version    = as.character(getRversion())
+        generated_at = as.character(Sys.time())
       ),
-      package_fields,
+      as.list(version_fields),
       list(
         data_file     = data_filename,
         settings_file = settings_filename,

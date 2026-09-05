@@ -85,6 +85,10 @@ tryCatch({
 cat("=======================================================================\n")
 cat("MLOS Length of Stay Tool ", MLOS_VERSION, " - Demonstration\n", sep = "")
 cat("=======================================================================\n")
+# Provenance in the log for the same reason results.json carries it: the tool
+# version alone does not say what the numbers below were computed with.
+env_versions <- mlos_environment_versions()
+cat(paste0(names(env_versions), " ", env_versions, collapse = ",  "), "\n", sep = "")
 cat("Log file: ", log_path, "\n", sep = "")
 if (!is.null(archived)) {
   cat("Previous outputs archived to: ", archived$dir, " (", archived$n, " files)\n", sep = "")

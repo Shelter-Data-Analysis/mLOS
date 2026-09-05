@@ -1091,8 +1091,8 @@ check_json_round_trip <- function(case_name, excel_file, json_file, results_dir)
   # Blanked by the golden comparison for the same reason and checked here for
   # the same reason: a golden that pinned them would fail on every machine
   # whose packages moved, whether or not a number did.
-  expected_versions <- c(r = as.character(getRversion()), mlos_package_versions())
-  names(expected_versions) <- paste0(names(expected_versions), "_version")
+  expected_versions <- mlos_environment_versions()
+  names(expected_versions) <- paste0(tolower(names(expected_versions)), "_version")
   expect_equal(paste0(case_name, ": json: package versions recorded"),
                as.numeric(identical(unlist(from_file$run[names(expected_versions)]),
                                     expected_versions)), 1)
@@ -1767,7 +1767,7 @@ check_golden <- function(case_name, results_dir, golden_dir, update) {
 golden_environment_file <- file.path(suite_dir, "golden", "environment.txt")
 
 current_golden_environment <- function() {
-  versions <- c(R = as.character(getRversion()), mlos_package_versions())
+  versions <- mlos_environment_versions()
   paste0(names(versions), ": ", versions)
 }
 

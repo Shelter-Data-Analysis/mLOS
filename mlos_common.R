@@ -2,7 +2,7 @@
 # ========================================================
 # Source this file first when running the pipeline.
 # Defines: MLOS_VERSION, MLOS_PACKAGES_REQUIRED, MLOS_PACKAGES,
-#          mlos_package_versions,
+#          mlos_package_versions, mlos_environment_versions,
 #          .STRATIFIED_COLORS, .OUTCOME_STATE_LEVELS, .OUTCOME_COLORS,
 #          .outcome_label, .outcome_state_colors, .palette_hex, .make_surv_obj,
 #          stratifiers, .strata_info, .stratum_levels_present,
@@ -62,6 +62,14 @@ mlos_package_versions <- function(packages = MLOS_PACKAGES) {
       "not installed"
     }
   }, character(1)), packages)
+}
+
+# The same versions with R in front, the form both the console header and the
+# test suite's golden environment record are built from. One function so the
+# two name the same things in the same order: a log line and that record get
+# compared by eye when a number moves.
+mlos_environment_versions <- function() {
+  c(R = as.character(getRversion()), mlos_package_versions())
 }
 
 # Color palette for stratified curves (period, intake type, animal group).

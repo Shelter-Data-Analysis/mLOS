@@ -30,6 +30,11 @@ before.
   A machine missing an optional package writes `not installed` rather than a
   shorter block, which keeps two runs comparable field for field. The schema
   version stays 5: adding a field does not move it.
+- The console log header carries the same versions on one line under the tool
+  version, so a log read on its own says what produced the numbers below it.
+  `mlos_environment_versions` in `mlos_common.R` is what the header, the run
+  block, and the goldens' record are all built from, so the three name the same
+  things in the same order.
 - The Excel cover sheet lists the same fields under Run metadata. Every cell
   falls back to `(not recorded)`, so a bundle written before this renders with
   its two columns balanced instead of only the tool version being covered.
