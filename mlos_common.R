@@ -3,6 +3,7 @@
 # Source this file first when running the pipeline.
 # Defines: MLOS_VERSION, MLOS_PACKAGES_REQUIRED, MLOS_PACKAGES,
 #          mlos_package_versions, mlos_environment_versions,
+#          MLOS_VERSION_LABELS, MLOS_VERSION_FIELDS,
 #          .STRATIFIED_COLORS, .OUTCOME_STATE_LEVELS, .OUTCOME_COLORS,
 #          .outcome_label, .outcome_state_colors, .palette_hex, .make_surv_obj,
 #          stratifiers, .strata_info, .stratum_levels_present,
@@ -64,12 +65,17 @@ mlos_package_versions <- function(packages = MLOS_PACKAGES) {
   }, character(1)), packages)
 }
 
-# The same versions with R in front, the form both the console header and the
-# test suite's golden environment record are built from. One function so the
-# two name the same things in the same order: a log line and that record get
-# compared by eye when a number moves.
+# R first, then MLOS_PACKAGES: the order these versions are named in the console
+# header, in the run block of results.json, and in the goldens' environment
+# record, with the run-block field name each label carries. Four places name
+# these, and a bundle is read back by field and printed by label, so both lists
+# come off one line here rather than being spelled out at each site.
+MLOS_VERSION_LABELS <- c("R", MLOS_PACKAGES)
+MLOS_VERSION_FIELDS <- paste0(tolower(MLOS_VERSION_LABELS), "_version")
+
 mlos_environment_versions <- function() {
-  c(R = as.character(getRversion()), mlos_package_versions())
+  setNames(c(as.character(getRversion()), mlos_package_versions()),
+           MLOS_VERSION_LABELS)
 }
 
 # Color palette for stratified curves (period, intake type, animal group).

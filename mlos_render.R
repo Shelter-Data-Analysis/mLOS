@@ -45,6 +45,20 @@ cat("Run generated at: ", bundle$run$generated_at, "\n", sep = "")
 if (!is.null(bundle$run$mlos_version)) {
   cat("mLOS version:     ", bundle$run$mlos_version, "\n", sep = "")
 }
+# The versions the bundle recorded, not this machine's: the numbers being
+# rendered were computed elsewhere, and the header says by what. There is no
+# comparison against the live environment, because rebuilding the workbook
+# formats numbers rather than recomputing them.
+recorded_versions <- vapply(MLOS_VERSION_FIELDS, function(field) {
+  value <- bundle$run[[field]]
+  if (is.null(value)) NA_character_ else as.character(value)
+}, character(1))
+if (any(!is.na(recorded_versions))) {
+  known <- !is.na(recorded_versions)
+  cat("Environment:      ",
+      paste0(MLOS_VERSION_LABELS[known], " ", recorded_versions[known],
+             collapse = ",  "), "\n", sep = "")
+}
 cat("Data file:        ", bundle$run$data_file, "\n", sep = "")
 
 write_results_excel(excel_file, bundle)

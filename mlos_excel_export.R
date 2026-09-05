@@ -471,8 +471,7 @@ write_general_sheet <- function(wb, bundle, title_style,
   # rendering such a bundle is the point of mlos_render.R, so every cell falls
   # back to "(not recorded)" rather than dropping out of the vector and
   # unbalancing the two columns.
-  run_items <- c("mlos_version", "generated_at", "r_version",
-                 paste0(MLOS_PACKAGES, "_version"),
+  run_items <- c("mlos_version", "generated_at", MLOS_VERSION_FIELDS,
                  "data_file", "settings_file", "output_dir", "log_file")
   run_info <- data.frame(
     Item  = run_items,

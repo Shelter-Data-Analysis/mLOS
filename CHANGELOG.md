@@ -35,6 +35,9 @@ before.
   `mlos_environment_versions` in `mlos_common.R` is what the header, the run
   block, and the goldens' record are all built from, so the three name the same
   things in the same order.
+- `mlos_render.R` echoes the versions its bundle recorded, which are the ones
+  that computed the numbers it is about to lay out rather than the ones on the
+  machine laying them out. A bundle without them renders as before.
 - The Excel cover sheet lists the same fields under Run metadata. Every cell
   falls back to `(not recorded)`, so a bundle written before this renders with
   its two columns balanced instead of only the tool version being covered.

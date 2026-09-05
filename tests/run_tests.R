@@ -1092,7 +1092,7 @@ check_json_round_trip <- function(case_name, excel_file, json_file, results_dir)
   # the same reason: a golden that pinned them would fail on every machine
   # whose packages moved, whether or not a number did.
   expected_versions <- mlos_environment_versions()
-  names(expected_versions) <- paste0(tolower(names(expected_versions)), "_version")
+  names(expected_versions) <- MLOS_VERSION_FIELDS
   expect_equal(paste0(case_name, ": json: package versions recorded"),
                as.numeric(identical(unlist(from_file$run[names(expected_versions)]),
                                     expected_versions)), 1)
@@ -1692,9 +1692,8 @@ write_case_outputs <- function(case_name, results_dir,
   lines <- readLines(json_file, warn = FALSE)
   lines <- sub('"generated_at": ".*"', '"generated_at": "(run time)"', lines)
   lines <- sub('"mlos_version": ".*"', '"mlos_version": "(version)"', lines)
-  lines <- sub(paste0('"(', paste(c("r", MLOS_PACKAGES), collapse = "|"),
-                      ')_version": ".*"'),
-               '"\\1_version": "(version)"', lines)
+  lines <- sub(paste0('"(', paste(MLOS_VERSION_FIELDS, collapse = "|"), ')": ".*"'),
+               '"\\1": "(version)"', lines)
   gsub(project_root, "(project root)", lines, fixed = TRUE)
 }
 

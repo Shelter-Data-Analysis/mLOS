@@ -1336,7 +1336,7 @@ build_results_bundle <- function(cox_results,
   # The set is fixed by MLOS_PACKAGES, so a machine missing an optional package
   # writes "not installed" in its field instead of writing a shorter block.
   version_fields <- mlos_environment_versions()
-  names(version_fields) <- paste0(tolower(names(version_fields)), "_version")
+  names(version_fields) <- MLOS_VERSION_FIELDS
 
   list(
     schema_version = MLOS_RESULTS_SCHEMA_VERSION,
