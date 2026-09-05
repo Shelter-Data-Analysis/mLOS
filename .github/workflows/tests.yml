@@ -1,0 +1,100 @@
+# Continuous integration for both halves of the repository.
+#
+# The R suite runs under two locales. The UTF-8 leg is the one with teeth:
+# mlos_common.R pins LC_COLLATE to C in code, and an ambient LC_ALL=C satisfies
+# that pin for free, so the suite's own collation check reports itself skipped
+# rather than passing ("no reordering locale reachable here"). A locale that
+# collates differently is what proves the pin still does its job. The C leg is
+# kept because it is what a minimal container gives and it costs seconds.
+#
+# The goldens are not compared here. tests/golden/environment.txt records the
+# versions they were written against; a runner installs whatever CRAN holds
+# today, so a byte comparison would fail on a survival that moved without a
+# number having changed. --generate-outputs stays a local step, and the
+# expected-value checks that do run here are portable by design.
+
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  r-suite:
+    name: R suite (LC_ALL=${{ matrix.locale }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        locale: [en_US.UTF-8, C]
+    env:
+      LC_ALL: ${{ matrix.locale }}
+      LANG: ${{ matrix.locale }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # An unavailable locale leaves R in C, which would quietly turn this leg
+      # into a second copy of the other one.
+      - name: Generate the locale
+        if: matrix.locale != 'C'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y locales
+          sudo locale-gen "${{ matrix.locale }}"
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::survival
+            any::yaml
+            any::jsonlite
+            any::openxlsx
+            any::flexsurv
+
+      # The locale is what this matrix exists for, so state it before the run
+      # rather than reading it back out of a failure.
+      - name: Locale in force
+        run: locale
+
+      - name: Run the suite
+        run: Rscript tests/run_tests.R
+
+  python-suite:
+    name: Python suite (${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The floor and the current release. 3.9 is the one that catches a
+        # module losing `from __future__ import annotations`, which pyproject
+        # records as load-bearing rather than habit.
+        python: ["3.9", "3.13"]
+    env:
+      # figures.py imports matplotlib at module scope, so a runner with no
+      # display needs a backend that asks for none.
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      # Installing rather than running from the tree also checks that
+      # pyproject.toml declares what the package actually needs.
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: Run the suite
+        run: python tests/run_review_tests.py

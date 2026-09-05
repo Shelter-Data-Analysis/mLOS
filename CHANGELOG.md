@@ -18,6 +18,21 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
+Both suites run on every push. **No analysis number changed**: this adds no
+code the analysis calls.
+
+- `.github/workflows/tests.yml` runs `tests/run_tests.R` and
+  `tests/run_review_tests.py`. The R suite runs under a UTF-8 locale and under
+  `LC_ALL=C`, the Python suite on 3.9 and 3.13.
+- The UTF-8 leg is the one that tests the collation pin. `LC_ALL=C` satisfies
+  the pin in `mlos_common.R` from outside, so the suite's collation check
+  reports itself skipped rather than passing; a locale that collates
+  differently is what gives it teeth.
+- The goldens are not compared on a runner. `tests/golden/environment.txt`
+  records the versions they were written against and a runner installs what
+  CRAN holds today, so the byte comparison would fail on a package that moved
+  without a number having changed. `--generate-outputs` stays local.
+
 A run records the versions it ran under, and the goldens record theirs.
 **No analysis number changed**: every CSV is byte-identical to the release
 before.

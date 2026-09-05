@@ -1,5 +1,7 @@
 # mLOS — Length-of-Stay Analysis Tool
 
+[![tests](https://github.com/Shelter-Data-Analysis/mLOS/actions/workflows/tests.yml/badge.svg)](https://github.com/Shelter-Data-Analysis/mLOS/actions/workflows/tests.yml)
+
 mLOS is an R tool that analyzes length-of-stay (LOS) in animal shelters. It compares how long animals stay in care across user-defined time periods, intake types, or animal groups, using proper survival-analysis methods (Kaplan-Meier, Cox regression, Aalen-Johansen competing risks) rather than misleading simple averages.
 
 ## Start here
