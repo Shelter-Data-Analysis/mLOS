@@ -8,15 +8,18 @@ Everything happens in the open, on the
 This is the contribution the project most wants, and it has two halves.
 
 **Deposit the run** in a data repository that mints a persistent identifier:
-Figshare, Zenodo, Dryad, or an institutional repository. Four things travel
-together.
+Figshare, Zenodo, Dryad, or an institutional repository. What travels together,
+in one record.
 
 1. **The prepared CSV**, as mLOS read it.
 2. **The YAML settings file** that produced the run.
 3. **The results**: the Excel workbook, `results.json`, the plots with their
    companion CSVs, `analysis_log.txt`, and `data_preparation_stats.csv`.
-4. **The report written from them**, in whatever form it took: a memo, a board
-   presentation, a slide deck, a paper.
+4. **The deck bundle**, where one was built: the `.pptx`, its `_tables.xlsx`,
+   its `_figures/` directory, its `_slides.json`, and the deck settings file
+   that produced them.
+5. **The report written from them**, in whatever form it took: a memo, a board
+   presentation, a paper.
 
 Then **cite mLOS by its DOI, naming the version actually used**, rather than by
 a link to the repository. A GitHub URL is not archival: the repository can be
@@ -37,6 +40,12 @@ feature was missing. Say how many stays over what span, and which version,
 since that is what makes the other three interpretable. An issue rather than a
 section of the deposit, because an issue can be answered and closed against a
 release that acts on it.
+
+Where the deck builder was used, say which slides survived into the briefing
+actually given, which were cut, and what had to be added by hand. It ships as
+experimental and is expected to keep moving, which leaves it the part a report
+of real use moves fastest. Its caveats are set out in
+[`presentation_guide.md`](presentation_guide.md) and summarized in the README.
 
 ## If you have found a bug
 
