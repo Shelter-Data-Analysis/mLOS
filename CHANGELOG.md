@@ -32,6 +32,12 @@ code the analysis calls.
   the pin in `mlos_common.R` from outside, so the suite's collation check
   reports itself skipped rather than passing; a locale that collates
   differently is what gives it teeth.
+- `check_figures_are_drawn` asserts that a build still draws every figure kind.
+  The per-case manifest check compares the manifest against the PNG directory,
+  and those agree when a build draws nothing at all, so a regression that
+  silenced every figure passed every fixture. The kinds are read from the
+  manifest rather than from instrumenting `figures`, and bundles are built only
+  until each kind has been seen, which is four of them.
 - The goldens are not compared on a runner. `tests/golden/environment.txt`
   records the versions they were written against and a runner installs what
   CRAN holds today, so the byte comparison would fail on a package that moved

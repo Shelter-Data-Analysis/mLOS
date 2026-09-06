@@ -67,7 +67,7 @@ from mlos_review.blocks import (  # noqa: E402
 )
 from mlos_review import output, settings as settings_mod  # noqa: E402
 from mlos_review.bundle import Bundle  # noqa: E402
-from mlos_review.deck import build  # noqa: E402
+from mlos_review.deck import build, figure_directory  # noqa: E402
 from mlos_review.names import Vocabulary, capitalize_first  # noqa: E402
 from pptx import Presentation  # noqa: E402
 from pptx.util import Inches  # noqa: E402
@@ -4217,6 +4217,71 @@ def _flag_value(argv: list[str], flag: str) -> str | None:
     return argv[index]
 
 
+def check_figures_are_drawn() -> None:
+    """A build still draws figures, which no per-case check would notice losing.
+
+    check_workbook_and_manifest asserts that the manifest and the PNG directory
+    agree with each other. They also agree when a build draws nothing at all:
+    both are empty, the equality holds, and a regression that silenced every
+    figure passes every fixture. What that leaves unpinned is the drawing
+    itself, and this is the check that fails when it stops happening.
+
+    The kinds come from the manifest rather than from instrumenting
+    `figures`, so what is asserted is what reached disk. Which fixture draws
+    which kind is not asserted: that belongs to the slide dispatch, and a copy
+    of those conditions here could agree with itself while disagreeing with the
+    deck. Fixtures are built only until every kind has been seen, which on the
+    committed bundles is four of them; a run that has lost a kind pays for the
+    whole set to say so.
+    """
+    section("figures are drawn")
+
+    # los_ratios and hazard_ratios come from figures.ratio_comparison, and
+    # hr_comparison from figures.hazard_ratio_comparison, so requiring all
+    # three reaches both drawing functions.
+    wanted = {"los_ratios", "hazard_ratios", "hr_comparison"}
+    seen: set[str] = set()
+    empty: list[str] = []
+    built = 0
+
+    goldens = sorted((REPO_ROOT / "tests" / "golden").glob("*/results.json"))
+    for path in goldens:
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "deck.pptx"
+            build(path.parent, out)
+            built += 1
+            directory = figure_directory(out)
+            if not directory.exists():
+                continue
+            manifest = directory / "manifest.json"
+            if manifest.exists():
+                seen |= {entry["kind"]
+                         for entry in json.loads(manifest.read_text())["figures"]}
+            # A zero-byte PNG satisfies every existence check in this suite and
+            # opens in nothing.
+            empty.extend(f"{path.parent.name}/{png.name}"
+                         for png in sorted(directory.glob("*.png"))
+                         if png.stat().st_size == 0)
+        if wanted <= seen:
+            break
+
+    missing = sorted(wanted - seen)
+    if missing:
+        print("  kinds no fixture drew:", ", ".join(missing))
+    expect_equal("every figure kind is drawn by some fixture", missing, [])
+    if empty:
+        print("  empty PNGs:", ", ".join(empty))
+    expect_equal("every figure drawn has bytes in it", empty, [])
+    # Only worth asking once the kinds are all present: a run that lost one
+    # scans everything by design, and reporting that as a second failure would
+    # describe the same cause twice. Four bundles on the committed set; the
+    # slack absorbs a reordering, and a real climb means this check quietly
+    # grew into a full pass over every bundle.
+    if not missing:
+        expect(f"the scan stopped early, at {built} of {len(goldens)} bundles",
+               built <= 8, f"built {built}")
+
+
 def main(argv: list[str]) -> int:
     prefix = _flag_value(argv, "--prefix")
     _state["only"] = _flag_value(argv, "--only")
@@ -4248,6 +4313,7 @@ def main(argv: list[str]) -> int:
         check_single_stratifier_default,
         check_capital_widths,
         check_layouts_render,
+        check_figures_are_drawn,
         check_educational_section,
         check_slide_citations,
     ):
