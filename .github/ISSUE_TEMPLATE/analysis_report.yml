@@ -1,0 +1,64 @@
+name: Analysis report
+description: You ran mLOS on a shelter's data. Say how it went.
+title: "Analysis report: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is the contribution the project most wants. Nothing below is
+        required, and a partial answer is worth more than a blank issue.
+        [CONTRIBUTING.md](https://github.com/Shelter-Data-Analysis/mLOS/blob/main/CONTRIBUTING.md)
+        describes the deposit that goes with it.
+
+  - type: input
+    id: deposit
+    attributes:
+      label: The deposit
+      description: DOI or link, if the run has been deposited. Leave blank if not, or not yet.
+
+  - type: input
+    id: scale
+    attributes:
+      label: Scale of the run
+      description: How many stays, over what span, and how many groups compared.
+      placeholder: "About 12,000 stays over four years, three intake types compared"
+
+  - type: input
+    id: mlos-version
+    attributes:
+      label: mLOS version
+      description: Reported in the console log, in the `run` block of `results.json`, and on the Excel cover sheet.
+
+  - type: textarea
+    id: most-useful
+    attributes:
+      label: What was most useful
+
+  - type: textarea
+    id: least-useful
+    attributes:
+      label: What was least useful, or actively misleading
+
+  - type: textarea
+    id: missing
+    attributes:
+      label: What analysis or feature was missing
+
+  - type: textarea
+    id: workbook
+    attributes:
+      label: Which plots, sheets, and tables carried the finding
+      description: >-
+        Naming them is what says which parts of the workbook get read. A run
+        reports nothing about that, so this answer is not available from
+        anywhere else.
+
+  - type: textarea
+    id: deck
+    attributes:
+      label: The slide deck, if one was built
+      description: >-
+        Which slides survived into the briefing actually given, which were cut,
+        and what had to be added by hand. The deck builder ships as
+        experimental, so this is where a report of real use moves the tool
+        fastest.

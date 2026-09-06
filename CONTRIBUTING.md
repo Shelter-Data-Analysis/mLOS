@@ -1,7 +1,9 @@
 # Contributing
 
 Everything happens in the open, on the
-[issue tracker](https://github.com/Shelter-Data-Analysis/mLOS/issues).
+[issue tracker](https://github.com/Shelter-Data-Analysis/mLOS/issues), which
+has a form for a bug report and one for an analysis report. Anything else goes
+in a blank issue.
 
 ## If you have run mLOS on a shelter
 

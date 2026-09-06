@@ -1,0 +1,11 @@
+# Questions, feature requests and anything that fits neither form go in a blank
+# issue. There is no private support channel: answers are public so the next
+# person with the question finds one.
+blank_issues_enabled: true
+contact_links:
+  - name: Read the user guide first
+    url: https://github.com/Shelter-Data-Analysis/mLOS/blob/main/mlos_user_guide.md
+    about: Opens with a section for practitioners, then documents every output file and plot.
+  - name: Check what a number means
+    url: https://github.com/Shelter-Data-Analysis/mLOS/blob/main/mlos_math_methods.md
+    about: Every estimator and convention, and the place to look before asking whether a result is wrong.

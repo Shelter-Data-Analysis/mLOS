@@ -1,0 +1,59 @@
+name: Bug report
+description: Something mLOS computed, wrote, or refused to run, and it looks wrong.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The settings file and the two records a run writes usually locate a bug
+        without the data, which is just as well, since the data is generally
+        not yours to send. Attach files by dragging them into a text box.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what was expected
+      description: An error message, or a number that cannot be right, and what it should have been.
+    validations:
+      required: true
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: The settings file
+      description: Paste it, or attach it. Remove anything that identifies a shelter if that matters here.
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: run-records
+    attributes:
+      label: The run records
+      description: >-
+        Attach `results/analysis_log.txt` and `results/data_preparation_stats.csv`,
+        or paste the part of the log around the failure.
+
+  - type: input
+    id: mlos-version
+    attributes:
+      label: mLOS version
+      description: Reported in the console log, in the `run` block of `results.json`, and on the Excel cover sheet.
+    validations:
+      required: true
+
+  - type: input
+    id: r-version
+    attributes:
+      label: R version
+      description: What `R.version.string` prints. Name the Python version instead if the bug is in the deck builder.
+
+  - type: dropdown
+    id: shipped-data
+    attributes:
+      label: Does it happen on the shipped Orange County data?
+      description: A bare `Rscript mlos_run_complete.R` runs that. A bug visible there becomes a test fixture.
+      options:
+        - Yes
+        - No, only on my own data
+        - Not tried
