@@ -41,6 +41,11 @@ since that is what makes the other three interpretable. An issue rather than a
 section of the deposit, because an issue can be answered and closed against a
 release that acts on it.
 
+Where the workbook and the plots were read directly, name the ones that
+carried the finding: which plots, which sheets, and which tables within a
+sheet. The workbook is large by design, and a run reports nothing about which
+parts of it anyone opens, so that answer is not available from anywhere else.
+
 Where the deck builder was used, say which slides survived into the briefing
 actually given, which were cut, and what had to be added by hand. It ships as
 experimental and is expected to keep moving, which leaves it the part a report
