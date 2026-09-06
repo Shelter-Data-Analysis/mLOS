@@ -78,6 +78,7 @@ The workbook, the plots and the two documentation guides remain the complete rec
 | `results/` | Generated output (plots, CSVs, `results.json`, Excel workbook, log); created by running the tool, not tracked in this git repository. |
 | `reports/` | Generated decks, table workbooks and deck figures; created by `mlos_review`, not tracked in this git repository. |
 | `tests/` | Validation test suite: fixtures (`tests/cases/`), expected/committed outputs (`tests/golden/`), and the runner (`run_tests.R`). See `tests/README_TESTS.md`. |
+| `CONTRIBUTING.md` | How to deposit an analysis run with the tool, report a bug, ask a question, or open a pull request. |
 | `CITATION.cff` | How to cite the tool, and the data deposits and preparation tool it sits downstream of. |
 | `CHANGELOG.md` | What changed between releases, and whether the change moves a number. |
 | `PUBLISHING.md` | The runbook for making a release and depositing what it produces. Maintainer-facing. |
@@ -107,6 +108,4 @@ The mLOS code is released under the [MIT License](LICENSE). The two guides (`mlo
 
 ## Contributing
 
-Issues and pull requests are welcome. Read [`documentation_rules.md`](documentation_rules.md) before editing any of the guides, and [`tests/README_TESTS.md`](tests/README_TESTS.md) before changing code that moves a number: the test suite compares against committed golden outputs, and a change that moves one is reviewed by reading that diff.
-
-Every claim the guides make about a worked example is marked with the run it came from, OC1 or OC2, and `python3 tests/show_guide_examples.py` recomputes them all from a real run. A change that moves a quoted figure updates the guide and that checker together.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) covers how to deposit and cite an analysis run on another shelter's data, which is the contribution most wanted here, how to report a bug, where to ask a question, and what a pull request has to pass. Issues and questions go to the [issue tracker](https://github.com/Shelter-Data-Analysis/mLOS/issues).
