@@ -41,7 +41,9 @@ requires-python = ">=3.9"
 # possible only because every module that carries annotations starts with
 # `from __future__ import annotations`. Losing that line from a module would
 # make its `str | Path` a runtime error here while passing on a newer Python,
-# so the import is load-bearing rather than habit.
+# so the import is load-bearing rather than habit. Continuous integration runs
+# the suite on 3.9 alongside the current release, so that breakage lands on a
+# push rather than on whoever next opens the package on an old interpreter.
 
 # Lower bounds are the versions this has actually been run against, not the
 # oldest that might work. Nothing here reaches for a recent API; the bounds are
