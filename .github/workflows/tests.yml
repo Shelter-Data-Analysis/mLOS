@@ -36,7 +36,7 @@ jobs:
       LC_ALL: ${{ matrix.locale }}
       LANG: ${{ matrix.locale }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # An unavailable locale leaves R in C, which would quietly turn this leg
       # into a second copy of the other one.
@@ -98,9 +98,9 @@ jobs:
       # display needs a backend that asks for none.
       MPLBACKEND: Agg
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
 
