@@ -23,7 +23,7 @@ Both suites run on every push, and a run stamps the digest of what it read.
 the release before.
 
 - A run records the SHA-256 of its data file and of its settings file, in the
-  console log, in the `run` block of `results.json` (schema 6), and on the
+  console log, in the `run` block of `results.json`, and on the
   workbook's cover sheet. The algorithm and the label shape are the ones
   ShelterDataPrep writes for the file it prepared, so the preparation log and
   this one compare without a converter. `digest` is optional, like the three
@@ -71,7 +71,8 @@ before.
   run says what produced its numbers rather than leaving a reader to guess.
   A machine missing an optional package writes `not installed` rather than a
   shorter block, which keeps two runs comparable field for field. The schema
-  version stays 5: adding a field does not move it.
+  version stays 5, here and for the two digests above: it moves when a field
+  changes meaning or disappears, and an addition does neither.
 - The console log header carries the same versions on one line under the tool
   version, so a log read on its own says what produced the numbers below it.
   `mlos_environment_versions` in `mlos_common.R` is what the header, the run

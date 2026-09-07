@@ -3012,6 +3012,61 @@ run_suite_checks <- function() {
     cat("  (", length(leaves), " doubles checked)\n", sep = "")
   }
 
+  cat("\n=== schema tolerance ===\n")
+
+  # What the schema version promises. It moves when a field changes meaning or
+  # disappears, never when one is added, which is only safe while a reader can
+  # take a bundle that predates a field and still produce its output. Four
+  # consumers make that true in four different ways -- mlos_render.R warns and
+  # carries on, the workbook falls back to "(not recorded)", the deck's
+  # accessor returns a default for any absent path, and make_deposit.py fails
+  # loudly on purpose -- so the promise is not visible in any one of them.
+  #
+  # Tested on a real bundle stripped of every field the run block has gained
+  # since the current schema number was set: the workbook has to build, and to
+  # build the same sheets. Rendering is the demanding half, since it reads the
+  # run block cell by cell.
+  if (requireNamespace("jsonlite", quietly = TRUE) &&
+      requireNamespace("openxlsx", quietly = TRUE)) {
+    source_json <- file.path(suite_dir, "golden", "weibull_small", "results.json")
+    if (!file.exists(source_json)) {
+      cat("  [SKIP] schema tolerance: no golden bundle to strip\n")
+    } else local({
+      added <- c(MLOS_VERSION_FIELDS, "data_sha256", "settings_sha256")
+      raw <- jsonlite::fromJSON(source_json, simplifyVector = FALSE)
+      expect_equal("schema tolerance: the bundle carries the added fields",
+                   as.numeric(all(added %in% names(raw$run))), 1)
+      raw$run <- raw$run[setdiff(names(raw$run), added)]
+
+      # tempdir(), because nothing here belongs in the repository and a
+      # stripped bundle beside a golden is a golden somebody will trust.
+      stripped <- file.path(tempdir(), "schema_tolerance.json")
+      writeLines(jsonlite::toJSON(raw, auto_unbox = TRUE, digits = .JSON_DIGITS,
+                                  null = "null"), stripped)
+
+      full_xlsx <- file.path(tempdir(), "schema_tolerance_full.xlsx")
+      thin_xlsx <- file.path(tempdir(), "schema_tolerance_thin.xlsx")
+      # capture.output because write_results_excel announces where it wrote,
+      # which is two tempdir paths in a suite log that is otherwise progress.
+      # An error still propagates; only what is printed is swallowed.
+      built <- tryCatch({
+        invisible(capture.output({
+          write_results_excel(full_xlsx, read_results_json(source_json))
+          write_results_excel(thin_xlsx, read_results_json(stripped))
+        }))
+        TRUE
+      }, error = function(e) conditionMessage(e))
+      expect_equal("schema tolerance: a bundle without the added fields renders",
+                   as.numeric(isTRUE(built)),
+                   1)
+      if (isTRUE(built)) {
+        expect_equal("schema tolerance: and renders the same sheets",
+                     as.numeric(identical(openxlsx::getSheetNames(thin_xlsx),
+                                          openxlsx::getSheetNames(full_xlsx))), 1)
+      }
+    })
+  }
+
   cat("\n=== stratifier registry wiring ===\n")
 
   # The registry's model_term field is what mlos_cox.R and mlos_excel_export.R

@@ -437,7 +437,13 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
 
 # Bump when a field changes meaning or disappears, so a downstream consumer
 # reading a saved results.json can tell what it is looking at. Adding a field
-# does not require a bump.
+# does not bump it: the number answers "can this still be read", and a reader
+# that wants a field added since is free to fail loudly over its absence, as
+# tools/make_deposit.py does for the two digests. Which version wrote a file is
+# a different question, answered by mlos_version and the recorded package
+# versions beside it. The entries below are therefore a list of meaning
+# changes, not a list of everything the block has gained; CHANGELOG.md carries
+# the additions.
 #
 # 2: matrices and tables carry a "type" tag (see .json_prepare), so the file
 #    is self-describing and read_results_json can restore the bundle exactly.
@@ -462,10 +468,7 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
 #    new fields. Alongside them, and merely added: every published Weibull fit
 #    carries `fit_unstable`, .fit_weibull's verdict on whether its confidence
 #    intervals are exact or approximations.
-# 6: the run block gains `data_sha256` and `settings_sha256`, the SHA-256 of
-#    the two files the run read. Additive: a bundle written before this carries
-#    neither, and renders with "(not recorded)" in their cells.
-MLOS_RESULTS_SCHEMA_VERSION <- 6L
+MLOS_RESULTS_SCHEMA_VERSION <- 5L
 
 # Cox fit -> the plain values a report shows. summary() is called once here
 # rather than by each consumer.
