@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260904_008. Read it in any markdown reader,
+presentation guide, version 20260906_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -159,6 +159,16 @@ The practical reading: a generated deck is **raw material for a briefing**
 somebody writes, and is not itself the briefing. Check it against the JSON and
 `analysis_results.xlsx` before it reaches an audience, and expect to add what
 it left out.
+
+**Saying how a deck landed.** The most useful report is what became of it in
+use: which slides survived into the briefing actually given, which were cut,
+and what had to be written by hand from the workbook or the plots. The
+[issue tracker](https://github.com/Shelter-Data-Analysis/mLOS/issues) carries a
+form for that account, and
+[CONTRIBUTING.md](https://github.com/Shelter-Data-Analysis/mLOS/blob/main/CONTRIBUTING.md)
+says what to attach and what a deposited run holds. The selection rules are
+where this package is least settled, and reports of real use are what will
+settle them.
 
 ---
 
