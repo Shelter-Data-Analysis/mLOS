@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260906_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260906_003. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -240,7 +240,7 @@ mLOS is an R-based tool for analyzing animal shelter length-of-stay (LOS) distri
 
 It relies on techniques from "survival statistics", but here "survival" just means an animal is still in care, i.e., has no outcome.  The differentiation between outcome types (including live vs. non-live outcomes) is done separately.
 
-**Required R packages:** `survival` and `yaml`; `jsonlite` is additionally required to write the results JSON and `openxlsx` to produce the Excel results workbook (without either, the run still completes and the corresponding export is skipped with a warning). Optional: `flexsurv` (only if `parametric_regression` is enabled). Running the tool locally requires R itself installed on your computer as well as these packages; see https://cran.r-project.org/ for installing R and its packages.
+**Required R packages:** `survival` and `yaml`; `jsonlite` is additionally required to write the results JSON and `openxlsx` to produce the Excel results workbook (without either, the run still completes and the corresponding export is skipped with a warning). Optional: `digest`, which records the SHA-256 of the data and settings files a run read (without it those two fields read `(digest package not installed)`, the rest of the run is unaffected, and `tools/make_deposit.py` refuses to stage the run); and `flexsurv` (only if `parametric_regression` is enabled). Running the tool locally requires R itself installed on your computer as well as these packages; see https://cran.r-project.org/ for installing R and its packages.
 
 **Required data: all animal stays that have any overlap with the study periods**.  Not just outcomes during the study periods. Not just intakes during the study periods.
 

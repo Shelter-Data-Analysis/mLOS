@@ -41,14 +41,17 @@ invisible(Sys.setlocale("LC_COLLATE", "C"))
 # pyproject.toml equal. Bump it when the work of a release is done, then tag.
 MLOS_VERSION <- "0.1.2"
 
-# Every package the tool can call. A result is checkable against the code that
-# made it only alongside the versions that ran: survival sets the last digits
-# of every curve and fit, flexsurv those of the Weibull companion, yaml how a
-# settings value parses, jsonlite the layout of results.json, and openxlsx the
-# workbook. Required first, then the three loaded only when the work reaches
-# them. mlos_run_complete.R checks the required pair at startup, the run block
-# of results.json records all five, and the test suite records them beside the
-# goldens.
+# Every package whose version can change what a run produces. A result is
+# checkable against the code that made it only alongside the versions that ran:
+# survival sets the last digits of every curve and fit, flexsurv those of the
+# Weibull companion, yaml how a settings value parses, jsonlite the layout of
+# results.json, and openxlsx the workbook. Required first, then the three
+# loaded only when the work reaches them. mlos_run_complete.R checks the
+# required pair at startup, the run block of results.json records all five, and
+# the test suite records them beside the goldens.
+#
+# digest is called as well and is left out on purpose: a SHA-256 is fixed by
+# the algorithm, so no version of it moves a value this list exists to explain.
 MLOS_PACKAGES_REQUIRED <- c("survival", "yaml")
 MLOS_PACKAGES <- c(MLOS_PACKAGES_REQUIRED, "jsonlite", "openxlsx", "flexsurv")
 
