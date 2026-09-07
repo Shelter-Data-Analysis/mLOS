@@ -1,11 +1,21 @@
 # mLOS Test Suite
 
-Validation tests for the production `mlos_*.R` files. Two kinds of fixtures
-are run through the real analysis functions and checked against known
-expected values: small hand-derived datasets compared exactly, and `sim_*`
-simulation cases — randomized samples from a fully known model, compared
-against the generating parameters with statistical tolerances (see below).
-The suite never modifies production code, data, or settings.
+Validation tests for the production `mlos_*.R` files, in five layers. The
+suite never modifies production code, data, or settings.
+
+1. **Hand-derived values.** Small fixtures whose answers were worked out by
+   hand, compared exactly.
+2. **Simulation recovery.** `sim_*` cases, randomized samples from a fully
+   known model, compared against the generating parameters with statistical
+   tolerances (see below).
+3. **Arithmetic invariants.** Relations that must hold between measures
+   whatever the data looks like, checked on every case and every stratifying
+   dimension.
+4. **Golden files.** Committed outputs for every fixture, so a change that
+   moves a number is reviewed by reading the diff.
+5. **Documentation integrity.** The guides through both renderers, their
+   section cross-references, the worked examples they quote, and the fixture
+   lists they carry.
 
 ## Running the suite
 

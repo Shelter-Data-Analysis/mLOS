@@ -78,7 +78,7 @@ convention.
 Pull requests go to `main`, one change to a pull request.
 
 - Read [`documentation_rules.md`](documentation_rules.md) before editing any of
-  the guides, and [`tests/README_TESTS.md`](tests/README_TESTS.md) before
+  the guides, and [`tests/README.md`](tests/README.md) before
   changing code that moves a number: the suite compares against committed
   golden outputs, and a change that moves one is reviewed by reading that diff.
 - `Rscript tests/run_tests.R --generate-outputs` passes before a pull request

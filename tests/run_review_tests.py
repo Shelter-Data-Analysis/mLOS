@@ -4043,7 +4043,7 @@ def check_section_references() -> None:
     inserted or deleted and the citations of everything below it go stale.
 
     A § naming the wrong existing section is a different failure and survives
-    this: README_TESTS.md cited §5.7 for the census-by-tenure metrics from the
+    this: tests/README.md cited §5.7 for the census-by-tenure metrics from the
     initial public release until August 2026, and §5.7 is a real section about
     something else, so nothing here would have objected. Only a reader catches
     that one.
@@ -4149,7 +4149,7 @@ def check_fixture_inventory() -> None:
 
     Three claims go stale the day a fixture is added, and nothing else here
     reaches any of them: that the golden bundles this suite runs are the cases
-    the R suite defines, README_TESTS.md's list of the simulation cases, and
+    the R suite defines, tests/README.md's list of the simulation cases, and
     the presentation guide's count of how many fixtures the recommendation
     rules stay silent on. The last is a measurement rather than a label, so it
     also moves when a threshold is tuned and no fixture is added at all.
@@ -4172,8 +4172,8 @@ def check_fixture_inventory() -> None:
     expect_equal("every case has a golden bundle, and every bundle a case",
                  goldens, cases)
 
-    readme = (REPO_ROOT / "tests" / "README_TESTS.md").read_text()
-    expect_equal("README_TESTS.md lists every simulation case",
+    readme = (REPO_ROOT / "tests" / "README.md").read_text()
+    expect_equal("tests/README.md lists every simulation case",
                  sorted(SIM_CASE_BULLET.findall(readme)),
                  [case for case in cases if case.startswith("sim_")])
 

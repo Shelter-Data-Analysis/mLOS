@@ -358,7 +358,7 @@ choosing not to regenerate it cannot block an OC2 deposit.
 `data/OC2_largecut_settings.yaml` is left out on the same principle, one step
 further: it adds a single filter cutting the LARGE animal size, to make one
 point about the shape floor. It stays in the repository because
-`tests/README_TESTS.md` names it as an input to `scan_shape_floor.R`.
+`tests/README.md` names it as an input to `scan_shape_floor.R`.
 
 ## Decisions, deferred
 
