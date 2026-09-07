@@ -77,13 +77,14 @@ LOS_SLIDE_MEASURES: list[str] = [
     "km_still_in_care_at_cap", "expected_census", *TENURE_MEASURES,
 ]
 
-# What the educational slide borrows from the whole-sample length-of-stay
-# table. Four columns rather than that slide's nine: it is there to be
-# reconciled against a picture of intervals, and the arrival and census
-# measures answer a question the picture is not asking.
-INTERVAL_SLIDE_MEASURES: list[str] = [
-    "km_median_los", "km_restricted_mean", "km_p90_los",
-    "km_still_in_care_at_cap",
+# What the educational metrics slide borrows from the whole-sample
+# length-of-stay table: the arrival rate, the stay, and the census the two of
+# them produce, so the identity written above the table has all three of its
+# terms under it. The tenure measures are left out, being what a later slide
+# is about.
+METRICS_SLIDE_MEASURES: list[str] = [
+    "mean_daily_intakes", "km_median_los", "km_restricted_mean", "km_p90_los",
+    "km_still_in_care_at_cap", "expected_census",
 ]
 
 # Interleaved, tenure then what the curve reads at that tenure, so each pair

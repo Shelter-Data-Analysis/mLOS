@@ -61,7 +61,7 @@ from mlos_review.blocks import (
     highlights_table,
     outlook_by_tenure_table,
     sub_table,
-    INTERVAL_SLIDE_MEASURES,
+    METRICS_SLIDE_MEASURES,
     LOS_SLIDE_MEASURES,
     OUTLOOK_SLIDE_MEASURES,
     level_counts_table,
@@ -1718,14 +1718,6 @@ def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
 METRICS_IDENTITY = "(Mean LOS) * (Mean daily intakes) = (Mean census)"
 METRICS_NEXT = "Next look at the P90 rather than the median"
 
-# What the first table shows: the arrival rate, the stay, and the census the
-# two of them produce, so the identity above the table has all three of its
-# terms on the page. The tenure measures are left out, being what the slide
-# after the next one is about.
-METRICS_SLIDE_MEASURES = ["mean_daily_intakes", "km_median_los",
-                          "km_restricted_mean", "km_p90_los",
-                          "km_still_in_care_at_cap", "expected_census"]
-
 
 def interval_metrics_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
     """The same two summaries as the slide after it, with nothing drawn.
@@ -1738,9 +1730,8 @@ def interval_metrics_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
     says how long stays last, the other where they end.
 
     The first table carries the arrival rate and the census as well as the
-    stay, which the interval slide's version of it does not: the line above
-    them is an identity, and an identity a reader cannot check by hand against
-    the numbers under it is decoration.
+    stay: the line above them is an identity, and an identity a reader cannot
+    check by hand against the numbers under it is decoration.
     """
     if not (requires_full_table(bundle, "all") and requires_aj_teaser(bundle)):
         return None

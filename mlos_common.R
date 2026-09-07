@@ -298,9 +298,9 @@ stratifiers <- list(
 # (Period_10 before Period_2). Intake types and animal groups have NO
 # natural order, so byte order is chosen purely as a stable convention: on
 # a fixed set of categories it never changes from run to run, and the
-# LC_COLLATE pin at the top of this file holds it the same on every machine. Ordering
-# them by frequency was considered and rejected: when two categories have
-# similar counts, a slight tweak to the data (e.g. a small shift of the
+# LC_COLLATE pin at the top of this file holds it the same on every machine.
+# Ordering them by frequency was considered and rejected: when two categories
+# have similar counts, a slight tweak to the data (e.g. a small shift of the
 # study period) can swap their positions, which makes runs hard to compare
 # side by side.
 #
