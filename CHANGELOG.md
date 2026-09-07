@@ -23,12 +23,18 @@ Both suites run on every push, and a run stamps the digest of what it read.
 the release before.
 
 - A run records the SHA-256 of its data file and of its settings file, in the
-  console log, in the `run` block of `results.json`, and on the
-  workbook's cover sheet. The algorithm and the label shape are the ones
-  ShelterDataPrep writes for the file it prepared, so the preparation log and
-  this one compare without a converter. `digest` is optional, like the three
-  packages that write output: an absent one costs the field, not the run.
-  Bundles written before this carry neither field and render "(not recorded)".
+  console log, in the `run` block of `results.json`, and on the workbook's
+  cover sheet. The algorithm and the label shape are the ones ShelterDataPrep
+  writes for the file it prepared, so the preparation log and this one compare
+  without a converter. Bundles written before this carry neither field and
+  render "(not recorded)".
+- `digest` is optional the way the three packages that write output are, with
+  one difference worth knowing before a run matters: an absent one costs the
+  two fields rather than the run, but it also costs the deposit, since
+  `tools/make_deposit.py` refuses a run whose digests read "(digest package not
+  installed)". `mlos_user_guide.md` lists it and `colab_mlos.ipynb` installs
+  it, and the Python suite holds that notebook to every package the R files
+  call, which is how it came to be missing from both.
 - The goldens carry the two digests, which pins each fixture's input bytes:
   editing a fixture's `data.csv` now shows up in its golden diff.
 - `tools/make_deposit.py` is tracked, and is the enforcement behind
@@ -36,7 +42,10 @@ the release before.
   about to stage, refuses a run that recorded none, and for the deck bundle
   reads the run timestamp each deck prints on its opening slide, so a deck
   built from an earlier run cannot be uploaded. The deposited decks are
-  `mlos_deck.pptx` and the educational variant, both unbranded.
+  `mlos_deck.pptx` and the educational variant, both unbranded, and the deck
+  travels with the `<name>_slides.json` written beside it: that file is what an
+  outline is written against, so a deposit without it ships a deck that can be
+  shown and not extended.
 
 - `.github/workflows/tests.yml` runs `tests/run_tests.R` and
   `tests/run_review_tests.py`. The R suite runs under a UTF-8 locale and under
@@ -73,6 +82,11 @@ before.
   shorter block, which keeps two runs comparable field for field. The schema
   version stays 5, here and for the two digests above: it moves when a field
   changes meaning or disappears, and an addition does neither.
+- That policy holds only while a reader tolerates an absent field, and four
+  consumers do that in four different ways, so no one of them shows the
+  promise. A suite check strips every field the run block has gained since 5
+  from a real bundle and requires the workbook to build, and to build the same
+  sheets.
 - The console log header carries the same versions on one line under the tool
   version, so a log read on its own says what produced the numbers below it.
   `mlos_environment_versions` in `mlos_common.R` is what the header, the run
@@ -229,6 +243,32 @@ it computes and writes exactly what it did before.
   of the workbook because the intervals are a reading choice made for a
   picture, and a workbook column that moves with a plot setting invites being
   quoted as though it did not.
+
+Contributing, reporting a bug and asking a question each have somewhere to go.
+**Documentation only**: no code changed, and every CSV and every plot is
+byte-identical to the release before.
+
+- `CONTRIBUTING.md` leads with the contribution the project most wants, a run
+  on another shelter's data: what a deposit holds, where to put it, how to cite
+  the version that produced it, and what to say afterwards about how the tool
+  performed. Where the extract is not the depositor's to release, the settings
+  and the results still stand on their own. Reporting a bug, asking a question
+  and opening a pull request follow it.
+- `.github/ISSUE_TEMPLATE/` carries a form for a bug report and one for an
+  analysis report. The bug form asks for the settings file, `analysis_log.txt`
+  and `data_preparation_stats.csv`, which usually locate a fault without the
+  data that is generally not the reporter's to send. The analysis form asks
+  which plots, sheets and tables carried the finding, since a run reports
+  nothing about which parts of a large workbook anyone opens, and asks what
+  became of the deck, which is the least settled part and the one a report of
+  real use moves fastest. Anything fitting neither form goes in a blank issue.
+- The README, `mlos_user_guide.md` and `presentation_guide.md` point at the
+  issue tracker. There is no private support channel, so answers are public and
+  the next person with the question finds one.
+- `tests/README_TESTS.md` is now `tests/README.md`, met by anyone opening
+  `tests/` rather than reached by knowing its name, and it opens by naming the
+  five layers the suite runs in: hand-derived values, simulation recovery,
+  arithmetic invariants, golden files, and documentation integrity.
 
 ## 0.1.2 (2026-08-28)
 
