@@ -89,6 +89,11 @@ cat("=======================================================================\n")
 # version alone does not say what the numbers below were computed with.
 env_versions <- mlos_environment_versions()
 cat(paste0(names(env_versions), " ", env_versions, collapse = ",  "), "\n", sep = "")
+# Label and algorithm as ShelterDataPrep writes them for the file it prepared,
+# so its log and this one compare without a converter, and a run reading an
+# edited copy of a deposited input says so here rather than in nothing.
+cat("data sha256      ", mlos_file_sha256(data_filename), "\n", sep = "")
+cat("settings sha256  ", mlos_file_sha256(settings_filename), "\n", sep = "")
 cat("Log file: ", log_path, "\n", sep = "")
 if (!is.null(archived)) {
   cat("Previous outputs archived to: ", archived$dir, " (", archived$n, " files)\n", sep = "")

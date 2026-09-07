@@ -462,7 +462,10 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
 #    new fields. Alongside them, and merely added: every published Weibull fit
 #    carries `fit_unstable`, .fit_weibull's verdict on whether its confidence
 #    intervals are exact or approximations.
-MLOS_RESULTS_SCHEMA_VERSION <- 5L
+# 6: the run block gains `data_sha256` and `settings_sha256`, the SHA-256 of
+#    the two files the run read. Additive: a bundle written before this carries
+#    neither, and renders with "(not recorded)" in their cells.
+MLOS_RESULTS_SCHEMA_VERSION <- 6L
 
 # Cox fit -> the plain values a report shows. summary() is called once here
 # rather than by each consumer.
@@ -1347,10 +1350,12 @@ build_results_bundle <- function(cox_results,
       ),
       as.list(version_fields),
       list(
-        data_file     = data_filename,
-        settings_file = settings_filename,
-        output_dir    = output_dir,
-        log_file      = log_path
+        data_file        = data_filename,
+        data_sha256      = mlos_file_sha256(data_filename),
+        settings_file    = settings_filename,
+        settings_sha256  = mlos_file_sha256(settings_filename),
+        output_dir       = output_dir,
+        log_file         = log_path
       )
     ),
     # Substantive settings first: those that affect the computation or the

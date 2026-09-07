@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/sim_intake_mix_shift/data.csv",
+    "data_sha256": "5cde68c524d29a1bf80c2077237090d7d972d5a2dcca5ea75fa871fc27d3cb0b",
     "settings_file": "(project root)/tests/cases/sim_intake_mix_shift/settings.yaml",
+    "settings_sha256": "a40f0ebaf71850f7f3edcf21ce372a31df45c9139a4b20087f3a116b8d1a4a7a",
     "output_dir": "(project root)/tests/results/sim_intake_mix_shift",
     "log_file": "(none: test-suite run)"
   },

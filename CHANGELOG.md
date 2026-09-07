@@ -18,8 +18,19 @@ before it is tagged claims an artifact nobody can fetch.
 
 ## Unreleased
 
-Both suites run on every push. **No analysis number changed**: this adds no
-code the analysis calls.
+Both suites run on every push, and a run stamps the digest of what it read.
+**No analysis number changed**: every CSV and every plot is byte-identical to
+the release before.
+
+- A run records the SHA-256 of its data file and of its settings file, in the
+  console log, in the `run` block of `results.json` (schema 6), and on the
+  workbook's cover sheet. The algorithm and the label shape are the ones
+  ShelterDataPrep writes for the file it prepared, so the preparation log and
+  this one compare without a converter. `digest` is optional, like the three
+  packages that write output: an absent one costs the field, not the run.
+  Bundles written before this carry neither field and render "(not recorded)".
+- The goldens carry the two digests, which pins each fixture's input bytes:
+  editing a fixture's `data.csv` now shows up in its golden diff.
 
 - `.github/workflows/tests.yml` runs `tests/run_tests.R` and
   `tests/run_review_tests.py`. The R suite runs under a UTF-8 locale and under

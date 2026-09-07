@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/sim_cause_rate_shift/data.csv",
+    "data_sha256": "7df3fc0cf4cba0332678fb9dc4ffe9421dd7a6925060a97ada5cb49c3ebf439d",
     "settings_file": "(project root)/tests/cases/sim_cause_rate_shift/settings.yaml",
+    "settings_sha256": "ad3adb30fae6b065f66df94088df126df4b63629ba9dda63f1dd6687e85529d9",
     "output_dir": "(project root)/tests/results/sim_cause_rate_shift",
     "log_file": "(none: test-suite run)"
   },

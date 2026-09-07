@@ -90,7 +90,7 @@ Each CSV row in the input data file is one shelter stay, with mandatory columns 
 
 ## Reproducibility
 
-Every run records what produced it: the tool version, and the R and package versions it ran under, in the console log, in the `run` block of `results.json`, and on the Excel workbook's cover sheet. Nothing is overwritten, since the previous run is archived before a new one writes. At the far end, `tools/make_deposit.py` recomputes the input's SHA-256 against the digest ShelterDataPrep recorded for it, and refuses to stage a deposit that does not match, so a published result names an input that is provably the deposited one.
+Every run records what produced it: the tool version, the R and package versions it ran under, and the SHA-256 of the data and settings files it read, in the console log, in the `run` block of `results.json`, and on the Excel workbook's cover sheet. Nothing is overwritten, since the previous run is archived before a new one writes. The digests are written in the algorithm and the label shape ShelterDataPrep records for the file it prepared, so the two logs compare directly, and `tools/make_deposit.py` refuses to stage a deposit whose input does not match the digest recorded for it.
 
 ## Citing
 

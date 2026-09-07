@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/sim_crossed_shape/data.csv",
+    "data_sha256": "99c183a238a32e5a9e6816eb62441c8239f111d8a9b31bb1777d8a86eb62e455",
     "settings_file": "(project root)/tests/cases/sim_crossed_shape/settings.yaml",
+    "settings_sha256": "05fcb4c57c16ae376e4fb7412838404a9f9561e7f56f8dcbb83d781318d6d40d",
     "output_dir": "(project root)/tests/results/sim_crossed_shape",
     "log_file": "(none: test-suite run)"
   },

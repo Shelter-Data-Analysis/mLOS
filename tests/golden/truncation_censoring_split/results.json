@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/truncation_censoring_split/data.csv",
+    "data_sha256": "0078d1c040b790dc9c3891133156599cfbe6ec980df0cedaf846317c72207fed",
     "settings_file": "(project root)/tests/cases/truncation_censoring_split/settings.yaml",
+    "settings_sha256": "ea361f29693d7a7ec9a3c61b02c7d1ec50f6a5877e707e564c54784fb45a361e",
     "output_dir": "(project root)/tests/results/truncation_censoring_split",
     "log_file": "(none: test-suite run)"
   },

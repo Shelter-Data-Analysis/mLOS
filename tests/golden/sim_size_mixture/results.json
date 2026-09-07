@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/sim_size_mixture/data.csv",
+    "data_sha256": "d282c864948b3fce584f408f1ada061f9516d97277a6d93c47c3f11e8f1633b3",
     "settings_file": "(project root)/tests/cases/sim_size_mixture/settings.yaml",
+    "settings_sha256": "dcf1a4d6ac9a4b3966adb6efab5d1b47dcef94650231536ded5653a77046e97b",
     "output_dir": "(project root)/tests/results/sim_size_mixture",
     "log_file": "(none: test-suite run)"
   },

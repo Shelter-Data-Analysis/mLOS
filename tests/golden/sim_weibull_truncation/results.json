@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/sim_weibull_truncation/data.csv",
+    "data_sha256": "a763f3ad24ee1115a592bdba8297965685687618a4962c964ccde8f92966ed4e",
     "settings_file": "(project root)/tests/cases/sim_weibull_truncation/settings.yaml",
+    "settings_sha256": "d6dcc1e6b9bafd2e862baac0e7de65d47b11a7b3ed764c2ea65897f9fdcff8e1",
     "output_dir": "(project root)/tests/results/sim_weibull_truncation",
     "log_file": "(none: test-suite run)"
   },

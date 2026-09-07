@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/auto_animal_id/data.csv",
+    "data_sha256": "a3a8acbba27c703f1752caf30c487c19af70bcc427cb1298185870556cab7eea",
     "settings_file": "(project root)/tests/cases/auto_animal_id/settings.yaml",
+    "settings_sha256": "3fdcd0ed6b36ea20002ddaac67781562c7152a6a13c0bce0e5e04f94fb83a5c2",
     "output_dir": "(project root)/tests/results/auto_animal_id",
     "log_file": "(none: test-suite run)"
   },

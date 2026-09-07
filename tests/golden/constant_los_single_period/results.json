@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/constant_los_single_period/data.csv",
+    "data_sha256": "0ea218d948a6d4e84bb5224fbd05ba90ced3a6bc042b804c2d1928217bd5219d",
     "settings_file": "(project root)/tests/cases/constant_los_single_period/settings.yaml",
+    "settings_sha256": "0ab7167cb0419af5387991e13e63068bf61014f3f5371507d312d5d1ed303196",
     "output_dir": "(project root)/tests/results/constant_los_single_period",
     "log_file": "(none: test-suite run)"
   },

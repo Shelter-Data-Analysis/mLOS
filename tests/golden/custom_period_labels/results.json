@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/custom_period_labels/data.csv",
+    "data_sha256": "52510da14f7f3a60b1d952d74cf5930a0f934fadfec7c360e7000550d4a15d8a",
     "settings_file": "(project root)/tests/cases/custom_period_labels/settings.yaml",
+    "settings_sha256": "ade57b527d14833e522cacda685b776112b2c68d3d874319e8a24a98b46e90fd",
     "output_dir": "(project root)/tests/results/custom_period_labels",
     "log_file": "(none: test-suite run)"
   },

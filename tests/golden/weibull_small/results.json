@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/weibull_small/data.csv",
+    "data_sha256": "888c0cca6529d29a983343db23b706a3fecd1643b5b560756eeb2af4c2ee4146",
     "settings_file": "(project root)/tests/cases/weibull_small/settings.yaml",
+    "settings_sha256": "937e7bcdf3fca42c98af38fc38411edbcc4d19c4a249758cf2854a5a7d7832ee",
     "output_dir": "(project root)/tests/results/weibull_small",
     "log_file": "(none: test-suite run)"
   },

@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/max_plot_strata_off/data.csv",
+    "data_sha256": "3e559d49bedc3ae841cd324c6aeb13815c6ddfef44063e10be5fb57ddbd7f772",
     "settings_file": "(project root)/tests/cases/max_plot_strata_off/settings.yaml",
+    "settings_sha256": "93cfb8b58e977c0fbcd8d7f7ddd78d0547120262aab737e490fe00f3023b179d",
     "output_dir": "(project root)/tests/results/max_plot_strata_off",
     "log_file": "(none: test-suite run)"
   },

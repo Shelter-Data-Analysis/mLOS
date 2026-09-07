@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/value_filters/data.csv",
+    "data_sha256": "b419654d10dcf5ead06bef40e1c1747bf3b32b6faf6526362a50cf1ae5a276c2",
     "settings_file": "(project root)/tests/cases/value_filters/settings.yaml",
+    "settings_sha256": "3477aef51f73887ff2f0324b79202ffc8886111b00043635af3c1c4e1ac6ae78",
     "output_dir": "(project root)/tests/results/value_filters",
     "log_file": "(none: test-suite run)"
   },

@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/stratified_km_animal_group/data.csv",
+    "data_sha256": "3bf2b3fb84c5e1085b68de5a30c0fe0744e357695f68e0936f2124fd77c12538",
     "settings_file": "(project root)/tests/cases/stratified_km_animal_group/settings.yaml",
+    "settings_sha256": "7aae98133f0ebf07abfb5208ea34ffdac2c0a2f2f3aed0b6148b1a925d207d17",
     "output_dir": "(project root)/tests/results/stratified_km_animal_group",
     "log_file": "(none: test-suite run)"
   },

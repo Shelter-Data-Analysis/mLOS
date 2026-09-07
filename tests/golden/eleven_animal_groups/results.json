@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/eleven_animal_groups/data.csv",
+    "data_sha256": "1c46bc080710e3a3d94abbdd727c360acbe80ff7ae1912aeff30545c4a359575",
     "settings_file": "(project root)/tests/cases/eleven_animal_groups/settings.yaml",
+    "settings_sha256": "771941f9cf3271473fbe1dc0e213a770637923fc2b5d8ea28808c7e7caebc951",
     "output_dir": "(project root)/tests/results/eleven_animal_groups",
     "log_file": "(none: test-suite run)"
   },

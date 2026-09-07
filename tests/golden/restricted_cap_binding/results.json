@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/restricted_cap_binding/data.csv",
+    "data_sha256": "32d1fafd7337f54745e74e2fa4ce434e6fefcd36aff57748d92acc5873f98081",
     "settings_file": "(project root)/tests/cases/restricted_cap_binding/settings.yaml",
+    "settings_sha256": "88c3808b4787ef1dff7251d565c56462425df8746cc8b2aee1eb5e05fccd4412",
     "output_dir": "(project root)/tests/results/restricted_cap_binding",
     "log_file": "(none: test-suite run)"
   },

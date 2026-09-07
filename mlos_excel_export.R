@@ -472,7 +472,8 @@ write_general_sheet <- function(wb, bundle, title_style,
   # back to "(not recorded)" rather than dropping out of the vector and
   # unbalancing the two columns.
   run_items <- c("mlos_version", "generated_at", MLOS_VERSION_FIELDS,
-                 "data_file", "settings_file", "output_dir", "log_file")
+                 "data_file", "data_sha256", "settings_file", "settings_sha256",
+                 "output_dir", "log_file")
   run_info <- data.frame(
     Item  = run_items,
     Value = vapply(run_items, function(item) {

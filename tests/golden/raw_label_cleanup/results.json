@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/raw_label_cleanup/data.csv",
+    "data_sha256": "859fa75941c23e0cd01cb4d6904534b96bb3d9f06fd7e8dad2162af5160d8b1b",
     "settings_file": "(project root)/tests/cases/raw_label_cleanup/settings.yaml",
+    "settings_sha256": "4b98f946f26ca4f9e0739499d9e183b9067d7dcf86c476a4d02ccd11cf7f4d3d",
     "output_dir": "(project root)/tests/results/raw_label_cleanup",
     "log_file": "(none: test-suite run)"
   },

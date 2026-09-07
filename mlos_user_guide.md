@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260906_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260906_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -474,7 +474,7 @@ Every sheet is laid out in vertical sections with a blank row as the separator. 
 
 #### The General sheet
 
-`General` is a cover sheet rather than a per-column table. It opens with the run metadata: the data, settings, output, and log file paths, and the generation time. Below that come these blocks, in order:
+`General` is a cover sheet rather than a per-column table. It opens with the run metadata: the data, settings, output, and log file paths, the SHA-256 of the data and settings files, the tool and package versions, and the generation time. Below that come these blocks, in order:
 
 - **Period metadata** — the start date, exclusive end date, and duration of each period. This is the same table that leads `By_Period`.
 - **Observation gaps** — placed high, right after the period metadata, so that it is not overlooked. It is shaded green when no risk-set gaps were found and red when any were. See the Observation gaps section.

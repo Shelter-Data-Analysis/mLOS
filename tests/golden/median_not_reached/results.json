@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/median_not_reached/data.csv",
+    "data_sha256": "a2f9c6bd124712b537be79520eece9478aa366756a0f52f4176132ab402b27c7",
     "settings_file": "(project root)/tests/cases/median_not_reached/settings.yaml",
+    "settings_sha256": "3538b8f823966c86d4574f1385e7ee81e36a349b510f750df0e750c3c05ee68a",
     "output_dir": "(project root)/tests/results/median_not_reached",
     "log_file": "(none: test-suite run)"
   },

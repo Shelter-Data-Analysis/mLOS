@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/identical_periods/data.csv",
+    "data_sha256": "34038d086fcc1e558a9e30ed9e38d6d5e7ecaf5cbc8f5bb21ee576180c0ee844",
     "settings_file": "(project root)/tests/cases/identical_periods/settings.yaml",
+    "settings_sha256": "dd181385e66280cfdb40e9fe74dac6380fc0d545610bc8b28c383cd72ddce01e",
     "output_dir": "(project root)/tests/results/identical_periods",
     "log_file": "(none: test-suite run)"
   },

@@ -31,7 +31,7 @@ import pandas as pd
 # would make an archived run's deck unbuildable for a schema change that may not
 # touch anything the deck reads, and the point of the check is that a deck built
 # from a bundle this code does not know is never built silently.
-EXPECTED_SCHEMA_VERSION = 5
+EXPECTED_SCHEMA_VERSION = 6
 
 # The whole sample leads, as the baseline everything else is read against. It
 # is the one ordering decision made here rather than taken from the bundle,

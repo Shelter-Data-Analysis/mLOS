@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/observation_gap/data.csv",
+    "data_sha256": "a32290f547b5e37e1c5bf461cef6f40c2751e6ca54b0f288d46fb27284595066",
     "settings_file": "(project root)/tests/cases/observation_gap/settings.yaml",
+    "settings_sha256": "e6ca645daeec873fffee5445dc26feaea8caff5a8ce2f73e42a234ed6e10f8ae",
     "output_dir": "(project root)/tests/results/observation_gap",
     "log_file": "(none: test-suite run)"
   },

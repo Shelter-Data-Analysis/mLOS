@@ -1071,7 +1071,8 @@ check_csv_aggregates <- function(case_name, bundle, results_dir) {
 # bundle, cell for cell across every sheet. A value that stops travelling in
 # the JSON, or a shape the encoder mangles, shows up here as a mismatched cell
 # -- which is how the outcome-type mapping's lost names were caught.
-check_json_round_trip <- function(case_name, excel_file, json_file, results_dir) {
+check_json_round_trip <- function(case_name, excel_file, json_file, results_dir,
+                                 data_file, settings_file) {
   if (!file.exists(json_file)) {
     expect_equal(paste0(case_name, ": json: results.json written"), 0, 1)
     return(invisible(NULL))
@@ -1096,6 +1097,18 @@ check_json_round_trip <- function(case_name, excel_file, json_file, results_dir)
   expect_equal(paste0(case_name, ": json: package versions recorded"),
                as.numeric(identical(unlist(from_file$run[names(expected_versions)]),
                                     expected_versions)), 1)
+
+  # The digests are deterministic functions of committed fixture files, so the
+  # golden carries them and a changed fixture shows up there. Recomputed here
+  # as well, because the golden would agree with a bundle that recorded the
+  # digest of the wrong file just as readily as with one that recorded the
+  # right one.
+  expect_equal(paste0(case_name, ": json: input digest recorded"),
+               as.numeric(identical(from_file$run$data_sha256,
+                                    mlos_file_sha256(data_file))), 1)
+  expect_equal(paste0(case_name, ": json: settings digest recorded"),
+               as.numeric(identical(from_file$run$settings_sha256,
+                                    mlos_file_sha256(settings_file))), 1)
 
   live_sheets <- openxlsx::getSheetNames(excel_file)
   file_sheets <- openxlsx::getSheetNames(rendered)
@@ -1665,7 +1678,7 @@ write_case_outputs <- function(case_name, results_dir,
     write_results_excel(excel_file, bundle)
     check_excel_workbook(case_name, excel_file, bundle)
     check_json_round_trip(case_name, excel_file, file.path(results_dir, "results.json"),
-                          results_dir)
+                          results_dir, data_file, settings_file)
   } else {
     cat("  [SKIP] openxlsx not installed -- Excel smoke checks skipped\n")
   }

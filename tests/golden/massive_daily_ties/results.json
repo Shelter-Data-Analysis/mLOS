@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/massive_daily_ties/data.csv",
+    "data_sha256": "26f34e41fe7250c21dbd9e1fd8e1dd8ebfacfd5b2cc604805cc511b92179f064",
     "settings_file": "(project root)/tests/cases/massive_daily_ties/settings.yaml",
+    "settings_sha256": "adf08ed383c77b8baceed66d92a1c4829f4b0df3a43aae99f830819e983dec11",
     "output_dir": "(project root)/tests/results/massive_daily_ties",
     "log_file": "(none: test-suite run)"
   },

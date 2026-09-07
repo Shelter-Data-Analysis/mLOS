@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/value_maps/data.csv",
+    "data_sha256": "54d3ab72420e5e15b8c007936883d4d5359ee9980216fac249899c9100bac4c2",
     "settings_file": "(project root)/tests/cases/value_maps/settings.yaml",
+    "settings_sha256": "a534d95f1b2b870705206e898c94432215eb0dcacef9e5846ae5f33ed181d55f",
     "output_dir": "(project root)/tests/results/value_maps",
     "log_file": "(none: test-suite run)"
   },

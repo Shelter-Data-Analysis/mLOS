@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/aj_period_missing_outcome/data.csv",
+    "data_sha256": "09dcba627f4264f6ecc8974725fefc124001d93c232a3738b2d2a0353d503387",
     "settings_file": "(project root)/tests/cases/aj_period_missing_outcome/settings.yaml",
+    "settings_sha256": "05726db28dcdbba4e25ba538463f9c0ae75d40ed2ae29d3ffa0bc5936495991c",
     "output_dir": "(project root)/tests/results/aj_period_missing_outcome",
     "log_file": "(none: test-suite run)"
   },

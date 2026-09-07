@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/boundary_conventions/data.csv",
+    "data_sha256": "cef463b38e113787eb55c13f198f043b6ce1bd0373eefc89cb4df5e7008f44a6",
     "settings_file": "(project root)/tests/cases/boundary_conventions/settings.yaml",
+    "settings_sha256": "09f1c0b85a1676e97f21fd43f5287b7951cbfeb0a409321297aa51906fdd37df",
     "output_dir": "(project root)/tests/results/boundary_conventions",
     "log_file": "(none: test-suite run)"
   },

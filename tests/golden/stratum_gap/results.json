@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/stratum_gap/data.csv",
+    "data_sha256": "133a69bea9f0ba082e1a0b69deaf54e8365014854411582087fcdc78a9395b93",
     "settings_file": "(project root)/tests/cases/stratum_gap/settings.yaml",
+    "settings_sha256": "c6e76c7c3efb1f87228a3258bf200f807f4820d02bd61fcba058ac10e11da8d1",
     "output_dir": "(project root)/tests/results/stratum_gap",
     "log_file": "(none: test-suite run)"
   },

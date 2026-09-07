@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/in_care_days_boundary_neutrality/data.csv",
+    "data_sha256": "52510da14f7f3a60b1d952d74cf5930a0f934fadfec7c360e7000550d4a15d8a",
     "settings_file": "(project root)/tests/cases/in_care_days_boundary_neutrality/settings.yaml",
+    "settings_sha256": "ada14f6359a210499692f4b1c726b93e5f822bc8adf7ff444fa639c26f885882",
     "output_dir": "(project root)/tests/results/in_care_days_boundary_neutrality",
     "log_file": "(none: test-suite run)"
   },

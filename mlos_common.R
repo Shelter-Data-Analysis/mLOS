@@ -3,6 +3,7 @@
 # Source this file first when running the pipeline.
 # Defines: MLOS_VERSION, MLOS_PACKAGES_REQUIRED, MLOS_PACKAGES,
 #          mlos_package_versions, mlos_environment_versions,
+#          mlos_file_sha256,
 #          MLOS_VERSION_LABELS, MLOS_VERSION_FIELDS,
 #          .STRATIFIED_COLORS, .OUTCOME_STATE_LEVELS, .OUTCOME_COLORS,
 #          .outcome_label, .outcome_state_colors, .palette_hex, .make_surv_obj,
@@ -76,6 +77,26 @@ MLOS_VERSION_FIELDS <- paste0(tolower(MLOS_VERSION_LABELS), "_version")
 mlos_environment_versions <- function() {
   setNames(c(as.character(getRversion()), mlos_package_versions()),
            MLOS_VERSION_LABELS)
+}
+
+# SHA-256 of a file, in the same algorithm and the same label shape
+# ShelterDataPrep writes for the file it prepared, so a prepared CSV's digest
+# there and its digest here compare line for line without either tool knowing
+# about the other. What that buys: a run whose recorded digest differs from a
+# deposit's is reading a different file, and says so from its own log.
+#
+# `digest` is optional, like the three packages that write output: an absent
+# one costs the field, never the run. The sentinel says which case it is,
+# because "no digest because the file moved" and "no digest because the
+# package is missing" call for different fixes.
+mlos_file_sha256 <- function(path) {
+  if (is.null(path) || !nzchar(path) || !file.exists(path)) {
+    return("(file not readable)")
+  }
+  if (!requireNamespace("digest", quietly = TRUE)) {
+    return("(digest package not installed)")
+  }
+  digest::digest(file = path, algo = "sha256")
 }
 
 # Color palette for stratified curves (period, intake type, animal group).

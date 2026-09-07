@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/output_flags_selective/data.csv",
+    "data_sha256": "3e559d49bedc3ae841cd324c6aeb13815c6ddfef44063e10be5fb57ddbd7f772",
     "settings_file": "(project root)/tests/cases/output_flags_selective/settings.yaml",
+    "settings_sha256": "7331547c1b3157c972c1d29757ff21bcf75394a698b2c570dd29354c788a2c53",
     "output_dir": "(project root)/tests/results/output_flags_selective",
     "log_file": "(none: test-suite run)"
   },

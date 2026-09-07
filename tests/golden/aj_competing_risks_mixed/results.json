@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/aj_competing_risks_mixed/data.csv",
+    "data_sha256": "5c9ac625e10d91805ed6ad0e1d63e6c181da0a21d1c0fd423bc6d835486ebbed",
     "settings_file": "(project root)/tests/cases/aj_competing_risks_mixed/settings.yaml",
+    "settings_sha256": "3cc912688077128a0cf49aede87fb7bdc85b9bb8b9424f80aafb63b134a2e7a4",
     "output_dir": "(project root)/tests/results/aj_competing_risks_mixed",
     "log_file": "(none: test-suite run)"
   },

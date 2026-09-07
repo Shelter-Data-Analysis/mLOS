@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -10,7 +10,9 @@
     "openxlsx_version": "(version)",
     "flexsurv_version": "(version)",
     "data_file": "(project root)/tests/cases/sim_geometric_period_effect/data.csv",
+    "data_sha256": "b13d909dcb33b0332b1c90de91f3a4a5a1452eb49ab41145b992c546afa5932c",
     "settings_file": "(project root)/tests/cases/sim_geometric_period_effect/settings.yaml",
+    "settings_sha256": "81bf00c580c42d3e4b8c78c8d9d64dd58dcd146da3a14d0a62e86a9cb608b2ce",
     "output_dir": "(project root)/tests/results/sim_geometric_period_effect",
     "log_file": "(none: test-suite run)"
   },
