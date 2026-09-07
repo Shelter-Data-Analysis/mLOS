@@ -1629,6 +1629,13 @@ def check_dependency_declaration() -> None:
     a machine that happened to carry them: `matplotlib`, which figures.py
     imports at module scope and deck.py reaches through, and `openpyxl`, which
     every build needs for the companion workbook.
+
+    The R half has no pyproject to be checked against, so the code is the
+    declaration: every `pkg::` call in the production files, less the packages
+    that ship with R. Derived rather than spelled out because the notebook is
+    what a Colab session installs, and the failures are silent by nature. A
+    session without `digest` records no input digest and produces a run no
+    deposit will take, one sitting later.
     """
     section("dependency declaration")
     pyproject = (REPO_ROOT / "pyproject.toml").read_text()
@@ -1653,6 +1660,23 @@ def check_dependency_declaration() -> None:
     for line in installs:
         expect_equal("the notebook installs exactly what pyproject declares",
                      {name.lower() for name in line.split()}, declared)
+
+    # Base and recommended packages, which arrive with R and are never
+    # installed. Named here because "not on this list" is the only thing that
+    # separates them from a dependency in a `pkg::` call.
+    with_r = {"base", "grDevices", "graphics", "methods", "stats", "tools",
+              "utils"}
+    called = {name for path in sorted(REPO_ROOT.glob("mlos_*.R"))
+              for name in re.findall(r"\b([A-Za-z][A-Za-z0-9.]*)::",
+                                     path.read_text())} - with_r
+    expect("the R files call packages that need installing", called)
+    cells = "".join("".join(cell["source"]) for cell
+                    in json.loads((REPO_ROOT / "colab_mlos.ipynb").read_text())["cells"]
+                    if cell["cell_type"] == "code")
+    installed = {name for call in re.findall(r"install\.packages\((.*?)\)", cells)
+                 for name in re.findall(r'"([^"]+)"', call)}
+    expect_equal("the notebook installs every R package the tool calls",
+                 sorted(called - installed), [])
 
 
 def check_notebook_file_listing() -> None:
