@@ -1,6 +1,7 @@
 name: Analysis report
 description: You ran mLOS on a shelter's data. Say how it went.
 title: "Analysis report: "
+labels: ["analysis report"]
 body:
   - type: markdown
     attributes:
