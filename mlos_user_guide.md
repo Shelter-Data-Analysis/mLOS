@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260904_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260906_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -227,6 +227,8 @@ When you re-run on a subset, it helps to know what moves and what stays put:
 - **Zeroing in on a single sub-period changes everything, even with the same categories**: stays are truncated and censored at the new window's edges, so every curve and every regression now describes that window alone.
 
 Two notes of caution. Filters shrink the sample, so watch the confidence intervals and keep the 50-outcomes-per-period guideline in mind. And if you filter away the level you named as a Cox reference (`intake_type_reference`, `animal_group_reference`), the ratios for that predictor come out blank. Choose reference levels from among the values you plan to retain.
+
+**Reporting back.** A question about an output, a result that looks wrong, and an account of what the tool was used for all go to the [issue tracker](https://github.com/Shelter-Data-Analysis/mLOS/issues), which carries a form for a bug report and one for an analysis report. [CONTRIBUTING.md](https://github.com/Shelter-Data-Analysis/mLOS/blob/main/CONTRIBUTING.md) says what to attach to a bug report, and what a deposited analysis holds. The most useful account names the plots, sheets, and tables within a sheet that carried the finding, since a run records nothing about which parts of its output anyone reads.
 
 ---
 
