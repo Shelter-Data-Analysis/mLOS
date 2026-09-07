@@ -250,6 +250,21 @@ deposit rather than at the prepared data. Do this in the same sitting: the
 deck bundle records the analysis version and run timestamp of the run behind
 it, so the two deposits describe the same run.
 
+Two decks go up per run, both unbranded: `mlos_deck.pptx` with its table
+workbook and figures, and the educational variant with its own figures. Build
+them from the run being deposited before staging:
+
+```bash
+python3 -m mlos_review.deck
+python3 -m mlos_review.variant data/educational.md
+```
+
+`make_deposit.py --deck` stages that set by name rather than sweeping
+`reports/`, so a branded build or an experiment left there is never deposited
+by accident. It also reads the run timestamp each deck prints on its opening
+slide and refuses one that does not match `results.json`, so a deck left over
+from an earlier run cannot reach a deposit.
+
 ### 7a. Re-deposit the deck when a correction changes what it says
 
 A new version of the deck deposit, rather than a quiet replacement of the
@@ -337,6 +352,14 @@ version that produced it, while the deck builder is experimental and is
 expected to keep moving. Bundling them would mean either that reworking the
 deck forces a new version of the record a paper cites, or that the deck inside
 that record goes stale.
+
+**The deposited decks are unbranded**, and the variant deposited beside the
+main deck is the educational one alone. A branded build reads as a publication
+of whatever organization the template belongs to, and its template is not in
+the repository, which would leave one deposit in this chain that cannot be
+rebuilt from what the chain ships. Build branded decks for the room that asked
+for one. `extended_variant_features` stays out on its own account: it exists to
+be read beside `presentation_guide.md`, and carries a stub slide by design.
 
 **The repository is public**, and begins at the release snapshot. See
 [step 0](#0-the-repository-is-public).
