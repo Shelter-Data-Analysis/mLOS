@@ -54,6 +54,6 @@ body:
       label: Does it happen on the shipped Orange County data?
       description: A bare `Rscript mlos_run_complete.R` runs that. A bug visible there becomes a test fixture.
       options:
-        - Yes
-        - No, only on my own data
-        - Not tried
+        - "Yes"
+        - "No, only on my own data"
+        - "Not tried"
