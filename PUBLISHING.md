@@ -251,8 +251,11 @@ deck bundle records the analysis version and run timestamp of the run behind
 it, so the two deposits describe the same run.
 
 Two decks go up per run, both unbranded: `mlos_deck.pptx` with its table
-workbook and figures, and the educational variant with its own figures. Build
-them from the run being deposited before staging:
+workbook, its figures, and `mlos_deck_slides.json`, and the educational variant
+with its own figures. The slide manifest travels because it is what
+`mlos_review.variant` reads to write an outline against a deck: without it the
+deposit ships a deck that can be shown and not extended. Build them from the
+run being deposited before staging:
 
 ```bash
 python3 -m mlos_review.deck

@@ -88,6 +88,17 @@ VARIANT_DECKS = {
     "OC1": (),
 }
 
+#  The sidecar mlos_review.deck writes beside a deck, naming every slide's
+#  position, title, layout and run.  It travels with the deck because that is
+#  what mlos_review.variant reads to build an outline against one, so a deposit
+#  without it ships a deck that can be shown and not extended.  Variants write
+#  none of their own; there is one per main deck.
+SLIDES_SUFFIX = "_slides.json"
+
+#  What each file at the top of a run's folder is called in the manifest.
+DECK_KINDS = {".pptx": "deck", ".xlsx": "table workbook",
+              ".json": "slide manifest"}
+
 #  Order runs appear in the manifest and the README.
 ORDER = ["OC2", "OC1"]
 
@@ -369,6 +380,20 @@ def check_deck_matches_run(deck, run, bundle_file):
                 deck.relative_to(ROOT), printed, expected))
 
 
+def deck_file_kind(name, suffix):
+    """What a staged deck file is called in the manifest.
+
+    Nesting decides it before the extension does.  A figures directory carries
+    its own manifest.json beside the images, naming what was drawn; on
+    extension alone that reads as the deck's slide manifest, which is a
+    different file answering a different question.
+    """
+    if "/" in name:
+        return ("figure manifest" if name.endswith("/manifest.json")
+                else "figure")
+    return DECK_KINDS.get(suffix, "figure")
+
+
 def stage_deck(runs, out):
     """Copy each deck with the workbook and figures it was built from."""
     fresh(out)
@@ -385,7 +410,12 @@ def stage_deck(runs, out):
         deck = ROOT / "reports" / deck_name
         tables = ROOT / "reports" / tables_name
         figures = ROOT / "reports" / figures_name
-        for path in (deck, tables, figures):
+        # Derived from the deck's own name, the rule mlos_review.deck writes it
+        # under, so a renamed deck cannot leave its manifest behind.  A variant
+        # is built against this file and refuses without it, so a deck deposited
+        # without one is a deck nobody downstream can write a variant for.
+        slides = deck.with_name(deck.stem + SLIDES_SUFFIX)
+        for path in (deck, tables, figures, slides):
             if not path.exists():
                 sys.exit("{0} not found -- rebuild the deck for {1} before "
                          "depositing it".format(
@@ -395,10 +425,11 @@ def stage_deck(runs, out):
 
         folder = out / run["label"]
         folder.mkdir()
-        for source in (deck, tables):
+        for source in (deck, tables, slides):
             shutil.copy2(str(source), str(folder / source.name))
         shutil.copytree(str(figures), str(folder / "figures"))
-        staged = [folder / deck.name, folder / tables.name]
+        staged = [folder / deck.name, folder / tables.name,
+                  folder / slides.name]
         staged += sorted(path for path in (folder / "figures").iterdir()
                          if path.is_file() and path.name not in SKIP_FILES)
 
@@ -428,9 +459,7 @@ def stage_deck(runs, out):
             name = str(source.relative_to(folder)).replace("\\", "/")
             rows.append([
                 "{0}/{1}".format(run["label"], name),
-                "deck" if source.suffix == ".pptx"
-                else ("table workbook" if source.suffix == ".xlsx"
-                      else "figure"),
+                deck_file_kind(name, source.suffix),
                 run["label"], run["version"], run["generated_at"],
                 sha256(source), source.stat().st_size])
     shutil.copy2(str(settings), str(out / settings.name))
@@ -664,7 +693,9 @@ def deck_readme(runs, rows, out):
     lines += [
         "",
         "Inside a folder: the deck, the workbook holding every table it "
-        "built, and `figures/`, the images it placed. Beside them, "
+        "built, `figures/`, the images it placed, and `<deck>_slides.json`, "
+        "which names every slide's position, title, layout and run and is "
+        "what an outline is written against. Beside them, "
         "`educational.pptx` teaches the reading of the curves on the same "
         "run, with its own `educational_figures/` and no workbook: its tables "
         "are the deck's. `OC_deck_settings.yaml` at the top level is the "

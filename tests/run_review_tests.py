@@ -1215,6 +1215,14 @@ def check_deposit_set_is_rebuildable() -> None:
     for name in ("mlos_deck.pptx", "educational"):
         expect(f"PUBLISHING.md names {name}", name in publishing)
 
+    # The sidecar an outline is written against, which the deck names by its
+    # own rule and the deposit has to name by the same one.
+    from mlos_review.deck import MANIFEST_SUFFIX
+    expect_equal("the staged slide manifest is the one the deck writes",
+                 md.SLIDES_SUFFIX, MANIFEST_SUFFIX)
+    expect("PUBLISHING.md names the slide manifest",
+           f"mlos_deck{MANIFEST_SUFFIX}" in publishing)
+
     banned = [name for name in ("branded", "extended_variant_features")
               for variants in md.VARIANT_DECKS.values() if name in
               " ".join(variants)]
