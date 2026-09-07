@@ -7,16 +7,23 @@
 # every day.
 #
 #   LARGE: 256 of 512 leave the same day, 128 of the remaining 256 the
-#          next day, then 64 of 128, 32, 16, 8, 4, 2. Daily outcome
+#          next day, then 64 of 128 and 32 of 64. Daily outcome
 #          probability q = 0.5 exactly.
 #   SMALL: 384 of 512, then 96 of 128, 24 of 32, 6 of 8. q = 0.75
 #          exactly.
 #
-# Each schedule stops at the first day whose exit count would not be a
-# whole animal, and the survivors are censored at the period end. That
-# is what keeps every count an exact fraction of its risk set with no
-# padding: both groups run 510 exits and two censored animals, and the
-# tie structure carries no arbitrary choices to be sensitive to.
+# The window is four days, which is where SMALL's schedule runs out of
+# whole animals, and the survivors of both groups are censored at its
+# end: 32 LARGE and 2 SMALL. Every count is therefore an exact fraction
+# of its risk set with no padding, and every day of the window carries
+# exits from both groups.
+#
+# That second property is what fixes the window here rather than at
+# LARGE's last exit. Watching longer leaves SMALL's final two animals in
+# a risk set falling into single figures on days when only LARGE still
+# has exits, and two animals that never leave, standing for their whole
+# group, pull the fit well below the value Efron converges on, for a
+# reason that has nothing to do with the tie rule.
 #
 # intake_type is a NULL two-level factor, carried so the stratified Cox
 # variants have a second stratifier to run on. Each group is split into
@@ -24,8 +31,8 @@
 # twice: their hazard ratio is exactly 1, and the group variant's
 # strata(intake_type) puts each half back on the schedule a single group
 # of 256 would have run. Doubling the animals is what lets the split be
-# exact, since 256, 128, 64, 32, 16, 8, 4, 2 halves evenly and 384, 96,
-# 24, 6 splits into 192, 48, 12, 3 twice.
+# exact, since 256, 128, 64, 32 halves evenly and 384, 96, 24, 6 splits
+# into 192, 48, 12, 3 twice.
 #
 # SMALL's within-day outcome rate is exactly TWICE LARGE's, in the
 # outcome-window sense of the math document Section 6.2: survival
@@ -44,10 +51,11 @@
 # than a realistic one.
 #
 # Efron is an approximation, and at q this large it does not reach 2
-# either: the large-sample Efron value for these two rates is 1.891.
-# Section 6.2's claim that Efron targets the rate ratio is a small-q
-# claim, sound to within 0.25% for q <= 0.12 and 5.5% out at q = 0.5.
-# So expected.R pins the fitted value, not the truth of 2.
+# either: the value it converges on for these two rates under this
+# window is 1.891. Section 6.2's claim that Efron targets the rate ratio
+# is a small-q claim, sound to within 0.25% for q <= 0.12 and 5.5% out
+# at q = 0.5. So expected.R pins the fitted value, not the truth of 2.
+# The two agree to a tenth of a percent.
 #
 # Single period, one outcome type. LARGE and OWNER are the references,
 # so the reported coefficients are SMALL against LARGE and STRAY against
@@ -56,18 +64,18 @@
 #
 # The pooled fit and the group variant are the two coxph calls in
 # mlos_cox.R, and this case pins both. Their Efron values differ in the
-# fourth decimal, because duplicating a dataset changes how many events
+# third decimal, because duplicating a dataset changes how many events
 # are tied and Efron's correction reads that count. Breslow's does not:
 # it returns the same value for both, since a duplicated dataset squares
 # its partial likelihood and leaves the maximum where it was. So the
 # case also catches the two calls disagreeing about the rule.
 #
-# The period ends on 2024-01-09, the first day past LARGE's last exit,
-# so the two censored animals are censored at day 8. restricted_stay_cap
-# is 30, well past that, so it never binds.
+# The period ends on 2024-01-05, the day past the last exit, so the
+# survivors are censored at day 4. restricted_stay_cap is 30, well past
+# that, so it never binds.
 
 period_dates:
   - 2024-01-01
-  - 2024-01-09
+  - 2024-01-05
 
 restricted_stay_cap: 30
