@@ -210,7 +210,9 @@ agreeing.
 
 Set the software concept DOI at the top of `tools/make_deposit.py`, re-run it,
 and upload the three files it names, which is not the same as uploading the
-staged directory.
+staged directory. The script refuses a run whose recorded digests do not match
+the data and settings files about to be staged, and refuses one that recorded
+none, which is what step 3's regeneration produces.
 
 **Zenodo's uploader discards directories.** Files arrive as a flat list, so
 `OC2/` and `figures/` vanish and every name has to be unique on its own, which
