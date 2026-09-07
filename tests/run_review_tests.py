@@ -35,6 +35,7 @@ than catch bugs. Add them once the block set settles.
 
 from __future__ import annotations
 
+import contextlib
 import itertools
 import json
 import math
@@ -44,6 +45,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import traceback
 from pathlib import Path
 
@@ -1053,6 +1055,171 @@ def check_report_archiving() -> None:
 
         kept = sorted(q.name for q in target.parent.iterdir())
         expect_equal("every earlier deck is still there", len(kept), 3)
+
+
+def _deposit_module():
+    """`tools/` is a directory of scripts rather than a package, so it is put
+    on the path here rather than imported at module scope: nothing else in this
+    suite needs it, and a maintainer script should not become an import every
+    check pays for."""
+    sys.path.insert(0, str(REPO_ROOT / "tools"))
+    import make_deposit
+
+    return make_deposit
+
+
+@contextlib.contextmanager
+def _deposit_root(module, root):
+    """Point the script's ROOT at a temporary tree.
+
+    Its refusal messages name paths relative to ROOT, so a synthetic file
+    outside the repository would raise ValueError from `relative_to` before the
+    intended SystemExit ever reached the caller.
+    """
+    original = module.ROOT
+    module.ROOT = Path(root)
+    try:
+        yield
+    finally:
+        module.ROOT = original
+
+
+def _refuses(label, call) -> None:
+    """A staging check refuses, rather than passing or raising something else."""
+    try:
+        call()
+    except SystemExit:
+        expect(label, True)
+    except Exception as exc:  # noqa: BLE001 - the point is what else it raised
+        expect(label, False, f"raised {type(exc).__name__}: {exc}")
+    else:
+        expect(label, False, "staged it")
+
+
+def check_deposit_digests() -> None:
+    """A deposit ships the files the run read, or it does not ship.
+
+    The prep log says what ShelterDataPrep wrote and the staging pass says what
+    is about to be uploaded; only the run's own record says what the analysis
+    read, which is why a mismatch here is a refusal rather than a note.
+    """
+    md = _deposit_module()
+    section("deposit digests (synthetic)")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        data = root / "data.csv"
+        settings = root / "settings.yaml"
+        data.write_text("intake_date,outcome_date\n2026-01-01,2026-01-05\n")
+        settings.write_text("study_start_date: 2026-01-01\n")
+
+        def run(data_sha, settings_sha):
+            return {"dir": root / "results", "data_path": data,
+                    "settings_path": settings, "data_file": "data.csv",
+                    "settings_file": "settings.yaml",
+                    "recorded_data_sha256": data_sha,
+                    "recorded_settings_sha256": settings_sha}
+
+        good_data, good_settings = md.sha256(data), md.sha256(settings)
+        with _deposit_root(md, root):
+            md.check_run_digests(run(good_data, good_settings))
+            expect("a run that read these files stages", True)
+
+            _refuses("an edited data file is refused",
+                     lambda: md.check_run_digests(run("0" * 64, good_settings)))
+            _refuses("an edited settings file is refused",
+                     lambda: md.check_run_digests(run(good_data, "0" * 64)))
+            _refuses("a run predating digest stamping is refused",
+                     lambda: md.check_run_digests(run(None, good_settings)))
+            _refuses("a sentinel in place of a digest is refused",
+                     lambda: md.check_run_digests(
+                         run("(digest package not installed)", good_settings)))
+
+
+def check_deposit_deck_provenance() -> None:
+    """A deck says which run it shows, and staging holds it to that.
+
+    An mtime says a file is newer, which a rebuild against the wrong run
+    satisfies as readily as one against the right run. The timestamp printed on
+    the opening slide is the deck's own claim, so it is the one checked.
+    """
+    md = _deposit_module()
+    section("deposit deck provenance (synthetic)")
+
+    from pptx import Presentation
+    from pptx.util import Inches
+
+    def deck(path, text):
+        deck_file = Presentation()
+        slide = deck_file.slides.add_slide(deck_file.slide_layouts[6])
+        box = slide.shapes.add_textbox(Inches(1), Inches(1),
+                                       Inches(6), Inches(1))
+        box.text_frame.text = text
+        deck_file.save(str(path))
+        return path
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        bundle_file = root / "results.json"
+        bundle_file.write_text("{}")
+        run = {"generated_at": "2026-09-06 18:59:26.181756"}
+        shown = "mLOS 0.1.2. Statistics generated on 2026-09-06 18:59:26."
+
+        matching = deck(root / "matching.pptx", shown)
+        os.utime(matching, (time.time() + 10, time.time() + 10))
+        other = deck(root / "other.pptx",
+                     shown.replace("18:59:26", "10:00:00"))
+        os.utime(other, (time.time() + 10, time.time() + 10))
+        silent = deck(root / "silent.pptx", "A deck that says nothing")
+        os.utime(silent, (time.time() + 10, time.time() + 10))
+        stale = deck(root / "stale.pptx", shown)
+        os.utime(stale, (time.time() - 600, time.time() - 600))
+
+        with _deposit_root(md, root):
+            expect_equal("the printed timestamp is read off the slide",
+                         md.deck_run_timestamp(matching), "2026-09-06 18:59:26")
+            md.check_deck_matches_run(matching, run, bundle_file)
+            expect("a deck built from this run stages", True)
+
+            _refuses("a deck showing another run is refused",
+                     lambda: md.check_deck_matches_run(other, run, bundle_file))
+            _refuses("a deck printing no run timestamp is refused",
+                     lambda: md.check_deck_matches_run(silent, run,
+                                                       bundle_file))
+            _refuses("a deck older than the run is refused",
+                     lambda: md.check_deck_matches_run(stale, run,
+                                                       bundle_file))
+
+
+def check_deposit_set_is_rebuildable() -> None:
+    """What a deposit carries, against what the repository can rebuild.
+
+    The two halves of one decision: PUBLISHING.md step 7 states the set and
+    make_deposit.py stages it, and a set named in one and not the other is the
+    failure both exist to prevent. A variant whose outline is not tracked would
+    be worse still: a deposit nobody could rebuild from what the chain ships,
+    which is the reason branded decks stay out in the first place.
+    """
+    md = _deposit_module()
+    section("the deposited deck set")
+
+    publishing = (REPO_ROOT / "PUBLISHING.md").read_text()
+    for label, variants in md.VARIANT_DECKS.items():
+        for variant in variants:
+            outline = REPO_ROOT / "data" / (Path(variant).stem + ".md")
+            expect(f"{label}: {variant} has its outline in data/",
+                   outline.is_file(), str(outline.relative_to(REPO_ROOT)))
+            expect(f"{label}: PUBLISHING.md names the {Path(variant).stem} "
+                   "variant", Path(variant).stem in publishing)
+
+    for name in ("mlos_deck.pptx", "educational"):
+        expect(f"PUBLISHING.md names {name}", name in publishing)
+
+    banned = [name for name in ("branded", "extended_variant_features")
+              for variants in md.VARIANT_DECKS.values() if name in
+              " ".join(variants)]
+    expect("no branded or feature-demo deck is in the deposited set",
+           not banned, ", ".join(banned))
 
 
 def check_aj_teaser(case: str, bundle: Bundle) -> None:
@@ -4294,6 +4461,9 @@ def main(argv: list[str]) -> int:
         check_cell_formatting,
         check_settings,
         check_schema_version,
+        check_deposit_digests,
+        check_deposit_deck_provenance,
+        check_deposit_set_is_rebuildable,
         check_dependency_declaration,
         check_notebook_file_listing,
         check_example_template,
