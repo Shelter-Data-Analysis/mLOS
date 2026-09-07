@@ -212,7 +212,7 @@ on GitHub Actions. Three things about it are decisions rather than defaults.
 The R suite runs under a UTF-8 locale and under `LC_ALL=C`. The UTF-8 leg is
 the one that tests the collation pin: `LC_ALL=C` satisfies the pin in
 `mlos_common.R` from outside, so the collation check reports itself skipped
-rather than passing, 1502 checks instead of 1503.
+rather than passing, and that leg runs one check fewer.
 
 The Python suite runs on 3.9 with pandas 2, and on 3.13 with each of pandas 2
 and 3. `pyproject.toml` sets no ceiling on pandas, so both majors are in use;
