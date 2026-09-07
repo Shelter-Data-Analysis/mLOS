@@ -31,6 +31,12 @@ the release before.
   Bundles written before this carry neither field and render "(not recorded)".
 - The goldens carry the two digests, which pins each fixture's input bytes:
   editing a fixture's `data.csv` now shows up in its golden diff.
+- `tools/make_deposit.py` is tracked, and is the enforcement behind
+  `PUBLISHING.md`. It checks a run's recorded digests against the files it is
+  about to stage, refuses a run that recorded none, and for the deck bundle
+  reads the run timestamp each deck prints on its opening slide, so a deck
+  built from an earlier run cannot be uploaded. The deposited decks are
+  `mlos_deck.pptx` and the educational variant, both unbranded.
 
 - `.github/workflows/tests.yml` runs `tests/run_tests.R` and
   `tests/run_review_tests.py`. The R suite runs under a UTF-8 locale and under

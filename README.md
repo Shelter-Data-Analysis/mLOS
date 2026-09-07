@@ -82,6 +82,7 @@ The workbook, the plots and the two documentation guides remain the complete rec
 | `CITATION.cff` | How to cite the tool, and the data deposits and preparation tool it sits downstream of. |
 | `CHANGELOG.md` | What changed between releases, and whether the change moves a number. |
 | `PUBLISHING.md` | The runbook for making a release and depositing what it produces. Maintainer-facing. |
+| `tools/make_deposit.py` | Stages a results or deck deposit, and refuses one whose files do not match the run behind them. Maintainer-facing. |
 | `make_docx.sh` | Rebuilds the Word exports of the guides, and only the ones whose version stamp is behind. |
 
 ## Input data format at a glance

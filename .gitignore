@@ -10,10 +10,12 @@ setwd.R
 !/tests/
 !/tests/**
 !/mlos_review/
-# The */ rule above ignores every directory, so CI has to be let back in by
-# name the way data/, tests/ and mlos_review/ are.
+# The */ rule above ignores every directory, so each tracked one is let back in
+# by name.
 !/.github/
 !/.github/**
+!/tools/
+!/tools/**
 /tests/results/
 __pycache__/
 
