@@ -594,8 +594,9 @@ def results_readme(runs, rows, out):
         "the run produced |",
         "| `results.json` | every computed number, machine-readable; the "
         "workbook is a rendering of this |",
-        "| `*.png` with a matching `*.csv` | each plot, and the numerical "
-        "values of the curves it draws |",
+        "| `*.png`, and a `*.csv` beside most of them | each plot, and the "
+        "values of the curves it draws. A stacked bar plot has no CSV: its "
+        "bars bin a curve rather than redraw one |",
         "| `analysis_log.txt` | the console log of the run |",
         "| `data_preparation_stats.csv` | how the input rows were "
         "transformed, removed, or kept |",
@@ -623,7 +624,7 @@ def results_readme(runs, rows, out):
         "`<SET>_data.csv` in `data/`.".format(PREPARED_DOI),
         "2. Install mLOS at the version named above. The archive holds the "
         "whole repository tree; R, plus the `survival`, `yaml`, `jsonlite`, "
-        "and `openxlsx` packages, is what it needs.",
+        "`openxlsx`, `flexsurv`, and `digest` packages, is what it needs.",
         "3. Copy the settings file from this deposit into `data/` and run:",
         "",
         "   ```",
