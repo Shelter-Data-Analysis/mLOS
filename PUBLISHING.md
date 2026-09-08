@@ -245,10 +245,18 @@ one pass.
 
 ### 7. Stage and upload the deck deposit
 
-Same metadata shape as step 6, with *is derived from* pointing at the results
-deposit rather than at the prepared data. Do this in the same sitting: the
-deck bundle records the analysis version and run timestamp of the run behind
-it, so the two deposits describe the same run.
+Metadata as in step 6, with two differences: the type is **Presentation**
+rather than Dataset, and *is derived from* points at the results deposit
+rather than at the prepared data. Do this in the same sitting: the deck bundle
+records the analysis version and run timestamp of the run behind it, so the
+two deposits describe the same run.
+
+**Zenodo's New Version carries the previous version's metadata forward**, so
+*is derived from* arrives pointing at the results version this deck does not
+come from, and looks right because it is a results DOI. Set it to the results
+version staged in step 6, and check it after publishing rather than while
+filling the form. A deck showing values its parent record does not hold is the
+one way this chain can be wrong while every DOI in it resolves.
 
 Two decks go up per run, both unbranded: `mlos_deck.pptx` with its table
 workbook, its figures, and `mlos_deck_slides.json`, and the educational variant
@@ -440,7 +448,7 @@ and the guides say to compare them. `pooled`, `unified` and `crude` are settled
 
 ## The citable identifiers
 
-All fifteen exist, and all fifteen were checked against Zenodo rather than
+All nineteen exist, and all nineteen were checked against Zenodo rather than
 copied from a page. Rows 4 and 5 are ShelterDataPrep's own release DOIs. They
 are that repository's to maintain and nothing here depends on them, but a data
 availability statement is written once from one list, and sending its author
@@ -461,11 +469,15 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 8 | mLOS, all releases | `10.5281/zenodo.22083814` |
 | 9 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
 | 10 | mLOS 0.1.1 | `10.5281/zenodo.22086002` |
-| 11 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 12 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 13 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 14 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 15 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 11 | mLOS 0.1.2 | `10.5281/zenodo.22135408` |
+| 12 | mLOS 0.2.0 | `10.5281/zenodo.22652051` |
+| 13 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 14 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 15 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
+| 16 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 17 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 18 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 19 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
@@ -487,7 +499,7 @@ raw extract   …091
      |  isDerivedFrom
 prepared data …368   <-- isCompiledBy -- ShelterDataPrep …338
      |  isDerivedFrom
-mLOS results  …231   <-- isCompiledBy -- mLOS …814
+mLOS results  …165   <-- isCompiledBy -- mLOS …814
      |  isDerivedFrom
-mLOS deck     …157   <-- isCompiledBy -- mLOS …814
+mLOS deck     …329   <-- isCompiledBy -- mLOS …814
 ```

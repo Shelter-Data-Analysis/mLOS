@@ -16,6 +16,36 @@ before it is tagged claims an artifact nobody can fetch.
 
 ---
 
+## 0.2.1 (2026-09-08)
+
+The DOIs the 0.2.0 release minted, caught. **No number changed**:
+`tools/make_deposit.py` is the only source that moved, no run reads it, and
+every CSV and every plot is byte-identical to 0.2.0.
+
+- `CITATION.cff`, `README.md` and `presentation_guide.md` name results version
+  2, `10.5281/zenodo.22652165`, and deck version 3, `10.5281/zenodo.22652329`.
+  Neither existed when 0.2.0 was archived, which is why a second release
+  carries them.
+- `PUBLISHING.md`'s identifier table gains mLOS 0.1.2, which it had never
+  recorded, mLOS 0.2.0, and the two new deposit versions. Its ancestry diagram
+  names the deposits a reader would fetch today.
+- Step 7 gives the deck deposit's type as Presentation, which is what the
+  records carry, and warns that Zenodo's New Version brings the previous
+  version's *is derived from* forward. That field then names a results version
+  the deck does not come from, and resolves, so only a reading of the
+  published record catches it.
+- The deposit README names `flexsurv` and `digest` among the packages a
+  rebuild needs. Following it without them gives no Weibull companion and no
+  digests, which are two of the fields the deposit exists to carry.
+- The README says which plots have no companion CSV. A stacked bar plot bins a
+  curve rather than redrawing one, so a day grid beside it would be another
+  figure's numbers.
+- The staging script counts the upload set rather than naming it. The deck
+  bundle carries its settings file beside the zip, so the instruction to
+  upload three named four files.
+
+---
+
 ## 0.2.0 (2026-09-08)
 
 Variant decks, deck templates, an educational section, two interval figures,

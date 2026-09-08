@@ -780,11 +780,16 @@ def main():
     for run in runs:
         print("  {0}: {1}, prepared by shelterprep {2}".format(
             run["label"], run["data_file"], run["prep_version"]))
-    print("\nUpload these three, and nothing else:")
-    for path in (zip_path, out / "README.md", out / "MANIFEST.csv"):
+    #  Every regular file at the top of the staging directory is an upload.
+    #  Naming them by hand undercounted the deck bundle, which carries its
+    #  settings file out here beside the README and the manifest.
+    uploads = [zip_path] + sorted(path for path in out.iterdir()
+                                  if path.is_file() and path != zip_path)
+    print("\nUpload these {0}, and nothing else:".format(len(uploads)))
+    for path in uploads:
         print("  {0}  ({1:.1f} MB)".format(path.name, path.stat().st_size / 1e6))
     print("The zip holds all {0} files with their directories, which Zenodo's "
-          "uploader discards otherwise. The other two ride outside it so the "
+          "uploader discards otherwise. The rest ride outside it so the "
           "record shows them without a download.".format(zipped))
 
 
