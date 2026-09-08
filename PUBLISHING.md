@@ -70,7 +70,8 @@ published after the switch is on and does not reach back for earlier ones.
 
 ### 2. Close out the version
 
-- Rename `## Unreleased` in `CHANGELOG.md` to the version and the date.
+- Rename `## Unreleased` in `CHANGELOG.md` to the version and the date,
+  the same UTC date set two bullets below.
 - Confirm `MLOS_VERSION` in `mlos_common.R`, `version:` in `CITATION.cff`,
   `version` in `pyproject.toml`, and that heading all agree. The test suite
   checks the first three; the heading is by hand.

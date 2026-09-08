@@ -9,10 +9,11 @@ it does not, and a reader deciding whether to rerun needs that in the first
 line of the section, not inferred from the bullets. A documentation-only
 release says so and says that output is byte-identical to the release before.
 
-**The section heading stays `Unreleased` until the tag exists.** The version
-number in `CITATION.cff` and `MLOS_VERSION` moves when the work of a release is
-done; the heading here moves when the tag is cut. Naming a version in this file
-before it is tagged claims an artifact nobody can fetch.
+**The section heading moves when the version is closed out, before the tag.**
+It moves with `MLOS_VERSION`, `version:` in `CITATION.cff` and `version` in
+`pyproject.toml`, in the commit the tag will point at. Zenodo archives that
+tree, so a heading still reading `Unreleased` there archives a release unable
+to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
@@ -43,6 +44,10 @@ every CSV and every plot is byte-identical to 0.2.0.
 - The staging script counts the upload set rather than naming it. The deck
   bundle carries its settings file beside the zip, so the instruction to
   upload three named four files.
+- The changelog's own second rule now says the section heading moves at
+  close-out rather than at the tag, which is the order `PUBLISHING.md` step 2
+  has always given. The tagged tree is what Zenodo archives, so the heading has
+  to name the version by then.
 
 ---
 
