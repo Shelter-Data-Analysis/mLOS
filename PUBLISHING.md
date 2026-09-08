@@ -339,6 +339,13 @@ somewhere.
 version number beside it says which release was run. This is why `CITATION.cff`
 carries a concept DOI and why a run log has to report the version.
 
+**The version beside it is not optional.** A concept DOI on its own names
+whatever is newest when a reader follows it, which need not be what was run.
+ShelterDataPrep's resolved to 0.4.0 the day before this analysis was
+deposited, while the input it prepared was made under 0.3.0. A citation
+carrying the concept DOI and a date but no version points at one release and
+dates another, and reads as correct in both halves.
+
 **Data: the version DOI.** A run log pins its source by digest, so only the
 version DOI is guaranteed to still hold the bytes that produced a result.
 
@@ -460,8 +467,8 @@ and the guides say to compare them. `pooled`, `unified` and `crude` are settled
 
 ## The citable identifiers
 
-All twenty exist, and all twenty were checked against Zenodo rather than
-copied from a page. Rows 4 and 5 are ShelterDataPrep's own release DOIs. They
+All twenty-one exist, and all twenty-one were checked against Zenodo rather
+than copied from a page. Rows 4 to 6 are ShelterDataPrep's own release DOIs. They
 are that repository's to maintain and nothing here depends on them, but a data
 availability statement is written once from one list, and sending its author
 to a second document to complete it is how a citation ends up incomplete.
@@ -476,21 +483,22 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 3 | ShelterDataPrep, all releases | `10.5281/zenodo.22051338` |
 | 4 | ShelterDataPrep 0.3.0 | `10.5281/zenodo.22051339` |
 | 5 | ShelterDataPrep 0.3.1 | `10.5281/zenodo.22051603` |
-| 6 | Prepared data, all versions | `10.5281/zenodo.22051367` |
-| 7 | Prepared data, version 1 | `10.5281/zenodo.22051368` |
-| 8 | mLOS, all releases | `10.5281/zenodo.22083814` |
-| 9 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
-| 10 | mLOS 0.1.1 | `10.5281/zenodo.22086002` |
-| 11 | mLOS 0.1.2 | `10.5281/zenodo.22135408` |
-| 12 | mLOS 0.2.0 | `10.5281/zenodo.22652051` |
-| 13 | mLOS 0.2.1 | `10.5281/zenodo.22662175` |
-| 14 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 15 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 16 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
-| 17 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 18 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 19 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
-| 20 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
+| 6 | ShelterDataPrep 0.4.0 | `10.5281/zenodo.22647126` |
+| 7 | Prepared data, all versions | `10.5281/zenodo.22051367` |
+| 8 | Prepared data, version 1 | `10.5281/zenodo.22051368` |
+| 9 | mLOS, all releases | `10.5281/zenodo.22083814` |
+| 10 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
+| 11 | mLOS 0.1.1 | `10.5281/zenodo.22086002` |
+| 12 | mLOS 0.1.2 | `10.5281/zenodo.22135408` |
+| 13 | mLOS 0.2.0 | `10.5281/zenodo.22652051` |
+| 14 | mLOS 0.2.1 | `10.5281/zenodo.22662175` |
+| 15 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 16 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 17 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
+| 18 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 19 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 20 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 21 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
