@@ -188,6 +188,17 @@ Zenodo mints two DOIs within a minute or two: one for the release, one concept
 DOI for all releases. Keep both; the concept DOI is the one `CITATION.cff`
 wants.
 
+**When nothing is minted, the release never reached Zenodo.** Publishing fires
+the `release` event three times, as `created`, `published` and `released`, and
+the release is archived off the one delivery carrying the action Zenodo
+handles. GitHub's repository Settings, Webhooks, the `zenodo.org` receiver,
+Recent Deliveries lists each delivery with its response, where an outage reads
+as "An exception occurred". Redeliver the failed delivery whose event name
+matches the one that went green on the release before, then check that the
+concept DOI resolves to the new version. Redeliver rather than delete and
+republish: the tag and the release are not what failed, and recreating them to
+repair a delivery archives under a different release.
+
 Then edit the Zenodo record's `version` field to drop the leading `v`. Zenodo
 takes it from the tag name rather than from `CITATION.cff`, so the record reads
 `v0.1.0` where a run log reads `0.1.0`, and the pair a reader checks is the DOI
@@ -449,7 +460,7 @@ and the guides say to compare them. `pooled`, `unified` and `crude` are settled
 
 ## The citable identifiers
 
-All nineteen exist, and all nineteen were checked against Zenodo rather than
+All twenty exist, and all twenty were checked against Zenodo rather than
 copied from a page. Rows 4 and 5 are ShelterDataPrep's own release DOIs. They
 are that repository's to maintain and nothing here depends on them, but a data
 availability statement is written once from one list, and sending its author
@@ -472,13 +483,14 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 10 | mLOS 0.1.1 | `10.5281/zenodo.22086002` |
 | 11 | mLOS 0.1.2 | `10.5281/zenodo.22135408` |
 | 12 | mLOS 0.2.0 | `10.5281/zenodo.22652051` |
-| 13 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 14 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 15 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
-| 16 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 17 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 18 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
-| 19 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
+| 13 | mLOS 0.2.1 | `10.5281/zenodo.22662175` |
+| 14 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 15 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 16 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
+| 17 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 18 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 19 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 20 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
