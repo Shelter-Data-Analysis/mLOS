@@ -53,7 +53,7 @@ SOFTWARE_DOI = "10.5281/zenodo.22083814"
 
 #  The results deposit's version DOI, needed only by the deck bundle, which
 #  is derived from it.  Set it once the results deposit is published.
-RESULTS_DOI = "10.5281/zenodo.22084231"
+RESULTS_DOI = "10.5281/zenodo.22652165"
 
 #  What each run is, and how far it has been checked.  A deposited result
 #  without this is a number with no provenance for its trustworthiness.
