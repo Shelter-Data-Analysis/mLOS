@@ -16,11 +16,17 @@ before it is tagged claims an artifact nobody can fetch.
 
 ---
 
-## Unreleased
+## 0.2.0 (2026-09-08)
+
+Variant decks, deck templates, an educational section, two interval figures,
+and a run that records its environment and the digests of what it read. **No
+computed value moved**: every CSV is byte-identical to 0.1.2, and every value
+`results.json` already held is unchanged. The output set grew, so a bundle
+deposited under 0.1.2 is incomplete rather than wrong. Thirty plots are
+redrawn, on axis scaling and axis labels, and carry the same numbers.
 
 Both suites run on every push, and a run stamps the digest of what it read.
-**No analysis number changed**: every CSV and every plot is byte-identical to
-the release before.
+Nothing in this part computes or draws anything.
 
 - A run records the SHA-256 of its data file and of its settings file, in the
   console log, in the `run` block of `results.json`, and on the workbook's
