@@ -39,7 +39,7 @@ invisible(Sys.setlocale("LC_COLLATE", "C"))
 # repository, R side and Python side alike, because one tag produces one
 # archive with one DOI; the test suite holds MLOS_VERSION, CITATION.cff, and
 # pyproject.toml equal. Bump it when the work of a release is done, then tag.
-MLOS_VERSION <- "0.2.1"
+MLOS_VERSION <- "0.2.2"
 
 # Every package whose version can change what a run produces. A result is
 # checkable against the code that made it only alongside the versions that ran:

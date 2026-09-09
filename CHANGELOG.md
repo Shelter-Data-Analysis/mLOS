@@ -17,7 +17,7 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
-## Unreleased
+## 0.2.2 (2026-09-09)
 
 **No number changed**: only the entry point moved, and every CSV, every plot
 and `results.json` are byte-identical to 0.2.1.
