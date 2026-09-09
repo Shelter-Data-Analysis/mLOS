@@ -18,6 +18,44 @@ source("mlos_excel_export.R")
 # appropriate under Rscript; in a live session it would kill the session.
 run_via_rscript <- any(grepl("^--file=", commandArgs()))
 
+# Defaults live here, in one place, because both the help text and the
+# fallback chain below have to name the same paths: a default changed in one
+# and not the other would make --help describe a run that does not happen.
+MLOS_DEFAULT_SETTINGS <- file.path("data", "OC2_settings.yaml")
+MLOS_DEFAULT_DATA     <- file.path("data", "OC2_data.csv")
+MLOS_DEFAULT_RESULTS  <- "results"
+MLOS_DEFAULT_LOG      <- "analysis_log.txt"
+MLOS_DEFAULT_EXCEL    <- "analysis_results.xlsx"
+MLOS_DEFAULT_JSON     <- "results.json"
+
+# --help is answered before the package check below, so that it still prints on
+# a machine where the required packages are not installed yet -- which is the
+# machine most likely to be asking.
+mlos_usage <- function() {
+  cat(sprintf("mLOS %s - length of stay analysis for animal shelters\n\n", MLOS_VERSION))
+  cat("Usage: Rscript mlos_run_complete.R [--settings FILE] [--data FILE] [--results DIR]\n\n")
+  cat("Options:\n")
+  cat(sprintf("  --settings FILE  YAML settings file        (default: %s)\n", MLOS_DEFAULT_SETTINGS))
+  cat(sprintf("  --data FILE      input CSV of stays        (default: %s)\n", MLOS_DEFAULT_DATA))
+  cat(sprintf("  --results DIR    output directory          (default: %s)\n", MLOS_DEFAULT_RESULTS))
+  cat("  --help, -h       print this message and exit\n\n")
+  cat("Environment variables, used when the matching option is absent:\n")
+  cat("  MLOS_SETTINGS_FILE, MLOS_DATA_FILE, MLOS_OUTPUT_DIR\n")
+  cat(sprintf("  MLOS_LOG_FILE    name of the log inside the results directory   (default: %s)\n", MLOS_DEFAULT_LOG))
+  cat(sprintf("  MLOS_EXCEL_FILE  name of the workbook inside that directory     (default: %s)\n", MLOS_DEFAULT_EXCEL))
+  cat(sprintf("  MLOS_JSON_FILE   name of the results JSON inside it             (default: %s)\n", MLOS_DEFAULT_JSON))
+  cat("\nRequired R packages: ")
+  cat(paste(MLOS_PACKAGES_REQUIRED, collapse = ", "))
+  cat(sprintf("; optional: %s\n",
+              paste(setdiff(MLOS_PACKAGES, MLOS_PACKAGES_REQUIRED), collapse = ", ")))
+  cat("Documentation: mlos_user_guide.md, mlos_math_methods.md\n")
+}
+
+if (run_via_rscript && any(commandArgs(trailingOnly = TRUE) %in% c("--help", "-h"))) {
+  mlos_usage()
+  quit(save = "no", status = 0)
+}
+
 # Check required packages once at startup
 for (pkg in MLOS_PACKAGES_REQUIRED) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -41,27 +79,28 @@ while (i <= length(cli_args)) {
     # Stop rather than skip: a typo like --setting would otherwise silently
     # run the analysis on the default files.
     stop("Unrecognized argument (or option missing its value): ", cli_args[i],
-         "\nUsage: Rscript mlos_run_complete.R [--settings FILE] [--data FILE] [--results DIR]")
+         "\nUsage: Rscript mlos_run_complete.R [--settings FILE] [--data FILE] [--results DIR]",
+         "\nRun with --help for the full list of options and environment variables.")
   }
 }
 
 settings_filename <- if (!is.null(cli$settings)) cli$settings else
-                     Sys.getenv("MLOS_SETTINGS_FILE", unset = file.path("data", "OC2_settings.yaml"))
+                     Sys.getenv("MLOS_SETTINGS_FILE", unset = MLOS_DEFAULT_SETTINGS)
 
 data_filename <- if (!is.null(cli$data)) cli$data else
-                 Sys.getenv("MLOS_DATA_FILE", unset = file.path("data", "OC2_data.csv"))
+                 Sys.getenv("MLOS_DATA_FILE", unset = MLOS_DEFAULT_DATA)
 
 output_dir <- if (!is.null(cli$results)) cli$results else
-              Sys.getenv("MLOS_OUTPUT_DIR", unset = "results")
+              Sys.getenv("MLOS_OUTPUT_DIR", unset = MLOS_DEFAULT_RESULTS)
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 }
 output_path <- function(filename) file.path(output_dir, filename)
-log_filename <- Sys.getenv("MLOS_LOG_FILE", unset = "analysis_log.txt")
+log_filename <- Sys.getenv("MLOS_LOG_FILE", unset = MLOS_DEFAULT_LOG)
 log_path <- output_path(log_filename)
-excel_filename <- Sys.getenv("MLOS_EXCEL_FILE", unset = "analysis_results.xlsx")
+excel_filename <- Sys.getenv("MLOS_EXCEL_FILE", unset = MLOS_DEFAULT_EXCEL)
 excel_path <- output_path(excel_filename)
-json_filename <- Sys.getenv("MLOS_JSON_FILE", unset = "results.json")
+json_filename <- Sys.getenv("MLOS_JSON_FILE", unset = MLOS_DEFAULT_JSON)
 json_path <- output_path(json_filename)
 stats_filename <- "data_preparation_stats.csv"
 stats_path <- output_path(stats_filename)

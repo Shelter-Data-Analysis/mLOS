@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260906_003. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260908_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -696,6 +696,8 @@ Defaults (if arguments are omitted):
 - Results directory: `results/`
 
 These defaults can also be overridden with environment variables `MLOS_SETTINGS_FILE`, `MLOS_DATA_FILE`, and `MLOS_OUTPUT_DIR`. The names of the three output files created inside the results directory can be overridden too: `MLOS_LOG_FILE` (default `analysis_log.txt`), `MLOS_EXCEL_FILE` (default `analysis_results.xlsx`), and `MLOS_JSON_FILE` (default `results.json`).
+
+`--help` (or `-h`) prints the options, the environment variables, and the default each one falls back to, then exits without running the analysis. It is answered before the required-package check, so it also works on a machine where `survival` and `yaml` are not installed yet.
 
 An unrecognized command-line argument (or an option missing its value) stops the run with a usage message rather than silently falling back to the defaults.
 

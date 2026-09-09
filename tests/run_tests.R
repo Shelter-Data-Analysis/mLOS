@@ -3269,6 +3269,28 @@ run_suite_checks <- function() {
   expect_equal("CLI: unrecognized argument is rejected with usage",
                as.numeric(any(grepl("Unrecognized argument", cli_out, fixed = TRUE))), 1)
 
+  # --help must print without the analysis running, and must be answerable on a
+  # machine where the required packages are missing: it is handled before the
+  # package check, so this also pins that ordering. The version is in the first
+  # line because a saved help transcript should say which release produced it.
+  help_out <- run_entry_point("--help")
+  expect_equal("CLI: --help prints usage",
+               as.numeric(any(grepl("Usage: Rscript mlos_run_complete.R",
+                                    help_out, fixed = TRUE))), 1)
+  expect_equal("CLI: --help names the version",
+               as.numeric(any(grepl(paste0("mLOS ", MLOS_VERSION), help_out, fixed = TRUE))), 1)
+  expect_equal("CLI: --help does not run the analysis",
+               as.numeric(any(grepl("MLOS Length of Stay Tool", help_out, fixed = TRUE))), 0)
+  expect_equal("CLI: -h is accepted too",
+               as.numeric(any(grepl("Usage: Rscript mlos_run_complete.R",
+                                    run_entry_point("-h"), fixed = TRUE))), 1)
+
+  # The help text names the defaults the fallback chain actually uses. Both read
+  # the same constants, and this pins that they do.
+  expect_equal("CLI: --help names the default settings file",
+               as.numeric(any(grepl(file.path("data", "OC2_settings.yaml"),
+                                    help_out, fixed = TRUE))), 1)
+
   err_out <- run_entry_point("--settings", shQuote(file.path(tempdir(), "no_such_settings.yaml")),
                              "--results",  shQuote(file.path(tempdir(), "mlos_entry_point_check")))
   expect_equal("run script: real error reaches the console, not the log",

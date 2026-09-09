@@ -25,6 +25,8 @@ Editing any of them means reading [`documentation_rules.md`](documentation_rules
 Rscript mlos_run_complete.R [--settings FILE] [--data FILE] [--results DIR]
 ```
 
+`Rscript mlos_run_complete.R --help` prints the options, the environment variables, and the defaults each one falls back to.
+
 Defaults: settings `data/OC2_settings.yaml`, data `data/OC2_data.csv`, output directory `results/` (created if missing). Defaults can also be set via the `MLOS_SETTINGS_FILE`, `MLOS_DATA_FILE`, `MLOS_OUTPUT_DIR` environment variables (plus `MLOS_LOG_FILE` / `MLOS_EXCEL_FILE` / `MLOS_JSON_FILE` for the output filenames inside the results directory). Requires the `survival` and `yaml` R packages (`jsonlite` also, for the results JSON, and `openxlsx` for the Excel export; `flexsurv` only if the optional `parametric_regression` setting is enabled).
 
 **Option B — no local R install.** Use **[`colab_mlos.ipynb`](colab_mlos.ipynb)** in Google Colab: it installs the required packages and sets up folders for you; upload the `mlos_*.R` source files plus your data and settings files. (The notebook's instructions show the exact layout.)
