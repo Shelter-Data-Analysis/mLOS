@@ -17,6 +17,27 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
+## Unreleased
+
+**No number changed**: only the entry point moved, and every CSV, every plot
+and `results.json` are byte-identical to 0.2.1.
+
+- `Rscript mlos_run_complete.R --help` (or `-h`) prints the options, the
+  environment variables, and the default each one falls back to, then exits
+  without running the analysis. It is answered before the required-package
+  check, so it prints on a machine where `survival` and `yaml` are not
+  installed yet, which is the machine most likely to be asking.
+- The six run defaults are constants that both the help text and the
+  environment-variable fallback chain read, so a default cannot move in one and
+  not the other. The help text derives its package list from
+  `MLOS_PACKAGES_REQUIRED` and `MLOS_PACKAGES` for the same reason.
+- The unrecognized-argument error gains a line pointing at `--help`.
+- `tests/run_tests.R` gains six entry-point checks: that `--help` and `-h`
+  print usage, that the version appears, that the analysis does not run, and
+  that the help text names the real default settings file.
+- `README.md` and the user guide's "Running the Tool" section describe the
+  option.
+
 ## 0.2.1 (2026-09-08)
 
 The DOIs the 0.2.0 release minted, caught. **No number changed**:
