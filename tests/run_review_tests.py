@@ -1894,6 +1894,61 @@ def check_template_without_room() -> None:
         expect("the render refuses a covered page too", refused)
 
 
+def check_template_layout_artwork() -> None:
+    """Artwork under every slide, on the layout or the master, is refused.
+
+    Every slide is built on the template's emptiest layout, so artwork there
+    sits under all of them while the band is measured from the template's
+    slide alone, and each title prints over it. Synthetic: a bar moved onto
+    the layout is refused, one moved onto the master is refused, and the same
+    master bar under a layout that hides the master's graphics is accepted.
+    """
+    from pptx.enum.shapes import MSO_SHAPE
+    from mlos_review.render_pptx import (SLIDE_HEIGHT, SLIDE_WIDTH, Slide,
+                                         _blank_layout, render, template_band)
+
+    section("template layout artwork (synthetic)")
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        for name, target, hidden, usable in (
+                ("layout bar", "layout", False, False),
+                ("master bar", "master", False, False),
+                ("master bar, hidden", "master", True, True)):
+            template = Presentation()
+            template.slide_width, template.slide_height = SLIDE_WIDTH, SLIDE_HEIGHT
+            layout = _blank_layout(template)
+            slide = template.slides.add_slide(layout)
+            bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0,
+                                         SLIDE_WIDTH, Inches(0.6))
+            home = layout if target == "layout" else layout.slide_master
+            home.shapes._spTree.append(bar._element)
+            if hidden:
+                layout._element.set("showMasterSp", "0")
+            path = tmp / f"{name.replace(' ', '_').replace(',', '')}.pptx"
+            template.save(str(path))
+            try:
+                template_band(path)
+                message = None
+            except ValueError as exc:
+                message = str(exc)
+            if usable:
+                expect(f"{name}: accepted", message is None, message)
+            else:
+                expect(f"{name}: refused", message is not None)
+                if message is not None:
+                    expect(f"{name}: and told to move it onto the slide",
+                           "Move it onto the template's slide" in message, message)
+
+        try:
+            render([Slide(title="a slide", bullets=["a bullet"])],
+                   tmp / "deck.pptx", Vocabulary({}),
+                   template=tmp / "layout_bar.pptx")
+            refused = False
+        except ValueError:
+            refused = True
+        expect("the render refuses layout artwork too", refused)
+
+
 def check_stacked_underscore_codes() -> None:
     """An outcome code containing an underscore survives the reshape whole.
 
@@ -4646,6 +4701,7 @@ def main(argv: list[str]) -> int:
         check_template_links,
         check_template_slide_count,
         check_template_without_room,
+        check_template_layout_artwork,
         check_documents,
         check_fixture_inventory,
         check_section_references,

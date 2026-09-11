@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260911_002. Read it in any markdown reader,
+presentation guide, version 20260911_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -266,10 +266,11 @@ height it is read in. On OC2 the diagram goes from 6.17 by 4.16 inches to 6.11
 by 4.12.
 
 The template sets the page's color scheme. It has to be one slide at the same
-page size, 13.333 by 7.5 inches, with its artwork leaving room for a title
-and a line of text, and a template that does not is refused with what to
-change. Type stays Calibri, which is what the column widths and the page
-breaks are measured in; a wider face wraps a table header mid-word.
+page size, 13.333 by 7.5 inches, with its artwork on that slide rather than
+on a layout or the master, and leaving room for a title and a line of text.
+A template that does not is refused with what to change. Type stays Calibri,
+which is what the column widths and the page breaks are measured in; a wider
+face wraps a table header mid-word.
 
 `data/deck_example_template.pptx` is a working one, and the shape to copy: a
 bar across the top, a bar across the foot, and a line of text inside each.

@@ -410,7 +410,8 @@ def template_band(path: str | Path | None) -> Decoration:
 
 
 def _require_usable_template(deck, path) -> None:
-    """Refuse a template of another size, or of more than one slide.
+    """Refuse a template of another size, of more than one slide, or with
+    artwork under its slides.
 
     Another size, rather than stretching its artwork: every measurement in this
     file is taken from SLIDE_WIDTH and SLIDE_HEIGHT, so a template of another
@@ -422,8 +423,14 @@ def _require_usable_template(deck, path) -> None:
     dropped; the rest would stay at the front of the deck. A template of no
     slides is accepted, and brings its theme alone.
 
-    Both are reported at once, so a template wrong in both ways is fixed in one
-    pass rather than two.
+    Artwork on the layout every slide is built on, or on the master behind it,
+    because it would sit under every slide, figures included, while the band is
+    measured from the template's slide alone: every title would print over a
+    header drawn there. On the slide it is measured, and copied only where it
+    fits. A layout that hides the master's graphics is not charged for them.
+
+    All are reported at once, so a template wrong in several ways is fixed in
+    one pass.
     """
     problems = []
     if (abs(deck.slide_width - SLIDE_WIDTH) > SIZE_TOLERANCE
@@ -437,6 +444,20 @@ def _require_usable_template(deck, path) -> None:
         problems.append(
             f"Template '{path}' holds {len(deck.slides)} slides; a template is "
             "one slide carrying only the artwork to copy. Delete the others.")
+    layout = _blank_layout(deck)
+    underneath = [f"'{shape.name}'" for shape in layout.shapes
+                  if not shape.is_placeholder]
+    if layout._element.get("showMasterSp") != "0":
+        underneath += [f"'{shape.name}' (master)"
+                       for shape in layout.slide_master.shapes
+                       if not shape.is_placeholder]
+    if underneath:
+        listed = ", ".join(underneath[:3]) + (
+            f" and {len(underneath) - 3} more" if len(underneath) > 3 else "")
+        problems.append(
+            f"Template '{path}' has artwork under every slide, on the layout "
+            f"'{layout.name}' or its master: {listed}. Titles would print over "
+            "it. Move it onto the template's slide.")
     if problems:
         raise ValueError(" ".join(problems))
 

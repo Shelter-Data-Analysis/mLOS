@@ -48,6 +48,15 @@ carries a link.
 - `tests/run_review_tests.py` gains `check_template_without_room`: two bars
   leaving a narrow gap and a shape covering the page are refused, and the same
   bars pulled apart are accepted.
+- A template with artwork on the layout its slides are built on, or on the
+  master behind it, is refused, naming the shapes. Artwork there sat under
+  every slide, figures included, while the band was measured from the
+  template's slide alone, so titles printed over it: on a conference template
+  with its header on the layout, every one of 45 slides. A layout that hides
+  the master's graphics is not charged for them.
+- `tests/run_review_tests.py` gains `check_template_layout_artwork`: a bar on
+  the layout and a bar on the master are refused, and the master bar under a
+  layout that hides it is accepted.
 
 ---
 
