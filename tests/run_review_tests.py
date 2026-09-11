@@ -1795,6 +1795,52 @@ def check_template_links() -> None:
                          [url])
 
 
+def check_template_slide_count() -> None:
+    """A template of several slides is refused, and one of none still builds.
+
+    The renderer reads the first slide's artwork and drops that slide once the
+    deck is built, so any others would lead the deck. Both entry points are
+    held to it: the band a variant and the closing sections paginate against,
+    and the render. Synthetic because the tracked example is the one-slide case.
+    """
+    from mlos_review.render_pptx import (SLIDE_HEIGHT, SLIDE_WIDTH, Slide,
+                                         render, template_band)
+
+    section("template slide count (synthetic)")
+    slides = [Slide(title="a slide", bullets=["a bullet"])]
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        for count in (0, 3):
+            template = Presentation()
+            template.slide_width, template.slide_height = SLIDE_WIDTH, SLIDE_HEIGHT
+            for _ in range(count):
+                template.slides.add_slide(template.slide_layouts[6])
+            template.save(str(tmp / f"template_{count}.pptx"))
+
+        several = tmp / "template_3.pptx"
+        attempts = {
+            "template_band": lambda: template_band(several),
+            "render": lambda: render(slides, tmp / "deck_3.pptx",
+                                     Vocabulary({}), template=several),
+        }
+        for name, attempt in attempts.items():
+            try:
+                attempt()
+                message = None
+            except ValueError as exc:
+                message = str(exc)
+            expect(f"{name} refuses a three-slide template", message is not None)
+            if message is not None:
+                expect(f"{name} says how many slides it holds",
+                       "holds 3 slides" in message, message)
+        expect("no deck is written from it", not (tmp / "deck_3.pptx").exists())
+
+        render(slides, tmp / "deck_0.pptx", Vocabulary({}),
+               template=tmp / "template_0.pptx")
+        expect_equal("a template of no slides still builds, theme only",
+                     len(Presentation(str(tmp / "deck_0.pptx")).slides), 1)
+
+
 def check_stacked_underscore_codes() -> None:
     """An outcome code containing an underscore survives the reshape whole.
 
@@ -4545,6 +4591,7 @@ def main(argv: list[str]) -> int:
         check_notebook_file_listing,
         check_example_template,
         check_template_links,
+        check_template_slide_count,
         check_documents,
         check_fixture_inventory,
         check_section_references,

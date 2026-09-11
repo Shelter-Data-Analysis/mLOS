@@ -31,6 +31,16 @@ carries a link.
 - `tests/run_review_tests.py` gains `check_template_links`, which brands two
   slides with a linked logo and checks that each holds every relationship its
   shapes name and that the logo still reaches its site.
+- A template of more than one slide is refused, with how many it holds. Only
+  the first slide is read for its artwork and dropped, so the others were left
+  at the front of the deck. A template of another size and more than one slide
+  is told both at once.
+- A template of no slides cost the deck its first slide, which the drop at
+  the end took for the template's. It now builds whole, on the template's
+  theme alone.
+- `tests/run_review_tests.py` gains `check_template_slide_count`: a three-slide
+  template is refused by the band measurement and by the render, and a template
+  of no slides builds every slide.
 
 ---
 

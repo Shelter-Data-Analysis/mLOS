@@ -399,7 +399,7 @@ def template_band(path: str | Path | None) -> Decoration:
     if path is None:
         return Decoration()
     deck = Presentation(str(path))
-    _require_slide_size(deck, path)
+    _require_usable_template(deck, path)
     if not deck.slides:
         return Decoration()
     top, bottom = free_band(deck.slides[0].shapes)
@@ -407,22 +407,36 @@ def template_band(path: str | Path | None) -> Decoration:
                       bottom=bottom - int(DECORATION_GUTTER))
 
 
-def _require_slide_size(deck, path) -> None:
-    """Refuse a template of another size rather than stretching its artwork.
+def _require_usable_template(deck, path) -> None:
+    """Refuse a template of another size, or of more than one slide.
 
-    Every measurement in this file is taken from SLIDE_WIDTH and SLIDE_HEIGHT,
-    so a template of another shape would have to move all of them. Resizing
-    the template instead is the caller's one line, and it is the line that
-    keeps the artwork the proportions it was drawn at.
+    Another size, rather than stretching its artwork: every measurement in this
+    file is taken from SLIDE_WIDTH and SLIDE_HEIGHT, so a template of another
+    shape would have to move all of them. Resizing the template instead is the
+    caller's one line, and it is the line that keeps the artwork the
+    proportions it was drawn at.
+
+    More than one slide, because only the first is read for its artwork and
+    dropped; the rest would stay at the front of the deck. A template of no
+    slides is accepted, and brings its theme alone.
+
+    Both are reported at once, so a template wrong in both ways is fixed in one
+    pass rather than two.
     """
-    if (abs(deck.slide_width - SLIDE_WIDTH) <= SIZE_TOLERANCE
-            and abs(deck.slide_height - SLIDE_HEIGHT) <= SIZE_TOLERANCE):
-        return
-    raise ValueError(
-        f"Template '{path}' is {Emu(deck.slide_width).inches:g} by "
-        f"{Emu(deck.slide_height).inches:g} inches; this renderer draws "
-        f"{Emu(SLIDE_WIDTH).inches:g} by {Emu(SLIDE_HEIGHT).inches:g}. "
-        "Resize the template to match.")
+    problems = []
+    if (abs(deck.slide_width - SLIDE_WIDTH) > SIZE_TOLERANCE
+            or abs(deck.slide_height - SLIDE_HEIGHT) > SIZE_TOLERANCE):
+        problems.append(
+            f"Template '{path}' is {Emu(deck.slide_width).inches:g} by "
+            f"{Emu(deck.slide_height).inches:g} inches; this renderer draws "
+            f"{Emu(SLIDE_WIDTH).inches:g} by {Emu(SLIDE_HEIGHT).inches:g}. "
+            "Resize the template to match.")
+    if len(deck.slides) > 1:
+        problems.append(
+            f"Template '{path}' holds {len(deck.slides)} slides; a template is "
+            "one slide carrying only the artwork to copy. Delete the others.")
+    if problems:
+        raise ValueError(" ".join(problems))
 
 
 def _read_decoration(deck, path) -> Decoration:
@@ -435,7 +449,7 @@ def _read_decoration(deck, path) -> Decoration:
     template is still holding, and both are written into the file under that
     one name.
     """
-    _require_slide_size(deck, path)
+    _require_usable_template(deck, path)
     if not deck.slides:
         return Decoration()
     source = deck.slides[0]
@@ -1698,6 +1712,9 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
         # the artwork by whatever the two rounded differently.
         deck = Presentation(str(template))
         decoration = _read_decoration(deck, template)
+    # None or one, the template having been checked. The one is dropped once
+    # the deck is built; with none, the first slide is the deck's own.
+    template_slides = 0 if template is None else len(deck.slides)
     blank = _blank_layout(deck)
 
     for spec in slides:
@@ -1752,7 +1769,7 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
             for note in paragraphs[1:]:
                 frame.add_paragraph().text = note
 
-    if template is not None:
+    if template_slides:
         _drop_template_slide(deck)
     path = Path(path)
     deck.save(str(path))
