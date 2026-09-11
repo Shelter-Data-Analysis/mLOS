@@ -2999,6 +2999,84 @@ def check_stratified_outlook(case: str, bundle: Bundle, stratifier: str) -> None
                == "Remaining per resident")
 
 
+def check_workload_drift_floor() -> None:
+    """The floor under the counted-against-fitted sentence, in animal-days.
+
+    Synthetic because the property needs two levels chosen to disagree: one
+    leading its stratifier on the ratio while its gap is a rounding artifact
+    at the shelter's scale, one whose gap is worth a sentence. A fixture holds
+    whatever levels its data holds, which shows the rule runs rather than that
+    it draws the line where it says it does.
+    """
+    section("workload drift floor (synthetic)")
+
+    def bundle_with(census, tenure, fitted_census, fitted_tenure) -> Bundle:
+        levels = [f"L{i}" for i in range(len(census))]
+        days = [c * t for c, t in zip(census, tenure)]
+        fitted_days = [c * t for c, t in zip(fitted_census, fitted_tenure)]
+        matrix = lambda rows, columns=levels: {  # noqa: E731 - one shape, three uses
+            "type": "matrix", "rows": list(rows), "columns": list(columns),
+            "values": [list(values) for values in rows.values()]}
+        return Bundle(root=Path("."), data={"strata": {
+            "all": {"observations": matrix({blocks.WORKLOAD_DAYS: [sum(days)]},
+                                           ["All"])},
+            "group": {
+                "observations": matrix({blocks.WORKLOAD_RESIDENTS: census,
+                                        blocks.WORKLOAD_DAYS: days}),
+                "census": matrix({
+                    blocks.WORKLOAD_RESIDENTS_FITTED: fitted_census,
+                    blocks.WORKLOAD_TENURE: tenure,
+                    blocks.WORKLOAD_TENURE_FITTED: fitted_tenure,
+                    blocks.WORKLOAD_DAYS_FITTED: fitted_days}),
+            },
+        }})
+
+    vocab = names.Vocabulary()
+    said = lambda bundle, section_name: blocks.findings_for_model_drift(  # noqa: E731
+        bundle, vocab, section_name)
+
+    # The constants, pinned so that moving the rule is a visible edit here
+    # rather than a silent change in which levels a deck names.
+    expect_equal("the gap threshold is 5%", blocks.DRIFT_GAP, 0.05)
+    expect_equal("the floor is 1% of the sample's counted animal-days",
+                 blocks.DRIFT_FLOOR, 0.01)
+
+    # L1 stands 2 animals against a fitted 3 and leads on the ratio at 33%,
+    # worth 25 animal-days against a floor of 100.5. L0 is past the gap
+    # threshold too, and the sentence is not handed to it: the level that led
+    # is the level the slide would have named, and it had nothing to say.
+    distracted = bundle_with([200, 2], [50, 25], [190, 3], [50, 25])
+    expect("an immaterial leader takes the census sentence with it",
+           not said(distracted, "census"), said(distracted, "census"))
+    expect("and the animal-days sentence, ranked the same way",
+           not said(distracted, "animal_days"), said(distracted, "animal_days"))
+
+    # Its tenure columns agree exactly, which is the other sentence this
+    # stratifier can make and the floor has no part in.
+    tenure_said = said(distracted, "tenure")
+    expect("agreement still gets its own sentence",
+           len(tenure_said) == 1 and "match the counted ones" in tenure_said[0],
+           tenure_said)
+
+    # The same leading gap on the big level: 50 animals at 50 days is 2,500
+    # animal-days, and the sentence is made.
+    material = bundle_with([200, 2], [50, 25], [150, 2], [50, 25])
+    census_said = said(material, "census")
+    expect("a material gap is still named",
+           len(census_said) == 1 and "L0" in census_said[0], census_said)
+
+    # A tenure gap is days per resident, so what carries it over the floor is
+    # the level's census. Same 900% gap on both bundles: 180 days across 2
+    # residents clears 104 animal-days, across 0.2 of a resident it does not.
+    big = bundle_with([200, 2], [50, 200], [200, 2], [50, 20])
+    small = bundle_with([200, 0.2], [50, 200], [200, 0.2], [50, 20])
+    expect("a tenure gap counts by the residents carrying it",
+           len(said(big, "tenure")) == 1 and "L1" in said(big, "tenure")[0],
+           said(big, "tenure"))
+    expect("and the same ratio on a level too small to matter is silent",
+           not said(small, "tenure"), said(small, "tenure"))
+
+
 def check_order_shift_thresholds() -> None:
     """Which differences count, which are noise, and which pair leads.
 
@@ -4801,6 +4879,7 @@ def main(argv: list[str]) -> int:
         check_gaps_past_the_plot_cap,
         check_falling_hazard_gates,
         check_order_shift_thresholds,
+        check_workload_drift_floor,
         check_salience_statistic,
         check_single_stratifier_default,
         check_capital_widths,

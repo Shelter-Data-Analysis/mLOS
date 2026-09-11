@@ -1974,6 +1974,26 @@ REPRESENTATION_GAP = 0.05
 # sustain in a steady state.
 DRIFT_GAP = 0.05
 
+# How much of the shelter a gap has to be worth before it earns a sentence,
+# as a share of the whole sample's counted animal-days. A ratio on its own is
+# loudest where the level is smallest, since a small level's counted and
+# fitted figures are both noisy: a level standing 1.6 animals against a fitted
+# 2.4 leads its stratifier at 33% and prints as "2 counted against 2 fitted".
+DRIFT_FLOOR = 0.01
+
+# What carries a gap into animal-days, the unit the three slides share. An
+# animal-day gap is already one; a census gap is animals, so it takes the
+# level's counted tenure; a tenure gap is days per resident, so it takes the
+# level's counted census. Measuring each slide in its own unit instead would
+# need three floors, and the tenure one would be the weakest of them: a tenth
+# of the shelter's days per resident is a fraction of a day, which two
+# residents can carry.
+DRIFT_SCALE_BY = {
+    "census": WORKLOAD_TENURE,
+    "tenure": WORKLOAD_RESIDENTS,
+    "animal_days": None,
+}
+
 
 def findings_for_representation(bundle: Bundle, vocab) -> list[str]:
     """Levels that fill the building out of proportion to how they arrive.
@@ -2034,8 +2054,24 @@ def findings_for_model_drift(bundle: Bundle, vocab, section: str) -> list[str]:
     agreement gets a sentence of its own. A reader who has taken four slides of
     KM-implied numbers on trust has just been shown the implication checked
     against a count, and that it passed is the most useful thing on the slide.
+
+    A gap also has to be worth something at the shelter's scale, not only
+    against its own level (DRIFT_FLOOR). Where the level leading on the ratio
+    falls under that floor, the stratifier says nothing at all: the agreement
+    sentence claims every level matches to within a few percent, which is a
+    different claim and a false one, since a level did part from its fitted
+    figure. The stratifier with something to say is the one that gets the room.
     """
     counted_name, fitted_name, subject, form = WORKLOAD_DRIFT[section]
+    scale_by = DRIFT_SCALE_BY[section]
+    whole = _workload_frame(bundle, BASELINE_STRATIFIER)
+    whole_days = (whole[WORKLOAD_DAYS].iloc[0]
+                  if WORKLOAD_DAYS in whole.columns and len(whole) else None)
+    # Without the whole-sample animal-days there is nothing to call a gap small
+    # against, so every gap past DRIFT_GAP keeps its sentence.
+    floor = (DRIFT_FLOOR * float(whole_days)
+             if whole_days is not None and pd.notna(whole_days) and whole_days > 0
+             else None)
     lines = []
     for stratifier in bundle.stratifiers():
         if stratifier == BASELINE_STRATIFIER:
@@ -2055,6 +2091,15 @@ def findings_for_model_drift(bundle: Bundle, vocab, section: str) -> list[str]:
                 f"within {drift.abs().max() * 100:.0f}% at every level, so the "
                 f"survival curves reproduce the population the data actually "
                 f"held.")
+            continue
+        # The same gap in animal-days, against the floor. A column the bundle
+        # does not carry leaves the gap unconvertible and the sentence stands,
+        # on the same reasoning as a missing whole-sample figure.
+        gap = abs(counted[level] - fitted[level])
+        if scale_by is not None:
+            gap = (gap * frame.at[level, scale_by]
+                   if scale_by in frame.columns else None)
+        if floor is not None and gap is not None and pd.notna(gap) and gap < floor:
             continue
         direction = "more" if drift[level] > 0 else "fewer"
         lines.append(

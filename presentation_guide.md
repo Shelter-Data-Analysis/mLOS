@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260911_006. Read it in any markdown reader,
+presentation guide, version 20260911_007. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -571,7 +571,12 @@ assuming the intake rate and the LOS pattern have been stable long
 enough to settle. A level counted above its fitted figure was carrying more
 than its own steady state would hold, and one counted below was carrying less.
 A change in intakes and a change in how fast stays end both open the gap, in
-either direction, so the finding states the gap and names no cause. It is a
+either direction, so the finding states the gap and names no cause. The level
+named is the one whose gap is largest against its own size, and it also has to
+be a gap worth something at the shelter's scale: every gap is converted to
+animal-days and measured against `DRIFT_FLOOR`, since a ratio alone is loudest
+on the smallest level, where both figures are noisy. Where the leading level
+falls under the floor the stratifier says nothing on that slide. It is a
 dynamic reading in a deck that usually looks at steady state, and it is
 clearest by period where the regimes actually differ. Both sides are capped at
 the stay cap. On OC2 the gaps are
@@ -1707,6 +1712,8 @@ as the tool meets more shelters.
 | `TAIL_SPREAD_MULTIPLE` | 2.0x the pooled ratio | how dispersed a level's stays have to be, relative to the shelter, before splitting it is worth recommending |
 | `SHAPE_CEILING` | k = 0.85 | how far below 1 a level's whole own-shape interval must sit |
 | `SHAPE_POOLED_CEILING` | 95% of the pooled adjusted k | and how far below the shelter's own shape; the two cross at a pooled k of 0.895 |
+| `DRIFT_GAP` | 5% | how far a level's counted figure must sit from its fitted one before the gap is a finding |
+| `DRIFT_FLOOR` | 1% of the whole sample's counted animal-days | how much that gap must be worth at the shelter's scale, every slide's gap converted to animal-days first |
 | `NARROWING_MINIMUM_STAYS` | 1,000 stays | how large a level must be before a rerun narrowed to it is worth suggesting |
 | `RECOMMENDATION_MINIMUM_SHARE` | 2% of stays | the share below which no recommendation names a level |
 
