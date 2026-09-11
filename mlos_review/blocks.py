@@ -1967,7 +1967,7 @@ def findings_for_care_days(bundle: Bundle) -> list[str]:
 # concerned and the sentence would be reporting rounding.
 REPRESENTATION_GAP = 0.05
 
-# How far a level's counted census may sit from its fitted one before the gap
+# How far a level's counted figure may sit from its fitted one before the gap
 # is worth a sentence. Both are estimates of the same thing over the same
 # window, so a few percent is the ordinary noise of a KM fit; past this, the
 # level was carrying a population its own intake and length of stay would not
@@ -2024,10 +2024,11 @@ WORKLOAD_DRIFT = {
 def findings_for_model_drift(bundle: Bundle, vocab, section: str) -> list[str]:
     """Where the counted population parts from the one the curve implies.
 
-    The one dynamic reading in a deck of steady-state figures, and it is stated
-    as what it is: the fitted side assumes intakes have been arriving at the
-    observed average rate for long enough, and where they have not, the counted
-    side remembers what the fitted side has forgotten.
+    The one dynamic reading in a deck of steady-state figures. The fitted side
+    is the steady state of the level's average intake rate and survival curve;
+    the counted side is what the data held. A change in intakes and a change in
+    how fast stays end both open the gap, in either direction, so the sentence
+    states the gap and names no cause.
 
     Silence would be the wrong answer when the two agree, which is why the
     agreement gets a sentence of its own. A reader who has taken four slides of
@@ -2056,15 +2057,11 @@ def findings_for_model_drift(bundle: Bundle, vocab, section: str) -> list[str]:
                 f"held.")
             continue
         direction = "more" if drift[level] > 0 else "fewer"
-        carried = ("the long stays of a busier past, still in the building"
-                   if drift[level] > 0 else
-                   "a population still filling up behind a rise in intakes")
         lines.append(
             f"By {label}, {level} held {abs(drift[level]) * 100:.0f}% "
-            f"{direction} {subject} than its own intake rate and length of "
-            f"stay imply: {form.format(value=counted[level])} counted against "
-            f"{form.format(value=fitted[level])} fitted, which is "
-            f"{carried}.")
+            f"{direction} {subject} than the steady state its own intake rate "
+            f"and length of stay imply: {form.format(value=counted[level])} "
+            f"counted against {form.format(value=fitted[level])} fitted.")
     return lines
 
 

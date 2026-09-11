@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260911_005. Read it in any markdown reader,
+presentation guide, version 20260911_006. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -569,11 +569,12 @@ agreement gets a finding of its own: the survival curves reproduce the
 population the data actually held. Where they part, the fitted side is the one
 assuming the intake rate and the LOS pattern have been stable long
 enough to settle. A level counted above its fitted figure was carrying more
-than its own steady state would hold, the long stays of a busier past still in
-the building; counted below, it was still filling up behind a rise. It is a
+than its own steady state would hold, and one counted below was carrying less.
+A change in intakes and a change in how fast stays end both open the gap, in
+either direction, so the finding states the gap and names no cause. It is a
 dynamic reading in a deck that usually looks at steady state, and it is
-clearest by period where the regimes actually differ. The fitted side is
-capped at the stay cap and the counted side is not. On OC2 the gaps are
+clearest by period where the regimes actually differ. Both sides are capped at
+the stay cap. On OC2 the gaps are
 uneven: the two censuses agree within 4%, the tenures part by 14% on Early-C,
 and the animal-days by 13% on Late-C.
 
