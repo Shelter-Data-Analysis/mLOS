@@ -1972,6 +1972,68 @@ def check_layout_name() -> None:
                          names, {LAYOUT_NAME})
 
 
+def check_command_line_guards() -> None:
+    """A flag without its dashes, and an output path that is an input, are refused.
+
+    Each would otherwise run: `template=FILE` becomes the output path, and an
+    input named as the output is archived out of the way by the write, so the
+    next run cannot find it. Both commands refuse both before reading the
+    results. Every input here is a copy in a temporary directory, so a guard
+    that failed would move nothing the repository holds.
+    """
+    import contextlib
+    import io
+    import shutil
+    from mlos_review import deck, variant
+    from mlos_review.deck import output_displaces
+
+    section("command-line guards")
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        template = tmp / "template.pptx"
+        settings = tmp / "settings.yaml"
+        outline = tmp / "talk.md"
+        shutil.copy(REPO_ROOT / "data" / "deck_example_template.pptx", template)
+        shutil.copy(REPO_ROOT / "data" / "OC_deck_settings.yaml", settings)
+        outline.write_text("# A talk\n")
+        results = tmp / "results"
+        results.mkdir()
+
+        cases = [
+            ("deck: template= without dashes", deck.main,
+             ["deck", str(results), f"template={template}"], "--template="),
+            ("variant: template= without dashes", variant.main,
+             ["variant", str(outline), str(results), f"template={template}"],
+             "--template="),
+            ("deck: a misspelled flag without dashes", deck.main,
+             ["deck", str(results), "templete=x.pptx"], "reads as a flag"),
+            ("deck: output is the template", deck.main,
+             ["deck", str(results), str(template), f"--template={template}",
+              f"--settings={settings}"], "is the template"),
+            ("deck: output is the settings file", deck.main,
+             ["deck", str(results), str(settings), f"--settings={settings}"],
+             "is the settings file"),
+            ("variant: output is the outline", variant.main,
+             ["variant", str(outline), str(results), str(outline),
+              f"--settings={settings}"], "is the outline"),
+        ]
+        for name, main, argv, said in cases:
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                code = main(argv)
+            expect(f"{name}: refused", code == 1, err.getvalue())
+            expect(f"{name}: and says so", said in err.getvalue(), err.getvalue())
+
+        expect("every input is where it was",
+               template.exists() and settings.exists() and outline.exists())
+        expect("nothing was archived beside them", not list(tmp.glob("*_20*")))
+        unrelated = tmp / "old.pptx"
+        unrelated.write_bytes(b"")
+        expect("an existing output that is no input is left to the archiving",
+               output_displaces(unrelated, {"template": template}) is None)
+
+
 def check_stacked_underscore_codes() -> None:
     """An outcome code containing an underscore survives the reshape whole.
 
@@ -4726,6 +4788,7 @@ def main(argv: list[str]) -> int:
         check_template_without_room,
         check_template_layout_artwork,
         check_layout_name,
+        check_command_line_guards,
         check_documents,
         check_fixture_inventory,
         check_section_references,

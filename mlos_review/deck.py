@@ -26,6 +26,8 @@ archiving any deck already there.
 from __future__ import annotations
 
 import json
+import os
+import re
 import sys
 from collections.abc import Sequence
 from dataclasses import replace
@@ -96,7 +98,8 @@ from mlos_review.salience import (earns_slides, findings_for_salience,
                                   salience_notes)
 from mlos_review.render_pptx import (Bullet, Slide, bullet_pages, lead_height,
                                      render, template_band, text_budget)
-from mlos_review.settings import (Settings, load as load_settings,
+from mlos_review.settings import (DEFAULT_SETTINGS_FILE, Settings,
+                                  load as load_settings,
                                   parse_template)
 from mlos_review import workbook
 
@@ -2178,6 +2181,63 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     return out_path, archived
 
 
+def undashed_flags(args: Sequence[str], flags: Sequence[str]) -> list[str]:
+    """What is wrong with each positional argument written as a flag.
+
+    `template=my.pptx` without its dashes is otherwise taken for the output
+    path: the deck is written, unbranded, into a new directory named
+    `template=`, and the template the user believes is in force is not. A word
+    and an `=` at the start of an argument is taken as that mistake.
+    """
+    problems = []
+    for arg in args:
+        match = re.match(r"-?([A-Za-z][\w-]*)=", arg)
+        if not match:
+            continue
+        flag = f"--{match.group(1)}"
+        if flag in flags:
+            problems.append(f"'{arg}' is {flag} without its dashes; write "
+                            f"--{arg.lstrip('-')}.")
+        else:
+            listed = ", ".join(f"{f}=FILE" for f in flags)
+            problems.append(f"'{arg}' reads as a flag without its dashes. The "
+                            f"flags are {listed}.")
+    return problems
+
+
+def run_inputs(results: str | Path, settings_flag: str | None,
+               template: Path | None) -> dict[str, Path | None]:
+    """The files a run reads, by what they are, for `output_displaces`."""
+    results = Path(results)
+    return {
+        "results file": (results / "results.json" if results.is_dir()
+                         else results),
+        "settings file": (Path(settings_flag) if settings_flag
+                          else DEFAULT_SETTINGS_FILE),
+        "template": template,
+    }
+
+
+def output_displaces(out: str | Path,
+                     inputs: dict[str, Path | None]) -> str | None:
+    """The error when the output path is one of the run's own inputs.
+
+    A file already at the output path is archived under a dated name before
+    the deck is written, so an input named as the output is not destroyed but
+    moved aside, and the next run cannot find it. Compared as files rather than
+    as strings, so another spelling of the same path is caught too.
+    """
+    target = Path(out)
+    if not target.exists():
+        return None
+    for role, path in inputs.items():
+        if (path is not None and Path(path).exists()
+                and os.path.samefile(target, path)):
+            return (f"the output path '{out}' is the {role}, and a deck written "
+                    "there would move it aside. Name another file.")
+    return None
+
+
 def main(argv: list[str]) -> int:
     from mlos_review.settings import SettingsError
 
@@ -2201,6 +2261,11 @@ def main(argv: list[str]) -> int:
             print(f"error: {flag} needs a value, as {flag}=FILE.",
                   file=sys.stderr)
             return 1
+    misplaced = undashed_flags(args, known)
+    for problem in misplaced:
+        print(f"error: {problem}", file=sys.stderr)
+    if misplaced:
+        return 1
 
     try:
         settings = load_settings(flags.get("--settings") or None)
@@ -2217,6 +2282,12 @@ def main(argv: list[str]) -> int:
 
     results = args[0] if args else "results"
     out = args[1] if len(args) > 1 else None
+    if out is not None:
+        clash = output_displaces(out, run_inputs(results, flags.get("--settings"),
+                                                 settings.template))
+        if clash:
+            print(f"error: {clash}", file=sys.stderr)
+            return 1
 
     bundle = Bundle.load(results)
     for stratifier, absent in missing_pinned_levels(bundle, settings).items():

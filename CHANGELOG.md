@@ -64,6 +64,15 @@ no slides, or is now refused.
   conference deck whose own "Title Slide" carried its header artwork.
 - `tests/run_review_tests.py` gains `check_layout_name`: every slide of a plain
   and of a branded deck sits on `mLOS layout`.
+- `build` and `variant` refuse an argument written as a flag without its
+  dashes, `template=FILE` say, which was taken for the output path: the deck
+  went, unbranded, into a new directory named `template=templates`. They also
+  refuse an output path that is one of the run's own inputs, the template,
+  the settings file, the results file or the outline, which the write would
+  have archived out of the way.
+- `tests/run_review_tests.py` gains `check_command_line_guards`: both mistakes
+  are refused by both commands before the results are read, and the inputs
+  stay where they were.
 
 ---
 

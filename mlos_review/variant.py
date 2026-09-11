@@ -49,7 +49,8 @@ from pathlib import Path
 
 from mlos_review.bundle import Bundle
 from mlos_review.deck import (MANIFEST_SUFFIX, assemble, figure_directory,
-                              manifest_path, resolved_settings)
+                              manifest_path, output_displaces,
+                              resolved_settings, run_inputs, undashed_flags)
 from mlos_review.figures import FigureSet
 from mlos_review.names import Vocabulary
 from mlos_review.output import prepare_output
@@ -638,6 +639,11 @@ def main(argv: list[str]) -> int:
         if flags.get(flag):
             print(f"error: {flag} takes no value.", file=sys.stderr)
             return 1
+    misplaced = undashed_flags(args, VALUED_FLAGS)
+    for problem in misplaced:
+        print(f"error: {problem}", file=sys.stderr)
+    if misplaced:
+        return 1
 
     try:
         settings = load_settings(flags.get("--settings") or None)
@@ -663,6 +669,12 @@ def main(argv: list[str]) -> int:
 
     results = args[1] if len(args) > 1 else "results"
     out = args[2] if len(args) > 2 else None
+    if out is not None:
+        clash = output_displaces(out, {"outline": outline_path, **run_inputs(
+            results, flags.get("--settings"), settings.template)})
+        if clash:
+            print(f"error: {clash}", file=sys.stderr)
+            return 1
 
     try:
         path, archived, warnings = build_variant(

@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260911_004. Read it in any markdown reader,
+presentation guide, version 20260911_005. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -230,7 +230,9 @@ Every key has a default, so anything you delete falls back; an unrecognized
 key or an out-of-range value is refused rather than ignored, to avoid
 typo-induced errors. The command line holds itself to the same rule: an
 unrecognized `--flag`, or `--settings` without its `=FILE`, is refused rather
-than silently run past.
+than silently run past. So is a flag written without its dashes, which would
+be taken for the output path, and an output path naming one of the run's own
+inputs, which would be renamed out of the way.
 
 | Setting | Values | Effect today |
 |---|---|---|
