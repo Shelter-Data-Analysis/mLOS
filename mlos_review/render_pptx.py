@@ -19,7 +19,6 @@ from pathlib import Path
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
-from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
@@ -343,7 +342,7 @@ class Decoration:
     """
 
     elements: tuple = ()
-    images: dict = field(default_factory=dict)
+    targets: dict = field(default_factory=dict)
     top: int = int(MARGIN)
     bottom: int = int(SLIDE_HEIGHT - MARGIN)
 
@@ -440,12 +439,13 @@ def _read_decoration(deck, path) -> Decoration:
     if not deck.slides:
         return Decoration()
     source = deck.slides[0]
-    images = {rid: rel.target_part for rid, rel in source.part.rels.items()
-              if rel.reltype == RT.IMAGE and not rel.is_external}
     top, bottom = free_band(source.shapes)
     return Decoration(
         elements=tuple(deepcopy(shape._element) for shape in source.shapes),
-        images=images,
+        targets={rid: (rel.reltype,
+                       rel.target_ref if rel.is_external else rel.target_part,
+                       rel.is_external)
+                 for rid, rel in source.part.rels.items()},
         top=top + int(DECORATION_GUTTER),
         bottom=bottom - int(DECORATION_GUTTER))
 
@@ -464,10 +464,11 @@ def _drop_template_slide(deck) -> None:
         entries.remove(entries[0])
 
 
-# Where a copied shape names the image it draws. The second is a linked rather
-# than embedded picture, and the SVG beside a fallback PNG is reached the same
-# way, from an extension element the scan below walks into like any other.
-IMAGE_REFERENCES = (qn("r:embed"), qn("r:link"))
+# The namespace a copied shape names a relationship in: r:embed and r:link for
+# an embedded or linked picture, r:id for a hyperlink's target. The SVG beside
+# a fallback PNG is named the same way, from an extension element the scan
+# below walks into like any other.
+RELATIONSHIP_NS = qn("r:id")[:-len("id")]
 
 
 def _stamp(slide, decoration: Decoration) -> None:
@@ -476,19 +477,24 @@ def _stamp(slide, decoration: Decoration) -> None:
     Called before the content, which settles two things at once: shapes early
     in the tree are at the back of the z-order, and the ids pptx hands the
     content are numbered above the ones copied here.
+
+    Every relationship id a copied shape names is renamed to one this slide
+    holds, pointing where the template's did. Left as the template wrote it,
+    an id names nothing here, or names something else.
     """
     tree = slide.shapes._spTree
     for element in decoration.elements:
         copy = deepcopy(element)
         fresh: dict[str, str] = {}
         for node in copy.iter():
-            for name in IMAGE_REFERENCES:
-                rid = node.get(name)
-                if rid not in decoration.images:
+            for name, rid in node.items():
+                if (not name.startswith(RELATIONSHIP_NS)
+                        or rid not in decoration.targets):
                     continue
                 if rid not in fresh:
+                    reltype, target, external = decoration.targets[rid]
                     fresh[rid] = slide.part.relate_to(
-                        decoration.images[rid], RT.IMAGE)
+                        target, reltype, is_external=external)
                 node.set(name, fresh[rid])
         tree.append(copy)
 

@@ -17,6 +17,23 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
+## Unreleased
+
+**No number changed**: only the deck builder moved. A branded OC2 deck is
+byte-identical to the one before, build time aside, unless its template
+carries a link.
+
+- A template whose artwork carries a hyperlink, a linked logo say, put the
+  link's id on every branded slide without the link, so each slide named a
+  relationship it did not hold, which PowerPoint reads as a damaged file.
+  Every relationship a copied shape names now travels with it, links as well
+  as images.
+- `tests/run_review_tests.py` gains `check_template_links`, which brands two
+  slides with a linked logo and checks that each holds every relationship its
+  shapes name and that the logo still reaches its site.
+
+---
+
 ## 0.2.2 (2026-09-09)
 
 **No number changed**: only the entry point moved, and every CSV, every plot

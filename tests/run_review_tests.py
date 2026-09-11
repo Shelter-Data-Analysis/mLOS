@@ -1750,6 +1750,51 @@ def check_example_template() -> None:
            band.bottom - band.top < plain.bottom - plain.top)
 
 
+def check_template_links() -> None:
+    """A logo that links to a website keeps its link on every slide it reaches.
+
+    A shape names its link by relationship id, as a picture names its image,
+    and the id is the template slide's. Copied without the relationship it
+    names nothing on the slide it lands on, which PowerPoint reads as a damaged
+    file. Synthetic because the tracked example template carries no link.
+    """
+    from PIL import Image
+    from pptx.oxml.ns import qn
+    from mlos_review.render_pptx import SLIDE_HEIGHT, SLIDE_WIDTH, Slide, render
+
+    section("template links (synthetic)")
+    url = "https://example.org/"
+    namespace = qn("r:id")[:-len("id")]
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        Image.new("RGB", (300, 100), "white").save(tmp / "logo.png")
+        template = Presentation()
+        template.slide_width, template.slide_height = SLIDE_WIDTH, SLIDE_HEIGHT
+        artwork = template.slides.add_slide(template.slide_layouts[6])
+        logo = artwork.shapes.add_picture(str(tmp / "logo.png"), Inches(0.3),
+                                          Inches(6.8), height=Inches(0.5))
+        logo.click_action.hyperlink.address = url
+        template.save(str(tmp / "template.pptx"))
+
+        out = tmp / "deck.pptx"
+        render([Slide(title=f"slide {n}", bullets=["a bullet"]) for n in (1, 2)],
+               out, Vocabulary({}), template=tmp / "template.pptx")
+        deck = Presentation(str(out))
+        expect_equal("both slides are built", len(deck.slides), 2)
+        for number, slide in enumerate(deck.slides, 1):
+            named = {value for node in slide.shapes._spTree.iter()
+                     for key, value in node.items() if key.startswith(namespace)}
+            missing = sorted(named - set(slide.part.rels))
+            expect(f"slide {number}: every relationship a shape names is held",
+                   not missing, f"missing {missing}")
+            if missing:
+                continue
+            expect_equal(f"slide {number}: the logo links to its site",
+                         [shape.click_action.hyperlink.address
+                          for shape in slide.shapes if shape.shape_type == 13],
+                         [url])
+
+
 def check_stacked_underscore_codes() -> None:
     """An outcome code containing an underscore survives the reshape whole.
 
@@ -4499,6 +4544,7 @@ def main(argv: list[str]) -> int:
         check_dependency_declaration,
         check_notebook_file_listing,
         check_example_template,
+        check_template_links,
         check_documents,
         check_fixture_inventory,
         check_section_references,
