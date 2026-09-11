@@ -185,6 +185,11 @@ BODY_FONT = "Calibri"
 # a boundary and a second one the width of a page margin reads as a gap.
 DECORATION_GUTTER = Inches(0.15)
 
+# The least band a template may leave once the gutters are off: a title and one
+# line of bullets. Less, and no slide could take the artwork, while the closing
+# sections would still break their pages against the band, one bullet to a page.
+MINIMUM_BAND = TITLE_HEIGHT + BULLET_LINE_HEIGHT
+
 # The name a template's empty layout goes by, before the fallback of taking
 # whichever layout carries the fewest placeholders.
 BLANK_LAYOUT = "Blank"
@@ -398,13 +403,10 @@ def template_band(path: str | Path | None) -> Decoration:
     """
     if path is None:
         return Decoration()
-    deck = Presentation(str(path))
-    _require_usable_template(deck, path)
-    if not deck.slides:
+    band = _measured_band(Presentation(str(path)), path)
+    if band is None:
         return Decoration()
-    top, bottom = free_band(deck.slides[0].shapes)
-    return Decoration(top=top + int(DECORATION_GUTTER),
-                      bottom=bottom - int(DECORATION_GUTTER))
+    return Decoration(top=band[0], bottom=band[1])
 
 
 def _require_usable_template(deck, path) -> None:
@@ -439,6 +441,27 @@ def _require_usable_template(deck, path) -> None:
         raise ValueError(" ".join(problems))
 
 
+def _measured_band(deck, path) -> tuple[int, int] | None:
+    """The band a usable template leaves free, gutters taken off.
+
+    None for a template of no slides, which has no artwork to leave room
+    around. Refused when the band cannot hold a title and one line.
+    """
+    _require_usable_template(deck, path)
+    if not deck.slides:
+        return None
+    top, bottom = free_band(deck.slides[0].shapes)
+    top, bottom = top + int(DECORATION_GUTTER), bottom - int(DECORATION_GUTTER)
+    if bottom - top < MINIMUM_BAND:
+        raise ValueError(
+            f"Template '{path}' leaves {Emu(max(0, bottom - top)).inches:.2f} "
+            f"inches clear of its artwork; a slide needs "
+            f"{Emu(MINIMUM_BAND).inches:.2f} for a title and one line. Keep the "
+            "artwork to strips along the top and bottom edges, or delete the "
+            "slide to keep only the template's theme.")
+    return top, bottom
+
+
 def _read_decoration(deck, path) -> Decoration:
     """Lift the artwork off the template's own slide, leaving the slide there.
 
@@ -449,19 +472,17 @@ def _read_decoration(deck, path) -> Decoration:
     template is still holding, and both are written into the file under that
     one name.
     """
-    _require_usable_template(deck, path)
-    if not deck.slides:
+    band = _measured_band(deck, path)
+    if band is None:
         return Decoration()
     source = deck.slides[0]
-    top, bottom = free_band(source.shapes)
     return Decoration(
         elements=tuple(deepcopy(shape._element) for shape in source.shapes),
         targets={rid: (rel.reltype,
                        rel.target_ref if rel.is_external else rel.target_part,
                        rel.is_external)
                  for rid, rel in source.part.rels.items()},
-        top=top + int(DECORATION_GUTTER),
-        bottom=bottom - int(DECORATION_GUTTER))
+        top=band[0], bottom=band[1])
 
 
 def _drop_template_slide(deck) -> None:

@@ -1841,6 +1841,59 @@ def check_template_slide_count() -> None:
                      len(Presentation(str(tmp / "deck_0.pptx")).slides), 1)
 
 
+def check_template_without_room() -> None:
+    """A template whose artwork leaves no room for a title and a line is refused.
+
+    No slide could take such artwork, and the closing sections would still
+    break their pages against its band, one bullet to a page. Synthetic: two
+    bars leaving a narrow gap and a shape covering the page are refused, and
+    the same two bars pulled apart are accepted.
+    """
+    from pptx.enum.shapes import MSO_SHAPE
+    from mlos_review.render_pptx import (SLIDE_HEIGHT, SLIDE_WIDTH, Slide,
+                                         render, template_band)
+
+    section("template without room (synthetic)")
+    cases = {
+        "narrow gap": ([(0, 3.5), (4.0, 7.5)], False),
+        "covered page": ([(0, 7.5)], False),
+        "bars apart": ([(0, 1.0), (6.5, 7.5)], True),
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        for name, (bars, usable) in cases.items():
+            template = Presentation()
+            template.slide_width, template.slide_height = SLIDE_WIDTH, SLIDE_HEIGHT
+            slide = template.slides.add_slide(template.slide_layouts[6])
+            for top, bottom in bars:
+                slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, Inches(top),
+                                       SLIDE_WIDTH, Inches(bottom - top))
+            path = tmp / f"{name.replace(' ', '_')}.pptx"
+            template.save(str(path))
+            try:
+                template_band(path)
+                message = None
+            except ValueError as exc:
+                message = str(exc)
+            if usable:
+                expect(f"{name}: accepted", message is None, message)
+            else:
+                expect(f"{name}: refused by the band measurement",
+                       message is not None)
+                if message is not None:
+                    expect(f"{name}: and told what a slide needs",
+                           "for a title and one line" in message, message)
+
+        try:
+            render([Slide(title="a slide", bullets=["a bullet"])],
+                   tmp / "deck.pptx", Vocabulary({}),
+                   template=tmp / "covered_page.pptx")
+            refused = False
+        except ValueError:
+            refused = True
+        expect("the render refuses a covered page too", refused)
+
+
 def check_stacked_underscore_codes() -> None:
     """An outcome code containing an underscore survives the reshape whole.
 
@@ -4592,6 +4645,7 @@ def main(argv: list[str]) -> int:
         check_example_template,
         check_template_links,
         check_template_slide_count,
+        check_template_without_room,
         check_documents,
         check_fixture_inventory,
         check_section_references,

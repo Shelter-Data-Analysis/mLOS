@@ -99,9 +99,9 @@ aj_coverage: FULL
 # and every slide carrying a figure, keep the whole page and go without.
 #
 # The template must be one slide at the same page size, 13.333 by 7.5 inches,
-# or it is refused. It contributes its artwork and its color scheme; the type
-# stays Calibri, which is what the column widths and the page breaks are
-# measured in.
+# with its artwork leaving room for a title and a line, or it is refused. It
+# contributes its artwork and its color scheme; the type stays Calibri, which
+# is what the column widths and the page breaks are measured in.
 #
 # Absent, the deck is built plain, which is what it looked like before this
 # setting existed.

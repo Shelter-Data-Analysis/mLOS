@@ -41,6 +41,13 @@ carries a link.
 - `tests/run_review_tests.py` gains `check_template_slide_count`: a three-slide
   template is refused by the band measurement and by the render, and a template
   of no slides builds every slide.
+- A template whose artwork leaves less than a title and one line clear is
+  refused, with how much it leaves. No slide could take its artwork, and the
+  closing sections broke their pages against its band anyway, one bullet to a
+  page: a picture covering the page turned a 46-slide deck into 80.
+- `tests/run_review_tests.py` gains `check_template_without_room`: two bars
+  leaving a narrow gap and a shape covering the page are refused, and the same
+  bars pulled apart are accepted.
 
 ---
 
