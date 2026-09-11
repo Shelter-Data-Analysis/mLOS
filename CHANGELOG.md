@@ -19,9 +19,10 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-**No number changed**: only the deck builder moved. A branded OC2 deck is
-byte-identical to the one before, build time aside, unless its template
-carries a link.
+**No number changed**: only the deck builder moved. Every deck now names the
+layout its slides sit on `mLOS layout`, so none is byte-identical to the one
+before. Otherwise a deck is unchanged unless its template carries a link, has
+no slides, or is now refused.
 
 - A template whose artwork carries a hyperlink, a linked logo say, put the
   link's id on every branded slide without the link, so each slide named a
@@ -57,6 +58,12 @@ carries a link.
 - `tests/run_review_tests.py` gains `check_template_layout_artwork`: a bar on
   the layout and a bar on the master are refused, and the master bar under a
   layout that hides it is accepted.
+- The layout every slide is built on is named `mLOS layout` in the deck
+  written. PowerPoint matches a slide pasted into another deck to that deck's
+  layouts by name, and a template's emptiest layout was "Title Slide" in a
+  conference deck whose own "Title Slide" carried its header artwork.
+- `tests/run_review_tests.py` gains `check_layout_name`: every slide of a plain
+  and of a branded deck sits on `mLOS layout`.
 
 ---
 

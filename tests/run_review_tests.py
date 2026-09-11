@@ -1949,6 +1949,29 @@ def check_template_layout_artwork() -> None:
         expect("the render refuses layout artwork too", refused)
 
 
+def check_layout_name() -> None:
+    """Every slide sits on a layout named for this package, template or not.
+
+    PowerPoint matches a slide pasted into another deck to that deck's layouts
+    by name. A template's emptiest layout was "Title Slide" in a conference
+    deck whose own "Title Slide" carried the header artwork, so a slide merged
+    under that name would have taken the header under its title.
+    """
+    from mlos_review.render_pptx import LAYOUT_NAME, Slide, render
+
+    section("layout name")
+    slides = [Slide(title=f"slide {n}", bullets=["a bullet"]) for n in (1, 2)]
+    template = REPO_ROOT / "data" / "deck_example_template.pptx"
+    with tempfile.TemporaryDirectory() as tmp:
+        for label, options in (("plain", {}), ("branded", {"template": template})):
+            out = Path(tmp) / f"{label}.pptx"
+            render(slides, out, Vocabulary({}), **options)
+            names = {slide.slide_layout.name
+                     for slide in Presentation(str(out)).slides}
+            expect_equal(f"{label}: every slide's layout is {LAYOUT_NAME!r}",
+                         names, {LAYOUT_NAME})
+
+
 def check_stacked_underscore_codes() -> None:
     """An outcome code containing an underscore survives the reshape whole.
 
@@ -4702,6 +4725,7 @@ def main(argv: list[str]) -> int:
         check_template_slide_count,
         check_template_without_room,
         check_template_layout_artwork,
+        check_layout_name,
         check_documents,
         check_fixture_inventory,
         check_section_references,

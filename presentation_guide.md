@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260911_003. Read it in any markdown reader,
+presentation guide, version 20260911_004. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -271,6 +271,11 @@ on a layout or the master, and leaving room for a title and a line of text.
 A template that does not is refused with what to change. Type stays Calibri,
 which is what the column widths and the page breaks are measured in; a wider
 face wraps a table header mid-word.
+
+Every slide is built on a layout named `mLOS layout`. PowerPoint matches a
+slide pasted into another deck to that deck's layouts by name, and a template's
+emptiest layout is often named "Title Slide", which in the other deck may carry
+artwork of its own.
 
 `data/deck_example_template.pptx` is a working one, and the shape to copy: a
 bar across the top, a bar across the foot, and a line of text inside each.

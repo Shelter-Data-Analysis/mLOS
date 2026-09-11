@@ -194,6 +194,12 @@ MINIMUM_BAND = TITLE_HEIGHT + BULLET_LINE_HEIGHT
 # whichever layout carries the fewest placeholders.
 BLANK_LAYOUT = "Blank"
 
+# What that layout is called in the deck written, template or not. PowerPoint
+# matches a slide pasted into another deck to that deck's layouts by name, and
+# a template's emptiest layout is often "Title Slide", which in the other deck
+# may carry artwork of its own that the band was never measured against.
+LAYOUT_NAME = "mLOS layout"
+
 # How far a template's page may be from this renderer's before it is refused.
 # Not an equality test: SLIDE_WIDTH is Inches(13.333) and PowerPoint writes the
 # same page as 12192000 EMU, which is 13 and a third, so the two differ by four
@@ -1758,6 +1764,7 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
     # the deck is built; with none, the first slide is the deck's own.
     template_slides = 0 if template is None else len(deck.slides)
     blank = _blank_layout(deck)
+    blank.name = LAYOUT_NAME
 
     for spec in slides:
         slide = deck.slides.add_slide(blank)
