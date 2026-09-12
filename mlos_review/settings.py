@@ -83,6 +83,13 @@ class Settings:
     # explained from the podium before anything on it can be read. A reader
     # who wants the symmetry asks for it.
     ratio_log_scale: bool = False
+    # How much of its height a figure may lose to make room for a template's
+    # artwork, as a share of the height a plain page gives it. Zero brands a
+    # figure slide only where the band costs the figures nothing, which is the
+    # slides whose figures are held by their width and are leaving vertical
+    # room they cannot use. Raising it buys the branding on more slides and
+    # pays for it in the plots.
+    figure_shrink: float = 0.0
     # A one-slide .pptx whose artwork is stamped onto the slides with room for
     # it, and whose theme the whole deck is set in. None builds on pptx's own
     # template, which is what a deck built before this setting existed used.
@@ -182,6 +189,24 @@ def _require_flag(name: str, value) -> bool:
     raise SettingsError(f"{name}: {value!r} is not true or false.")
 
 
+def _require_fraction(name: str, value) -> float:
+    """A setting given as a share of something, from none of it to all of it.
+
+    Bounded at both ends because outside them it means nothing: a negative
+    share would ask a figure to grow for the band, and more than the whole of
+    one would ask for a figure that is not there. Booleans are refused rather
+    than taken as their integers, for the reason `_require_flag` refuses
+    strings: `true` here is a value the user believed was a share and was not.
+    """
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise SettingsError(f"{name}: {value!r} is not a number from 0 to 1.")
+    if not 0 <= value <= 1:
+        raise SettingsError(
+            f"{name}: {value!r} is outside 0 to 1, which is the share of a "
+            f"figure's height, from none of it to all of it.")
+    return float(value)
+
+
 def parse_template(value) -> Path | None:
     """The template path, checked for existence where it is written.
 
@@ -241,7 +266,7 @@ def from_mapping(data: dict) -> Settings:
     unknown_tables = sorted(set(tables) - {"high_low_flag"})
     if unknown_tables:
         raise SettingsError(f"Unrecognized tables setting(s): {', '.join(unknown_tables)}.")
-    unknown_figures = sorted(set(figures) - {"ratio_log_scale"})
+    unknown_figures = sorted(set(figures) - {"ratio_log_scale", "shrink_for_branding"})
     if unknown_figures:
         raise SettingsError(f"Unrecognized figures setting(s): {', '.join(unknown_figures)}.")
 
@@ -269,6 +294,9 @@ def from_mapping(data: dict) -> Settings:
         ratio_log_scale=_require_flag(
             "figures.ratio_log_scale",
             figures.get("ratio_log_scale", defaults.ratio_log_scale)),
+        figure_shrink=_require_fraction(
+            "figures.shrink_for_branding",
+            figures.get("shrink_for_branding", defaults.figure_shrink)),
         template=parse_template(data.get("template")),
         emphasis=emphasis,
     )

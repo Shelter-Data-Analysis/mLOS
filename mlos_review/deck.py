@@ -2178,7 +2178,7 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
 
     out_path, archived = prepare_output(out_path)
     render(slides, out_path, vocab, flag_style=settings.high_low_flag,
-           template=settings.template)
+           template=settings.template, figure_shrink=settings.figure_shrink)
     return out_path, archived
 
 

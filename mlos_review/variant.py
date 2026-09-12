@@ -573,7 +573,7 @@ def build_variant(results: str | Path | Bundle, outline_path: str | Path,
     figures.write_manifest()
     out_path, archived = prepare_output(out_path)
     render(slides, out_path, vocab, flag_style=settings.high_low_flag,
-           template=settings.template)
+           template=settings.template, figure_shrink=settings.figure_shrink)
     return out_path, archived, warnings
 
 

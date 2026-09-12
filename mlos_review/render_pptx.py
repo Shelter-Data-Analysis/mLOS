@@ -19,6 +19,7 @@ from pathlib import Path
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
@@ -200,6 +201,14 @@ BLANK_LAYOUT = "Blank"
 # may carry artwork of its own that the band was never measured against.
 LAYOUT_NAME = "mLOS layout"
 
+# How much of its height a figure may lose to make room for a template's
+# artwork, as a share of the height the plain page gives it. Zero brands a
+# figure slide only where the band costs the figures nothing measurable, which
+# on OC2 is the slides whose figures are already as wide as their half of the
+# page and are leaving vertical room they cannot use. One accepts any cut,
+# which is what `schematic` already says about a diagram.
+DEFAULT_FIGURE_SHRINK = 0.0
+
 # How far a template's page may be from this renderer's before it is refused.
 # Not an equality test: SLIDE_WIDTH is Inches(13.333) and PowerPoint writes the
 # same page as 12192000 EMU, which is 13 and a third, so the two differ by four
@@ -335,7 +344,12 @@ class Slide:
 # nothing else: a header band, a footer strip of logos. Its artwork is copied
 # onto the slides that have room for it rather than being put on the master,
 # because the figures are opaque white PNGs and a master would put the artwork
-# behind a rectangle. Which slides have room is `takes_decoration`.
+# behind a rectangle.
+#
+# Which slides have room is settled twice. `takes_decoration` answers for a
+# slide whose figures are not at stake, and `_figures_survive` measures the
+# rest: a figure already as wide as its column is leaving vertical room it
+# cannot use, and a band that takes only that room costs the reader nothing.
 #
 # What a template brings beyond its artwork is its theme, so the deck is set in
 # the template's fonts and reads its color scheme, and that applies to every
@@ -359,20 +373,21 @@ class Decoration:
 
 
 def takes_decoration(spec: "Slide") -> bool:
-    """Whether a template's artwork is worth putting on this slide.
+    """Whether this slide takes a template's artwork without its figures being
+    measured.
 
-    A slide carrying a figure is not. The figures are opaque white PNGs sized
-    to whatever the body leaves them, so artwork behind one is artwork nobody
-    sees, and taking an inch off the top and half an inch off the foot of a
-    survival curve costs more than a band is worth.
+    A slide carrying no figure has nothing to lose to the band but room for its
+    own text, which `_fitting_size` settles.
 
-    A schematic is the exception its `Slide` field describes, and only where it
-    sits BESIDE the text rather than under it. On TITLE it does, so what it
-    gives up to the band is width it can spare; under a list it would be giving
-    up the height it is read in.
+    A schematic has figures and takes the artwork anyway, for the reason its
+    `Slide` field describes: a diagram carries no value anyone reads off it, so
+    it can be cut to whatever the band leaves. That holds where the diagram
+    sits BESIDE the text rather than under it, which on TITLE it does; under a
+    list it would be giving up the height it is read in.
 
-    Whether the artwork FITS is a second question, asked in `render` once the
-    slide's content has been measured.
+    Every other slide with a figure is asked the narrower question instead, in
+    `_figures_survive`: not whether room may be taken from the figures, but
+    whether the band takes any.
     """
     if not spec.figures:
         return True
@@ -512,18 +527,30 @@ def _read_decoration(deck, path) -> Decoration:
         top=band[0], bottom=band[1])
 
 
+def _drop_slide(deck, index: int) -> None:
+    """Take one slide back out of a deck being built.
+
+    pptx offers no removal, so the slide is unhooked from the presentation the
+    way it was hooked on: the id entry goes, and the relationship it names goes
+    with it. Media stays in the package, which is what is wanted both times
+    this is called: the template's images are still under every slide stamped
+    with them, and a trial slide's figures are already related to the slide
+    that kept them.
+    """
+    entries = deck.slides._sldIdLst
+    if -len(entries) <= index < len(entries):
+        deck.part.drop_rel(entries[index].rId)
+        entries.remove(entries[index])
+
+
 def _drop_template_slide(deck) -> None:
     """Take the template's own slide back out, once the deck is built.
 
     Dropped rather than kept and skipped over: what was wanted from it is its
     shapes, and a template that printed its own page would put a blank one at
-    the front of the deck. Its images stay, every slide stamped with them
-    having related to them by now.
+    the front of the deck.
     """
-    entries = deck.slides._sldIdLst
-    if len(entries):
-        deck.part.drop_rel(entries[0].rId)
-        entries.remove(entries[0])
+    _drop_slide(deck, 0)
 
 
 # The namespace a copied shape names a relationship in: r:embed and r:link for
@@ -1708,9 +1735,10 @@ def _body_depth(spec: Slide, vocab: Vocabulary, flag_style: str,
     routines the layouts use, in the column they will set the text in, so the
     answer is the one they will reach.
 
-    A figure costs no height here. Every slide that reaches this either carries
-    none, or carries a schematic beside the text, which takes width rather than
-    height and shrinks to whatever is left.
+    A figure costs no height here, on any slide that reaches this. A figure is
+    sized to what the body leaves it rather than asking for a height of its
+    own, so what it does to the band is not a question of fit: it is the
+    question `_figures_survive` asks, and it asks it by drawing the slide.
     """
     column = _text_column(spec)
     depth = sum(bullet_height(line, column, bullet_pt) for line in spec.bullets)
@@ -1740,14 +1768,118 @@ def _fitting_size(spec: Slide, vocab: Vocabulary, flag_style: str,
     return None
 
 
+def _compose(slide, spec: Slide, vocab: Vocabulary, flag_style: str,
+             band: Decoration, bullet_pt: Pt) -> None:
+    """Draw one slide's title, standing lines and body inside a band.
+
+    Everything a slide carries except its notes, which say nothing about
+    geometry and would be written twice by the trials below. Takes the band as
+    an argument rather than reading a template, so the same call draws the
+    plain page and the branded one and the two can be compared.
+
+    Anything already on the slide is a template's artwork, which is set in the
+    template's own type and is not this file's to restyle.
+    """
+    artwork = len(slide.shapes)
+    _add_title(slide, spec.title,
+               OPENING_TITLE_PT if spec.layout == "TITLE" else TITLE_PT,
+               band.top)
+
+    body_top = band.top + int(TITLE_HEIGHT)
+    body_height = band.bottom - body_top
+    if spec.lead:
+        # Drawn first and then taken out of the body, the same bargain the
+        # footnote strikes: the layout is told what room is left rather than
+        # the lead being written over what the layout put there.
+        lead = lead_height(spec.lead)
+        _add_standing_line(slide, spec.lead, body_top, lead)
+        body_top += lead
+        body_height -= lead
+    if spec.footnote:
+        # The layout is told about the space the footnote takes rather than the
+        # footnote being drawn over whatever the layout put there.
+        body_height -= FOOTNOTE_HEIGHT
+        _add_slide_footnote(slide, spec.footnote, band.bottom)
+    if spec.close:
+        # Taken off the bottom of what is left, so it lands under whatever the
+        # layout draws and above the footnote. The layout is told the smaller
+        # body, the same bargain the lead and the footnote strike.
+        closing = lead_height(spec.close)
+        body_height -= closing
+        _add_standing_line(slide, spec.close,
+                           int(body_top + body_height), closing)
+    LAYOUT_FUNCTIONS[spec.layout](
+        slide, spec, vocab, body_top, int(body_height), flag_style, bullet_pt)
+    _set_font(slide, artwork)
+
+
+def _trial_heights(deck, blank, spec: Slide, vocab: Vocabulary, flag_style: str,
+                   band: Decoration, bullet_pt: Pt) -> list[int]:
+    """The heights this slide's figures come out at, drawn inside a band.
+
+    Drawn and measured rather than worked out from the layouts' arithmetic.
+    Each layout sizes its figures differently, and against a different box: a
+    STACKED slide's figures take what its table leaves, a SPLIT slide's take
+    what its table's width leaves, a QUADRANTS cell is a quarter of the grid.
+    A second copy of all of that here would be a copy to keep in step, and the
+    one that fell behind would make the wrong call silently.
+
+    The slide is taken back out once it has been measured. It costs the file
+    nothing: pptx names an image part after its content, so a figure drawn
+    twice is stored once, and the part stays behind for the slide that keeps
+    it. The artwork is not stamped, having no bearing on where a figure lands.
+    """
+    slide = deck.slides.add_slide(blank)
+    _compose(slide, spec, vocab, flag_style, band, bullet_pt)
+    heights = [int(shape.height) for shape in slide.shapes
+               if shape.shape_type == MSO_SHAPE_TYPE.PICTURE]
+    _drop_slide(deck, -1)
+    return heights
+
+
+def _figures_survive(deck, blank, spec: Slide, vocab: Vocabulary,
+                     flag_style: str, decoration: Decoration, bullet_pt: Pt,
+                     allowed: float) -> bool:
+    """Whether the band leaves this slide's figures the size the page gives them.
+
+    A figure is drawn as wide as its share of the box and its own ratio allow,
+    whichever is less. Where the width is what stops it, the box has height the
+    figure cannot use, and a band that takes only that height takes nothing a
+    reader would see. That is the case this asks about, and on OC2 it is half
+    the figure slides: the hazard-ratio and adjusted-LOS pages, whose single
+    figure runs the full width of its half of the page.
+
+    `allowed` is how much of a figure's height may go anyway, as a share of
+    what the plain page gives it. Compared in EMU rather than as a ratio of
+    floats, so the default of none of it means none of it.
+
+    A slide whose figure count differs between the two is refused rather than
+    reasoned about. Nothing does that today; a layout that dropped a figure it
+    could not place would, and silently branding that slide is not the answer.
+    """
+    plain = _trial_heights(deck, blank, spec, vocab, flag_style,
+                           Decoration(), BULLET_PT)
+    banded = _trial_heights(deck, blank, spec, vocab, flag_style,
+                            decoration, bullet_pt)
+    if len(plain) != len(banded):
+        return False
+    return all(small >= full - int(full * allowed)
+               for full, small in zip(plain, banded))
+
+
 def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
            flag_style: str = "MARK",
-           template: str | Path | None = None) -> Path:
+           template: str | Path | None = None,
+           figure_shrink: float = DEFAULT_FIGURE_SHRINK) -> Path:
     """Write a deck. Blank layout throughout: this file owns the geometry.
 
     `template` is a one-slide .pptx whose artwork is stamped onto the slides
     that have room for it and whose theme the whole deck is set in. Without
     one the deck is built on pptx's default template, as it always was.
+
+    `figure_shrink` is how much of its height a figure may lose to make that
+    room, as a share of the height the plain page gives it. See
+    `_figures_survive`.
     """
     if template is None:
         deck = Presentation()
@@ -1767,49 +1899,25 @@ def render(slides: list[Slide], path: str | Path, vocab: Vocabulary,
     blank.name = LAYOUT_NAME
 
     for spec in slides:
-        slide = deck.slides.add_slide(blank)
         # The plain slide's own band when there is no template, or when this
         # slide has no room for one, so everything below reads one pair of
         # numbers and no layout has to know a template is in play.
         decorated, bullet_pt = Decoration(), BULLET_PT
-        if decoration is not None and takes_decoration(spec):
+        if decoration is not None:
             size = _fitting_size(spec, vocab, flag_style,
                                  decoration.bottom - decoration.top)
-            if size is not None:
-                _stamp(slide, decoration)
+            # The figures are measured only where the slide has not already
+            # qualified, so the ordinary slide costs nothing to decide.
+            if size is not None and (
+                    takes_decoration(spec)
+                    or _figures_survive(deck, blank, spec, vocab, flag_style,
+                                        decoration, size, figure_shrink)):
                 decorated, bullet_pt = decoration, size
-        artwork = len(slide.shapes)
-        _add_title(slide, spec.title,
-                   OPENING_TITLE_PT if spec.layout == "TITLE" else TITLE_PT,
-                   decorated.top)
 
-        body_top = decorated.top + int(TITLE_HEIGHT)
-        body_height = decorated.bottom - body_top
-        if spec.lead:
-            # Drawn first and then taken out of the body, the same bargain the
-            # footnote strikes: the layout is told what room is left rather
-            # than the lead being written over what the layout put there.
-            lead = lead_height(spec.lead)
-            _add_standing_line(slide, spec.lead, body_top, lead)
-            body_top += lead
-            body_height -= lead
-        if spec.footnote:
-            # The layout is told about the space the footnote takes rather than
-            # the footnote being drawn over whatever the layout put there.
-            body_height -= FOOTNOTE_HEIGHT
-            _add_slide_footnote(slide, spec.footnote, decorated.bottom)
-        if spec.close:
-            # Taken off the bottom of what is left, so it lands under whatever
-            # the layout draws and above the footnote. The layout is told the
-            # smaller body, the same bargain the lead and the footnote strike.
-            closing = lead_height(spec.close)
-            body_height -= closing
-            _add_standing_line(slide, spec.close,
-                               int(body_top + body_height), closing)
-        LAYOUT_FUNCTIONS[spec.layout](
-            slide, spec, vocab, body_top, int(body_height), flag_style,
-            bullet_pt)
-        _set_font(slide, artwork)
+        slide = deck.slides.add_slide(blank)
+        if decorated.elements:
+            _stamp(slide, decorated)
+        _compose(slide, spec, vocab, flag_style, decorated, bullet_pt)
 
         paragraphs = list(spec.notes) + _notes_sections(spec)
         if paragraphs:

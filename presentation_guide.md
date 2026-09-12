@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260911_007. Read it in any markdown reader,
+presentation guide, version 20260912_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -241,31 +241,64 @@ inputs, which would be renamed out of the way.
 | `emphasis.<stratifier>` | `AUTO`, `ALWAYS`, `NEVER`, or a list of levels | all four, for the one decision salience currently drives |
 | `aj_coverage` | `FULL`, `TEASER`, `NONE` | yes; `TEASER` carries the whole-sample slide and one stratifier's, `FULL` carries every stratifier's |
 | `figures.ratio_log_scale` | yes, no | yes; the log x axis on the two ratio figures |
+| `figures.shrink_for_branding` | 0 to 1 | yes; how much of a figure's height may go so its slide can carry the template's artwork |
 | `template` | path to a one-slide `.pptx` | yes, on the slides that have room for it |
 
 A template is branding, not a layout: its slide carries artwork and nothing
 else, and the renderer copies that artwork onto the slides it fits. The band
 left free is measured from where the artwork sits, so a header, a footer strip
-of logos or both are read as what they are. A slide carrying a figure is left
-plain, the figures being opaque and sized to whatever the body leaves them, and
-so is a slide whose content is taller than the band at any bullet size. On the
-OC2 deck twenty-one of the fifty-two slides are branded: the closing findings,
-the recommendations, the section openers, three of the four table slides, and
-the educational slide that carries the observation-window diagram.
+of logos or both are read as what they are. A slide whose content is taller
+than the band at any bullet size is left plain.
+
+A slide carrying a figure is asked a second question, because a figure is not
+text and does not wrap: it is drawn as wide as its share of the page and its
+own proportions allow, whichever is less. Where the width is what stops it, the
+slide is holding height the figure cannot use, and a band that takes only that
+height takes nothing a reader sees. Such a slide is branded; the title and the
+table beside it move down, and the figure is drawn where it would have been, at
+the size it would have been. Where the band would reach into the figure, the
+slide keeps the whole page instead.
+
+The renderer settles that by drawing the slide both ways and comparing the
+figures it placed, rather than by working the answer out from the layouts'
+arithmetic. Each layout sizes its figures against a different box, so a second
+copy of that arithmetic would be one to keep in step. The trial slides are
+taken back out and cost the file nothing.
+
+On the OC2 deck with `deck_example_template.pptx`, twenty-nine of the
+forty-eight slides are branded: every table slide and every section opener,
+the closing findings and the recommendations, and twelve of the thirty-one
+slides that carry figures. No figure on any of them is drawn a pixel smaller
+than it would be on a plain page.
 
 A slide that does not fit at eighteen point is measured again at sixteen and at
 fourteen, and takes the artwork at the largest size that fits. The alternative
 is a slide that loses the branding its neighbours have over a quarter of an
 inch. On OC2 one slide steps down.
 
-`Slide.schematic` is how the diagram slide qualifies at all. It says the
-figures are drawn to be recognized rather than measured, so room taken from
-them costs nothing; the rule that builds the slide sets it, since what a figure
-is showing is the rule's to say. It applies where the figure sits beside the
-text rather than under it, which on the TITLE layout it does: what the figure
-gives up is width it can spare, and under a list it would be giving up the
-height it is read in. On OC2 the diagram goes from 6.17 by 4.16 inches to 6.11
-by 4.12.
+`Slide.schematic` says the figures are drawn to be recognized rather than
+measured, so room taken from them costs nothing whatever the band asks for; the
+rule that builds the slide sets it, since what a figure is showing is the
+rule's to say. It applies where the figure sits beside the text rather than
+under it, which on the TITLE layout it does: what the figure gives up is width
+it can spare, and under a list it would be giving up the height it is read in.
+It holds for a diagram the band would reach into; on OC2 the band reaches into
+none of them, so it decides no slide there.
+
+`figures.shrink_for_branding` is the same permission for figures that are read
+rather than recognized, and it is granted in inches rather than per slide. On
+the OC2 deck it buys this:
+
+| | branded | figure slides branded | figures cut |
+|---|---|---|---|
+| 0, the default | 29 of 48 | 12 of 31 | none of 42 |
+| 0.06 | 35 of 48 | 18 of 31 | 6, the deepest by 5.8% |
+| 1 | 45 of 48 | 28 of 31 | 26, the deepest by 32% |
+
+Set it against what the figures are for, since a curve an audience reads
+numbers off is not a diagram. Three of the thirty-one brand at no tolerance:
+their content is taller than the band at every bullet size, which is the other
+refusal and is not about figures at all.
 
 The template sets the page's color scheme. It has to be one slide at the same
 page size, 13.333 by 7.5 inches, with its artwork on that slide rather than
@@ -290,16 +323,17 @@ python3 -m mlos_review.deck --template=data/deck_example_template.pptx
 the band decides how much of a deck can carry the branding. Measured as the
 room left under a slide's title:
 
-| | body | branded, of the OC2 deck |
-|---|---|---|
-| a plain slide | 5.90in | |
-| `deck_example_template.pptx`, bars of 0.8in and 0.7in | 4.90in | 18 of 48 |
-| bars of about 1.3in each | 4.12in | 20 of 52 |
+| | body | branded, of the OC2 deck | of them, carrying figures |
+|---|---|---|---|
+| a plain slide | 5.90in | | |
+| `deck_example_template.pptx`, bars of 0.8in and 0.7in | 4.90in | 29 of 48 | 12 of 31 |
+| bars of about 1.3in each | 4.12in | 26 of 52 | 7 of 31 |
 
 The three-table opening slide needs 4.71 inches and so brands under the first
 and not the second, which is the kind of thing deepening a bar by half an inch
-costs. Slide counts differ because the closing sections repaginate against the
-band.
+costs. The figure slides go with it: an inch of bar is room a figure was not
+using, and two and a half inches is room it was. Slide counts differ because
+the closing sections repaginate against the band.
 
 `--template=FILE` overrides whatever the settings file says, and is how a
 template that lives outside the repository is used without writing a machine's

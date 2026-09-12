@@ -72,6 +72,7 @@ from mlos_review.bundle import Bundle  # noqa: E402
 from mlos_review.deck import build, figure_directory  # noqa: E402
 from mlos_review.names import Vocabulary, capitalize_first  # noqa: E402
 from pptx import Presentation  # noqa: E402
+from pptx.enum.shapes import MSO_SHAPE_TYPE  # noqa: E402
 from pptx.util import Inches  # noqa: E402
 
 # Words allowed to start a label with a capital: acronyms the reader is assumed
@@ -421,6 +422,11 @@ def check_settings() -> None:
     expect_equal("default output path", str(d.output_path), "reports/mlos_deck.pptx")
     expect_equal("default emphasis is AUTO", d.emphasis_for("group"), Emphasis())
 
+    expect_equal("a figure gives up no height by default", d.figure_shrink, 0.0)
+    expect_equal("and takes the share the file names",
+                 from_mapping({"figures": {"shrink_for_branding": 0.06}}).figure_shrink,
+                 0.06)
+
     picked = from_mapping({"emphasis": {"animal_group": ["LRG", "XL"]}})
     expect_equal("naming levels pins them",
                  picked.emphasis_for("group").levels, ("LRG", "XL"))
@@ -446,6 +452,11 @@ def check_settings() -> None:
         ({"emphasis": {"period": 3}}, "a number where a keyword belongs"),
         ("not a mapping", "a file that is not a mapping"),
         ({"emphasis": "NEVER"}, "a keyword where the emphasis mapping belongs"),
+        ({"figures": {"shrink_for_branding": -0.1}}, "a negative figure shrink"),
+        ({"figures": {"shrink_for_branding": 1.5}}, "a figure shrink over 1"),
+        ({"figures": {"shrink_for_branding": True}}, "a flag where a share belongs"),
+        ({"figures": {"shrink_for_branding": "some"}}, "a word where a share belongs"),
+        ({"figures": {"shrink_for_brandng": 0.1}}, "a mistyped figures key"),
         ({"output": "reports"}, "a bare value where the output mapping belongs"),
     ]
     for data, label in refusals:
@@ -1748,6 +1759,83 @@ def check_example_template() -> None:
            body >= Inches(4.7), f"{Emu(body).inches:.2f}in is under 4.7in")
     expect("which is less than a plain slide's, or it is not artwork",
            band.bottom - band.top < plain.bottom - plain.top)
+
+
+def check_figure_slide_branding() -> None:
+    """A figure slide is branded when the band costs its figures nothing.
+
+    The whole point of measuring instead of refusing every figure slide, and
+    the property that must hold for the measurement to be worth anything: the
+    figure on a branded slide is drawn at the size the plain page would have
+    given it, to the EMU. Synthetic, so the two cases are the two shapes rather
+    than whatever the current OC data happens to produce: a wide figure is
+    stopped by the width of its column and leaves height it cannot use, a tall
+    one is stopped by the height and has none to give.
+
+    `shrink_for_branding` is checked at both ends, since a tolerance that
+    changed nothing would pass every assertion the default already passes.
+    """
+    from PIL import Image
+    from mlos_review.render_pptx import (SLIDE_HEIGHT, SLIDE_WIDTH, Slide,
+                                         render)
+
+    section("figure slide branding (synthetic)")
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        # A band an inch deep, top and foot, drawn as plain bars.
+        template = Presentation()
+        template.slide_width, template.slide_height = SLIDE_WIDTH, SLIDE_HEIGHT
+        artwork = template.slides.add_slide(template.slide_layouts[6])
+        for top in (Inches(0), SLIDE_HEIGHT - Inches(1)):
+            bar = artwork.shapes.add_textbox(Inches(0), top, SLIDE_WIDTH,
+                                             Inches(1))
+            bar.text_frame.text = "artwork"
+        template.save(str(tmp / "template.pptx"))
+
+        Image.new("RGB", (1200, 300), "white").save(tmp / "wide.png")
+        Image.new("RGB", (300, 1200), "white").save(tmp / "tall.png")
+        cases = {"wide": Slide(title="a wide figure",
+                               figures=[tmp / "wide.png"], layout="SPLIT"),
+                 "tall": Slide(title="a tall figure",
+                               figures=[tmp / "tall.png"], layout="SPLIT")}
+
+        def drawn(name, **options):
+            out = tmp / f"{name}.pptx"
+            render([cases[name]], out, Vocabulary({}), **options)
+            slide = Presentation(str(out)).slides[0]
+            pictures = [shape for shape in slide.shapes
+                        if shape.shape_type == MSO_SHAPE_TYPE.PICTURE]
+            branded = any(shape.has_text_frame
+                          and shape.text_frame.text == "artwork"
+                          for shape in slide.shapes)
+            return branded, [int(shape.height) for shape in pictures]
+
+        for name, keeps in (("wide", True), ("tall", False)):
+            plain_branded, plain_heights = drawn(name)
+            expect(f"{name}: the plain page is plain", not plain_branded)
+            branded, heights = drawn(name, template=tmp / "template.pptx")
+            expect_equal(f"{name}: branded where the band is free", branded,
+                         keeps)
+            if keeps:
+                expect_equal(f"{name}: and its figure is untouched", heights,
+                             plain_heights)
+            else:
+                expect("the figure keeps the height the plain page gave it",
+                       heights == plain_heights)
+
+            # Allowing any cut at all brands both, and the tall one pays for it.
+            branded, heights = drawn(name, template=tmp / "template.pptx",
+                                     figure_shrink=1.0)
+            expect(f"{name}: any cut allowed brands it", branded)
+            expect(f"{name}: and the band is what it costs",
+                   heights <= plain_heights)
+        # The tall figure is the one a tolerance buys, so it is the one that
+        # has to be smaller once bought; equal would mean nothing was allowed.
+        _, plain_heights = drawn("tall")
+        _, cut = drawn("tall", template=tmp / "template.pptx",
+                       figure_shrink=1.0)
+        expect("a tolerance is what pays for the tall figure's slide",
+               cut[0] < plain_heights[0], f"{cut} against {plain_heights}")
 
 
 def check_template_links() -> None:
@@ -4861,6 +4949,7 @@ def main(argv: list[str]) -> int:
         check_dependency_declaration,
         check_notebook_file_listing,
         check_example_template,
+        check_figure_slide_branding,
         check_template_links,
         check_template_slide_count,
         check_template_without_room,

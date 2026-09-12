@@ -92,11 +92,34 @@ emphasis:
 aj_coverage: FULL
 
 
+figures:
+  # How much of its height a figure may lose so its slide can carry the
+  # template's artwork, as a share of the height a plain page gives it.
+  #
+  # 0 is the default and brands a figure slide only where the band costs the
+  # figures nothing at all. A figure is drawn as wide as its share of the page
+  # and its own proportions allow, whichever is less; where the width is what
+  # stops it, the slide is holding height the figure cannot use, and a band
+  # that takes only that height takes nothing anyone sees. On OC2 with the
+  # example template that is twelve of the thirty-one slides carrying figures,
+  # and the deck goes from 18 branded slides of 48 to 29.
+  #
+  # Raising it buys the branding on more slides and pays for it in the plots.
+  # On OC2, 0.06 brands six more figure slides and cuts the deepest figure by
+  # six percent of its height; 1 brands every slide whose text fits the band at
+  # all and cuts the deepest by a third. What the figures on a slide are FOR
+  # decides whether that is a bargain: a curve an audience reads numbers off is
+  # not a diagram.
+  #
+  #   shrink_for_branding: 0.06
+
+
 # A one-slide .pptx whose artwork is copied onto the slides that have room for
 # it: a header band, a footer strip of logos, anything the slide carries. The
 # free band is measured from where the artwork sits, and a slide is decorated
-# when its title, body and footnote fit inside that band; the ones that do not,
-# and every slide carrying a figure, keep the whole page and go without.
+# when its title, body and footnote fit inside that band. A slide carrying a
+# figure is decorated when the band costs its figures no more than
+# `figures.shrink_for_branding` allows.
 #
 # The template must be one slide at the same page size, 13.333 by 7.5 inches,
 # with its artwork on that slide, not on a layout or the master, and leaving
