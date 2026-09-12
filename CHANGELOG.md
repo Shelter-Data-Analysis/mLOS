@@ -22,7 +22,8 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 **No number changed**: only the deck builder moved. Every deck now names the
 layout its slides sit on `mLOS layout`, so none is byte-identical to the one
 before, and a deck built with a template now carries that template's artwork on
-about half the slides that carry figures. A deck built without one is unchanged.
+slides that carry figures, as many of them as the band the artwork leaves has
+room for. A deck built without one is unchanged.
 
 - A slide carrying a figure now takes a template's artwork where the band the
   artwork leaves costs its figures nothing. A figure is drawn as wide as its

@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260912_002. Read it in any markdown reader,
+presentation guide, version 20260912_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -2156,8 +2156,7 @@ A renderer knows how to put a title, figures, a table, and notes onto a page.
 It knows nothing about what any of them mean.
 
 `render_pptx.py` computes geometry from the slide size rather than hardcoding
-it, because the figure count varies. Figures preserve their 4:3 aspect ratio
-for consistency.
+it, because the figure count varies.
 
 A slide names one of six **layouts**, which is the presentational vocabulary
 a rule has. How many figures a slide carries and whether they are peers is
