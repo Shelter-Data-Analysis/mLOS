@@ -93,6 +93,15 @@ aj_coverage: FULL
 
 
 figures:
+  # Whether the two ratio figures, the hazard ratios and the length-of-stay
+  # ratios, use a log x axis. A ratio is multiplicative, so only a log scale
+  # draws 2 and 0.5 as the same size of effect and puts the dashed line at 1 in
+  # the middle. It is also a thing to be explained from the podium before
+  # anything on it can be read, which is why the plain axis is the default: it
+  # is the audience's. Ask for the symmetry when the audience is one that reads
+  # a log axis without being told.
+  ratio_log_scale: no
+
   # How much of its height a figure may lose so its slide can carry the
   # template's artwork, as a share of the height a plain page gives it.
   #

@@ -21,9 +21,33 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 **No number changed**: only the deck builder moved. Every deck now names the
 layout its slides sit on `mLOS layout`, so none is byte-identical to the one
-before. Otherwise a deck is unchanged unless its template carries a link, has
-no slides, or is now refused.
+before, and a deck built with a template now carries that template's artwork on
+about half the slides that carry figures. A deck built without one is unchanged.
 
+- A slide carrying a figure now takes a template's artwork where the band the
+  artwork leaves costs its figures nothing. A figure is drawn as wide as its
+  share of the page and its own proportions allow, whichever is less; where the
+  width is what stops it, the slide holds height the figure cannot use. The
+  title and any table beside it move down, and the figure keeps the size and
+  the place a plain page would have given it. On OC2 with
+  `data/deck_example_template.pptx` the deck goes from 18 branded slides of 48
+  to 29, and the figure slides among them from 1 of 31 to 12.
+- `figures.shrink_for_branding`, 0 to 1, is how much of a figure's height may
+  go anyway, as a share of what a plain page gives it. It defaults to 0, which
+  is the measured refusal above. On OC2, 0.06 brands six more figure slides at
+  a deepest cut of 5.8%, and 1 brands every slide whose text fits the band.
+- `Slide.schematic` is gone. It let the opening diagram's slide take the
+  artwork by conceding whatever the band asked for, which the measurement above
+  now grants that slide without being told: branding and figure geometry are
+  identical across the OC2 deck with it and without it. What it said belongs to
+  a deck rather than to a slide, and `figures.shrink_for_branding` says it
+  there.
+- `tests/run_review_tests.py` gains `check_figure_slide_branding`: a wide
+  figure's slide is branded and its figure is untouched to the EMU, a tall
+  figure's slide is left plain, and a tolerance of 1 brands both and is shown
+  to cost the tall one height.
+- `data/OC_deck_settings.yaml` gains a `figures` section, documenting
+  `ratio_log_scale`, which the file had never carried, beside the new setting.
 - A template whose artwork carries a hyperlink, a linked logo say, put the
   link's id on every branded slide without the link, so each slide named a
   relationship it did not hold, which PowerPoint reads as a damaged file.

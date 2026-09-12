@@ -206,7 +206,8 @@ LAYOUT_NAME = "mLOS layout"
 # figure slide only where the band costs the figures nothing measurable, which
 # on OC2 is the slides whose figures are already as wide as their half of the
 # page and are leaving vertical room they cannot use. One accepts any cut,
-# which is what `schematic` already says about a diagram.
+# which is the right answer for a diagram drawn to be recognized rather than
+# read off.
 DEFAULT_FIGURE_SHRINK = 0.0
 
 # How far a template's page may be from this renderer's before it is refused.
@@ -311,16 +312,9 @@ class Slide:
                    a figure taking the half beside them if there is one. The
                    opening slide.
 
-    `schematic` says the figures on this slide are diagrams rather than
-    readings: they carry no value anyone reads off them, so room taken from
-    them costs nothing, and a slide that would otherwise go unbranded can take
-    a template's artwork by giving its diagram the smaller half. A rule sets it
-    about its own figures, since what a figure is showing is the rule's to say.
-
-    `layout` and `schematic` are what a rule declares about presentation,
-    because how many figures a slide carries, whether they are peers and
-    whether they hold values are things only the rule knows; the geometry that
-    follows from them is decided here.
+    `layout` is what a rule declares about presentation, because how many
+    figures a slide carries and whether they are peers are things only the rule
+    knows; the geometry that follows from them is decided here.
     """
 
     title: str
@@ -335,7 +329,6 @@ class Slide:
     lead: str = ""
     close: str = ""
     layout: str = "STACKED"
-    schematic: bool = False
 
 
 # --- Templates -----------------------------------------------------------
@@ -379,19 +372,12 @@ def takes_decoration(spec: "Slide") -> bool:
     A slide carrying no figure has nothing to lose to the band but room for its
     own text, which `_fitting_size` settles.
 
-    A schematic has figures and takes the artwork anyway, for the reason its
-    `Slide` field describes: a diagram carries no value anyone reads off it, so
-    it can be cut to whatever the band leaves. That holds where the diagram
-    sits BESIDE the text rather than under it, which on TITLE it does; under a
-    list it would be giving up the height it is read in.
-
-    Every other slide with a figure is asked the narrower question instead, in
-    `_figures_survive`: not whether room may be taken from the figures, but
-    whether the band takes any.
+    A slide with a figure is asked the narrower question instead, in
+    `_figures_survive`: not whether room may be taken from its figures, but
+    whether the band takes any, and `figure_shrink` says how much may go
+    regardless.
     """
-    if not spec.figures:
-        return True
-    return spec.schematic and spec.layout == "TITLE"
+    return not spec.figures
 
 
 def free_band(shapes) -> tuple[int, int]:
@@ -1716,8 +1702,8 @@ def _text_column(spec: Slide) -> int:
     """The width this slide's text is set in, which decides how far it wraps.
 
     Full width, except where a figure takes the other half: TITLE puts its
-    schematic beside the text rather than under it, and the same sentence wraps
-    to twice the lines in half the column.
+    figure beside the text rather than under it, and the same sentence wraps to
+    twice the lines in half the column.
     """
     width = int(SLIDE_WIDTH - 2 * MARGIN)
     if spec.layout == "TITLE" and spec.figures:

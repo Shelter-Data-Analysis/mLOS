@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260912_001. Read it in any markdown reader,
+presentation guide, version 20260912_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -276,18 +276,12 @@ fourteen, and takes the artwork at the largest size that fits. The alternative
 is a slide that loses the branding its neighbours have over a quarter of an
 inch. On OC2 one slide steps down.
 
-`Slide.schematic` says the figures are drawn to be recognized rather than
-measured, so room taken from them costs nothing whatever the band asks for; the
-rule that builds the slide sets it, since what a figure is showing is the
-rule's to say. It applies where the figure sits beside the text rather than
-under it, which on the TITLE layout it does: what the figure gives up is width
-it can spare, and under a list it would be giving up the height it is read in.
-It holds for a diagram the band would reach into; on OC2 the band reaches into
-none of them, so it decides no slide there.
-
-`figures.shrink_for_branding` is the same permission for figures that are read
-rather than recognized, and it is granted in inches rather than per slide. On
-the OC2 deck it buys this:
+`figures.shrink_for_branding` is how much of a figure's height may go anyway,
+for a deck whose figures are drawn to be recognized rather than read off. It is
+granted to the deck rather than to a slide, because what a figure is for is a
+property of the set of them a run produces, and a rule that claimed it slide by
+slide claimed it about figures the settings file had never seen. On the OC2
+deck it buys this:
 
 | | branded | figure slides branded | figures cut |
 |---|---|---|---|
