@@ -34,6 +34,8 @@ from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
+from pptx.util import Pt
+
 from mlos_review.blocks import (
     aj_highlights_table,
     aj_levels_table,
@@ -96,8 +98,9 @@ from mlos_review.recommend import (cap_binding, dimension_not_separating,
                                    tail_spread, unestimable_levels)
 from mlos_review.salience import (earns_slides, findings_for_salience,
                                   salience_notes)
-from mlos_review.render_pptx import (Bullet, Slide, bullet_pages, lead_height,
-                                     render, template_band, text_budget)
+from mlos_review.render_pptx import (BULLET_PT, Bullet, Slide, bullet_pages,
+                                     lead_height, render, template_band,
+                                     text_budget)
 from mlos_review.settings import (DEFAULT_SETTINGS_FILE, Settings,
                                   load as load_settings,
                                   parse_template)
@@ -1521,7 +1524,8 @@ def aj_teaser_stratifier(bundle: Bundle, settings: Settings) -> str | None:
 
 
 def _gathered_section(slides: list[Slide], gather, title: str, note: str,
-                      lead: str = "", budget: int | None = None) -> list[Slide]:
+                      lead: str = "", budget: int | None = None,
+                      size: Pt = BULLET_PT) -> list[Slide]:
     """One closing section, paginated: the shape both of them share.
 
     Parameterised by an accessor rather than by a field name, so what is
@@ -1533,6 +1537,8 @@ def _gathered_section(slides: list[Slide], gather, title: str, note: str,
     that each page is a fresh claim. The renderer is told what the lead costs
     so the first page breaks one bullet earlier rather than running the last
     line off the bottom.
+
+    `size` is the type the pages are set in, which the lead is measured at too.
     """
     # De-duplicated, keeping the first appearance. A run of slides that share
     # one set of findings hangs that set on every one of them, so that a
@@ -1553,7 +1559,7 @@ def _gathered_section(slides: list[Slide], gather, title: str, note: str,
               bullets=page,
               lead=lead if index == 0 else "")
         for index, page in enumerate(
-            bullet_pages(gathered, lead_height(lead), budget))
+            bullet_pages(gathered, lead_height(lead, size), budget, size))
     ]
 
 
@@ -1570,8 +1576,8 @@ RECOMMENDATIONS_NOTE = (
     "to, and each names the setting or the data change it would take.")
 
 
-def recommendations_section(slides: list[Slide],
-                            budget: int | None = None) -> list[Slide]:
+def recommendations_section(slides: list[Slide], budget: int | None = None,
+                            size: Pt = BULLET_PT) -> list[Slide]:
     """Gather what the section slides recommended, after the findings.
 
     After rather than among them, because they are a different speech act: a
@@ -1582,7 +1588,7 @@ def recommendations_section(slides: list[Slide],
     """
     return _gathered_section(slides, lambda slide: slide.recommendations,
                              RECOMMENDATIONS_TITLE, RECOMMENDATIONS_NOTE,
-                             budget=budget)
+                             budget=budget, size=size)
 
 
 def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
@@ -1881,8 +1887,8 @@ def educational_section(bundle: Bundle, vocab: Vocabulary) -> list[Slide]:
     return [divider] + built
 
 
-def findings_section(slides: list[Slide],
-                     budget: int | None = None) -> list[Slide]:
+def findings_section(slides: list[Slide], budget: int | None = None,
+                     size: Pt = BULLET_PT) -> list[Slide]:
     """Gather what the section slides found into a closing SECTION.
 
     The findings are written where the numbers are, then collected here, so
@@ -1906,7 +1912,7 @@ def findings_section(slides: list[Slide],
     # read after the findings is a qualification read too late.
     return _gathered_section(slides, lambda slide: slide.findings,
                              "Findings", note, lead=AUTOMATION_CAVEAT,
-                             budget=budget)
+                             budget=budget, size=size)
 
 
 def missing_pinned_levels(bundle: Bundle, settings: Settings) -> dict[str, list[str]]:
@@ -2082,8 +2088,9 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
     # its pages have to break against the band the artwork leaves rather than
     # against the whole slide.
     budget = text_budget(template_band(settings.template))
-    closing = (findings_section(slides, budget)
-               + recommendations_section(slides, budget))
+    size = Pt(settings.bullet_size)
+    closing = (findings_section(slides, budget, size)
+               + recommendations_section(slides, budget, size))
     slides.extend(closing)
 
     # After the closing sections, and deliberately: these are not part of the
@@ -2174,7 +2181,8 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
 
     out_path, archived = prepare_output(out_path)
     render(slides, out_path, vocab, flag_style=settings.high_low_flag,
-           template=settings.template, figure_shrink=settings.figure_shrink)
+           template=settings.template, figure_shrink=settings.figure_shrink,
+           bullet_pt=Pt(settings.bullet_size))
     return out_path, archived
 
 

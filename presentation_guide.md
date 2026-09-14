@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260912_003. Read it in any markdown reader,
+presentation guide, version 20260914_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -242,6 +242,7 @@ inputs, which would be renamed out of the way.
 | `aj_coverage` | `FULL`, `TEASER`, `NONE` | yes; `TEASER` carries the whole-sample slide and one stratifier's, `FULL` carries every stratifier's |
 | `figures.ratio_log_scale` | yes, no | yes; the log x axis on the two ratio figures |
 | `figures.shrink_for_branding` | 0 to 1 | yes; how much of a figure's height may go so its slide can carry the template's artwork |
+| `bullets.size` | 14 to 28 | yes; the point size of bullets and of the standing lines above and below them |
 | `template` | path to a one-slide `.pptx` | yes, on the slides that have room for it |
 
 A template is branding, not a layout: its slide carries artwork and nothing
@@ -271,10 +272,12 @@ the closing findings and the recommendations, and twelve of the thirty-one
 slides that carry figures. No figure on any of them is drawn a pixel smaller
 than it would be on a plain page.
 
-A slide that does not fit at eighteen point is measured again at sixteen and at
-fourteen, and takes the artwork at the largest size that fits. The alternative
-is a slide that loses the branding its neighbours have over a quarter of an
-inch. On OC2 one slide steps down.
+A slide that does not fit at the deck's bullet size, 18 point unless
+`bullets.size` says otherwise, is measured again two and four points smaller,
+standing lines included, and takes the artwork at the largest size that fits.
+The alternative is a slide that loses the branding its neighbours have over a
+quarter of an inch. On OC2 one slide steps down. Larger type breaks the closing
+sections onto more pages: on OC2, 22 point takes the deck from 48 slides to 53.
 
 `figures.shrink_for_branding` is how much of a figure's height may go anyway,
 for a deck whose figures are drawn to be recognized rather than read off. It is

@@ -34,6 +34,11 @@ AJ_COVERAGE = ("FULL", "TEASER", "NONE")
 # tables whether or not the usual selectors would have chosen them.
 EMPHASIS_KEYWORDS = ("AUTO", "ALWAYS", "NEVER")
 
+# The point sizes bullets may be set in. The floor is where a slide stepping
+# down four points to fit a template's band reaches the footnote size, and the
+# ceiling is the slide title's.
+BULLET_SIZE_RANGE = (14, 28)
+
 # Settings-file stratifier names, which are the words a reader knows, mapped to
 # the bundle's internal ids.
 STRATIFIER_KEYS = {
@@ -90,6 +95,9 @@ class Settings:
     # room they cannot use. Raising it buys the branding on more slides and
     # pays for it in the plots.
     figure_shrink: float = 0.0
+    # The point size a slide's bullets are set in, and the standing lines above
+    # and below them. Titles, tables and footnotes keep their own sizes.
+    bullet_size: float = 18.0
     # A one-slide .pptx whose artwork is stamped onto the slides with room for
     # it, and whose theme the whole deck is set in. None builds on pptx's own
     # template, which is what a deck built before this setting existed used.
@@ -207,6 +215,20 @@ def _require_fraction(name: str, value) -> float:
     return float(value)
 
 
+def _require_points(name: str, value, allowed: tuple[int, int]) -> float:
+    """A type size in points, within the range the layouts are built for.
+
+    Booleans are refused for the reason `_require_fraction` gives.
+    """
+    low, high = allowed
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise SettingsError(f"{name}: {value!r} is not a number of points.")
+    if not low <= value <= high:
+        raise SettingsError(
+            f"{name}: {value!r} is outside {low} to {high} points.")
+    return float(value)
+
+
 def parse_template(value) -> Path | None:
     """The template path, checked for existence where it is written.
 
@@ -236,7 +258,7 @@ def from_mapping(data: dict) -> Settings:
         raise SettingsError("The settings file must be a mapping of keys to values.")
 
     known = {"output", "tables", "emphasis", "aj_coverage", "figures",
-             "template"}
+             "bullets", "template"}
     unknown = sorted(set(data) - known)
     if unknown:
         raise SettingsError(
@@ -247,13 +269,15 @@ def from_mapping(data: dict) -> Settings:
     output = data.get("output") or {}
     tables = data.get("tables") or {}
     figures = data.get("figures") or {}
+    bullets = data.get("bullets") or {}
     emphasis_in = data.get("emphasis") or {}
 
     # Refused by type before the keys are judged, or a scalar here would be
     # iterated as its characters and refused as unrecognized single-letter
     # keys, which points the user at entirely the wrong mistake.
     for name, section in (("output", output), ("tables", tables),
-                          ("figures", figures), ("emphasis", emphasis_in)):
+                          ("figures", figures), ("bullets", bullets),
+                          ("emphasis", emphasis_in)):
         if not isinstance(section, dict):
             raise SettingsError(
                 f"{name}: expected a mapping of keys to values, got "
@@ -269,6 +293,9 @@ def from_mapping(data: dict) -> Settings:
     unknown_figures = sorted(set(figures) - {"ratio_log_scale", "shrink_for_branding"})
     if unknown_figures:
         raise SettingsError(f"Unrecognized figures setting(s): {', '.join(unknown_figures)}.")
+    unknown_bullets = sorted(set(bullets) - {"size"})
+    if unknown_bullets:
+        raise SettingsError(f"Unrecognized bullets setting(s): {', '.join(unknown_bullets)}.")
 
     unknown_strata = sorted(set(emphasis_in) - set(STRATIFIER_KEYS))
     if unknown_strata:
@@ -297,6 +324,9 @@ def from_mapping(data: dict) -> Settings:
         figure_shrink=_require_fraction(
             "figures.shrink_for_branding",
             figures.get("shrink_for_branding", defaults.figure_shrink)),
+        bullet_size=_require_points(
+            "bullets.size", bullets.get("size", defaults.bullet_size),
+            BULLET_SIZE_RANGE),
         template=parse_template(data.get("template")),
         emphasis=emphasis,
     )

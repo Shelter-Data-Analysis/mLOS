@@ -73,7 +73,7 @@ from mlos_review.deck import build, figure_directory  # noqa: E402
 from mlos_review.names import Vocabulary, capitalize_first  # noqa: E402
 from pptx import Presentation  # noqa: E402
 from pptx.enum.shapes import MSO_SHAPE_TYPE  # noqa: E402
-from pptx.util import Inches  # noqa: E402
+from pptx.util import Inches, Pt  # noqa: E402
 
 # Words allowed to start a label with a capital: acronyms the reader is assumed
 # to know, and proper nouns. Everything else must begin lowercase so a label can
@@ -422,6 +422,10 @@ def check_settings() -> None:
     expect_equal("default output path", str(d.output_path), "reports/mlos_deck.pptx")
     expect_equal("default emphasis is AUTO", d.emphasis_for("group"), Emphasis())
 
+    expect_equal("bullets are set at 18 point by default", d.bullet_size, 18.0)
+    expect_equal("and at the size the file names",
+                 from_mapping({"bullets": {"size": 22}}).bullet_size, 22.0)
+
     expect_equal("a figure gives up no height by default", d.figure_shrink, 0.0)
     expect_equal("and takes the share the file names",
                  from_mapping({"figures": {"shrink_for_branding": 0.06}}).figure_shrink,
@@ -458,6 +462,12 @@ def check_settings() -> None:
         ({"figures": {"shrink_for_branding": "some"}}, "a word where a share belongs"),
         ({"figures": {"shrink_for_brandng": 0.1}}, "a mistyped figures key"),
         ({"output": "reports"}, "a bare value where the output mapping belongs"),
+        ({"bullets": {"size": 12}}, "a bullet size under the range"),
+        ({"bullets": {"size": 30}}, "a bullet size over the range"),
+        ({"bullets": {"size": True}}, "a flag where a bullet size belongs"),
+        ({"bullets": {"size": "large"}}, "a word where a bullet size belongs"),
+        ({"bullets": {"sise": 20}}, "a mistyped bullets key"),
+        ({"bullets": 20}, "a bare value where the bullets mapping belongs"),
     ]
     for data, label in refusals:
         try:
@@ -525,6 +535,22 @@ def check_bullet_pagination() -> None:
                f"used={used / 914400:.2f}in of {budget / 914400:.2f}in")
     expect_equal("and nothing is lost to it",
                  [line for page in led for line in page], many)
+
+    # Larger type is measured larger, lead included, so the same list takes
+    # more pages and each still fits at the size it is set in.
+    large = Pt(24)
+    expect("a lead set larger costs more",
+           lead_height(AUTOMATION_CAVEAT, large) > reserve)
+    big = bullet_pages(many, lead_height(AUTOMATION_CAVEAT, large), size=large)
+    expect("larger type takes more pages", len(big) > len(led),
+           f"{len(big)} vs {len(led)}")
+    for index, page in enumerate(big):
+        used = sum(bullet_height(line, size=large) for line in page)
+        used += lead_height(AUTOMATION_CAVEAT, large) if index == 0 else 0
+        expect(f"24pt page {index + 1} fits the slide", used <= budget,
+               f"used={used / 914400:.2f}in of {budget / 914400:.2f}in")
+    expect_equal("and nothing is lost to it at 24pt",
+                 [line for page in big for line in page], many)
 
 
 def _slide_title(slide) -> str:
@@ -1759,6 +1785,37 @@ def check_example_template() -> None:
            body >= Inches(4.7), f"{Emu(body).inches:.2f}in is under 4.7in")
     expect("which is less than a plain slide's, or it is not artwork",
            band.bottom - band.top < plain.bottom - plain.top)
+
+
+def check_bullet_size_reaches_the_page() -> None:
+    """The deck's bullet size is the size its bullets and standing lines are set in.
+
+    On every layout that draws bullets, since each draws its own, and on both
+    standing lines, which `render` draws. Synthetic, because the OC decks carry
+    no bullets on a TABLES slide.
+    """
+    from mlos_review.blocks import Table
+    from mlos_review.render_pptx import Bullet, Slide, render
+
+    section("bullet size (synthetic)")
+    table = Table(df=pd.DataFrame({"Level": ["A", "B"], "Days": [1.0, 2.0]}),
+                  title="a table")
+    slides = [Slide(title=f"a {layout} slide", layout=layout,
+                    bullets=[Bullet("a bullet"), Bullet("a sub-bullet", level=1)],
+                    lead="a lead", close="a close", tables=[table])
+              for layout in ("STACKED", "TABLES", "TITLE")]
+    with tempfile.TemporaryDirectory() as tmp:
+        for size in (18, 22):
+            out = Path(tmp) / f"deck_{size}.pptx"
+            render(slides, out, Vocabulary({}), bullet_pt=Pt(size))
+            for spec, slide in zip(slides, Presentation(str(out)).slides):
+                set_in = {paragraph.text.lstrip("\u2022\u2013 "): run.font.size.pt
+                          for shape in slide.shapes if shape.has_text_frame
+                          for paragraph in shape.text_frame.paragraphs
+                          for run in paragraph.runs}
+                for text in ("a bullet", "a sub-bullet", "a lead", "a close"):
+                    expect_equal(f"{spec.layout} at {size}pt: {text!r}",
+                                 set_in.get(text), float(size))
 
 
 def check_figure_slide_branding() -> None:
@@ -4949,6 +5006,7 @@ def main(argv: list[str]) -> int:
         check_dependency_declaration,
         check_notebook_file_listing,
         check_example_template,
+        check_bullet_size_reaches_the_page,
         check_figure_slide_branding,
         check_template_links,
         check_template_slide_count,

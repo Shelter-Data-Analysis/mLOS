@@ -123,6 +123,14 @@ figures:
   #   shrink_for_branding: 0.06
 
 
+bullets:
+  # The point size of a slide's bullets and of the standing lines above and
+  # below them, from 14 to 28. Titles, tables and footnotes keep their own
+  # sizes. Larger type breaks the closing sections onto more pages: on OC2 with
+  # the example template, 22 takes the deck from 48 slides to 53.
+  size: 18
+
+
 # A one-slide .pptx whose artwork is copied onto the slides that have room for
 # it: a header band, a footer strip of logos, anything the slide carries. The
 # free band is measured from where the artwork sits, and a slide is decorated

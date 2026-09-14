@@ -47,6 +47,8 @@ from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 
+from pptx.util import Pt
+
 from mlos_review.bundle import Bundle
 from mlos_review.deck import (MANIFEST_SUFFIX, assemble, figure_directory,
                               manifest_path, output_displaces,
@@ -54,9 +56,9 @@ from mlos_review.deck import (MANIFEST_SUFFIX, assemble, figure_directory,
 from mlos_review.figures import FigureSet
 from mlos_review.names import Vocabulary
 from mlos_review.output import prepare_output
-from mlos_review.render_pptx import (Bullet, Slide, bullet_pages, lead_height,
-                                     render, template_band, text_budget,
-                                     title_lines)
+from mlos_review.render_pptx import (BULLET_PT, Bullet, Slide, bullet_pages,
+                                     lead_height, render, template_band,
+                                     text_budget, title_lines)
 from mlos_review.settings import (Settings, SettingsError,
                                   load as load_settings, parse_template)
 
@@ -393,7 +395,7 @@ def runs(slides: list[Slide]) -> dict[str, list[Slide]]:
 
 
 def compose(pages: list[Page], base: list[Slide], source: str = "outline",
-            budget: int | None = None) -> list[Slide]:
+            budget: int | None = None, size: Pt = BULLET_PT) -> list[Slide]:
     """Turn parsed pages into slides, borrowing from `base` where asked.
 
     Borrowed slides are copied, not referenced. `Slide` is mutable and several
@@ -429,7 +431,7 @@ def compose(pages: list[Page], base: list[Slide], source: str = "outline",
                                      "written."],
                 layout="TITLE"))
         else:
-            slides.extend(_written_slides(page, budget))
+            slides.extend(_written_slides(page, budget, size))
 
     if problems:
         raise OutlineError(source, problems)
@@ -450,7 +452,8 @@ def _no_such_slide(title: str, available: dict[str, list[Slide]]) -> str:
             f"Run --list for the titles.")
 
 
-def _written_slides(page: Page, budget: int | None) -> list[Slide]:
+def _written_slides(page: Page, budget: int | None,
+                    size: Pt) -> list[Slide]:
     """One written page, broken across slides if it does not fit on one.
 
     Paginated by the routine the closing sections use, and named the way they
@@ -461,8 +464,9 @@ def _written_slides(page: Page, budget: int | None) -> list[Slide]:
     # alone, which is where it lands. bullet_pages reserves height on the first
     # page only, and a hand-written page that breaks at all is rare enough that
     # breaking it one bullet early costs less than a second reservation rule.
-    room = None if budget is None else budget - lead_height(page.close)
-    pages = bullet_pages(page.bullets, lead_height(page.lead), room) or [[]]
+    room = None if budget is None else budget - lead_height(page.close, size)
+    pages = bullet_pages(page.bullets, lead_height(page.lead, size), room,
+                         size) or [[]]
     last = len(pages) - 1
     return [Slide(title=page.title if index == 0
                   else f"{page.title}{CONTINUATION}",
@@ -554,7 +558,8 @@ def build_variant(results: str | Path | Bundle, outline_path: str | Path,
                 + ". Rebuild the deck, or pass --no-check to build anyway.")
 
     slides = compose(pages, base, outline_path.name,
-                     text_budget(template_band(settings.template)))
+                     text_budget(template_band(settings.template)),
+                     Pt(settings.bullet_size))
     warnings.extend(
         f"{outline_path.name}:{page.line}: stub slide {page.title!r} left in "
         f"the deck." for page in pages if page.kind == "STUB")
@@ -573,7 +578,8 @@ def build_variant(results: str | Path | Bundle, outline_path: str | Path,
     figures.write_manifest()
     out_path, archived = prepare_output(out_path)
     render(slides, out_path, vocab, flag_style=settings.high_low_flag,
-           template=settings.template, figure_shrink=settings.figure_shrink)
+           template=settings.template, figure_shrink=settings.figure_shrink,
+           bullet_pt=Pt(settings.bullet_size))
     return out_path, archived, warnings
 
 
