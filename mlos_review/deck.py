@@ -1742,7 +1742,7 @@ def interval_metrics_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
     if not (requires_full_table(bundle, "all") and requires_aj_teaser(bundle)):
         return None
     outcomes = aj_teaser_table(bundle, vocab)
-    legend = ", ".join(f"{code} {vocab.outcome_labels.get(code, code)}"
+    legend = "; ".join(f"{code} {vocab.outcome_labels.get(code, code)}"
                        for code in aj_outcome_codes(bundle, "all"))
     heading = f"where stays end ({legend})"
     ends = sub_table(outcomes, list(outcomes.df.columns),
