@@ -981,9 +981,8 @@ def _add_table(slide, table: Table, vocab: Vocabulary, top: Emu, height: Emu,
     # still grows to hold itself. That is the point of setting it here: the
     # estimate stays conservative where it has to be, reserving the space so
     # nothing below can be overlapped, while what is DRAWN is measured by the
-    # renderer, which knows the font. The estimate reads "Expected census" as a
-    # hair too wide for its column and Calibri does not, and a table should not
-    # carry a blank line for a wrap that never happens.
+    # renderer, which knows the font, so a table carries no blank line for a
+    # wrap the estimate expected and the font does not take.
     for row in grid.rows:
         row.height = int(TABLE_ROW_HEIGHT)
 
@@ -1256,9 +1255,12 @@ def _header_lines(table: Table, vocab: Vocabulary, widths: list[int]) -> int:
     given, so a header wrapping into a row sized for one line does not overflow
     the row: it pushes everything below it down, on top of the footnote.
     """
+    # Charged the cell's insets alone. The slack in CELL_PADDING is already in
+    # the width a column was sized to, and charging it again wraps a header
+    # into a line it never takes wherever the column is held at its cap.
     header_widths = widths[table.df.index.nlevels:]
     return max([_wrapped_lines(header_text(table, vocab, measure), VALUE_PT,
-                               width)
+                               width, 2 * CELL_MARGIN)
                 for measure, width in zip(table.df.columns, header_widths)]
                or [1])
 

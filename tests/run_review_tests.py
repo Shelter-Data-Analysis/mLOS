@@ -590,8 +590,9 @@ def _expect_no_table_overlap(case: str, number: int, slide) -> None:
     only against boxes that share the table's columns, since a table in the
     left half of a slide has nothing to say about a caption in the right.
     """
-    from mlos_review.render_pptx import (TABLE_ROW_HEIGHT, VALUE_PT,
-                                         _word_width, _wrapped_lines)
+    from mlos_review.render_pptx import (CELL_MARGIN, TABLE_ROW_HEIGHT,
+                                         VALUE_PT, _word_width,
+                                         _wrapped_lines)
 
     tables, boxes = [], []
     for shape in slide.shapes:
@@ -615,7 +616,7 @@ def _expect_no_table_overlap(case: str, number: int, slide) -> None:
                    f"{cell.text!r} needs {_word_width(cell.text, VALUE_PT)} "
                    f"in a column of {column.width}")
         header_lines = max(
-            [_wrapped_lines(cell.text, VALUE_PT, column.width)
+            [_wrapped_lines(cell.text, VALUE_PT, column.width, 2 * CELL_MARGIN)
              for cell, column in zip(grid.rows[0].cells, grid.columns)] or [1])
         depth = TABLE_ROW_HEIGHT * (len(grid.rows) - 1 + header_lines)
         for box in boxes:
