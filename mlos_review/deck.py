@@ -616,8 +616,8 @@ def resident_outlook(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
         "last column for the whole population's per-head workload.",
         "A forward planning view multiplies the two figures day by day: the "
         "residents at each tenure times the days they still owe at that "
-        "tenure, summed over the tenures, is the care the current population "
-        "is already committed to, within the cap. That total is on the "
+        "tenure, summed over the tenures, is the care shelter residents are "
+        "already committed to, within the cap. That total is on the "
         "workload slide later in this section.",
     ]
     notes.extend(los_standing_notes(bundle, "all", vocab))
@@ -745,8 +745,8 @@ def resident_outlook_by_stratifier(bundle: Bundle, stratifier: str,
         f"A forward planning view uses the two figures together: the left one "
         f"is the census at each tenure and the "
         f"right one is the days still owed at that tenure, so multiplying them "
-        f"day by day gives the future care demand that {label}'s current "
-        f"population is committed to, within the cap. Summed over the levels "
+        f"day by day gives the future care demand that {label}'s residents "
+        f"are committed to, within the cap. Summed over the levels "
         f"it is the whole-sample figure from the earlier slide, divided into "
         f"the parts a plan can act on separately.",
     ]

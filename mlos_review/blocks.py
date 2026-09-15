@@ -994,7 +994,7 @@ def requires_care_days(bundle: Bundle, stratifier: str) -> bool:
 
 
 def _care_days_owed(bundle: Bundle, stratifier: str) -> pd.Series | None:
-    """Days of care each level's current residents are still committed to.
+    """Days of care each level's residents are still committed to.
 
     Read from the bundle rather than formed here. It is the census times what
     each resident still owes, and R publishes exactly that product as

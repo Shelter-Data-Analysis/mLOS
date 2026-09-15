@@ -1354,7 +1354,7 @@ write_weibull_by_stratifier_sheet <- function(wb, sheet, wres,
   # mean daily intakes x KM restricted mean; directly comparable to
   # mean_census_inventory, both capped at the restricted stay cap, so a gap
   # between them signals a population in transition, not the cap), the elapsed
-  # animal-days the current census has already accrued, and the future
+  # animal-days the steady-state census has already accrued, and the future
   # animal-days it still owes, both within the cap. The section closes with three
   # days-per-resident ratios ordered so the KM-inferred past sits between the two
   # measures it is naturally compared with: observed accumulated care-days per

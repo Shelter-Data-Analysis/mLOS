@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260906_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260915_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -270,7 +270,7 @@ For each period $P_{j}$ of length $D_{j}$ days, using the capped intervals of §
 
 $$\frac{\left( t_{\text{end}} - m \right)\,\left( m + t_{\text{end}} - 1 \right)}{2}.$$
 
-The metric is this quantity summed over the period’s rows, divided by $D_{j}$. A stay spanning several periods contributes exactly $\text{LOS} - 1$ nights across them: the period splitting is neutral for this metric, as for the others. Dividing the metric by the mean overnight census $\left( A_{j} - I_{j} \right)/D_{j}$ converts it exactly into the **mean days already in care per animal present**: how long the current population has been in care, on average.
+The metric is this quantity summed over the period’s rows, divided by $D_{j}$. A stay spanning several periods contributes exactly $\text{LOS} - 1$ nights across them: the period splitting is neutral for this metric, as for the others. Dividing the metric by the mean overnight census $\left( A_{j} - I_{j} \right)/D_{j}$ converts it exactly into the **mean days already in care per animal present**: how long the animals present have been in care, on average.
 
 **Intake and outcome flow.** Total intakes in $P_{j}$ = rows with $s_{j} \leq$ `intake_date` $< e_{j}$; total outcomes = rows with a **classified** outcome (non-missing `outcome_type`) whose `outcome_date` lies in $\lbrack s_{j},e_{j})$. Unclassified exits are not counted as outcomes. Mean daily intakes/outcomes divide by $D_{j}$.
 
@@ -384,7 +384,7 @@ $$\text{Remaining LOS}(0) = \sum_{t = 0}^{\tau - 1}\widehat{S}(t),$$
 
 which is the daily step-sum restricted mean of §5.3. These curves are plotted for the unified fit and once per stratifier (“Expected Remaining Days in Care” against “Days Already in Care”), each plot with a companion CSV.
 
-**Complementarity with §5.6.** The census profile $N(d)$ of §5.6 says how many animals sit at each tenure. Remaining LOS says how many more days an animal at that tenure expects. Their product, summed over the grid, is the future workload of §5.6, the animal-days the current census is still owed within the cap:
+**Complementarity with §5.6.** The census profile $N(d)$ of §5.6 says how many animals sit at each tenure. Remaining LOS says how many more days an animal at that tenure expects. Their product, summed over the grid, is the future workload of §5.6, the animal-days the steady-state census is still owed within the cap:
 
 $$\sum_{d = 0}^{\tau - 1}N(d)\,\text{Remaining LOS}(d)\mspace{6mu} = \mspace{6mu}\bar{I}\sum_{t = 0}^{\tau - 1}(t + 1)\,\widehat{S}(t),$$
 

@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260908_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260915_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -120,7 +120,7 @@ mLOS is a tool that helps animal shelters answer some deceptively tricky questio
 - How do the animals in our kennels skew toward long stays compared with the animals we take in?
 - What is our average daily census, and does it match what our intake rate and stay lengths imply?
 - Is our census in steady state, or are we working off (or building up) a backlog?
-- How much future care (animal-days of work) does our current population still represent before it clears?
+- How much future care (animal-days of work) does our shelter population represent before it clears?
 - Which group would free up the most kennel-days if we could speed up its outcomes?
 
 **Cutting the question finer**
