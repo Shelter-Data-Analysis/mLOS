@@ -276,7 +276,7 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
 
     .plot_grid()
     legend_labels <- sapply(states, .outcome_label)
-    legend("topleft", legend = legend_labels, col = cols, lwd = lwd, bg = "white")
+    legend("topleft", legend = legend_labels, col = cols, lwd = lwd, bg = .LEGEND_BG)
   })
   if (!is.null(save_file)) {
     cat("\nPlot saved to:", save_file, "\n")
@@ -346,7 +346,7 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
     .plot_grid()
 
     legend_labels <- sapply(states, .outcome_label)
-    legend(legend_pos, legend = legend_labels, fill = cols, bg = "white")
+    legend(legend_pos, legend = legend_labels, fill = cols, bg = .LEGEND_BG)
   })
   if (!is.null(save_file)) {
     cat("\nPlot saved to:", save_file, "\n")
@@ -730,7 +730,7 @@ plot_aj_conditional_unified <- function(aj_results, references, save_file = NULL
     }
 
     legend_labels <- sapply(states, .outcome_label)
-    legend("topleft", legend = legend_labels, col = cols, lwd = lwd, bg = "white")
+    legend("topleft", legend = legend_labels, col = cols, lwd = lwd, bg = .LEGEND_BG)
   })
   if (!is.null(save_file)) {
     cat("\nPlot saved to:", save_file, "\n")
@@ -1045,7 +1045,7 @@ aj_by_stratifier <- function(period_data,
 
         if (length(legend_labels) > 0) {
           legend("bottomright", legend = legend_labels, col = legend_cols,
-                 lwd = .png_lwd(2), bg = "white")
+                 lwd = .png_lwd(2), bg = .LEGEND_BG)
         }
       })
       if (!is.null(png_file)) cat("Plot saved to:", png_file, "\n")

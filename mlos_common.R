@@ -414,6 +414,10 @@ stratifiers <- list(
   grid(col = "gray70", lty = "dotted", lwd = .png_lwd(1))
 }
 
+# Background for every boxed legend: white at 85% opacity, so a curve passing
+# behind the box stays faintly visible without competing with the legend text.
+.LEGEND_BG <- grDevices::adjustcolor("white", alpha.f = 0.85)
+
 # Get n colors cycling through a palette
 .get_series_colors <- function(n, palette = .STRATIFIED_COLORS) {
   palette[(seq_len(n) - 1) %% length(palette) + 1]

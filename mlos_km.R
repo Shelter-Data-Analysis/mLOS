@@ -252,7 +252,7 @@ plot_km_curve <- function(km_results, references, title = "Kaplan-Meier Survival
            col = c("blue", marks$cols),
            lty = c(1, marks$lty),
            lwd = c(.png_lwd(3), marks$lwd),
-           bg = "white")
+           bg = .LEGEND_BG)
   })
 
   if (!is.null(save_file)) {
@@ -924,7 +924,7 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
              col    = legend_cols,
              lty    = legend_lty,
              lwd    = legend_lwd,
-             bg     = "white")
+             bg     = .LEGEND_BG)
     }
   })
 
@@ -1204,7 +1204,7 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
              col = cols,
              lty = 1,
              lwd = .png_lwd(2),
-             bg = "white")
+             bg = .LEGEND_BG)
     })
     if (!is.null(filename)) cat("\nPlot saved to:", filename, "\n")
     if (!is.null(csv_file)) .export_stratified_km_csv(km_fit, csv_file, references$restricted_stay_cap, rmst_map)
