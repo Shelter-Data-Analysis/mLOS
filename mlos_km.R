@@ -864,8 +864,8 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
 # fixes c(0, 1) instead: it is a fraction), `csv_table` maps the table to its CSV
 # form, `markers` is NULL or the values and labels .plot_marker_lines draws,
 # `legend_pos` is NULL for the usual top right corner or names one of its own
-# (the remaining-LOS curve climbs into the top right, so its legend sits at the
-# bottom right instead), and `draw`/`filename`/`csv_file` gate the outputs
+# (a remaining-LOS curve climbs into the top right, so its legend moves to a
+# corner the curves leave clear), and `draw`/`filename`/`csv_file` gate the outputs
 # exactly as draw_png/filename/csv_file do in .plot_single_stratified.
 .plot_km_companion <- function(spec, n_series, references) {
   companion_table <- spec$table
@@ -1102,7 +1102,8 @@ plot_unified_km_companions <- function(km_results, references, base_filename = N
          title     = "Expected Remaining LOS (tied to in-care tenure statistics)",
          ylab      = "Expected Remaining Days in Care",
          ylim      = NULL,
-         # The one companion whose curve climbs into the top right corner.
+         # This curve climbs into the top right corner. The wide marker rows
+         # fit best along the bottom, below the curve's later days.
          legend_pos = "bottomright",
          table     = rlos_table,
          csv_table = function(t) .prepend_restricted_mean_row(
@@ -1281,6 +1282,10 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
            title     = paste("Expected Remaining LOS by", stratifier$label),
            ylab      = "Expected Remaining Days in Care",
            ylim      = NULL,
+           # These curves climb into the top right, and low, flat strata fill the
+           # bottom right. Each starts at its stratum's mean stay, usually far
+           # below the top of the panel, which leaves the top left clear.
+           legend_pos = "topleft",
            table     = rlos_table,
            csv_table = function(t) .prepend_restricted_mean_row(
                                      t, rlos_map, label = REMAINING_AT_TENURE_ROWS[1L]),
