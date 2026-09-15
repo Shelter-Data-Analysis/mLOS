@@ -799,7 +799,7 @@ WORKLOAD_LEADS = {
     "tenure": ("At steady state, the average per-resident future and past "
                "stays are related."),
     "animal_days": ("Categories with longer stays dominate the expected future "
-                    "animal-days for current residents on an average day."),
+                    "animal-days for shelter residents."),
 }
 
 
