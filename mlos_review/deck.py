@@ -1668,11 +1668,11 @@ def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
     bullets = [
         Bullet("How do you compute LOS for a specific period?"),
         Bullet("Not just animals with outcomes in that period", 1),
-        Bullet("But also animals straddling the beginning or end.", 1),
+        Bullet("But also animals straddling the start or end.", 1),
         Bullet("Method & software"),
         Bullet(f"doi.org/{PAPER_DOI}", 1),
         Bullet(f"doi.org/{SOFTWARE_DOI}", 1),
-        Bullet("Aside from this subtlety, what are good ways to look at"),
+        Bullet("Also, what are good ways to look at"),
         Bullet("LOS metrics", 1),
         Bullet("LOS distribution", 1),
         Bullet("Outcomes by tenure", 1),
