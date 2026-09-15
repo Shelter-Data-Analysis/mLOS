@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260915_001. Read it in any markdown reader,
+presentation guide, version 20260915_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -574,7 +574,7 @@ Each of the three slides carries a subtitle above its tables: the broad
 insight the slide exists to support. Longer-staying categories are
 over-represented in the census against intake; future and past per-resident
 stays are related at steady state; longer-staying categories dominate the
-animal-days the current residents are committed to.
+animal-days shelter residents are committed to.
 
 **The animal-days tables footnote the level holding most of the days owed**,
 since there is no room for a share column: "LARGE holds 93% of the days owed".
