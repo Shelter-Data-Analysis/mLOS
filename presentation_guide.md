@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260914_001. Read it in any markdown reader,
+presentation guide, version 20260914_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -806,8 +806,8 @@ Three slides today, in this order.
 **Looking at Length of Stay (LOS)** is an alternate opening. It asks how a
 period's length of stay is computed at all, and carries the title slide's own
 truncation diagram, because the answer is that a period sees whole stays and
-also parts of stays that began before it or end after it. It cites the method
-paper and the software release, and it is left deliberately unfilled: a figure
+also parts of stays that began before it or end after it. It gives the DOIs of
+the method paper and the software, and it is left deliberately unfilled: a figure
 drawn from the data can take the space later. Always built.
 
 **Working with Metrics: Just numbers, no plots** carries the two whole-sample

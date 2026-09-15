@@ -1640,13 +1640,12 @@ def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
     return [divider] + built
 
 
-# The two citations the educational opener carries. Written here and checked
+# The two DOIs the educational opener carries. Written here and checked
 # against their sources by the test suite rather than trusted to review:
 # CITATION.cff holds the software DOI, and the user guide's reference list
 # holds the paper, so a slide naming a DOI neither of them names is a citation
 # to something that does not exist.
-PAPER_CITATION = ("Mavrovouniotis ML. PLOS ONE. 2026;21(1):e0342102. "
-                  "doi:10.1371/journal.pone.0342102")
+PAPER_DOI = "10.1371/journal.pone.0342102"
 SOFTWARE_DOI = "10.5281/zenodo.22083814"
 
 
@@ -1663,21 +1662,16 @@ def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
     short list, and the room left over is room a figure drawn from the data can
     take later.
 
-    Built unconditionally. Nothing on it is read from this run except the
-    version in the software citation, so there is no bundle that cannot carry
-    it.
+    Built unconditionally. Nothing on it is read from this run, so there is no
+    bundle that cannot carry it.
     """
-    version = bundle.value("run", "mlos_version")
-    software = f"mLOS {version}. doi:{SOFTWARE_DOI}" if version else \
-               f"mLOS. doi:{SOFTWARE_DOI}"
-
     bullets = [
         Bullet("How do you compute LOS for a specific period?"),
-        Bullet("Not just animals with outcomes in that period\u2026", 1),
-        Bullet("\u2026 but also animals straddling the beginning or end.", 1),
+        Bullet("Not just animals with outcomes in that period", 1),
+        Bullet("But also animals straddling the beginning or end.", 1),
         Bullet("Method & software"),
-        Bullet(PAPER_CITATION, 1),
-        Bullet(software, 1),
+        Bullet(f"doi.org/{PAPER_DOI}", 1),
+        Bullet(f"doi.org/{SOFTWARE_DOI}", 1),
         Bullet("Aside from this subtlety, what are good ways to look at"),
         Bullet("LOS metrics", 1),
         Bullet("LOS distribution", 1),
@@ -1700,8 +1694,8 @@ def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
         "length of stay in animal shelters for pre-specified calendar "
         "periods: Definition, computation, and examples of dog length of stay "
         "in Orange County California. PLOS ONE. 2026;21(1):e0342102. The "
-        "software line names the version that produced these numbers, which "
-        "is what says which release a result came from.",
+        "software DOI resolves to its latest release; the version that "
+        "produced these numbers is on the opening slide.",
         "The three readings at the foot are what the rest of this section, "
         "and the deck itself, go on to show: summary numbers for how long "
         "stays last, the whole distribution rather than a summary of it, and "

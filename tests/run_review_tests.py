@@ -916,21 +916,16 @@ def check_slide_citations() -> None:
     against the user guide's reference list. A DOI that drifts here names
     something that does not exist and nothing else in the suite would notice.
     """
-    from mlos_review.deck import PAPER_CITATION, SOFTWARE_DOI
+    from mlos_review.deck import PAPER_DOI, SOFTWARE_DOI
 
     section("slide citations (synthetic)")
     citation = (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8")
     expect(f"the software DOI is the one in CITATION.cff",
            f'doi: "{SOFTWARE_DOI}"' in citation, SOFTWARE_DOI)
 
-    paper_doi = PAPER_CITATION.split("doi:")[-1].strip()
     guide = (REPO_ROOT / "mlos_user_guide.md").read_text(encoding="utf-8")
     expect("the paper DOI is in the user guide's references",
-           f"doi:{paper_doi}" in guide, paper_doi)
-    # The rest of the line, so a citation cannot keep a live DOI while naming
-    # the wrong journal or year.
-    for part in ("Mavrovouniotis ML.", "PLOS ONE. 2026;21(1):e0342102"):
-        expect(f"the guide carries {part!r}", part in guide)
+           f"doi:{PAPER_DOI}" in guide, PAPER_DOI)
 
 
 def check_layouts_render() -> None:
