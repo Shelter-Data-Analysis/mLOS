@@ -1442,11 +1442,25 @@ def _titled_table_width(table: Table, vocab: Vocabulary, flag_style: str) -> int
     heading. The table then centers inside the column it was given, which
     `_add_table` already does for any table narrower than its box.
     """
-    columns = sum(_column_widths(table, vocab, flag_style))
-    if not table.title:
-        return columns
-    heading = _text_width(capitalize_first(table.title), TABLE_TITLE_PT)
-    return max(columns, heading + int(TEXT_BOX_INSETS))
+    return max(sum(_column_widths(table, vocab, flag_style)),
+               _heading_width(table.title))
+
+
+def _heading_width(title: str) -> int:
+    """How wide a table title's one line is, box insets included."""
+    if not title:
+        return 0
+    return (_text_width(capitalize_first(title), TABLE_TITLE_PT)
+            + int(TEXT_BOX_INSETS))
+
+
+def table_title_fits(title: str) -> bool:
+    """Whether a table title fits its one line across the full text width.
+
+    Offered for a caller deciding whether something can go in a title at all,
+    since a title that does not fit wraps into the header row beneath it.
+    """
+    return _heading_width(title) <= SLIDE_WIDTH - 2 * MARGIN
 
 
 def _add_titled_table(slide, table: Table, vocab: Vocabulary, left: Emu,
@@ -1459,7 +1473,16 @@ def _add_titled_table(slide, table: Table, vocab: Vocabulary, left: Emu,
     so, written where the table was built.
     """
     if table.title:
-        box = slide.shapes.add_textbox(left, top, width, TABLE_TITLE_HEIGHT)
+        # The title is given one line, so its box is as wide as the title
+        # needs where that is wider than the table. The extra runs to the
+        # right, keeping the title over the table's first column, and moves
+        # the box left only as far as the right margin makes it.
+        box_width = min(max(width, _heading_width(table.title)),
+                        int(SLIDE_WIDTH - 2 * MARGIN))
+        box_left = max(int(MARGIN),
+                       min(int(left), int(SLIDE_WIDTH - MARGIN) - box_width))
+        box = slide.shapes.add_textbox(box_left, top, box_width,
+                                       TABLE_TITLE_HEIGHT)
         frame = box.text_frame
         frame.word_wrap = True
         frame.text = capitalize_first(table.title)

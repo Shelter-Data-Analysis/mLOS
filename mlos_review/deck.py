@@ -99,8 +99,8 @@ from mlos_review.recommend import (cap_binding, dimension_not_separating,
 from mlos_review.salience import (earns_slides, findings_for_salience,
                                   salience_notes)
 from mlos_review.render_pptx import (BULLET_PT, Bullet, Slide, bullet_pages,
-                                     lead_height, render, template_band,
-                                     text_budget)
+                                     lead_height, render, table_title_fits,
+                                     template_band, text_budget)
 from mlos_review.settings import (DEFAULT_SETTINGS_FILE, Settings,
                                   load as load_settings,
                                   parse_template)
@@ -1732,15 +1732,28 @@ def interval_metrics_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
     The first table carries the arrival rate and the census as well as the
     stay: the line above them is an identity, and an identity a reader cannot
     check by hand against the numbers under it is decoration.
+
+    The second table heads its columns with outcome codes, and nothing else on
+    the slide says what they are, so its title spells them out in the words the
+    figure legends on the next slides use. Where the codes are too many or
+    their labels too long for the title's one line, the same legend leads the
+    table's footnotes instead, where it wraps.
     """
     if not (requires_full_table(bundle, "all") and requires_aj_teaser(bundle)):
         return None
     outcomes = aj_teaser_table(bundle, vocab)
+    legend = ", ".join(f"{code} {vocab.outcome_labels.get(code, code)}"
+                       for code in aj_outcome_codes(bundle, "all"))
+    heading = f"where stays end ({legend})"
+    ends = sub_table(outcomes, list(outcomes.df.columns),
+                     title=heading if table_title_fits(heading)
+                     else "where stays end")
+    if ends.title != heading:
+        ends.footnotes.insert(0, f"{legend}.")
     tables = [
         sub_table(full_table(bundle, "all"), METRICS_SLIDE_MEASURES,
                   title="how long stays last"),
-        sub_table(outcomes, list(outcomes.df.columns),
-                  title="where stays end"),
+        ends,
     ]
 
     notes = [

@@ -795,6 +795,41 @@ def check_deck_with_figures(case: str, bundle: Bundle, directory: Path) -> None:
                        len({sh.top for sh in grids}) == 2,
                        f"{[(sh.left, sh.top) for sh in grids]}")
 
+                # The outcome codes head the second table's columns and no
+                # legend on the slide says what they are, so the slide has to.
+                from mlos_review.blocks import aj_outcome_codes
+                from mlos_review.deck import interval_metrics_slide
+
+                legend = [f"{code} {vocab.outcome_labels.get(code, code)}"
+                          for code in aj_outcome_codes(staged_bundle, "all")]
+                heading = [sh for sh in before.shapes if sh.has_text_frame
+                           and sh.text_frame.text.startswith("Where stays end")]
+                expect(f"{case}: the outcomes table's title spells out its "
+                       f"codes", len(heading) == 1 and all(
+                           entry in heading[0].text_frame.text
+                           for entry in legend),
+                       f"{[sh.text_frame.text for sh in heading]}")
+                if heading:
+                    ends = [sh for sh in grids if sh.top > heading[0].top][0]
+                    expect_equal(f"{case}: and starts over the table's first "
+                                 f"column",
+                                 heading[0].left, ends.left)
+
+                # Labels too long for the title's one line go to the footnote
+                # instead, where they wrap.
+                wordy = _Vocab(staged_bundle.data)
+                for code in aj_outcome_codes(staged_bundle, "all"):
+                    wordy.outcome_labels[code] = "a descriptive label " * 8
+                spelled = interval_metrics_slide(staged_bundle, wordy).tables[1]
+                expect_equal(f"{case}: a legend too long for the title "
+                             f"leaves it bare", spelled.title,
+                             "where stays end")
+                expect(f"{case}: and leads the footnotes instead",
+                       all(f"{code} {wordy.outcome_labels[code]}"
+                           in spelled.footnotes[0]
+                           for code in aj_outcome_codes(staged_bundle, "all")),
+                       f"{spelled.footnotes}")
+
         drawn = sum(1 for slide in deck.slides
                     for shape in slide.shapes if shape.shape_type == 13)
         expect(f"{case}: the deck draws figures once they exist", drawn > 0,
