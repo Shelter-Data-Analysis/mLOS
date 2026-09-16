@@ -1681,7 +1681,7 @@ def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
     notes = [
         "The question this slide asks is the one the method exists to answer. "
         "A period's length of stay is not the average of the stays that ended "
-        "in it: that counts an animal only once it has left, which throws away "
+        "in it, the HistLOS of the paper: that counts an animal only once it has left, which throws away "
         "everyone still in care and every stay that began earlier, and both "
         "groups are the long ones.",
         "The diagram is the same one the deck opens with. A period sees whole "

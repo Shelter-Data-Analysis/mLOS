@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260915_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260916_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -86,7 +86,7 @@
     - [Census and animal-day metrics](#census-and-animal-day-metrics)
     - [Which day counts? Who is in the census?](#which-day-counts-who-is-in-the-census)
     - [Statistical testing](#statistical-testing)
-    - [ExitLOS vs AnimLOS](#exitlos-vs-animlos)
+    - [HistLOS, ExitLOS, and AnimLOS](#histlos-exitlos-and-animlos)
 - [Limitations](#limitations)
 - [References](#references)
 
@@ -147,7 +147,7 @@ The **mean** is better, but it still blends short-stay, medium-stay, and long-st
 
 ### Why it's harder than just tabulating and averaging
 
-Two statistical problems make it misleading to simply tabulate each animal's stay and then average. mLOS is built to handle both:
+The usual calculation takes the animals with outcomes in a period and averages their whole stays, a metric [1] calls [HistLOS](#histlos-exitlos-and-animlos). Two statistical problems make it misleading, and mLOS is built to handle both:
 
 - **Animals still in the shelter haven't finished their stay yet.** If you exclude them, you bias your numbers downward: the animals with the longest stays are exactly the ones most likely to still be there. mLOS treats them correctly as "still counting" (statisticians call this right-censoring).
 - **Animals already in the shelter when a study period begins shouldn't have their whole stay counted**, only the part that falls inside the period. Skip this and your estimates get distorted.  mLOS treats them as "counting" only from the start of the period (statisticians call this left-truncation).
@@ -552,7 +552,7 @@ This is the mean number of days to each outcome, computed only among the animals
 
 Because it is normalized by the final CIF, it does not depend on where the window ends. Extending the curve flat past the last observed event only appends zero terms, so the value does not change.
 
-The metric is analogous to a simple calculation shelters do by averaging the LOS of the animals in each outcome type. The AJ version, however, takes truncation and censoring into account, and so avoids the perverse effects the naive average suffers when long-stay residents accumulate in one period and leave in another.
+The metric is analogous to HistLOS computed separately for each outcome type, a simple calculation shelters do. The AJ version, however, takes truncation and censoring into account, and so avoids the perverse effects HistLOS suffers when long-stay residents accumulate in one period and leave in another.
 
 These rows carry no confidence interval.
 
@@ -987,7 +987,7 @@ other_filter_pass:
 
 `other_filter_column_name` names a single column (not a list) that must exist in the data file; it pairs with one of `other_filter_pass` / `other_filter_cut`, and the name and the list are all-or-none together. The column need not be a stratifier and is not otherwise used or reported — it is read only to apply this filter, then dropped like any other extra column. This is the way to subset on something the analysis does not otherwise know about. It is a good way to analyze only dogs, or only cats, when your data file contains both.
 
-**Do not filter on outcome information.** An outcome is forward information, settled only when the animal leaves, so a stay still in care has none and a filter on an outcome column selects stays by their future. A `pass` list keeps only stays that have already ended, and only those that ended a chosen way, which reinstates the flaw in traditional LOS calculations that this tool was created to remedy (see [Why it's harder than just tabulating and averaging](#why-its-harder-than-just-tabulating-and-averaging)). A `cut` list removes those animals outright, which is again a selection made on forward information. If the intent is censoring, use [`outcome_type_in_care`](#outcome_type_in_care). To ask about particular outcomes, use the competing-risks output, which separates the outcome types while keeping every animal in the analysis (see [Aalen-Johansen (AJ) plots](#aalen-johansen-aj-plots)). The case where outcome information is a legitimate filter is when it conveys data curation: when a shelter uses the outcome field to flag a duplicate or a data error, [`outcome_type_delete`](#outcome_type_delete) drops those rows, and such a code was never a real (non-duplicate) outcome to begin with.
+**Do not filter on outcome information.** An outcome is forward information, settled only when the animal leaves, so a stay still in care has none and a filter on an outcome column selects stays by their future. A `pass` list keeps only stays that have already ended, and only those that ended a chosen way, which reinstates the flaw in HistLOS, the traditional LOS calculation this tool was created to remedy (see [Why it's harder than just tabulating and averaging](#why-its-harder-than-just-tabulating-and-averaging)). A `cut` list removes those animals outright, which is again a selection made on forward information. If the intent is censoring, use [`outcome_type_in_care`](#outcome_type_in_care). To ask about particular outcomes, use the competing-risks output, which separates the outcome types while keeping every animal in the analysis (see [Aalen-Johansen (AJ) plots](#aalen-johansen-aj-plots)). The case where outcome information is a legitimate filter is when it conveys data curation: when a shelter uses the outcome field to flag a duplicate or a data error, [`outcome_type_delete`](#outcome_type_delete) drops those rows, and such a code was never a real (non-duplicate) outcome to begin with.
 
 **Where the filters run.** All three are applied **late** in data preparation — deliberately *after* the duplicate-stay removal and the overlapping-stay screen, and just before the study-window trimming (with which they do not interact). This ordering matters: those two integrity checks judge the **complete** file, so a filter can never hide a duplicate or an overlap by removing one row of the conflicting pair before it is checked. The full sequence is in [The screening stages, in order](#the-screening-stages-in-order).
 
@@ -1266,11 +1266,19 @@ Two conventions run through every count, and pinning them down removes most day-
 
 Cox regression tests whether the hazard of discharge differs across periods, intake types, and animal groups simultaneously in a single model. The proportional hazards assumption implies that the ratio of hazard rates between any two categories is constant over time. Robust (sandwich) standard errors clustered on `animal_id` are always used to account for the within-animal correlation across periods. If the CSV supplies no `animal_id`, ids are generated automatically (one per stay), which still ties a period-split stay into one cluster, but it cannot link repeat intakes of the same animal.
 
-### ExitLOS vs AnimLOS
+### HistLOS, ExitLOS, and AnimLOS
+
+HistLOS, as defined in [1], is the intake-to-outcome stay of every animal whose outcome falls in the period, with no truncation or censoring. It is the naive calculation this guide contrasts with, and mLOS does not report it. For teaching, `tools/histlos_by_period.R` computes it by period with `restricted_stay_cap` applied, and writes a plot, its CSV, and a summary of median, mean, and P90 into `results/histlos/`:
+
+```bash
+Rscript tools/histlos_by_period.R --settings data/OC2_settings.yaml --data data/OC2_data.csv --results results/histlos
+```
+
+A variant deck sets it beside ExitLOS with `@extra HistLOS` (see the Presentation Guide).
 
 The L/T/N outcome types this tool reports on by default correspond to ExitLOS, as defined in [1]: length of stay measured up to the animal's exit from this organization, whatever form that exit takes.
 
-You can instead have the tool compute AnimLOS (discussed in [2, 3]), which attempts to model an animal's length of stay across organizations rather than stopping at this one. For AnimLOS, animals transferred out to another organization need to be treated as censored rather than as a classified outcome, since their stay continues elsewhere and this tool has no visibility into it. To recode transfers as censoring, identify the raw outcome codes in your data that denote transfer to another organization, and list them under `outcome_type_in_care` (see the [settings reference](#settings-file-yaml) above).
+You can instead have the tool compute AnimLOS (discussed in [2, 3]), which attempts to model an animal's length of stay across organizations rather than stopping at this one. For AnimLOS, animals transferred out to another organization need to be treated as censored rather than as a classified outcome, since their stay continues elsewhere and this tool has no visibility into it. To recode transfers as censoring, identify the raw outcome codes in your data that denote transfer to another organization, and list them under `outcome_type_in_care` (see the [settings reference](#settings-file-yaml) above). The computation is the same for both. They differ only in how the transfer codes are read.
 
 ---
 

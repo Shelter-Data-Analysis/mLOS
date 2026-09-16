@@ -25,6 +25,9 @@ before, and a deck built with a template now carries that template's artwork on
 slides that carry figures, as many of them as the band the artwork leaves has
 room for. A deck built without one is unchanged.
 
+- `tools/histlos_by_period.R` computes HistLOS by period for teaching, outside
+  the run, and a variant outline's `@extra HistLOS` sets it beside ExitLOS on
+  one slide when its recorded inputs match the run.
 - A slide carrying a figure now takes a template's artwork where the band the
   artwork leaves costs its figures nothing. A figure is drawn as wide as its
   share of the page and its own proportions allow, whichever is less; where the
