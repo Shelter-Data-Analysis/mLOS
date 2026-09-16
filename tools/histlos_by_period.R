@@ -3,7 +3,11 @@
 # with the left-truncated and right-censored estimate mLOS reports (ExitLOS).
 #
 # Usage (from the mLOS working copy):
-#   Rscript tools/histlos_by_period.R [--settings FILE] [--data FILE] --results DIR
+#   Rscript tools/histlos_by_period.R [--settings FILE] [--data FILE] [--results DIR]
+#
+# Rerunning mLOS leaves these files in place, so histlos_inputs.csv records the
+# input hashes; compare them with data_sha256 and settings_sha256 in the run's
+# results.json before trusting the outputs as that run's companion.
 
 suppressMessages({
   source("mlos_common.R"); source("mlos_setup.R")
@@ -13,9 +17,8 @@ suppressMessages({
 args <- commandArgs(trailingOnly = TRUE)
 opt <- list(settings = file.path("data", "OC2_settings.yaml"),
             data     = file.path("data", "OC2_data.csv"),
-            results  = NULL)
+            results  = file.path("results", "histlos"))
 for (i in seq(1, length(args), by = 2)) opt[[sub("^--", "", args[i])]] <- args[i + 1]
-if (is.null(opt$results)) stop("--results DIR is required")
 dir.create(opt$results, recursive = TRUE, showWarnings = FALSE)
 out <- function(f) file.path(opt$results, f)
 
@@ -64,3 +67,9 @@ cols <- .get_series_colors(length(labels))
   legend("topright", legend = labels, col = cols, lty = 1, lwd = .png_lwd(2), bg = .LEGEND_BG)
 })
 .export_stratified_km_csv(fit, out("histlos_by_period.csv"), cap)
+
+.write_plot_csv(data.frame(data_file       = opt$data,
+                           data_sha256     = mlos_file_sha256(opt$data),
+                           settings_file   = opt$settings,
+                           settings_sha256 = mlos_file_sha256(opt$settings)),
+                out("histlos_inputs.csv"), "Inputs")
