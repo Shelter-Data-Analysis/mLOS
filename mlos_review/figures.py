@@ -38,6 +38,7 @@ ones it was built with.
 from __future__ import annotations
 
 import json
+import shutil
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -169,6 +170,17 @@ class FigureSet:
         """Draw the three-way ratio dots and record what was drawn."""
         path = ratio_comparison(frame, series, title, self.path_for(stem),
                                 palette, log_scale)
+        self.records.append(FigureRecord(
+            plot=path.name, kind=kind,
+            stratifier=stratifier, description=description))
+        return path
+
+    def copy(self, source: Path, stem: str, kind: str, stratifier: str,
+             description: str) -> Path:
+        """Copy a PNG drawn outside this package in, and record it."""
+        path = self.path_for(stem)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, path)
         self.records.append(FigureRecord(
             plot=path.name, kind=kind,
             stratifier=stratifier, description=description))

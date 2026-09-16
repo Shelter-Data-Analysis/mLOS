@@ -53,6 +53,7 @@ from mlos_review.bundle import Bundle
 from mlos_review.deck import (MANIFEST_SUFFIX, assemble, figure_directory,
                               manifest_path, output_displaces,
                               resolved_settings, run_inputs, undashed_flags)
+from mlos_review.extras import EXTRAS
 from mlos_review.figures import FigureSet
 from mlos_review.names import Vocabulary
 from mlos_review.output import prepare_output
@@ -76,7 +77,7 @@ PROPERTIES = {"divider": ("layout", "TITLE")}
 
 # The directives, each of which yields slides. Nothing modifies the slide it
 # sits inside, so a reader never has to track which slide a line belongs to.
-DIRECTIVES = ("@insert", "@stub")
+DIRECTIVES = ("@insert", "@stub", "@extra")
 
 # What a stub says on the slide it makes. Loud on purpose: it is a gap held
 # open for a slide nobody has written, and a gap that reads as finished work is
@@ -126,8 +127,8 @@ class OutlineError(ValueError):
 class Page:
     """One entry in an outline, before it becomes slides.
 
-    `kind` is SLIDE (written here), INSERT (borrowed from the deck) or STUB (a
-    gap held open). A Page is not a Slide: an INSERT becomes as many slides as
+    `kind` is SLIDE (written here), INSERT (borrowed from the deck), STUB (a
+    gap held open) or EXTRA (built from files beside the run, see extras.py). A Page is not a Slide: an INSERT becomes as many slides as
     its run has pages, and a long SLIDE breaks across several.
     """
 
@@ -160,6 +161,7 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
                            item, or two spaces ending a line start another
         @insert <title>    the deck's slide of that title, and its run
         @stub <title>      a gap, held open and warned about
+        @extra <name>      a slide from extras.EXTRAS, or a warning
         <!-- anything -->  a comment, at the end of a line or on its own,
                            over as many lines as it takes
 
@@ -171,7 +173,7 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
     to a slide it borrows is annotate it, not alter it: a note joins the
     presenter's own column, where there is room and where the audience never
     sees it, while a bullet or a subheading would have to displace something
-    the deck put on the page.
+    the deck put on the page. An `@extra` is held to the same rule.
     """
     pages: list[Page] = []
     problems: list[tuple[int, str]] = []
@@ -185,9 +187,9 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
         if current is None:
             problems.append((number, f"{what} before the first heading."))
             return False
-        if current.kind == "INSERT" and not notes:
-            problems.append((number, f"{what} after '@insert "
-                                     f"{current.title}', which borrows a slide "
+        if current.kind in ("INSERT", "EXTRA") and not notes:
+            problems.append((number, f"{what} after '@{current.kind.lower()} "
+                                     f"{current.title}', which builds a slide "
                                      f"as it is. A speaker note is the one "
                                      f"thing that can be added to one."))
             return False
@@ -227,8 +229,18 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
                                          f"directives are {', '.join(DIRECTIVES)}."))
             elif not rest:
                 problems.append((number, f"{word} needs "
-                                         + ("a slide title." if word == "@insert"
-                                            else "something to say.")))
+                                         + {"@insert": "a slide title.",
+                                            "@extra": "a name."}.get(
+                                             word, "something to say.")))
+            elif word == "@extra" and rest not in EXTRAS:
+                near = difflib.get_close_matches(rest, list(EXTRAS), n=2,
+                                                 cutoff=0.6)
+                problems.append((number, f"no extra named {rest!r}."
+                                         + (" Did you mean " + " or ".join(
+                                             repr(n) for n in near) + "?"
+                                            if near else "")
+                                         + f" The extras are "
+                                         f"{', '.join(EXTRAS)}."))
             else:
                 current = Page(kind=word[1:].upper(), title=rest, line=number)
                 pages.append(current)
@@ -395,8 +407,12 @@ def runs(slides: list[Slide]) -> dict[str, list[Slide]]:
 
 
 def compose(pages: list[Page], base: list[Slide], source: str = "outline",
-            budget: int | None = None, size: Pt = BULLET_PT) -> list[Slide]:
+            budget: int | None = None, size: Pt = BULLET_PT,
+            extras: dict[int, Slide | None] | None = None) -> list[Slide]:
     """Turn parsed pages into slides, borrowing from `base` where asked.
+
+    `extras` holds each `@extra` page's built slide, keyed by its outline line,
+    or None where it was skipped; a skipped extra leaves no slide.
 
     Borrowed slides are copied, not referenced. `Slide` is mutable and several
     rules edit one after building it, so a variant holding the deck's own
@@ -420,6 +436,12 @@ def compose(pages: list[Page], base: list[Slide], source: str = "outline",
             borrowed[0].notes = [f"{NOTE_MARK} {note}" for note in page.notes] \
                 + borrowed[0].notes
             slides.extend(borrowed)
+        elif page.kind == "EXTRA":
+            slide = (extras or {}).get(page.line)
+            if slide is not None:
+                slide.notes = [f"{NOTE_MARK} {note}" for note in page.notes] \
+                    + slide.notes
+                slides.append(slide)
         elif page.kind == "STUB":
             slides.append(Slide(
                 title=f"{STUB_PREFIX}: {page.title}",
@@ -557,9 +579,18 @@ def build_variant(results: str | Path | Bundle, outline_path: str | Path,
                 + "; ".join(differences)
                 + ". Rebuild the deck, or pass --no-check to build anyway.")
 
+    extras = {}
+    for page in pages:
+        if page.kind != "EXTRA":
+            continue
+        extras[page.line], skipped = EXTRAS[page.title](bundle, figures)
+        if skipped:
+            warnings.append(f"{outline_path.name}:{page.line}: @extra "
+                            f"{page.title} skipped: {skipped}")
+
     slides = compose(pages, base, outline_path.name,
                      text_budget(template_band(settings.template)),
-                     Pt(settings.bullet_size))
+                     Pt(settings.bullet_size), extras)
     warnings.extend(
         f"{outline_path.name}:{page.line}: stub slide {page.title!r} left in "
         f"the deck." for page in pages if page.kind == "STUB")
@@ -567,7 +598,8 @@ def build_variant(results: str | Path | Bundle, outline_path: str | Path,
     # than left to be discovered in the deck, because a title box grows down
     # over the body instead of shrinking its type, and the writer is the only
     # one who can shorten the words.
-    written = {page.title for page in pages if page.kind != "INSERT"}
+    written = {page.title for page in pages
+               if page.kind not in ("INSERT", "EXTRA")}
     warnings.extend(
         f"{slide.title!r} is too long for its line and wraps over the body. "
         f"Shorten it; what the slide is about can go in its bullets."

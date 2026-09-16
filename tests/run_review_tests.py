@@ -4115,6 +4115,103 @@ def check_slide_titles_addressable(case: str, slides: list) -> None:
                  sum(len(run) for run in grouped.values()), len(slides))
 
 
+def check_extra_histlos() -> None:
+    """`@extra HistLOS` builds its slide from matching files, and skips otherwise.
+
+    Staged on a copy of one golden fixture, with placeholder PNGs where the
+    manifest names figures and HistLOS files written here, whose provenance
+    is copied from the bundle or deliberately broken.
+    """
+    from PIL import Image
+    from mlos_review.variant import OutlineError, build_variant, parse_outline
+
+    for text, problem in (("@extra HistLOSS", "Did you mean 'HistLOS'"),
+                          ("@extra", "needs a name"),
+                          ("@extra HistLOS\n- a bullet", "builds a slide as it is")):
+        try:
+            parse_outline(text, "test")
+            expect(f"@extra refuses {text!r}", False, "parsed")
+        except OutlineError as exc:
+            expect(f"@extra refuses {text!r}", problem in str(exc), str(exc))
+
+    fixture = REPO_ROOT / "tests" / "golden" / "custom_period_labels"
+    with tempfile.TemporaryDirectory() as tmp:
+        staged = Path(tmp) / "fixture"
+        shutil.copytree(fixture, staged)
+        bundle = Bundle.load(staged)
+        for entry in bundle.data.get("outputs", []):
+            if entry.get("plot"):
+                Image.new("RGB", (300, 200), "white").save(staged / entry["plot"])
+        outline = Path(tmp) / "talk.md"
+        outline.write_text("@extra HistLOS\n\n> Why it is here.\n")
+
+        source = staged / "histlos"
+        source.mkdir()
+        Image.new("RGB", (300, 200), "white").save(source / "histlos_by_period.png")
+        levels = bundle.levels("period")
+        pd.DataFrame({"period": levels, "km_median_los": [7] * len(levels),
+                      "km_restricted_mean": [18.5] * len(levels),
+                      "km_p90_los": [36] * len(levels)}).to_csv(
+            source / "histlos_by_period_summary.csv", index=False)
+        run = bundle.data["run"]
+
+        def build_with(**inputs) -> tuple[list, list[str]]:
+            fields = {name: run[name] for name in
+                      ("mlos_version", "data_sha256", "settings_sha256")}
+            pd.DataFrame([{**fields, **inputs}]).to_csv(
+                source / "histlos_inputs.csv", index=False)
+            out = Path(tmp) / "variant.pptx"
+            _, _, warnings = build_variant(staged, outline, out, check=False)
+            return list(Presentation(str(out)).slides), warnings
+
+        slides, warnings = build_with()
+        expect_equal("@extra HistLOS: one slide from matching files",
+                     [_slide_title(s) for s in slides],
+                     ["ExitLOS vs HistLOS by Period"])
+        pictures = sorted((s for s in slides[0].shapes
+                           if s.shape_type == MSO_SHAPE_TYPE.PICTURE),
+                          key=lambda s: s.left)
+        tables = sorted((s for s in slides[0].shapes if s.has_table),
+                        key=lambda s: s.left)
+        expect_equal("@extra HistLOS: two figures over two tables",
+                     (len(pictures), len(tables)), (2, 2))
+        heads = sorted((s for s in slides[0].shapes if s.has_text_frame
+                        and s.text_frame.text in ("ExitLOS", "HistLOS")),
+                       key=lambda s: s.left)
+        expect_equal("@extra HistLOS: ExitLOS on the left",
+                     [s.text_frame.text for s in heads], ["ExitLOS", "HistLOS"])
+        expect("@extra HistLOS: the outline's note leads the notes",
+               slides[0].notes_slide.notes_text_frame.text.startswith(
+                   "* Why it is here."))
+        manifest = json.loads(
+            (figure_directory(Path(tmp) / "variant.pptx") / "manifest.json").read_text())
+        expect("@extra HistLOS: the copied figure is in the manifest",
+               any(r["kind"] == "histlos" for r in manifest["figures"]))
+
+        for label, inputs in (
+                ("another dataset", {"data_sha256": "0" * 64}),
+                ("another mLOS version", {"mlos_version": "0.0.0"})):
+            slides, warnings = build_with(**inputs)
+            expect(f"@extra HistLOS: skipped for {label}",
+                   not slides and any("skipped" in w for w in warnings),
+                   str(warnings))
+
+        # Placeholders on both sides would match, and must not pass.
+        placeholder = "(digest package not installed)"
+        run["data_sha256"] = placeholder
+        (staged / "results.json").write_text(json.dumps(bundle.data))
+        slides, warnings = build_with(data_sha256=placeholder)
+        expect("@extra HistLOS: skipped when the hashes are placeholders",
+               not slides and any("no usable" in w for w in warnings),
+               str(warnings))
+
+        shutil.rmtree(source)
+        _, _, warnings = build_variant(staged, outline, Path(tmp) / "v2.pptx",
+                                       check=False)
+        expect("@extra HistLOS: skipped when the files are missing",
+               any("histlos_inputs.csv" in w for w in warnings), str(warnings))
+
+
 # ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
@@ -5065,6 +5162,7 @@ def main(argv: list[str]) -> int:
         check_figures_are_drawn,
         check_educational_section,
         check_slide_citations,
+        check_extra_histlos,
     ):
         run_check(check)
 

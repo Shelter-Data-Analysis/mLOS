@@ -6,8 +6,9 @@
 #   Rscript tools/histlos_by_period.R [--settings FILE] [--data FILE] [--results DIR]
 #
 # Rerunning mLOS leaves these files in place, so histlos_inputs.csv records the
-# input hashes; compare them with data_sha256 and settings_sha256 in the run's
-# results.json before trusting the outputs as that run's companion.
+# mLOS version and input hashes, under the field names results.json uses for
+# them. The deck's `@extra HistLOS` compares the two and skips the slide when
+# they differ.
 
 suppressMessages({
   source("mlos_common.R"); source("mlos_setup.R")
@@ -48,14 +49,17 @@ fit <- survival::survfit(.make_surv_obj(hist) ~ period_label, data = hist)
 labels <- .strip_stratum_prefix(names(fit$strata))
 
 q <- quantile(fit, probs = c(0.5, 0.9), conf.int = FALSE)
-summary_rows <- data.frame(period          = labels,
-                           median          = as.numeric(q[, 1]),
-                           restricted_mean = as.numeric(summary(fit, rmean = cap)$table[, "rmean"]),
-                           p90             = as.numeric(q[, 2]))
+# Column names are the bundle's own km measure keys, so the deck reads them as
+# it reads the ExitLOS rows.
+summary_rows <- data.frame(period             = labels,
+                           km_median_los      = as.numeric(q[, 1]),
+                           km_restricted_mean = as.numeric(summary(fit, rmean = cap)$table[, "rmean"]),
+                           km_p90_los         = as.numeric(q[, 2]))
 .write_plot_csv(summary_rows, out("histlos_by_period_summary.csv"), "Summary")
 print(summary_rows, row.names = FALSE)
 
-# Styled as km_survival_by_period.png.
+# Styled as km_survival_by_period.png, CI ribbons included when the settings
+# draw them there, so the two read alike side by side on a slide.
 cols <- .get_series_colors(length(labels))
 .with_png(out("histlos_by_period.png"), {
   plot(fit, conf.int = FALSE, col = cols, lty = 1, lwd = .png_lwd(2), mark.time = FALSE,
@@ -63,12 +67,21 @@ cols <- .get_series_colors(length(labels))
        xlab = "Days Already in Care", ylab = "Probability Still in Care",
        main = "HistLOS by Period")
   .plot_grid()
+  if (isTRUE(references$show_km_ci_ribbons)) {
+    for (i in seq_along(fit$strata)) {
+      raw  <- .stratum_ci_steps(fit, i)
+      poly <- .ci_ribbon_stair_xy(raw$time, raw$lower, raw$upper, references$plot_stay_cap)
+      graphics::polygon(poly$x, poly$y, col = grDevices::adjustcolor(cols[i], alpha.f = 0.15),
+                        border = NA)
+    }
+  }
   lines(fit, conf.int = FALSE, col = cols, lty = 1, lwd = .png_lwd(2), mark.time = FALSE)
   legend("topright", legend = labels, col = cols, lty = 1, lwd = .png_lwd(2), bg = .LEGEND_BG)
 })
 .export_stratified_km_csv(fit, out("histlos_by_period.csv"), cap)
 
-.write_plot_csv(data.frame(data_file       = opt$data,
+.write_plot_csv(data.frame(mlos_version    = MLOS_VERSION,
+                           data_file       = opt$data,
                            data_sha256     = mlos_file_sha256(opt$data),
                            settings_file   = opt$settings,
                            settings_sha256 = mlos_file_sha256(opt$settings)),

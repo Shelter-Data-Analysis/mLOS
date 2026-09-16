@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260915_002. Read it in any markdown reader,
+presentation guide, version 20260916_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -922,6 +922,19 @@ is about belongs. Its own title is set at the divider's size and wants to stay
 short. Every stub left in a deck is warned about at build time, and so is any
 title long enough to wrap: a title box grows down over the body rather than
 shrinking its type, and the writer is the only one who can shorten the words.
+
+`@extra` names a slide built from files a separate tool writes beside the run,
+so no standard deck carries one and `@insert` cannot reach one. The names are
+the keys of `extras.EXTRAS`. `@extra HistLOS` puts the Kaplan-Meier curves by
+period on the left, where the standard LOS slide has them, and HistLOS on the
+right: the whole stay of every animal that exits in a period. Each sits over a
+table of its median, mean, and P90. The HistLOS files come from
+`tools/histlos_by_period.R`, run into `histlos/` beside the run's
+`results.json`. They record the mLOS version and the data and settings hashes,
+and the slide is built only when all three match the run's; otherwise the
+build warns and leaves it out. The plot is copied into the variant's figures
+directory and listed in its manifest. Like an `@insert`, an `@extra` takes
+speaker notes and nothing else.
 
 **Borrowed slides are built again, not copied out of the deck file.** A slide
 in a `.pptx` has its numbers formatted into strings and its geometry fixed at
