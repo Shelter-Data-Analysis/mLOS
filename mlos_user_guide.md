@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260916_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260916_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -552,7 +552,7 @@ This is the mean number of days to each outcome, computed only among the animals
 
 Because it is normalized by the final CIF, it does not depend on where the window ends. Extending the curve flat past the last observed event only appends zero terms, so the value does not change.
 
-The metric is analogous to HistLOS computed separately for each outcome type, a simple calculation shelters do. The AJ version, however, takes truncation and censoring into account, and so avoids the perverse effects HistLOS suffers when long-stay residents accumulate in one period and leave in another.
+The metric is analogous to a simple calculation shelters do by averaging the LOS of the animals in each outcome type. The AJ version, however, takes truncation and censoring into account, and so avoids the perverse effects the naive average suffers when long-stay residents accumulate in one period and leave in another.
 
 These rows carry no confidence interval.
 
