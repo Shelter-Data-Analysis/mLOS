@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260915_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260918_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -747,17 +747,7 @@ by the convention the Kaplan-Meier quantiles use on $\widehat{S}$, the smallest 
 
 Three readings off the Remaining LOS curve of §5.8 close the block, one per tenure statistic above it and in the same order, the mean first: `remaining_days_at_mean_tenure`, `remaining_days_at_median_tenure`, and `remaining_days_at_p90_tenure`. Each is $\text{Remaining LOS}$ evaluated at that tenure, truncated to the day step it falls in, and each answers a question about one animal: If an animal has already been in care as long as this statistic says, how much longer does it expect? The curve's own grid supports no such statistic of its own, being a function of tenure rather than a distribution over animals (§5.8). **Do not read `remaining_days_at_mean_tenure` as the average remaining stay of the in-care population**: that average is `per_resident_future_days` (equal to `per_resident_past_days` $+\ 1$), four rows above, and the two differ by a Jensen gap that widens with the curvature of the Remaining LOS curve over the bulk of $p$ (§5.8). On **OC1**'s whole sample they are 74.9 days and 53.7 days. Because they are read off the same capped profile, all three carry the cap sensitivity of the quantiles above them.
 
-The conditional outcome mix is read at the same three tenures and truncated to
-the same day step, as `aj_condrem_L_at_median_tenure` and its eight siblings
-across the three outcome types and the three statistics. Each is the
-conditional remaining-outcome probability of \u00a75.9 evaluated there, and
-answers the companion question to the readings above: given that an animal has
-been in care as long as this statistic says, which way is it going to leave.
-Because they are conditional on having reached that tenure, they are not the
-cumulative incidences of \u00a76.2, which are over all stays from intake. The
-three outcome values at one tenure sum to less than 1, the shortfall being
-stays still in care when the analysis window closes; a consumer wanting that
-shortfall takes one minus their sum rather than reading a stored row.
+The conditional outcome mix is read at the same three tenures and truncated to the same day step, as `aj_condrem_L_at_median_tenure` and its eight siblings across the three outcome types and the three statistics. Each is the conditional remaining-outcome probability of \u00a77.4 evaluated there, and answers the companion question to the readings above: given that an animal has been in care as long as this statistic says, which way is it going to leave. Because they are conditional on having reached that tenure, they are not the cumulative incidences of \u00a77.2, which are over all stays from intake. The three outcome values at one tenure sum to less than 1, the shortfall being stays still in care when the analysis window closes; a consumer wanting that shortfall takes one minus their sum rather than reading a stored row.
 
 ### AJ metrics by outcome type
 

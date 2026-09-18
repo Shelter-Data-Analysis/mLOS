@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260916_001. Read it in any markdown reader,
+presentation guide, version 20260918_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -1567,7 +1567,7 @@ Ahead of it comes the **sweep**: "By animal group, PUPPY is
 the fastest in every outcome type." It leads because it is the finding no
 single panel shows. The section puts one outcome in front of the audience at a
 time, on purpose, and a reader stepping through those panels cannot see that
-onr level consistently sits at the same end. Either clause can appear
+one level consistently sits at the same end. Either clause can appear
 without the other. On **OC1** the
 animal groups extremes split across LRG, XL, TOY, PUPPY, and
 `_UNKNOWN_`, while on **OC2** the fastest clause fires alone.
@@ -2447,8 +2447,9 @@ deck reads only `results/` and touches no R. See `colab_mlos.ipynb`.
 To inspect a deck without opening it:
 
 ```bash
-/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to
-pdf --outdir . out.pptx ```
+/Applications/LibreOffice.app/Contents/MacOS/soffice --headless \
+    --convert-to pdf --outdir . out.pptx
+```
 
 Dependencies are declared in `pyproject.toml` at the repository root, which is
 the one place they are stated: `pandas`, `python-pptx`, `PyYAML`, `matplotlib`,
