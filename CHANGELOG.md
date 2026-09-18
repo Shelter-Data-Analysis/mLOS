@@ -19,7 +19,8 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-**No number changed**: only the deck builder moved. Every deck now names the
+**No number changed**: the deck builder moved, and the guides were read for
+internal consistency. Every deck now names the
 layout its slides sit on `mLOS layout`, so none is byte-identical to the one
 before, and a deck built with a template now carries that template's artwork on
 slides that carry figures, as many of them as the band the artwork leaves has
@@ -101,6 +102,40 @@ room for. A deck built without one is unchanged.
 - `tests/run_review_tests.py` gains `check_command_line_guards`: both mistakes
   are refused by both commands before the results are read, and the inputs
   stay where they were.
+
+Documentation, read across the four guides for internal consistency. No
+output moved.
+
+- Math methods §8.4 carried two section references as literal `\u00a7`
+  escapes, which is why the suite's own § sweep never read them: it looks
+  for the character. Both numbers behind them were wrong, naming a section 5.9
+  that does not exist and a section 6.2 that is Cox estimation. They are
+  §7.4 and §7.2.
+- The same block, the conditional outcome mix at the three tenures, now says
+  it reaches `results.json` and no worksheet. §8.4 describes worksheet
+  blocks, and `mlos_excel_export.R` writes none of these nine.
+- The presentation guide's LibreOffice command closed its fence on the command's
+  own line, so the fence stayed open over the dependency paragraph and the
+  `pip install` block after it. Both renderers agreed on that reading, which is
+  why the cross-renderer check passed.
+- §2.7 of the math methods named the census `mean_census`, which is an
+  internal column. The exported name, everywhere else in both guides, is
+  `mean_census_inventory`.
+- Math methods §6 called the three axes factors in four places, against
+  section 5 of `documentation_rules.md`, which keeps `predictor` until the rename
+  gets its own pass. Section 6 is retitled again, to "Regressions on the Three
+  Predictors". No section renumbered and nothing links to the anchor.
+- The user guide gave the sample-size guideline as 50 outcomes per period in
+  one place against 100 in three others and in the math methods' own assumptions section. It
+  is 100, and on the filtering advice it is a floor per surviving stratum
+  rather than per period.
+- The user guide described the unified census-by-tenure file twice, the second
+  time counting its summary row as a second header row where the rest of the
+  section counts one. Cut to what only it says.
+- The README licensed two guides where three carry the stamp and the Word
+  export, and `presentation_guide.md` carried no copyright line. Both fixed.
+- The presentation guide put six levels across the two stratifying fields. OC2
+  has nine and OC1 ten.
 
 ---
 

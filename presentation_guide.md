@@ -1,11 +1,15 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260918_001. Read it in any markdown reader,
+presentation guide, version 20260918_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
 lags it.*
+
+*© 2026 Michael Loizos Mavrovouniotis. This document is licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the
+mLOS project, whose code is released under the MIT License.*
 
 How the `mlos_review/` package turns a finished analysis into audience-facing
 documents, and how to extend it.
@@ -2543,8 +2547,8 @@ Ordered roughly by how much they block the next step.
   the title slide render bullets directly rather than through a block.
 - **`field_summary_table` is built and unused.** It is the shape for a dataset
   whose fields have more levels than a slide can list; the current analysis has
-  at most two fields with six levels between them, which `level_counts_table`
-  simply tallies. Wire it in when a dataset needs it.
+  at most two such fields, nine levels between them on **OC2**, which
+  `level_counts_table` simply tallies. Wire it in when a dataset needs it.
 - **The opening summary has no methods slide behind it.** It says what was
   analyzed and not how, so a caveat about left truncation or the stay cap
   reaches the audience only through the speaker notes. The fixed tiers in the

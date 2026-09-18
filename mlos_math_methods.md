@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260918_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260918_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -165,7 +165,7 @@ The elapsed axis starts at 0 by design: it places the curve's guaranteed value $
 | **Current tenure**, inclusive (days in care so far) | yes, today counts | tenure $= 1$ | counted; tenure $= \text{LOS}$ | tenure $= 1$ | n/a (per day) |
 | **Days already in care** (plot axis $x$) | no, today not yet completed | $x = 0$ | $x = \text{LOS}-1$ | $x = 0$ | n/a (per day) |
 | **Remaining days** (Remaining LOS, §5.8) | no, today excluded; tomorrow included with certainty | remaining from arrival $=$ RMST | **excluded** from the "still in care" set (it left) | excluded | $\ge 1$ where defined |
-| **Inventory census** (`mean_census`, `expected_census`, census-by-tenure) | present any part of today counts | **included** | **included** | **included** | $\text{LOS}$ animal-days |
+| **Inventory census** (`mean_census_inventory`, `expected_census`, census-by-tenure) | present any part of today counts | **included** | **included** | **included** | $\text{LOS}$ animal-days |
 | **Overnight census** (`= inventory − mean daily intakes`) | last night's held count | **excluded** (no night before it) | **included** (held last night) | **excluded** | $\text{LOS} - 1$ nights |
 | **Intake count** (flow, §4) | counted today | counted | n/a | counted | 1 |
 | **Outcome count** (flow, classified only, §4) | counted today | n/a | counted if classified | counted if classified | 1 |
@@ -176,7 +176,7 @@ The elapsed axis starts at 0 by design: it places the curve's guaranteed value $
 
 **The census exists in two conventions, and they differ precisely on the arrival day.** This is the subtlest point, and the two must not be conflated.
 
-The **inventory census** is the headline census: `mean_census` / `mean_census_inventory` (§4), the Little's-law `expected_census` (§5.6, §8.4), and the height of the census-by-tenure profile (§5.6). It counts an animal on every day it is present for any part of the day, both its arrival day and its departure day inclusive, and it therefore includes intraday round trips. On a given day it counts both that day's intakes and that day's outcomes. Each stay contributes a number of animal-days equal to its $\text{LOS}$.
+The **inventory census** is the headline census: `mean_census_inventory` (§4), the Little's-law `expected_census` (§5.6, §8.4), and the height of the census-by-tenure profile (§5.6). It counts an animal on every day it is present for any part of the day, both its arrival day and its departure day inclusive, and it therefore includes intraday round trips. On a given day it counts both that day's intakes and that day's outcomes. Each stay contributes a number of animal-days equal to its $\text{LOS}$.
 
 The inventory census on a day is **not** an instantaneous headcount taken at any moment of that day. Two intraday animals whose stays do not overlap (one leaves in the morning, another arrives in the afternoon) are never both physically present at once, yet the inventory census counts both. The convention that makes this the correct count is a resource, not a moment: picture animals housed individually, kennels that must be cleaned before re-use, and full cleaning that can only be completed at the end of the day. Then a kennel used by an animal is unavailable for the rest of that day even after the animal leaves, so the two non-overlapping intraday animals tie up two kennels, and the inventory census is the number of kennels used that day. Counting both endpoint days, and counting intraday animals, is exactly this kennel-occupancy count: every animal present during the day holds a kennel for the whole day. The Little's-law `expected_census` predicts this same kennels-used quantity.
 
@@ -186,7 +186,7 @@ So the headcount a reader is likely to picture for "census", the animals physica
 
 **Flow counts land on the day the event happens.** An intake is counted in the period containing its intake date. A classified outcome is counted in the period containing its outcome date (§4). These are event counts, not resident counts, so the intraday and endpoint questions do not arise: the intake and the outcome of an intraday animal are each counted once, on that day.
 
-**Why the inventory census predicts what it predicts.** The census-by-tenure profile $N(d) = \bar{I}\,\widehat{S}(d)$ over $d = 0,\ldots,\tau - 1$ (§5.6, with $\tau$ the restricted stay cap of §3.3) uses the elapsed-tenure clock: at $d = 0$ (intake day) $\widehat{S}(0) = 1$, so all of a day's intakes appear at tenure 0, and the last tenure at which a stay of length $\text{LOS}$ is counted is $d = \text{LOS} - 1$ (its departure day). Summed, it gives the inventory census $L = \bar{I}\,\widetilde{\text{RMST}}$ (present on both endpoint days, matching `mean_census`), and the overnight prediction is $L - \bar{I}$. This is why predicted and observed censuses are compared on the inventory convention, with the overnight prediction obtained by subtracting the mean daily intakes, mirroring the observed-side identity of §4.
+**Why the inventory census predicts what it predicts.** The census-by-tenure profile $N(d) = \bar{I}\,\widehat{S}(d)$ over $d = 0,\ldots,\tau - 1$ (§5.6, with $\tau$ the restricted stay cap of §3.3) uses the elapsed-tenure clock: at $d = 0$ (intake day) $\widehat{S}(0) = 1$, so all of a day's intakes appear at tenure 0, and the last tenure at which a stay of length $\text{LOS}$ is counted is $d = \text{LOS} - 1$ (its departure day). Summed, it gives the inventory census $L = \bar{I}\,\widetilde{\text{RMST}}$ (present on both endpoint days, matching `mean_census_inventory`), and the overnight prediction is $L - \bar{I}$. This is why predicted and observed censuses are compared on the inventory convention, with the overnight prediction obtained by subtracting the mean daily intakes, mirroring the observed-side identity of §4.
 
 # 3. Period Decomposition: Truncation, Censoring, and Capping
 
@@ -402,10 +402,10 @@ $$\sum_{d = 0}^{\tau - 1}p(d)\,\text{Remaining LOS}(d)\mspace{6mu} = \mspace{6mu
 
 with terms set to $0$ whenever $\widehat{S}(d) = 0$, exactly as in §5.6. This is 1 plus `per_resident_past_days`, and equals `per_resident_future_days`, the future workload per resident reported in §5.6. The remaining LOS metrics are distinct from this, and reported beside it, as `remaining_days_at_mean_tenure`, `remaining_days_at_median_tenure`, and `remaining_days_at_p90_tenure` (§8.4). Each is computed from its own stratum's fit at that stratum's own tenure statistic, so they are available per stratum even though only the unified curve is marked in the plot. The two readings differ by a Jensen gap whose sign follows the curvature of Remaining LOS over the bulk of $p$. Where the curve is concave, the usual shape when the discharge hazard falls steeply early and then flattens, the mark sits above the resident average. On **OC1** the gap is wide, 74.9 days at the mean tenure against 53.7 days averaged over residents. The mark answers what a resident of typical tenure still owes. `per_resident_future_days` answers what the standing population owes per head.
 
-# 6. Regressions on the Three Factors
+# 6. Regressions on the Three Predictors
 
 Two regression families are fitted on the same counting-process rows and the
-same three factors: Cox, which leaves the baseline hazard unspecified, and an
+same three predictors: Cox, which leaves the baseline hazard unspecified, and an
 optional Weibull, which gives it a parametric form and so reports a
 length-of-stay ratio directly. In their pooled form both hand every covariate
 pattern a single baseline shape.
@@ -415,7 +415,7 @@ variants (§6.6 and §6.7), then the stratified Cox (§6.8). The last two allow 
 covariate pattern to affect the shape of the LOS distribution or the hazard
 function. §6.7 relaxes the LOS distribution parametrically, by freeing the
 Weibull shape. §6.8 relaxes the hazard function nonparametrically, by giving
-each combination of the other factors its own baseline. §6.8 closes by comparing
+each combination of the other predictors its own baseline. §6.8 closes by comparing
 what the two approaches to relaxation say on the same data.
 
 ## 6.1 Model and predictors
@@ -426,7 +426,7 @@ $$h(t \mid x) = h_{0}(t)\,\exp\left( \beta^{\top}x \right),$$
 
 with $h_{0}(t)$ an unspecified baseline hazard and $x$ dummy indicators for whichever of the following have at least two observed levels: **period**, **intake type**, and **animal group**. Here, only main effects are used, with no interaction terms estimated. A filled `_UNKNOWN_` level (§2.1) counts as an observed level, so rows with a missing covariate value participate in the fit as their own group. If none qualify (a single period, and no intake type or animal group column), there is no predictor left to fit (the global tests of §6.4 would have nothing to test against), so Cox regression is skipped entirely for that dataset.
 
-**Reference levels.** The reference level for each factor is chosen by `period_reference` (a policy, `OLDEST` or `NEWEST`, resolving to the oldest or newest period *with data*), `intake_type_reference`, and `animal_group_reference` (each a named level). When a level is not named, the **most frequent level**, counted over animal-period rows with a filled `_UNKNOWN_` level (§2.1) eligible like any other, is used. Reference choice affects only the parametrization (which contrasts are reported), not the fit. The User Guide's settings reference gives the selection syntax and its validation.
+**Reference levels.** The reference level for each predictor is chosen by `period_reference` (a policy, `OLDEST` or `NEWEST`, resolving to the oldest or newest period *with data*), `intake_type_reference`, and `animal_group_reference` (each a named level). When a level is not named, the **most frequent level**, counted over animal-period rows with a filled `_UNKNOWN_` level (§2.1) eligible like any other, is used. Reference choice affects only the parametrization (which contrasts are reported), not the fit. The User Guide's settings reference gives the selection syntax and its validation.
 
 **Reference choice and reporting quality.** Although the fit is invariant to the reference, every reported contrast is against it, so the choice governs how readable the output is. A reference level with few events, or one whose risk set occupies only a narrow stretch of the LOS range, inflates the standard errors of *all* reported contrasts. A large, well-overlapping reference confines poor behavior to the genuinely problematic level's own row.
 
@@ -747,7 +747,7 @@ by the convention the Kaplan-Meier quantiles use on $\widehat{S}$, the smallest 
 
 Three readings off the Remaining LOS curve of §5.8 close the block, one per tenure statistic above it and in the same order, the mean first: `remaining_days_at_mean_tenure`, `remaining_days_at_median_tenure`, and `remaining_days_at_p90_tenure`. Each is $\text{Remaining LOS}$ evaluated at that tenure, truncated to the day step it falls in, and each answers a question about one animal: If an animal has already been in care as long as this statistic says, how much longer does it expect? The curve's own grid supports no such statistic of its own, being a function of tenure rather than a distribution over animals (§5.8). **Do not read `remaining_days_at_mean_tenure` as the average remaining stay of the in-care population**: that average is `per_resident_future_days` (equal to `per_resident_past_days` $+\ 1$), four rows above, and the two differ by a Jensen gap that widens with the curvature of the Remaining LOS curve over the bulk of $p$ (§5.8). On **OC1**'s whole sample they are 74.9 days and 53.7 days. Because they are read off the same capped profile, all three carry the cap sensitivity of the quantiles above them.
 
-The conditional outcome mix is read at the same three tenures and truncated to the same day step, as `aj_condrem_L_at_median_tenure` and its eight siblings across the three outcome types and the three statistics. Each is the conditional remaining-outcome probability of \u00a77.4 evaluated there, and answers the companion question to the readings above: given that an animal has been in care as long as this statistic says, which way is it going to leave. Because they are conditional on having reached that tenure, they are not the cumulative incidences of \u00a77.2, which are over all stays from intake. The three outcome values at one tenure sum to less than 1, the shortfall being stays still in care when the analysis window closes; a consumer wanting that shortfall takes one minus their sum rather than reading a stored row.
+The conditional outcome mix is read at the same three tenures and truncated to the same day step, as `aj_condrem_L_at_median_tenure` and its eight siblings across the three outcome types and the three statistics. They reach `results.json` and no worksheet. Each is the conditional remaining-outcome probability of §7.4 evaluated there, and answers the companion question to the readings above: given that an animal has been in care as long as this statistic says, which way is it going to leave. Because they are conditional on having reached that tenure, they are not the cumulative incidences of §7.2, which are over all stays from intake. The three outcome values at one tenure sum to less than 1, the shortfall being stays still in care when the analysis window closes; a consumer wanting that shortfall takes one minus their sum rather than reading a stored row.
 
 ### AJ metrics by outcome type
 

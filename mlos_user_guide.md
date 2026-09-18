@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260916_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260918_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -226,7 +226,7 @@ When you re-run on a subset, it helps to know what moves and what stays put:
 - **The Cox and Weibull regressions change under all of these edits, in every row of their tables.** They are joint, adjusted models: each ratio is estimated holding the other predictors fixed, so eliminating a category, refining one, or narrowing the window changes the adjustment behind every coefficient, not only the edited predictor's rows. A hazard ratio can therefore move after you filter a different column, which reflects the changed adjustment rather than an error. It is also why the marginal curves and the adjusted ratios can legitimately tell different stories. The Weibull sheet's crude-versus-adjusted shape comparison is the built-in illustration of the same phenomenon.
 - **Zeroing in on a single sub-period changes everything, even with the same categories**: stays are truncated and censored at the new window's edges, so every curve and every regression now describes that window alone.
 
-Two notes of caution. Filters shrink the sample, so watch the confidence intervals and keep the 50-outcomes-per-period guideline in mind. And if you filter away the level you named as a Cox reference (`intake_type_reference`, `animal_group_reference`), the ratios for that predictor come out blank. Choose reference levels from among the values you plan to retain.
+Two notes of caution. Filters shrink the sample, so watch the confidence intervals and keep the 100-outcomes guideline in mind, which applies to every stratum a filtered run leaves standing and not to its periods alone. And if you filter away the level you named as a Cox reference (`intake_type_reference`, `animal_group_reference`), the ratios for that predictor come out blank. Choose reference levels from among the values you plan to retain.
 
 **Reporting back.** A question about an output, a result that looks wrong, and an account of what the tool was used for all go to the [issue tracker](https://github.com/Shelter-Data-Analysis/mLOS/issues), which carries a form for a bug report and one for an analysis report. [CONTRIBUTING.md](https://github.com/Shelter-Data-Analysis/mLOS/blob/main/CONTRIBUTING.md) says what to attach to a bug report, and what a deposited analysis holds. The most useful account names the plots, sheets, and tables within a sheet that carried the finding, since a run records nothing about which parts of its output anyone reads.
 
@@ -313,7 +313,7 @@ The companion CSV carries a single header row above the day grid, `expected_cens
 | `km_census_by_tenure_by_intake_type` | Expected animals in care by tenure, per intake type. |
 | `km_census_by_tenure_by_animal_group` | Expected animals in care by tenure, per animal group. |
 
-There is also a `_unified` file of the same type, but it is less informative. It is simply the unified KM curve multiplied by a single number, the overall intake rate: the same shape with a different y-axis. The expected census is the unified curve's second header row.  It is also reported as the `expected_census` row of the workbook's By_All sheet and in `results.json`.
+The unified file is the least informative of the four: the unified KM curve multiplied by a single number, the overall intake rate, so it is the same shape on a different y-axis.
 
 The value of this family lies entirely in the **relative** heights of its curves. Each stratum is scaled by its own intake rate, which is what puts the levels on a common footing in numbers of animals and makes the cross-stratum readings above possible: how the tenure-X population divides among the strata, and which strata contribute most of the animals at each tenure. A stratum with a long average stay but few intakes and one with a short average stay but many can end up contributing comparable numbers, and only the rescaling shows that.
 

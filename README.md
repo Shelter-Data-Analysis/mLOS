@@ -112,7 +112,7 @@ mLOS is archived at [10.5281/zenodo.22083814](https://doi.org/10.5281/zenodo.220
 
 ## License
 
-The mLOS code is released under the [MIT License](LICENSE). The two guides (`mlos_user_guide.md`, `mlos_math_methods.md`) and their Word exports (if provided) are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+The mLOS code is released under the [MIT License](LICENSE). The three guides (`mlos_user_guide.md`, `mlos_math_methods.md`, `presentation_guide.md`) and their Word exports are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ## Contributing
 
