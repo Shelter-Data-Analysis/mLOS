@@ -293,12 +293,6 @@ cox_regression_analysis <- function(period_data, references) {
     # identical() check in .weibull_regression_analysis relies on that to
     # recognize the crude fit as the main fit instead of refitting it.
     #
-    # The results.json key for this block is still weibull$unified, which is
-    # the reserved word for a whole-sample output everywhere else. Rename it to
-    # weibull$crude the next time the goldens churn for another reason: OC1 and
-    # OC2 regenerate easily and no results are stored or distributed, so the
-    # only cost is regenerating tests/golden for every Weibull fixture.
-    #
     # Keeping period while dropping intake_type/animal_group is deliberate,
     # not an accident of ordering. The block exists to expose
     # composition-driven shape: a mixture of fast- and slow-leaving groups

@@ -987,12 +987,6 @@ def burden_carrier(bundle: Bundle,
     return str(carrier), float(owed_share[carrier]), float(resident_share[carrier])
 
 
-def requires_care_days(bundle: Bundle, stratifier: str) -> bool:
-    return (bundle.has("strata", stratifier, "observations")
-            and CARE_DAYS_DELIVERED
-            in bundle.stratum(stratifier, "observations").columns)
-
-
 def _care_days_owed(bundle: Bundle, stratifier: str) -> pd.Series | None:
     """Days of care each level's residents are still committed to.
 
