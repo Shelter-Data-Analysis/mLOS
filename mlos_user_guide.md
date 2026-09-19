@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260918_005. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260918_006. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -825,7 +825,7 @@ Each period is **left-closed, right-open**: the first date of a period is includ
 restricted_stay_cap: 365
 ```
 
-Positive integer. Stays exceeding this number of days are capped: their time in the analysis ends at the cap and they are treated as right-censored there. The cap is the analysis horizon for **every** method, not just the restricted mean: the KM curve ends at the cap (so the median or 90th percentile is reported as "not reached" if it would fall beyond it), outcomes occurring past the cap are censored in the Cox regression. The AJ analysis uses no information beyond the cap. Below the cap, the curves are unaffected. The fraction of stays capped is reported as `fraction_capped`. To shorten the plots without shortening the analysis, set [`plot_stay_cap`](#plot_stay_cap) instead; it truncates the x-axis and changes no computed value.
+Positive integer. Stays exceeding this number of days are capped: their time in the analysis ends at the cap and they are treated as right-censored there. The cap is the analysis horizon for **every** method, not just the restricted mean: the KM curve ends at the cap (so the median or 90th percentile is reported as "not reached" if it would fall beyond it), outcomes occurring past the cap are censored in the Cox regression. The AJ analysis uses no information beyond the cap. Below the cap, the curves are unaffected. The fraction of stays capped is reported as "Fraction capped" on the General sheet and as `fraction_capped` on `By_All` and the other stratum sheets. To shorten the plots without shortening the analysis, set [`plot_stay_cap`](#plot_stay_cap) instead; it truncates the x-axis and changes no computed value.
 
 **This is one of the most consequential settings in the tool, not just a technical default.** It effectively defines (crucially, for the KM restricted mean) the boundary between a "long but real" stay and one that should be treated as an outlier or a potential data discrepancy. Choose it deliberately by inspecting your actual stay-length distribution rather than reusing a default from another dataset. Be more conservative the sparser your data: with few observations, a single implausible or erroneous stay recorded near or beyond the cap can dominate the restricted mean.
 
@@ -1270,7 +1270,7 @@ Cox regression tests whether the hazard of discharge differs across periods, int
 
 ### HistLOS, ExitLOS, and AnimLOS
 
-HistLOS, as defined in [1], is the intake-to-outcome stay of every animal whose outcome falls in the period, with no truncation or censoring. It is the naive calculation this guide contrasts with, and mLOS does not report it. For teaching, `tools/histlos_by_period.R` computes it by period with `restricted_stay_cap` applied, and writes a plot, its CSV, and a summary of median, mean, and P90 into `results/histlos/`:
+HistLOS, as defined in [1], is the whole intake-to-outcome stay of every animal whose outcome falls in the period, counted from intake, with no left truncation and no censoring. It is the naive calculation this guide contrasts with, and mLOS does not report it. For teaching, `tools/histlos_by_period.R` computes it by period with `restricted_stay_cap` applied, and writes a plot, its CSV, and a summary of median, mean, and P90 into `results/histlos/`:
 
 ```bash
 Rscript tools/histlos_by_period.R --settings data/OC2_settings.yaml --data data/OC2_data.csv --results results/histlos

@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260918_006. Read it in any markdown reader,
+presentation guide, version 20260918_007. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -709,8 +709,9 @@ draws](#figures-this-package-draws) says why dots are used. The axis is linear
 by default; `figures.ratio_log_scale` turns on the log axis that would draw 2
 and 0.5 as the same size of effect.
 
-The robustness check `cox_comparison_by_stratifier` is built after the closing
-sections, behind a page separating it from the presentation. Nothing there is gathered into the
+The reserve section holds the robustness check `cox_comparison_by_stratifier`.
+It is built after the closing sections, behind a page separating it from the
+presentation. Nothing there is gathered into the
 closing sections.
 
 ### The competing-risks run
@@ -789,9 +790,9 @@ ten produce none at all. What each rule looks for is under
 
 ### Educational
 
-**One section sits behind everything else**, including the robustness check,
+**One section sits behind everything else**, including the reserve section,
 and teaches a way of reading rather than reporting a result. Its divider says
-`Extra: educational`, the way the robustness divider says `Extra:`, because to
+`Extra: educational`, the way the reserve divider says `Extra:`, because to
 a presenter the two are the same kind of thing: reached when a question from
 the floor asks for them, and not walked through otherwise.
 
@@ -2087,7 +2088,7 @@ resolves again loses nothing.
 `assemble` is the seam that separates choosing slides from writing a deck: it
 returns the whole list and writes no file, which is how `variant.py` composes
 a second deck from the same rules rather than reading one back out of a
-`.pptx`. It draws, though, putting the ratio and robustness figures in the
+`.pptx`. It draws, though, putting the ratio and reserve figures in the
 directory it is handed, so a caller wanting only the titles gives it one it is
 willing to have written to. `build` is that call plus the output: the workbook,
 the figure manifest, the slide sidecar, and the render.
@@ -2148,7 +2149,7 @@ of reported numbers belongs beside the numbers, drawn by the code that computed
 them.
 
 `figures.py` is the exception, for figures the R side does not have. There are
-two: the paired hazard-ratio bars of the robustness section (`hr_comparison`),
+two: the paired hazard-ratio bars of the reserve section (`hr_comparison`),
 where the comparison between the two Cox fits exists only here, and the
 three-estimate dots of the hazard-ratio and LOS ratio slides (`hazard_ratios`,
 `los_ratios`), which put estimates from different models on one axis.

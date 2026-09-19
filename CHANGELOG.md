@@ -165,9 +165,9 @@ output moved.
 - The runbook's release commands use `X.Y.Z`, and its sweep table marks the two
   rows a DOI had made stale.
 - The README, `CONTRIBUTING.md` and the presentation guide name OC1 and OC2
-  where they said the Orange County data. The presentation guide says
-  robustness where it said reserve, and no longer narrates the slides it
-  replaced.
+  where they said the Orange County data. The presentation guide keeps
+  the reserve section apart from the robustness check it holds, and no longer
+  narrates the slides it replaced.
 
 ---
 
