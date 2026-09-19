@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260918_004. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260918_005. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -424,7 +424,7 @@ The Cox model for the hazard of *any classified outcome* (all outcome types pool
 
 $$h(t \mid x) = h_{0}(t)\,\exp\left( \beta^{\top}x \right),$$
 
-with $h_{0}(t)$ an unspecified baseline hazard and $x$ dummy indicators for whichever of the following have at least two observed levels: **period**, **intake type**, and **animal group**. Here, only main effects are used, with no interaction terms estimated. A filled `_UNKNOWN_` level (§2.1) counts as an observed level, so rows with a missing covariate value participate in the fit as their own group. If none qualify (a single period, and no intake type or animal group column), there is no predictor left to fit (the global tests of §6.4 would have nothing to test against), so Cox regression is skipped entirely for that dataset.
+with $h_{0}(t)$ an unspecified baseline hazard and $x$ dummy indicators for whichever of the following have at least two observed levels: **period**, **intake type**, and **animal group**. Here, only main effects are used, with no interaction terms estimated. A filled `_UNKNOWN_` level (§2.1) counts as an observed level, so rows with a missing covariate value participate in the fit as their own group. If none qualify (a single period, and no intake type or animal group column), there is no predictor left to fit (the global tests of §6.4 would have nothing to test against), so Cox regression is skipped entirely for that dataset, and the Cox worksheet says so.
 
 **Reference levels.** The reference level for each predictor is chosen by `period_reference` (a policy, `OLDEST` or `NEWEST`, resolving to the oldest or newest period *with data*), `intake_type_reference`, and `animal_group_reference` (each a named level). When a level is not named, the **most frequent level**, counted over animal-period rows with a filled `_UNKNOWN_` level (§2.1) eligible like any other, is used. Reference choice affects only the parametrization (which contrasts are reported), not the fit. The User Guide's settings reference gives the selection syntax and its validation.
 

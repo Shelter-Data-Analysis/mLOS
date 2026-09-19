@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260918_004. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260918_005. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -464,9 +464,8 @@ The JSON also carries an `outputs` manifest: one entry per plot and companion CS
 
 #### The Excel workbook
 
-Many (but not all) statistical results and descriptive statistics are exported to a consolidated Excel workbook (`analysis_results.xlsx`). `General` (the workbook's first sheet, a cover sheet), `Data_Preparation` (the screening ledger described above), and `By_All` (the whole-dataset version of the stratum-sheet layout: a single unified column carrying the full unified analysis, counts, KM, census aggregates, outcome mix, incidence, and AJ, so it lines up row-for-row with the stratified sheets) are always present. Further sheets are conditional:
+Many (but not all) statistical results and descriptive statistics are exported to a consolidated Excel workbook (`analysis_results.xlsx`). `General` (the workbook's first sheet, a cover sheet), `Data_Preparation` (the screening ledger described above), `Cox_Regression`, and `By_All` (the whole-dataset version of the stratum-sheet layout: a single unified column carrying the full unified analysis, counts, KM, census aggregates, outcome mix, incidence, and AJ, so it lines up row-for-row with the stratified sheets) are always present. Further sheets are conditional:
 
-- A `Cox_Regression` sheet when at least one predictor qualifies: two or more periods, or an intake type or animal group with two or more levels. Without one there is nothing to regress on and the sheet is dropped.
 - A `By_Period` sheet when two or more periods are defined. Period is treated as a stratifier like any other, so a single-period run has nothing to compare and the sheet is omitted. `By_All` carries the same numbers in that case, and the period's dates and duration are on the `General` worksheet.
 - `By_Intake_Type` and/or `By_Animal_Group` sheets when the respective column is present with two or more levels.
 - When `parametric_regression: WEIBULL` is set, a `Weibull_Regression` sheet as well as separate `Weibull_By_Period` / `Weibull_By_Intake_Type` / `Weibull_By_Animal_Group` sheets for qualifying predictors (see Per-predictor Weibull regressions, below).
@@ -618,7 +617,7 @@ See the per-predictor Weibull sheets below for the fuller report that lives on i
 
 #### The Cox_Regression sheet
 
-*Written only when at least one predictor qualifies.*
+*When no predictor qualifies (a single period and no intake type or animal group with two or more levels), the sheet holds a note saying that Cox regression is not available.*
 
 The Cox regression tests whether LOS distributions differ significantly across periods, intake types, and animal groups when these stratifiers act simultaneously. It quantifies the differences as hazard ratios.
 
