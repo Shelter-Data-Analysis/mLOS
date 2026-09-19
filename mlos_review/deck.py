@@ -479,7 +479,7 @@ def los_overall(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
     two figures, one row of numbers, and a different thing to say about them.
 
     Its figures come from the manifest under stratifier `"all"`, the same key
-    its numbers come from, so nothing here has to know that R draws the pooled
+    its numbers come from, so nothing here has to know that R draws the unified
     plots by a different code path and files them under `_unified` names.
     """
     if not requires_full_table(bundle, "all"):
@@ -510,7 +510,7 @@ def los_overall(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
         "no tail at all, but at different rates, pool into a distribution with "
         "a falling hazard and a heavy tail: early on the quick group is "
         "leaving and sets the pace, and what is left later is increasingly the "
-        "slow group. The pooled curve is then a fact about the shelter's MIX, "
+        "slow group. The whole-sample curve is then a fact about the shelter's MIX, "
         "and the slides that split it are where the components show up "
         "separately.",
         "Which way that gap goes is a property of the spread of the stays, not "
@@ -861,7 +861,7 @@ def workload_slide(bundle: Bundle, vocab: Vocabulary, section: str,
             "This is a statement about DIFFERENCES BETWEEN levels, and it is "
             "not the same statement as the one on the whole-sample slide. That "
             "one was about the shape of a single distribution, where residents "
-            "look longer-tenured than arrivals because the pooled distribution "
+            "look longer-tenured than arrivals because the whole-sample distribution "
             "has a heavy tail, and the reason it has one is that it lumps "
             "together levels whose stays are nothing like each other. This one "
             "is the lumping itself, seen directly: even if every level's stays "
@@ -1097,8 +1097,8 @@ def aj_by_stratifier(bundle: Bundle, stratifier: str, vocab: Vocabulary,
     inside the frame, which reads as the panel changing rather than the slide
     changing. That is worth more than any static arrangement of the
     same panels: it puts one outcome in front of the audience at a time, at
-    7.8 by 5.2 inches on the OC run instead of the 4.3 by 2.9 a quadrant cell
-    allowed, with the numbers still in view beside it.
+    the size of a whole slide's figure rather than a quadrant cell, with the
+    numbers still in view beside it.
 
     The finding rides on the FIRST slide only. It is one finding about the
     stratifier, not one per outcome, and the closing section would otherwise

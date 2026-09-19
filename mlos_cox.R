@@ -296,7 +296,7 @@ cox_regression_analysis <- function(period_data, references) {
     # Keeping period while dropping intake_type/animal_group is deliberate,
     # not an accident of ordering. The block exists to expose
     # composition-driven shape: a mixture of fast- and slow-leaving groups
-    # produces a declining pooled hazard (a Weibull k < 1) even when every
+    # produces a declining marginal hazard (a Weibull k < 1) even when every
     # group is memoryless, because the risk set drifts toward the slow group
     # as tenure grows. That sorting needs a PERSISTENT subject-level
     # attribute, which intake_type and animal_group are and period is not:
@@ -885,9 +885,9 @@ cox_regression_analysis <- function(period_data, references) {
   cat("Weibull shape k = ", round(k, 3), " [", round(k_lo, 3), ", ",
       round(k_hi, 3), "]\n", sep = "")
 
-  # Unified companion: the same Weibull with the group terms dropped
-  # (intercept + period only), so its shape describes the POOLED
-  # discharge process. A pooled k below 1 alongside an adjusted k near 1
+  # Crude companion: the same Weibull with the group terms dropped
+  # (intercept + period only), so its shape describes the MARGINAL
+  # discharge process. A crude k below 1 alongside an adjusted k near 1
   # signals a mix of fast and slow groups (the fast leavers drain out of
   # the risk set first), not stays that stall with tenure -- see the
   # sim_size_mixture fixture for a worked example.

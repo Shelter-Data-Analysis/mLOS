@@ -54,7 +54,7 @@ CAP_RECOMMENDATION_THRESHOLD = 0.05
 # How far a level's tail has to run, relative to the shelter's own, before its
 # stays look like two populations rather than one. Measured as the ratio of the
 # 90th percentile to the median, which is unitless and comparable across
-# shelters, and then against the pooled ratio, so a shelter whose stays are
+# shelters, and then against the unified ratio, so a shelter whose stays are
 # dispersed throughout is not flagged level by level for being itself.
 TAIL_SPREAD_MULTIPLE = 2.0
 
@@ -296,8 +296,8 @@ def tail_spread(bundle: Bundle, stratifier: str, vocab) -> list[str]:
     km = bundle.stratum(stratifier, "km")
     if not {"km_median_los", "km_p90_los"} <= set(km.columns):
         return []
-    pooled = bundle.stratum(BASELINE_STRATIFIER, "km")
-    baseline = _ratio(pooled["km_p90_los"].iloc[0], pooled["km_median_los"].iloc[0])
+    unified = bundle.stratum(BASELINE_STRATIFIER, "km")
+    baseline = _ratio(unified["km_p90_los"].iloc[0], unified["km_median_los"].iloc[0])
     if baseline is None:
         return []
 

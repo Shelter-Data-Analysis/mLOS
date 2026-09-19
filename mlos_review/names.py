@@ -459,7 +459,7 @@ class Vocabulary:
             # key.
             for code, label in zip(names, values):
                 self.outcome_labels[code] = re.sub(rf"^{re.escape(code)}\s+", "", label)
-        # "Any" is the pooled pseudo-outcome; it is not in the configured
+        # "Any" is the all-cause pseudo-outcome; it is not in the configured
         # labels because it is not a state the data can record.
         self.outcome_labels.setdefault("Any", "any outcome")
         self._fallbacks: set[str] = set()

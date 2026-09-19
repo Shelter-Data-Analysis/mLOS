@@ -255,7 +255,7 @@ write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style
 # be read off directly -- plus a fourth, practitioner-facing "LOS ratios"
 # block with the shape parameter and its plain-language reading, and a final
 # "Crude Weibull" block: the same fit with the group terms dropped
-# (intercept + period only), whose shape describes the pooled process.
+# (intercept + period only), whose shape describes the marginal process.
 # .fit_weibull's verdict on a fit, as a worksheet value. Always written, never
 # conditional on there being something wrong: a row that appears only on the
 # runs with a problem is a row nobody knows to look for, and its absence reads
@@ -393,8 +393,8 @@ write_weibull_regression_sheet <- function(wb, wres, cox_has_analysis, coverage,
   # everywhere else on the sheet.
   next_row <- next_row + 1 + length(shape_legend) + 1
 
-  # Unified companion: the same Weibull with the group terms dropped
-  # (intercept + period only), so its shape describes the pooled
+  # Crude companion: the same Weibull with the group terms dropped
+  # (intercept + period only), so its shape describes the marginal
   # discharge process (see .weibull_regression_analysis in mlos_cox.R).
   next_row <- .excel_write_section_title(
     wb, "Weibull_Regression", next_row, "Crude Weibull", "intercept + period only", title_style
@@ -447,7 +447,7 @@ write_weibull_regression_sheet <- function(wb, wres, cox_has_analysis, coverage,
 
   openxlsx::writeData(
     wb, "Weibull_Regression",
-    "The pooled discharge process, with no group adjustment. A pooled k below 1 alongside an adjusted k near 1 signals a mix of fast and slow groups (the fast leavers drain out of the risk set first), not stays that stall with tenure.",
+    "The crude discharge process, with no group adjustment. A crude k below 1 alongside an adjusted k near 1 signals a mix of fast and slow groups (the fast leavers drain out of the risk set first), not stays that stall with tenure.",
     startRow = next_row, startCol = 1, colNames = FALSE
   )
 }
@@ -586,7 +586,7 @@ write_general_sheet <- function(wb, bundle, title_style,
   # The full unified analysis (counts, KM medians and restricted means, census
   # aggregates, outcome mix, incidence, and AJ competing risks) lives on the
   # By_All sheet, built with the stratum-sheet machinery so it is structurally
-  # identical to By_Intake_Type / By_Animal_Group with a single pooled column.
+  # identical to By_Intake_Type / By_Animal_Group with a single unified column.
   # A few unified facts do not fit that shared layout and stay here: the overall
   # study window, the restricted stay cap and the fraction of stays it bound, and
   # the unified median, 90th percentile, still-in-care-at-cap and restricted
@@ -1558,7 +1558,7 @@ write_results_excel <- function(excel_file, bundle) {
                                    title_style, num_style_int, num_style_float)
   }
 
-  # By_All: the whole dataset as a single pooled column, structurally identical
+  # By_All: the whole dataset as a single unified column, structurally identical
   # to the stratum sheets. Always present -- it is the whole-sample view, and
   # every run has one.
   write_by_stratum_sheet(wb, "By_All", bundle$strata$all, settings$window_days,

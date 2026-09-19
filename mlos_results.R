@@ -1153,7 +1153,7 @@ archive_previous_outputs <- function(output_dir, excel_file, log_file, json_file
 #'
 #' The `strata` node holds one entry per stratifying dimension, each the full
 #' output of compute_stratum_measures:
-#'   all     the whole sample as a single pooled column; always present
+#'   all     the whole sample as a single unified column; always present
 #'   period  one column per period, each period's own duration as denominator;
 #'           always computed, though a consumer may choose not to show it when
 #'           there is a single period and it says nothing `all` does not
@@ -1294,7 +1294,7 @@ build_results_bundle <- function(cox_results,
 
   window_days <- .total_window_days(periods)
 
-  # The whole dataset as a single stratum, so the pooled analysis is
+  # The whole dataset as a single stratum, so the unified analysis is
   # structurally identical to the stratified ones and maps onto them row for
   # row. The unified AJ is wrapped as the single stratum's result so it is
   # reused rather than refitted. Built unconditionally: this is THE whole-sample

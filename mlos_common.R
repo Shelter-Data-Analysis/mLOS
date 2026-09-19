@@ -762,7 +762,7 @@ emitted_outputs <- function() unique(basename(.emitted_outputs_env$files))
 # when there are none). Strata are visited in sorted order, so the row order
 # is stable regardless of how the data happens to be arranged.
 #
-# A small stratum can have a gap even when the pooled data does not, which is
+# A small stratum can have a gap even when the unified data does not, which is
 # why this is checked per stratum rather than only on the whole. The gaps are
 # a property of the (time_start, time_end] intervals alone: they involve no
 # events, outcome types, or fitted model, and the KM and AJ risk sets at any

@@ -2657,7 +2657,7 @@ run_suite_checks <- function() {
   expect_equal("one period with data, no other predictors: Cox skipped, not crashed",
                as.numeric(isTRUE(op_cox$has_analysis)), 0)
 
-  # Weibull unified companion with a period-only model: the main fit already
+  # Weibull crude companion with a period-only model: the main fit already
   # has no group terms, so it IS the unified fit and must be recognized as
   # such (same_as_main), not silently refit. The two formula strings used to
   # differ ("surv_obj ~ 1 + period" vs "surv_obj ~ period"), which made the

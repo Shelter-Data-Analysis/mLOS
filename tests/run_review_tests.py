@@ -2594,15 +2594,15 @@ def check_salience_statistic() -> None:
 
     # Both terms, taken on the POOLED mean rather than on the weighted mean of
     # the levels, so a bundle carrying both is judged on the published figure a
-    # reader can look up. The pooled value here is the one that puts the
+    # reader can look up. The unified value here is the one that puts the
     # threshold exactly on a spread of 5, whatever the constants are, so the
     # boundary is tested rather than a number that happens to sit near it.
     on_the_line = (5.0 - salience.STAY_DAYS_DEVIATION_FLOOR) / salience.STAY_DAYS_DEVIATION_SHARE
     scaled = salience.spread(
         bundle_with([10.0, 20.0], [0.0, 0.0], [100, 100], pooled=on_the_line), "group")
-    expect_equal("the threshold is a day plus a share of the pooled mean",
+    expect_equal("the threshold is a day plus a share of the unified mean",
                  round(scaled.threshold, 6), 5.0)
-    expect_equal("and the share is taken on the pooled figure",
+    expect_equal("and the share is taken on the unified figure",
                  scaled.mean_los, on_the_line)
     expect("a spread level with the threshold is not above it", not scaled.salient)
 
@@ -3314,7 +3314,7 @@ def check_observation_gaps(case: str, bundle: Bundle) -> None:
     losing one is the failure to catch: the check is run against the bundle's
     own gaps table rather than against the split the blocks chose. The periods
     report on the title slide, which is where they are listed, and everything
-    else on the summary slide, which carries the pooled row.
+    else on the summary slide, which carries the unified row.
 
     The reassurance is checked too, and by the same rule that produces it: a
     slide speaks about the analyses R actually scanned, so the title slide is
@@ -3345,7 +3345,7 @@ def check_observation_gaps(case: str, bundle: Bundle) -> None:
         where = slide_for(row["stratifier"])
         other = "sample" if where == "window" else "window"
         stratum = str(row["stratum"])
-        subject = "the pooled data" if row["stratifier"] == "all" else stratum
+        subject = "the unified data" if row["stratifier"] == "all" else stratum
         detail = f"day {row['gap_start_day']:g} to day {row['gap_end_day']:g}"
         expect(f"{case}: the {stratum} gap is reported on the {where} slide",
                subject in slides[where], slides[where])
@@ -3367,7 +3367,7 @@ def check_observation_gaps(case: str, bundle: Bundle) -> None:
                    f"day {starts.min():g}" in slides[where], slides[where])
 
     # The title slide reports on the periods exactly when R scanned them, and
-    # the summary slide always does: the pooled scan runs on every analysis.
+    # the summary slide always does: the unified scan runs on every analysis.
     scanned = any(bundle.value("settings", "coverage", stratifier, "included",
                                default=False)
                   for stratifier in bundle.stratifiers()
@@ -3375,7 +3375,7 @@ def check_observation_gaps(case: str, bundle: Bundle) -> None:
     expect_equal(f"{case}: the window slide speaks only for a scan that ran",
                  "Observation gaps" in slides["window"], scanned)
     if len(opening) > 1:
-        expect(f"{case}: the summary slide always reports the pooled scan",
+        expect(f"{case}: the summary slide always reports the unified scan",
                "Observation gaps" in slides["sample"], slides["sample"])
     if gaps.empty:
         expect(f"{case}: a clean run says so rather than staying silent",
@@ -3785,7 +3785,7 @@ def check_opening(case: str, bundle: Bundle) -> None:
                  if c.startswith("outcome_") and c.endswith("_events")]
         outcomes = [row for row in frame.index
                     if row == "Any" or row.split(" ")[0] in codes]
-        expect_equal(f"{case}: the pooled total leads the outcome rows",
+        expect_equal(f"{case}: the all-cause total leads the outcome rows",
                      outcomes[0], "Any")
         expect_equal(f"{case}: Any is the analysis's own completed total",
                      frame.loc["Any", "count"],

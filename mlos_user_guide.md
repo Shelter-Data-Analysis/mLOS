@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260918_006. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260919_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -1086,7 +1086,7 @@ Why turn it on: the Weibull fit reports **LOS ratios** directly ("stays run 30% 
 
 The worksheet also reports the Weibull shape `k`. Values below 1 mean discharge slows down the longer an animal has been in care, which means that there are more long residents, and group differences in LOS are larger than the hazard ratios suggest. Values above 1 mean discharge speeds up the longer an animal has been in care (fewer long residents; group differences in LOS are smaller than the hazard ratios suggest).
 
-The worksheet closes with a **crude Weibull**: the same fit with the intake-type and animal-group terms dropped (intercept plus the period factor, when there is one), so its shape describes the shelter's pooled discharge process. Comparing the two shapes is a quick heterogeneity diagnostic. A pooled `k` below 1 next to an adjusted `k` near 1 means the apparent slowdown comes from mixing fast-moving and slow-moving groups (the fast ones leave the population first), not from individual animals getting harder to place the longer they stay. When the main model has no group terms, it already is the crude fit and the worksheet says so instead of repeating the numbers.
+The worksheet closes with a **crude Weibull**: the same fit with the intake-type and animal-group terms dropped (intercept plus the period factor, when there is one), so its shape describes the shelter's marginal discharge process. Comparing the two shapes is a quick heterogeneity diagnostic. A crude `k` below 1 next to an adjusted `k` near 1 means the apparent slowdown comes from mixing fast-moving and slow-moving groups (the fast ones leave the population first), not from individual animals getting harder to place the longer they stay. When the main model has no group terms, it already is the crude fit and the worksheet says so instead of repeating the numbers.
 
 #### `weibull_shape_crossing`
 
@@ -1212,7 +1212,7 @@ Animals participate in multiple periods if they were in care across period bound
 
 With left truncation it is possible, especially with a low number of animals, for some stretch of days to have **no animals at risk at all**. This happens when everyone at risk resolved before a later, left-truncated entrant arrived. The Kaplan-Meier estimator cannot recover from such a gap. If the last animal at risk before the gap leaves with an outcome, the curve drops to zero, and every outcome after the gap multiplies an already-zero curve: the post-gap stays contribute nothing to the median, percentiles, or restricted mean, which silently understates length of stay.
 
-mLOS checks for gaps in the unified KM data and, separately, within every stratum of the stratified KM analyses (by period, intake type, and animal group). A small stratum can have a gap even when the pooled data does not, and small strata are far more gap-prone. Gaps are reported in three places:
+mLOS checks for gaps in the unified KM data and, separately, within every stratum of the stratified KM analyses (by period, intake type, and animal group). A small stratum can have a gap even when the unified data does not, and small strata are far more gap-prone. Gaps are reported in three places:
 
 - Console warnings (which also appear in `analysis_log.txt`).
 - The **Observation gaps** section of the Excel `General` sheet, listing every gap with its analysis, stratum, and day range.  It is shown **green** when no gaps were found and **red** when any were.

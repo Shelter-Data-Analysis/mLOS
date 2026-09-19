@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260918_007. Read it in any markdown reader,
+presentation guide, version 20260919_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -502,7 +502,7 @@ by, in up to three small tables side by side.
 
 **Both opening slides close their notes with the [observation-gap
 scan](#observation-gaps)**, the
-periods on the first and the pooled data and the fields on the second. A gap
+periods on the first and the unified data and the fields on the second. A gap
 is a stretch of days no stay was under observation for, and the curve is not
 estimable across one. A clean run says so, which is the one caveat in the deck
 that speaks either way. A gap inside the plotted range is named with its level
@@ -1026,7 +1026,7 @@ preparation).  Also indicates whether a gap existed in the risk set.
 | `field_summary_table` | one row per field: level count, and the levels with the fewest and most stays | nowhere yet |
 | `workload_table` | one stratifier's rows for one of the three workload questions: who is in care, how long they have been here, the animal-days that implies | each of the three workload slides |
 | `window_gap_notes` | what the observation-gap scan found among the periods | the title slide's notes |
-| `sample_gap_notes` | the same for the pooled data and each field | the summary slide's notes |
+| `sample_gap_notes` | the same for the unified data and each field | the summary slide's notes |
 
 **Counts here are per stay, from the unified counts**, each stay counted once
 however many periods it touches. The period-level counts elsewhere count a stay
@@ -1055,7 +1055,7 @@ something: one row per field whatever its size, naming the levels with the
 fewest and most stays. **No rule builds it today**, and it is kept the way
 `QUADRANTS` is, with a fixture test calling it directly.
 
-**The window drops its pooled row when there is one period**. What is kept is
+**The window drops its unified row when there is one period**. What is kept is
 the period, since its label is what the reader meets on every other slide.
 Periods defined but never reached by a stay are left out throughout the deck.
 
@@ -1071,7 +1071,7 @@ the finding reach anybody. `observation_gaps` reads that table;
 **The scan is reported on the slides that describe the data**, not with the
 findings: a gap is a property of the window's coverage rather than of any
 statistic computed inside it. The periods go on the title slide, which lists
-them, and the pooled data and each field on the summary slide. The split is
+them, and the unified data and each field on the summary slide. The split is
 taken as a complement, the periods being what the summary does not tally (see
 `summary_fields`), so the two account for every analysis R scanned whatever
 stratifiers a future bundle carries.
@@ -1084,7 +1084,7 @@ entitled to have been told rather than an absence they are left to infer.
 **It will not claim a check that did not happen.** R scans a stratifier only
 where it fitted one, so a single-period run leaves the title slide silent
 rather than reporting a clean bill it has no scan behind. Nothing is lost: the
-pooled scan always runs, and with one period it is that period's scan over the
+unified scan always runs, and with one period it is that period's scan over the
 same rows, reported on the slide that follows.
 
 **Detail is spent where it can be acted on.** A gap starting below
@@ -1478,7 +1478,7 @@ filter.
 for being more dispersed than the data it came from, so a shelter whose stays
 are heavy-tailed throughout is not flagged on each level. On
 OC2 that is intake type RET, whose 90th percentile is 37 days against a median
-of 3, 2.1 times the pooled ratio; LARGE at 1.5 times does not clear it.
+of 3, 2.1 times the unified ratio; LARGE at 1.5 times does not clear it.
 
 **`falling_hazard` reads the shape *variants*, and one crossed variant
 silences the run.** R fits the Weibull shape in variants, each holding one
@@ -1590,7 +1590,7 @@ one outcome gets no sweep.
 > stretches. On **OC2** they sum to 571 against a true census of 191, and a
 > "share of residents by period" is not meaningful. Rather than hardcode which
 > stratifiers are safe, the block checks whether the level censuses actually
-> add up to the pooled census, and stays silent when they do not.
+> add up to the unified census, and stays silent when they do not.
 
 The recommendations are plain strings today. They will want structure once the
 planner has to rank or drop them.
@@ -1605,7 +1605,7 @@ stratifiers against each other yet, because nothing has a slide budget to spend.
 stay, in days, after taking out the part that is sampling noise. Keeping it in
 days makes it readable directly: levels of this stratifier differ by about plus
 or minus eleven days of average stay. Normalization is a separate step at
-ranking time, dividing by the pooled restricted mean, because comparing
+ranking time, dividing by the unified restricted mean, because comparing
 stratifiers needs a unitless number but interpreting one does not.
 
 It is built in three steps.
@@ -1664,8 +1664,8 @@ very few animals.
 A stratifier is salient when `stay_days_deviation` exceeds
 
 ```
-STAY_DAYS_DEVIATION_FLOOR + STAY_DAYS_DEVIATION_SHARE * pooled mean LOS
-    =   1 day  +  15% of the pooled restricted mean
+STAY_DAYS_DEVIATION_FLOOR + STAY_DAYS_DEVIATION_SHARE * unified mean LOS
+    =   1 day  +  15% of the unified restricted mean
 ```
 
 A floor *plus* a share, not the larger of the two, so the threshold is smooth
@@ -1674,9 +1674,9 @@ short-stay shelter would be salient on a spread of hours, and without the share
 a long-stay shelter would be salient on anything at all. They cross at 6.7 days
 of mean LOS, so on any shelter but a very fast one the share decides.
 
-The share is taken on the pooled restricted mean, the whole-sample figure, not
+The share is taken on the unified restricted mean, the whole-sample figure, not
 on the intake-weighted mean of the levels that the spread was computed around.
-The two are within a fraction of a day of each other, and the pooled one is on
+The two are within a fraction of a day of each other, and the unified one is on
 a slide the reader has already seen, so the threshold is a number they can
 check.
 
@@ -1747,7 +1747,7 @@ as the tool meets more shelters.
 | Constant | Value | Gates |
 |---|---|---|
 | `STAY_DAYS_DEVIATION_FLOOR` | 1 day | with the share below, whether a stratifier is salient under `AUTO` |
-| `STAY_DAYS_DEVIATION_SHARE` | 15% of the pooled restricted mean | the same; the two are added, and cross at 6.7 days of mean LOS |
+| `STAY_DAYS_DEVIATION_SHARE` | 15% of the unified restricted mean | the same; the two are added, and cross at 6.7 days of mean LOS |
 | `HIGHLIGHT_SHOW_ALL_MAX` | 4 levels | above this an LOS highlights table selects rather than shows all |
 | `AJ_SHOW_ALL_MAX` | 6 levels | the same for a competing-risk highlights table |
 | `MAX_LISTED_LEVELS` | 10 levels | how many levels the summary slide enumerates, where the run's own `max_plot_strata` is absent |
@@ -1759,7 +1759,7 @@ as the tool meets more shelters.
 | `OUTCOME_SPREAD_MULTIPLE` | 2.0x | how far apart two outcome timings have to be before the gap is a finding |
 | `OUTCOME_SPREAD_MINIMUM_EVENTS` | 30 events | how many of an outcome a level needs before its timing enters that comparison |
 | `WIDE_MARGIN` | 20% | the agreement margin past which a level counts as unestimable |
-| `TAIL_SPREAD_MULTIPLE` | 2.0x the pooled ratio | how dispersed a level's stays have to be, relative to the shelter, before splitting it is worth recommending |
+| `TAIL_SPREAD_MULTIPLE` | 2.0x the unified ratio | how dispersed a level's stays have to be, relative to the shelter, before splitting it is worth recommending |
 | `SHAPE_CEILING` | k = 0.85 | how far below 1 a level's whole own-shape interval must sit |
 | `SHAPE_POOLED_CEILING` | 95% of the pooled adjusted k | and how far below the shelter's own shape; the two cross at a pooled k of 0.895 |
 | `DRIFT_GAP` | 5% | how far a level's counted figure must sit from its fitted one before the gap is a finding |
@@ -1851,7 +1851,7 @@ taken from the bundle; everything after it follows the bundle's own key
 order. The
 whole sample is not a special case in the bundle; it is a genuine stratifier
 with a single level named `"All"` and exactly the same measure rows as the
-others, so a pooled row comes from the same code path as a stratified one and
+others, so a unified row comes from the same code path as a stratified one and
 cannot drift from it.
 
 ### The regression frames
@@ -2254,8 +2254,7 @@ deck asks for, erring on the side of caution.
 
 **One type size inside a table**, for the row labels, the column headers, the
 numbers, and a table's own title. The nine-measure
-LOS table wants about half an inch more than the slide has and is
-squeezed to fit.
+LOS table wants more width than the slide has and is squeezed to fit.
 
 **Tables never break a word.** A column is sized to its own longest cell, and
 a row that does not fit is squeezed proportionally out of the columns with
@@ -2273,13 +2272,12 @@ inside the space a table will actually occupy.
 
 How many columns fit is measured rather than chosen. On the three workload
 slides, whose tables sit side by side and each pay for their own column of
-level names, the row has about 12.5 inches: the census slide uses 12.1, the
-tenure slide 11.9, the animal-days slide 11.7. The animal-days slide has no
-room for a fourth, and the reason is the numbers rather than the headings,
-since five and six digits with a thousands separator need about an inch a
-column; a share of the days owed would ask for 13.9
-inches. It goes to the workbook and the slide's findings instead. That is the
-rule whenever a column will not fit.
+level names, the row has one slide's width. The animal-days slide has no
+room for a fourth column, and the reason is the numbers rather than the
+headings, since five and six digits with a thousands separator need a wide
+column whatever it is called; a share of the days owed does not fit. It goes to
+the workbook and the slide's findings instead. That is the rule whenever a
+column will not fit.
 
 Column headings on those slides carry no commas and no phrases: Counted,
 Fitted, Future, Owed, Pct, Intake Pct. Longer phrases belong to table titles,
@@ -2429,7 +2427,7 @@ rather than a bug fix.
    [Everything a build writes](#everything-a-build-writes) for what qualifies.
 7. **Every rule runs against every fixture.** The bundles in
    `tests/golden/` cover eleven animal groups, an unreached median, a single
-   constant-LOS period, observation gaps both pooled and per stratum, and
+   constant-LOS period, observation gaps both unified and per stratum, and
    selectively disabled outputs.
 
 ### Running the pieces

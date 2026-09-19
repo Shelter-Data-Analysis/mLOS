@@ -61,7 +61,7 @@ class Spread:
 
     The other two are what the verdict was reached against, carried so the
     speaker notes can show their working: `threshold` is the bar `deviation`
-    had to clear, and `mean_los` the pooled restricted mean the share of it was
+    had to clear, and `mean_los` the unified restricted mean the share of it was
     taken on.
     """
 
@@ -145,22 +145,22 @@ def spread(bundle: Bundle, stratifier: str) -> Spread | None:
     observed = float((weights * (stays - mean) ** 2).sum() / total)
     noise = float((weights * errors ** 2 * (1 - weights / total)).sum() / total)
 
-    # The pooled figure rather than the weighted mean just computed, which it
+    # The unified figure rather than the weighted mean just computed, which it
     # is within a fraction of a day of, because it is the number on the
     # whole-sample slide: a reader checking the threshold can find it. Falls
-    # back to the weighted mean where the bundle has no pooled row.
-    pooled = mean
+    # back to the weighted mean where the bundle has no unified row.
+    unified = mean
     if bundle.has("strata", BASELINE_STRATIFIER, "km"):
         published = bundle.stratum(BASELINE_STRATIFIER, "km")["km_restricted_mean"]
         if len(published) and published.iloc[0] == published.iloc[0]:
-            pooled = float(published.iloc[0])
+            unified = float(published.iloc[0])
 
     return Spread(
         observed=math.sqrt(observed),
         noise=math.sqrt(noise),
         deviation=math.sqrt(max(0.0, observed - noise)),
-        threshold=STAY_DAYS_DEVIATION_FLOOR + STAY_DAYS_DEVIATION_SHARE * pooled,
-        mean_los=pooled,
+        threshold=STAY_DAYS_DEVIATION_FLOOR + STAY_DAYS_DEVIATION_SHARE * unified,
+        mean_los=unified,
     )
 
 

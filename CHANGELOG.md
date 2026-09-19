@@ -168,6 +168,11 @@ output moved.
   where they said the Orange County data. The presentation guide keeps
   the reserve section apart from the robustness check it holds, and no longer
   narrates the slides it replaced.
+- Code comments cite the math methods sections that hold what they cite, and
+  the gap-scan notes, the presentation guide and the code say unified where a
+  whole-sample statistic was called pooled; the crude Weibull is called crude
+  in the workbook note and the user guide. The presentation guide states no
+  slide widths, which the deck measures.
 
 ---
 

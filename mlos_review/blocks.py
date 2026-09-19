@@ -333,7 +333,7 @@ def flag_extremes(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _stratum_table_title(df: pd.DataFrame, stratifier: str, title: str) -> str:
-    """`title`, except for the pooled single-level table.
+    """`title`, except for the unified single-level table.
 
     "all levels by all" is not a title. The whole sample is one level, so there
     is nothing to be "by"; it is the baseline the others are read against.
@@ -409,7 +409,7 @@ def study_window_table(bundle: Bundle) -> Table:
     """The stretch of calendar the analysis was cut to, and its periods.
 
     The whole window leads, then the periods inside it, which is the order
-    every other table in the deck uses for the same reason: the pooled figure
+    every other table in the deck uses for the same reason: the unified figure
     is the baseline and the splits are read against it.
 
     Periods DEFINED but never reached by any stay are left out, because the
@@ -417,7 +417,7 @@ def study_window_table(bundle: Bundle) -> Table:
     present, so a period listed here and absent everywhere else would read as a
     stretch of time the analysis lost rather than one the data never filled.
 
-    With exactly one period the pooled row is dropped instead, because it would
+    With exactly one period the unified row is dropped instead, because it would
     be the period row again under a different name. What is kept is the period,
     since its label is what the reader meets on every other slide.
     """
@@ -439,8 +439,8 @@ def study_window_table(bundle: Bundle) -> Table:
     start = bundle.value("unified", "study_start")
     end = bundle.value("unified", "study_end")
     if start and end and len(periods) != 1:
-        pooled = bundle.levels("all")[0] if bundle.has("strata", "all") else "All"
-        rows[str(pooled)] = {
+        whole = bundle.levels("all")[0] if bundle.has("strata", "all") else "All"
+        rows[str(whole)] = {
             "start_date": str(start),
             "end_date": str(end),
             "duration_days": bundle.value("settings", "window_days"),
@@ -468,7 +468,7 @@ SAMPLE_ROWS = ["total_stays", "n_animals", "total_intakes",
 # The one sample row the bundle also gives a share for.
 SAMPLE_SHARES = {"n_capped": ("unified", "fraction_capped")}
 
-# The pooled pseudo-outcome, which leads the outcome rows as their total. It is
+# The all-cause pseudo-outcome, which leads the outcome rows as their total. It is
 # not a state the data can record, so it has no count of its own and takes the
 # tally the analysis already sums: every stay with an observed outcome.
 ANY_OUTCOME = "Any"
@@ -538,7 +538,7 @@ def _outcome_codes(bundle: Bundle, counts: pd.DataFrame) -> list[str]:
 
 
 def _outcome_rows(bundle: Bundle, vocab) -> dict:
-    """The outcome tallies: the pooled total, then one row per outcome code.
+    """The outcome tallies: the all-cause total, then one row per outcome code.
 
     Counts, not the competing-risk analysis: these are the tallies the data
     carries, and the slides much later in the deck are what the analysis makes
@@ -709,21 +709,21 @@ def level_counts_table(bundle: Bundle, stratifier: str, vocab) -> Table:
 # Observation gaps
 # ---------------------------------------------------------------------------
 
-# How R names an analysis in the gaps table (see mlos_results.R): the pooled
+# How R names an analysis in the gaps table (see mlos_results.R): the unified
 # fit under one fixed name, and every stratified fit as "KM by " and the
 # stratifier's label. That label is the join key the bundle carries, and R
 # writes it from two lists that agree on the words but not always on their case
 # (the registry in mlos_common.R, the coverage block in mlos_results.R), so the
 # match ignores case. An analysis this cannot place is NOT dropped: it falls to
-# the pooled slide, so a stratifier added on the R side and unknown here reports
+# the whole-sample slide, so a stratifier added on the R side and unknown here reports
 # its gaps in the less specific place rather than silently reporting none.
-POOLED_GAP_ANALYSIS = "Unified KM"
+UNIFIED_GAP_ANALYSIS = "Unified KM"
 STRATUM_GAP_PREFIX = "KM by "
 
 
 def _gap_analysis_ids(bundle: Bundle) -> dict[str, str]:
     """Every analysis name the gaps table can hold, against its stratifier id."""
-    ids = {POOLED_GAP_ANALYSIS.lower(): BASELINE_STRATIFIER}
+    ids = {UNIFIED_GAP_ANALYSIS.lower(): BASELINE_STRATIFIER}
     coverage = bundle.value("settings", "coverage", default={})
     if isinstance(coverage, dict):
         for stratifier, entry in coverage.items():
@@ -761,7 +761,7 @@ def _gap_day(value) -> str:
 def _gap_subject(row, vocab) -> str:
     """What one gap is a gap IN, named for prose."""
     if row["stratifier"] == BASELINE_STRATIFIER:
-        return "the pooled data"
+        return "the unified data"
     return f"{row['stratum']} ({vocab.stratifier(row['stratifier']).label})"
 
 
@@ -777,7 +777,7 @@ def _gap_subjects(rows: pd.DataFrame, vocab) -> str:
         strata = holders.setdefault(row["stratifier"], [])
         if str(row["stratum"]) not in strata:
             strata.append(str(row["stratum"]))
-    named = ["the pooled data" if stratifier == BASELINE_STRATIFIER
+    named = ["the unified data" if stratifier == BASELINE_STRATIFIER
              else f"{name_levels(strata)} ({vocab.stratifier(stratifier).label})"
              for stratifier, strata in holders.items()]
     return name_levels(named)
@@ -795,7 +795,7 @@ def _gap_notes(bundle: Bundle, stratifiers: Sequence[str], vocab) -> list[str]:
     What it will not do is claim a check that did not happen. R scans a
     stratifier only where it fitted one, so an analysis with a single level is
     left out of the reassurance rather than counted into it, and a slide with
-    nothing checked says nothing. The pooled scan always runs, and with one
+    nothing checked says nothing. The unified scan always runs, and with one
     period it IS the period's scan, over the same rows.
 
     Detail is spent where it can be acted on. A gap inside the plotted range is
@@ -806,7 +806,7 @@ def _gap_notes(bundle: Bundle, stratifiers: Sequence[str], vocab) -> list[str]:
     checked = []
     for stratifier in stratifiers:
         if stratifier == BASELINE_STRATIFIER:
-            checked.append("the pooled data")
+            checked.append("the unified data")
         elif bundle.value("settings", "coverage", stratifier, "included",
                           default=False):
             checked.append(f"every {vocab.stratifier(stratifier).label}")
@@ -1018,25 +1018,17 @@ def _care_days_owed(bundle: Bundle, stratifier: str) -> pd.Series | None:
 # periods do not.
 # HOW MANY COLUMNS FIT IS MEASURED, NOT CHOSEN. Three tables sit side by side
 # on these slides and each pays for its own column of level names, so the row
-# has about 12.5 inches for everything. Where a set asks for more, the renderer
+# has one slide's width for everything. Where a set asks for more, the renderer
 # floors each column at its longest word and lets the row hang off the slide
-# (see `_squeezed` in render_pptx), which is loud rather than silent: the
-# failure it replaced was a percentage column squeezed to a third of an inch
-# with its heading broken one letter to a line.
-#
-# What each of these three costs, at the widths this run's numbers need:
-#
-#   census       12.5in of 12.5   percentage of intakes, counted census with
-#                                 its percentage, fitted census
-#   tenure       12.2in of 12.5   counted, fitted, and what is still to come
-#   animal-days  11.7in of 12.5   counted, fitted, owed
+# (see `_squeezed` in render_pptx), which is loud rather than silent: a
+# percentage column squeezed narrow enough to break its heading one letter to a
+# line is the failure that avoids.
 #
 # The animal-days slide has no room for a fourth column and the reason is the
 # numbers rather than the headings: five and six digits with a thousands
-# separator need about an inch a column whatever they are called, so a share of
-# the days owed asks for 13.9 inches of a 12.5-inch slide. That share is in the
-# workbook and in the slide's findings, which is the standing rule when a
-# column will not fit.
+# separator need a wide column whatever it is called, so a share of the days
+# owed does not fit. That share is in the workbook and in the slide's findings,
+# which is the standing rule when a column will not fit.
 #
 # Column headings carry no commas. A comma in a heading is a two-part label
 # wearing a disguise, and the second part is always the one that gets wrapped
@@ -1736,9 +1728,9 @@ def _census_shares(bundle: Bundle, stratifier: str,
     of 191, so a "share of residents" by period would be nonsense.
 
     Rather than hardcode which stratifiers are safe, this checks: the shares
-    are returned only if the levels actually add up to the pooled census. The
+    are returned only if the levels actually add up to the unified census. The
     tolerance is not pedantry. These are KM-implied censuses fitted per
-    stratum, so they agree with the pooled figure closely but not exactly.
+    stratum, so they agree with the unified figure closely but not exactly.
     """
     if not bundle.has("strata", "all", "census"):
         return None
@@ -2288,7 +2280,7 @@ def aj_outcome_codes(bundle: Bundle, stratifier: str) -> list[str]:
     "Any" is left out of every competing-risk block: the cumulative incidences
     already sum to it, and its restricted mean is a mean over a mixture of
     outcomes that answers no question anyone asks. It stays in the bundle,
-    where a caller that wants the pooled figure can still ask for it.
+    where a caller that wants the unified figure can still ask for it.
     """
     cif = bundle.stratum(stratifier, "aj_final_cif")
     return [c[len("aj_final_cif_"):] for c in cif.columns

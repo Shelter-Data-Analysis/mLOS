@@ -124,13 +124,11 @@ MAX_COLUMN_WIDTH = Inches(1.8)
 # rides beside, and charging it at the value size was padding every flagged
 # column by a tenth of an inch it never used.
 #
-# CAPITALS are charged half again as much, which is not a refinement but a
-# repair. Level names are the one thing in these tables that is written in
-# capitals, and at the ordinary rate "OWNER" was budgeted 0.72in against the
-# 0.92in it needs, so it wrapped a letter onto a second line, and it was not
-# the only level over the line. Measured against Arial, whose capitals are
-# wider than the Calibri these decks ask for, so the estimate errs the safe
-# way: 0.52 em for digits, lowercase and punctuation, 0.78 for capitals.
+# CAPITALS are charged half again as much. Level names are the one thing in
+# these tables that is written in capitals, and at the ordinary rate a name
+# like "OWNER" is budgeted too narrow and wraps a letter onto a second line.
+# The rates are measured against Arial, whose capitals are wider than the
+# Calibri these decks ask for, so the estimate errs the safe way.
 #
 # Still crude. pptx offers no text metrics, and these numbers only have to
 # decide how wide a table wants to be.
@@ -173,11 +171,10 @@ FLAG_MARKS = {"H": "\u2191", "L": "\u2193", "F": "="}
 
 # Height one table row is given before pptx grows it to fit the text.
 TABLE_ROW_HEIGHT = Inches(0.4)
-# One line of footnote, and the floor a footnote box is given. The height was a
-# flat 0.35in, which was two things at once and wrong as both: a third of an
-# inch too tall under a one-line footnote, on a slide where the tables were
-# already at the foot of the page, and too short for a two-line one, which then
-# ran out of its own box. It is counted now, like everything else that wraps.
+# One line of footnote, and the floor a footnote box is given. The height is
+# counted from the lines the text wraps to, like everything else that wraps,
+# because a flat height is too tall under a one-line footnote and too short for
+# a two-line one.
 FOOTNOTE_LINE_HEIGHT = Inches(0.18)
 FOOTNOTE_HEIGHT = Inches(0.35)
 
@@ -733,9 +730,9 @@ def _column_minimums(table: Table, vocab: Vocabulary,
 
     A header may wrap, and on a slide of three tables it usually must. What it
     may not do is wrap inside a word, which is what a proportional squeeze with
-    no floor produces and what it produced here: three tables asking for 21
-    inches of a 12.5-inch slide, every column scaled to 59%, and a column
-    headed "Pct" drawn at a third of an inch.
+    no floor produces: three tables that ask for more than the slide has are
+    scaled together, and a short column such as "Pct" is drawn narrower than
+    its own heading.
 
     Index columns are floored at their longest LABEL rather than their longest
     word, since a level name is a name and breaking "_UNKNOWN_" across two
@@ -1339,8 +1336,7 @@ def _layout_split(slide, spec: Slide, vocab: Vocabulary, top: Emu, height: Emu,
     hold in view while the figure changes. Stacking them would cap the figure
     at whatever height the table left over, which on a six-row table is under
     three inches; side by side, the figure runs to the full body height unless
-    the table's width stops it first. On the OC competing-risk slides that is
-    7.8 by 5.2 inches against the 4.3 by 2.9 a quadrant cell gave.
+    the table's width stops it first.
 
     The table takes its natural width but never more than half, so a narrow
     table hands the surplus to the figure rather than sitting in a column of

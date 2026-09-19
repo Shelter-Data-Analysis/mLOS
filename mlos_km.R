@@ -400,7 +400,7 @@ stratified_km_analysis <- function(period_data, references) {
       cat("Fitted KM curves for ", info$n, " ", tolower(stratifier$label), "\n", sep = "")
 
       # Per-stratum gap check (see .stratum_gaps): a small stratum can have an
-      # observation gap even when the pooled data does not, same rationale and
+      # observation gap even when the unified data does not, same rationale and
       # consequences as the unified check in km_unified_period.
       stratum_gaps <- .stratum_gaps(period_data, stratifier, references$restricted_stay_cap)
       for (i in seq_len(nrow(stratum_gaps))) {
@@ -488,7 +488,7 @@ RESIDENT_TENURE_QUANTILE_ROWS <- c("per_resident_past_days_restricted_median",
 # order the census section reports them, which mirrors the order the tenures
 # themselves appear in it: the mean (per_resident_past_days), then the median,
 # then the 90th percentile. Produced, relocated and consumed exactly as the
-# quantile rows above are, and marked on the pooled remaining-LOS plot.
+# quantile rows above are, and marked on the unified remaining-LOS plot.
 #
 # Each answers "an animal that has already been here as long as <this
 # statistic> says, how much longer does it expect", which is a statement about
@@ -550,7 +550,7 @@ RESIDENT_VIEW_ROWS <- c(RESIDENT_TENURE_QUANTILE_ROWS, REMAINING_AT_TENURE_ROWS)
 }
 
 # Per-stratum KM summary: one column per label, rows in a fixed order. Fits
-# each stratum's own survival curve (not a subset of the pooled stratified
+# each stratum's own survival curve (not a subset of the combined stratified
 # fit) so a stratifier with a single level is summarized the same way as one
 # with many, and a label with no rows yields an all-NA column rather than an
 # error.
@@ -565,7 +565,7 @@ RESIDENT_VIEW_ROWS <- c(RESIDENT_TENURE_QUANTILE_ROWS, REMAINING_AT_TENURE_ROWS)
 # animal-days sum_d (d+1) * S(d) (forward-looking). Scaling them by the
 # stratum's mean daily intake rate (stratum_census_aggregates) yields
 # Expected_past/expected_future_animal_days, matching the km_census_by_* CSV
-# (which reads S(d) from the equivalent stratum of the pooled stratified fit).
+# (which reads S(d) from the equivalent stratum of the combined stratified fit).
 # Their difference is sum_d S(d) = the restricted mean, so Expected_future -
 # Expected_past = expected_census by construction.
 #
@@ -807,7 +807,7 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
 # The row it replaced was the restricted mean, which is the same number the KM
 # survival CSV beside it already carries, reached through the identity
 # Remaining_LOS(0) = RMST. This row is instead a value the file alone holds, and
-# the one the pooled plot's green mark stands at.
+# the one the unified plot's green mark stands at.
 #
 # Derived from the two grids rather than taken from the bundle, for the callers
 # that have no bundle; where there is one, the caller passes the census row
@@ -975,7 +975,7 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
        mean   = paste0("Mean tenure (", .marker_days(tenure$mean, x_max), ")"))
 }
 
-# The pooled mean daily intake rate, from the results bundle's observations
+# The unified mean daily intake rate, from the results bundle's observations
 # matrix. The census-by-tenure profile is the survival curve scaled by it, so
 # without it there is no animals scale and the unified companion is not drawn
 # at all rather than drawn on some other axis.
@@ -1028,7 +1028,7 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
 #' nothing is refitted here.
 #'
 #' The census-by-tenure companion is drawn here too, and it is the one whose
-#' pooled form takes an argument. Its curve is the unified KM curve scaled by a
+#' unified form takes an argument. Its curve is the unified KM curve scaled by a
 #' single constant, so as a SHAPE it says nothing the survival plot does not.
 #' What the constant buys is the y axis: the curve is then the expected number
 #' of animals in care at each day of tenure, it starts at the daily intake
@@ -1071,7 +1071,7 @@ plot_unified_km_companions <- function(km_results, references, base_filename = N
   in_care_table <- .compute_in_care_tenure(km_fit, tau)
   rlos_table    <- .compute_remaining_los(km_fit, tau)
 
-  # The pooled rate, and with it the pooled census profile. NA where the bundle
+  # The unified rate, and with it the unified census profile. NA where the bundle
   # was not supplied or does not carry the rate, in which case this companion
   # drops out below: its y axis IS the rate.
   intake_rate  <- .unified_intake_rate(measures, label)

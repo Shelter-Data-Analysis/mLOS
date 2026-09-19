@@ -37,7 +37,7 @@ EXPECTED_SCHEMA_VERSION = 5
 # is the one ordering decision made here rather than taken from the bundle,
 # because it is a presentation choice and not a property of the analysis: `all`
 # is a genuine stratifier in the bundle with a single level, not a special case,
-# which is what lets a pooled row come from the same code path as the
+# which is what lets a unified row come from the same code path as the
 # stratified ones. Everything after it follows the bundle's own order.
 BASELINE_STRATIFIER = "all"
 
@@ -191,7 +191,7 @@ class Bundle:
 
         `stratifier` is required and never None: every manifest entry names one,
         a whole-sample file naming "all". It carried no default because the
-        pooled entries once had no stratifier at all, and a default of None
+        whole-sample entries once had no stratifier at all, and a default of None
         would now silently match nothing instead of failing.
 
         `variant` separates two drawings of the same numbers: "lines" is the

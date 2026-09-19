@@ -1018,7 +1018,7 @@ aj_by_stratifier <- function(period_data,
           stratum_name <- strata[i]
           stratum_df <- plot_df[plot_df$stratum == stratum_name, , drop = FALSE]
           if (nrow(stratum_df) == 0) next
-          # Step rendering (type = "s" and stair ribbons), matching the pooled
+          # Step rendering (type = "s" and stair ribbons), matching the unified
           # CIF plot: these series are step functions of the day, and the
           # stairs end at the stratum's own last tabulated day rather than
           # being extended flat to the plot limit.
@@ -1033,7 +1033,7 @@ aj_by_stratifier <- function(period_data,
                                         min(x_limit, max(stratum_df$days)), y0 = 0)
             graphics::polygon(poly$x, poly$y, col = ribbon_col, border = NA)
           }
-          # Crop to x_limit like the pooled CIF plot: lines() clips at the
+          # Crop to x_limit like the unified CIF plot: lines() clips at the
           # plot region, which pads ~4% past xlim, so an uncropped series
           # would run past the ribbon's end.
           in_plot <- stratum_df$days <= x_limit
