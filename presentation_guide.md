@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260919_002. Read it in any markdown reader,
+presentation guide, version 20260919_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -161,7 +161,7 @@ record. The Excel workbook R writes holds more than the deck's workbook does,
 and still less than the JSON.
 
 The practical reading: a generated deck is **raw material for a briefing**
-somebody writes, and is not itself the briefing. Check it against the JSON and
+somebody writes. Check it against the JSON and
 `analysis_results.xlsx` before it reaches an audience, and expect to add what
 it left out.
 
@@ -483,7 +483,7 @@ decides](#what-the-deck-decides).*
 The deck often talks about **an average day or an average resident, not a
 specific date or animal.** Every resident figure in the deck (census, tenure
 profile, days still owed) is a steady-state average implied by the observed
-arrival rate and LOS, not a count taken on any particular date. The
+arrival rate and LOS. The
 study window has usually closed by the time anyone reads the deck, so
 "today's" numbers are not in the data at all, and even for a date inside it
 the figure is a fitted average rather than a snapshot.
@@ -496,7 +496,7 @@ timestamps: when the statistics were computed, and when the deck was built
 from them. The diagram is the four cases the analysis has to handle: a stay
 observed whole, one already in care when the window opened (left-truncated),
 one still in care when it closed (right-censored), and one that is both. It is
-not a finding, it is the methodology every later number relies on. A slide of
+the methodology every later number relies on. A slide of
 **descriptive summary** follows: the size of the sample, how its stays were
 recorded as ending, and how they fall across the fields the analysis splits
 by, in up to three small tables side by side.

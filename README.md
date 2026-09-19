@@ -57,7 +57,7 @@ It runs on Python 3.9 or newer and needs the packages `pyproject.toml` declares;
 - **Deck findings may not be consistently interesting.** Which findings reach a slide is decided by hardcoded rules against fixed thresholds, not by judgment. A run in which nothing much happened will still fill its slides. The deck may present as notable something that is merely the largest of several unremarkable things.
 - **Deck findings may omit important results.** Results researchers and practitioners care about, including ones plainly visible in the workbook and plots, might be absent from the deck. Their absence from a slide is not evidence that there is nothing there.
 
-The workbook, the plots and the two documentation guides remain the complete record; the deck never is. Read a generated deck as raw material from which to build a briefing, not as a ready-made briefing.
+The workbook, the plots and the two documentation guides remain the complete record; the deck never is. Read a generated deck as raw material from which to build a briefing.
 
 ## What's in this repository
 

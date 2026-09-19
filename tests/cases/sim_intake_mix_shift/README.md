@@ -54,7 +54,7 @@ exactly the adjusted-vs-crude capability it teaches.
   and census have no clean closed form and are deliberately unchecked
   (only its counts are pinned). The committed sample happens to show
   median 9, sitting neatly between the two steady states, but that is a
-  coincidence of this draw, not a truth: across the authoring scan the
+  coincidence of this draw: across the authoring scan the
   period-2 median ranged over 8..12.
 - **Period 3** — the new steady state, ~98.4% relaxed by its start
   (4.11 time constants of the new LARGE rate past the boundary). The
