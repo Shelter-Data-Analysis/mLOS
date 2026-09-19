@@ -172,7 +172,9 @@ output moved.
   the gap-scan notes, the presentation guide and the code say unified where a
   whole-sample statistic was called pooled; the crude Weibull is called crude
   in the workbook note and the user guide. The presentation guide states no
-  slide widths, which the deck measures.
+  slide widths, which the deck measures, and the README, the guide and the
+  package docstring say the deck builder does simple arithmetic on the
+  analysis's numbers, not none.
 
 ---
 

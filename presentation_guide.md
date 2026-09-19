@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260919_001. Read it in any markdown reader,
+presentation guide, version 20260919_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -90,8 +90,9 @@ computations on shelter data and writes `results/results.json`, a complete
 record of every reported number, with plots and companion CSVs beside it. The
 presentation builder reads the JSON and the plots it names, and nothing else.
 It does not import R, it does not open the R-produced workbook, and it does
-not recompute a statistic. Everything it shows has already been computed once,
-cross-checked by the test suite, and written out.
+not fit a model. The statistics are computed once by the analysis, cross-checked by
+the test suite, and written out; the builder does only simple arithmetic on
+them, as the [invariants](#invariants) say.
 
 The intended outputs, in the order they are being built:
 
@@ -131,8 +132,8 @@ not be enough. If you pass a deck along, pass the warnings in this section
 along with it.
 
 **Correctness is the part being tested, and it is the easy part.** The test
-suite checks that every figure on a slide is the number the analysis wrote for
-it, that the surrounding wording matches the number it sits beside, that a
+suite checks that every figure on a slide is what the analysis wrote for it,
+or simple arithmetic on that, that the surrounding wording matches the number it sits beside, that a
 comparison declines rather than guesses when the bundle cannot support it, and
 that nothing runs off the page. All of that is worth having, but it is not
 enough to make a deck a good briefing. A deck can be arithmetically faultless

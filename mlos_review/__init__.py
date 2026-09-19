@@ -1,8 +1,8 @@
 """mLOS review: audience-facing documents built from a results bundle.
 
 EXPERIMENTAL, and possibly permanently so. What the tests establish is that the
-documents are correct: every figure on a slide is the number the analysis wrote
-for it. What no test can establish, and what is not currently true, is that they
+documents are correct: every figure on a slide is what the analysis wrote for
+it, or simple arithmetic on that. What no test can establish, and what is not currently true, is that they
 are a good briefing. Two things follow, and both should be said to anyone handed
 a deck.
 
@@ -17,8 +17,9 @@ workbook and the plots, do not appear, and their absence is not evidence of
 their unimportance. The analysis output remains the complete record.
 
 Reads `results/results.json` and the figures beside it, and nothing else. No R
-internals, no re-computation: every number here has already been computed,
-cross-checked, and written out by the analysis.
+internals, and no statistics of its own: the numbers have been computed,
+cross-checked, and written out by the analysis, and this package does only
+simple arithmetic on them.
 """
 
 from mlos_review.names import Name, Vocabulary, capitalize_first
