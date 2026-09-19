@@ -46,7 +46,7 @@ fresh sample with the same properties.
   under `tests/golden/sim_weibull_truncation/` show the same numbers
   without running anything.
 - The plots are windowed to the first 35 days (`plot_stay_cap: 35` in
-  `settings.yaml`), where the action is: the pooled curve is down to
+  `settings.yaml`), where the action is: the unified curve is down to
   about 7% still in care by day 35. The analyses and the exported CSVs
   still run to the 90-day `restricted_stay_cap`; the plot cap crops the
   picture, never the data.

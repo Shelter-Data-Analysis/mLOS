@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260918_003. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260918_004. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -674,7 +674,7 @@ What the JSON does not carry are the per-day curve grids of §8.2. The KM curves
 
 ## 8.2 Plot-companion CSVs
 
-Every saved PNG has a same-named CSV containing exactly the plotted series on the daily grid. The two unified stack plots are the exception: the cumulative-incidence stack (§7.3) and the conditional-outcome stack (§7.4) have no companion CSVs, since each draws the same numbers as its line counterpart, which carries the CSV instead.
+Every saved PNG that plots a series on the daily grid has a same-named CSV containing exactly that series. The stack plots are the exception. The cumulative-incidence stack (§7.3) and the conditional-outcome stack (§7.4) have no companion CSVs, since each draws the same numbers as its line counterpart, which carries the CSV instead. The mass and share stacks (§7.3) have none either: their bars bin a curve rather than plot one, and the values are in `aj$probability_mass` in the JSON.
 
 CSVs include a header row summarizing each column where one applies: the exact RMST for the unified KM curve (§5.3), the daily step sum per stratum for stratified KM curves, and the normalized CIF restricted mean (§7.5) for AJ CIF exports, all under the row name `restricted_mean`. Conditional-distribution CSVs include only days where the conditional probabilities are defined.
 
@@ -773,11 +773,11 @@ The KM and AJ intervals in this section carry no assumptions beyond those of the
 
 The fraction capped and the outcome-mix shares use exact binomial (Clopper-Pearson) intervals, which treat the rows (or the completed outcomes) as independent Bernoulli trials. The outcome-mix intervals are conditional on the completed-outcome total $E_{j}$, so the shares of one column are each tested against their own total rather than jointly as a multinomial. As throughout (§9), successive stays of one animal count as independent units, and no multiple-comparison adjustment is applied across the section's cells.
 
-The expected-census interval is **indicative only**, and is the one interval in the section built on an assumption we consider wrong in a known direction. $L = \bar{I} \times \text{RMST}(\tau)$ is a product of two estimated quantities, and its interval combines the Poisson variance of the intake rate with the RMST standard error by a first-order delta method on the log scale,
+The expected-census interval is **indicative only**, and is the one interval in the section built on an assumption that is likely wrong in a known direction. $L = \bar{I} \times \text{RMST}(\tau)$ is a product of two estimated quantities, and its interval combines the Poisson variance of the intake rate with the RMST standard error by a first-order delta method on the log scale,
 
 $$\widehat{\text{Var}}\left( \log L \right) \approx \frac{1}{N_{\text{intakes}}} + \left( \frac{{\widehat{se}}_{\text{RMST}}}{\text{RMST}(\tau)} \right)^{2},\qquad L \times \exp\left( \pm 1.96\sqrt{\widehat{\text{Var}}\left( \log L \right)} \right),$$
 
-under the **assumption that the two factors are independent**. We do not believe they are: the intake rate and the stay-length estimate are likely positively correlated, which would add a positive covariance term and make the true interval wider than the one reported. Treating that dependence properly is an advanced topic left for future versions. Until then, read the reported interval as a lower bound on the real uncertainty. The other census aggregates (past and future animal-days, the per-resident ratios) carry no interval.
+under the **assumption that the two factors are independent**. The assumption probably fails: the intake rate and the stay-length estimate are likely positively correlated, which would add a positive covariance term and make the true interval wider than the one reported. Treating that dependence properly is an advanced topic left for future versions. Until then, read the reported interval as a lower bound on the real uncertainty. The other census aggregates (past and future animal-days, the per-resident ratios) carry no interval.
 
 ### Hazard ratios and LOS ratios
 

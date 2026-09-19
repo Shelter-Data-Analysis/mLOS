@@ -60,8 +60,8 @@ Open an issue with the settings file, `analysis_log.txt`, and
 `data_preparation_stats.csv`. Those three usually locate a bug without the
 data, which is just as well, since the data is generally not yours to send.
 Name the mLOS and R versions, and say what the expected result was. If it also
-happens on the shipped Orange County data, which is what a bare `Rscript
-mlos_run_complete.R` runs, say so: that makes it a test fixture.
+happens on OC2, which is what a bare `Rscript mlos_run_complete.R` runs, or on
+OC1, say so: that makes it a test fixture.
 
 ## If you need help
 

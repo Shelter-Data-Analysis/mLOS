@@ -1,9 +1,8 @@
 # Publishing mLOS
 
 The runbook for making this repository public and giving it a DOI, together
-with the two data deposits that hold what it produces. Written before the first
-release, from the ShelterDataPrep publication in August 2026, so each step names
-the failure it prevents rather than describing a procedure in the abstract.
+with the data deposits that hold what it produces. Each step names the failure
+it prevents rather than describing a procedure in the abstract.
 
 The house style in `documentation_rules.md` applies here too.
 
@@ -28,7 +27,7 @@ by hand.
 
 | Artifact | Contents | How it gets to Zenodo |
 |---|---|---|
-| The tool | The `mlos_*.R` sources, `mlos_review/`, the four guides and the Word export of each of the three reader-facing ones, the settings files, the prepared inputs, and the test suite: everything git tracks | Automatic. Zenodo archives the repository tree of each published GitHub release |
+| The tool | The `mlos_*.R` sources, `mlos_review/`, the guides with a Word export of each, `documentation_rules.md`, the settings files, the prepared inputs, and the test suite: everything git tracks | Automatic. Zenodo archives the repository tree of each published GitHub release |
 | The results | The complete OC2 run: plots, curve CSVs, `results.json`, the Excel workbook, the console log, and the preparation statistics, plus the settings file and provenance sidecar that say how to read them | By hand, from a bundle staged by `tools/make_deposit.py` |
 | The deck | The generated PowerPoint deck, its table workbook, and its figures, plus the deck settings file | By hand, from the same script |
 
@@ -174,13 +173,13 @@ python3 tools/make_deposit.py /tmp/check_results && python3 tools/make_deposit.p
 The tag alone does nothing. Zenodo hooks the published-release event.
 
 ```bash
-git tag -a v0.1.0 -m "0.1.0" && git push origin main && git push origin v0.1.0
+git tag -a vX.Y.Z -m "X.Y.Z" && git push origin main && git push origin vX.Y.Z
 ```
 
 Then publish the release from the existing tag, titled with the bare version
 number. `CITATION.cff` supplies the title and authors, so a release titled
-`mLOS 0.1.0` would produce a Zenodo record reading
-`Shelter-Data-Analysis/mLOS: mLOS 0.1.0`.
+`mLOS X.Y.Z` would produce a Zenodo record reading
+`Shelter-Data-Analysis/mLOS: mLOS X.Y.Z`.
 
 ### 5. Collect the software DOIs, and fix the version field
 
@@ -201,7 +200,7 @@ repair a delivery archives under a different release.
 
 Then edit the Zenodo record's `version` field to drop the leading `v`. Zenodo
 takes it from the tag name rather than from `CITATION.cff`, so the record reads
-`v0.1.0` where a run log reads `0.1.0`, and the pair a reader checks is the DOI
+`vX.Y.Z` where a run log reads `X.Y.Z`, and the pair a reader checks is the DOI
 and the version. This has needed doing on every release so far, so it is part
 of publishing rather than something to check for.
 
@@ -212,7 +211,7 @@ interface at the time; reading a record back afterward shows its current state,
 not what was minted.
 
 The bare form is the right one, and not merely a preference: semantic
-versioning treats `v0.1.0` as a tag name and `0.1.0` as the version. Adopting
+versioning treats `vX.Y.Z` as a tag name and `X.Y.Z` as the version. Adopting
 the `v` everywhere instead is not open to us anyway, because Python normalizes
 a leading `v` out of a package version, so `pyproject.toml` would report the
 bare form whatever it was given and the three declarations would stop
@@ -349,10 +348,10 @@ dates another, and reads as correct in both halves.
 **Data: the version DOI.** A run log pins its source by digest, so only the
 version DOI is guaranteed to still hold the bytes that produced a result.
 
-The two data sidecars and the raw-extract comment in `.gitignore` follow the
-data rule and name version DOIs. The one concept DOI in the documents is
-ShelterDataPrep's own, which is right: it is software, and the version a
-preparation log reports sits beside it.
+The data sidecars and the raw-extract comment in `.gitignore` follow the data
+rule and name version DOIs. The software DOIs in the documents, mLOS's and
+ShelterDataPrep's, are concept DOIs, which is right: a version number sits
+beside each.
 
 ## The pre-publication sweep
 
@@ -360,15 +359,14 @@ Passages that are accurate now and wrong once a DOI exists.
 
 | Where | What it says now | What it becomes |
 |---|---|---|
-| `README.md`, "Citing" | `CITATION.cff` carries no DOI yet | Names the concept DOI and the version beside it |
+| `README.md`, "Citing" | Names the concept DOI and says to cite it with the version | Correct as it stands |
 | The three guides | Version stamp `20260823_001` or later, Word export possibly behind it | Stamps bumped and exports rebuilt, per step 2 |
 | `data/OC1_data.md`, `data/OC2_data.md` | Raw extract at `…091`, prepared files at `…368`, both version DOIs | Correct as it stands; switched from concept DOIs at 0.1.0 |
 | `.gitignore`, raw-extract comment | Raw extract deposited at `…091` | Correct as it stands |
 | `mlos_user_guide.md`, screening-ledger section | ShelterDataPrep at `10.5281/zenodo.22051338` | Correct as it stands; a concept DOI is right for software |
-| `presentation_guide.md` | Deck builder documented with no deposit named | Names the deck deposit |
+| `presentation_guide.md` | Names the deck deposit | Correct as it stands until a new deck version is deposited |
 
-Check this list against the files rather than trusting it. It was written
-before the first release and the documents have moved since.
+Check this list against the files rather than trusting it.
 
 ## Decisions, settled
 
@@ -446,7 +444,7 @@ one by itself.
 | Key | Against | Note |
 |---|---|---|
 | `strata.intake`, `strata.group` | `strata.period`, and the columns `intake_type` and `animal_group` | Two of the three stratifier keys are abbreviated and one is not, so joining the JSON to a CSV column needs a lookup nobody documented. Same keys appear under `cox.stratified_variants` and `weibull.shape_variants`. |
-| `incidence_overall_per_100_animal_days` | `aj_final_cif_Any`, `aj_rmtl_Any` | `Any` is the established code for all outcome types, used 77 times. `overall` is used here and nowhere else. |
+| `incidence_overall_per_100_animal_days` | `aj_final_cif_Any`, `aj_rmtl_Any` | `Any` is the established code for all outcome types. `overall` is used here and nowhere else. |
 | `daily_mean_total_in_care_days` | `mean_daily_intakes`, `mean_daily_outcomes` | "daily mean" against "mean daily" for the same construction. |
 | `weibull_pooled_los_ratio` beside `weibull_freed_shape_los_ratio` | each other | The qualifiers are not parallel: one names the model, the other names what was relaxed. |
 
@@ -466,8 +464,8 @@ and the guides say to compare them. `pooled`, `unified` and `crude` are settled
 
 ## The citable identifiers
 
-All twenty-two exist, and all twenty-two were checked against Zenodo rather
-than copied from a page. Rows 4 to 6 are ShelterDataPrep's own release DOIs. They
+Every one exists, and each was checked against Zenodo rather than copied from a
+page. Rows 4 to 6 are ShelterDataPrep's own release DOIs. They
 are that repository's to maintain and nothing here depends on them, but a data
 availability statement is written once from one list, and sending its author
 to a second document to complete it is how a citation ends up incomplete.

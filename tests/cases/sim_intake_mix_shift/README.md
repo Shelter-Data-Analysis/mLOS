@@ -41,7 +41,7 @@ in closed form**:
   `sim_size_mixture` pins, here recovered from an independent sample
   *while the mix is moving underneath it*
 
-This is the first sim case to fit two predictors jointly, which is
+This case fits two predictors jointly, which is
 exactly the adjusted-vs-crude capability it teaches.
 
 ## The three periods

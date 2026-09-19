@@ -23,9 +23,8 @@ effects are therefore exactly zero, so an **additive** shape formula,
 shape for everyone, while the **crossed** formula,
 `shape(intake_type * animal_group)`, recovers the pattern.
 
-That is the property the suite was missing. Every other fixture that
-enables `parametric_regression` has at most two qualifying predictors, so
-each shape variant has a single "other" term, its crossed and additive
+That is the property this fixture supplies. With at most two qualifying
+predictors, each shape variant has a single "other" term, its crossed and additive
 formulas are the same string, and the choice between them is never
 exercised. Crossing needs a third predictor to exist at all, which is why
 period is here: two periods with no true difference between them, giving
@@ -50,8 +49,7 @@ fit cannot be the worse of the two and the crossing statistic cannot be
 negative. The harness asserts that wherever a crossing happened, not only
 here — a negative value means one of the two fits missed its own optimum,
 which is a fitting fault rather than anything the data did. That failure
-mode is reachable on real three-predictor data and was invisible to the
-suite before this fixture existed.
+mode is reachable on real three-predictor data.
 
 ## Fitted against generating truth
 

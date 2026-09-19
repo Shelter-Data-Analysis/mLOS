@@ -103,7 +103,7 @@ room for. A deck built without one is unchanged.
   are refused by both commands before the results are read, and the inputs
   stay where they were.
 
-Documentation, read across the four guides for internal consistency. No
+Documentation, read across the guides for internal consistency. No
 output moved.
 
 - Math methods §8.4 carried two section references as literal `\u00a7`
@@ -136,17 +136,33 @@ output moved.
   export, and `presentation_guide.md` carried no copyright line. Both fixed.
 - The presentation guide put six levels across the two stratifying fields. OC2
   has nine and OC1 ten.
-- The presentation guide said a build writes four things where the section
-  above it says five, and its file list left out three modules the guide
-  describes. The table now carries the slide list.
+- The presentation guide's account of what a build writes disagreed with the
+  section above it, and its file list left out modules the guide describes.
+  Both now agree, and neither states a count a new output would falsify.
 - Math methods 2.1 and the user guide's limitations said `animal_id` serves
   only for clustering, against the duplicate-stay and overlapping-stay checks
   that also read it.
 - The user guide gave 254 days for the large dogs' resident 90th percentile
   under a 200-day tail on OC1 and OC2. It is 254 on OC1 and about 250 on OC2.
-- `PUBLISHING.md` counted twenty-one identifiers above a table of twenty-two.
-  The README's package list lacked `digest`, and math methods 1 lacked the
-  results and render scripts.
+- `PUBLISHING.md` stated a count of identifiers its table had outgrown, and the
+  count is gone. The README's package list lacked `digest`, and math methods 1
+  lacked the results and render scripts.
+- The user guide and the math methods said stack plots carry no CSV because
+  each redraws a line plot, which the mass and share stacks do not.
+- `documentation_rules.md` named four documents as its scope, and the guides
+  were counted as three and as four in different places. The rules now name
+  the three guides and say the other documents follow them as far as they fit.
+- The guides use no contractions and no first person. The heading "Why it is
+  harder than just tabulating and averaging" moved with its two links.
+- The fixture READMEs and the tests README say unified, marginal and crude
+  where a whole-sample statistic was called pooled, and no longer claim to
+  hold the first fixture of a kind.
+- The runbook's release commands use `X.Y.Z`, and its sweep table marks the two
+  rows a DOI had made stale.
+- The README, `CONTRIBUTING.md` and the presentation guide name OC1 and OC2
+  where they said the Orange County data. The presentation guide says
+  robustness where it said reserve, and no longer narrates the slides it
+  replaced.
 
 ---
 

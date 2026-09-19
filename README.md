@@ -104,7 +104,7 @@ mLOS is archived at [10.5281/zenodo.22083814](https://doi.org/10.5281/zenodo.220
 
 | Deposit | DOI | Cite it when |
 |---|---|---|
-| Prepared input | [10.5281/zenodo.22051368](https://doi.org/10.5281/zenodo.22051368) | You ran mLOS on the shipped Orange County data. |
+| Prepared input | [10.5281/zenodo.22051368](https://doi.org/10.5281/zenodo.22051368) | You ran mLOS on the shipped OC1 or OC2 data. |
 | OC2 results | [10.5281/zenodo.22652165](https://doi.org/10.5281/zenodo.22652165) | You used those results as they are rather than recomputing them. |
 | OC2 slide deck | [10.5281/zenodo.22652329](https://doi.org/10.5281/zenodo.22652329) | The slides themselves are what you are referring to. The results deposit is the record; this is a rendering of it. |
 

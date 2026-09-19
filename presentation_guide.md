@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260918_003. Read it in any markdown reader,
+presentation guide, version 20260918_004. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -202,7 +202,7 @@ python3 -m mlos_review.deck
 ```
 
 That reads `results/`, takes its settings from `data/OC_deck_settings.yaml`,
-and writes five things into `reports/`, which is created if needed and is not
+and writes the following into `reports/`, which is created if needed and is not
 tracked by git:
 
 - `mlos_deck.pptx`, the deck;
@@ -569,7 +569,7 @@ by side, because comparison is useful across axes.
 The first asks who is in care: each level's share of the arrivals, then the
 animals it has in care on an average day, counted and fitted, with the counted
 share beside it. (The by-period table skips the share percentages, because
-periods don't coexist.) The second asks how long the average resident has been
+periods do not coexist.) The second asks how long the average resident has been
 in care, counted and fitted, and how many days that resident still has to
 come. The third slide multiplies the two: animal-days on an average day,
 counted and fitted, and the forward days owed beside them.
@@ -583,7 +583,7 @@ animal-days shelter residents are committed to.
 **The animal-days tables footnote the level holding most of the days owed**,
 since there is no room for a share column: "LARGE holds 93% of the days owed".
 A period table says instead that each period's figure is its own commitment,
-since periods don't coexist to share a population.
+since periods do not coexist to share a population.
 
 **A table showing more than ten levels does not fit under a subtitle**, so
 the slide keeps the ten largest by its counted column and footnotes how many
@@ -709,9 +709,8 @@ draws](#figures-this-package-draws) says why dots are used. The axis is linear
 by default; `figures.ratio_log_scale` turns on the log axis that would draw 2
 and 0.5 as the same size of effect.
 
-A robustness check these two slides replaced, `cox_comparison_by_stratifier`,
-is still built, and is kept after the closing sections, behind a page
-separating it from the presentation. Nothing there is gathered into the
+The robustness check `cox_comparison_by_stratifier` is built after the closing
+sections, behind a page separating it from the presentation. Nothing there is gathered into the
 closing sections.
 
 ### The competing-risks run
@@ -2088,7 +2087,7 @@ resolves again loses nothing.
 `assemble` is the seam that separates choosing slides from writing a deck: it
 returns the whole list and writes no file, which is how `variant.py` composes
 a second deck from the same rules rather than reading one back out of a
-`.pptx`. It draws, though, putting the ratio and reserve figures in the
+`.pptx`. It draws, though, putting the ratio and robustness figures in the
 directory it is handed, so a caller wanting only the titles gives it one it is
 willing to have written to. `build` is that call plus the output: the workbook,
 the figure manifest, the slide sidecar, and the render.
@@ -2125,8 +2124,8 @@ matter" is a statistic, not a flag. A configuration language would also make it
 impossible to run every rule against every fixture in a loop, which is how this
 is tested.
 
-The one existing rule shows the fallback discipline worth keeping: both figures
-are optional, since output flags can switch either off. With one missing the
+The rules that carry figures share a fallback discipline: the figures are
+optional, since output flags can switch them off. With one of two missing the
 survivor runs full width; with both missing the table still carries the slide.
 
 ### The deck plan
@@ -2149,7 +2148,7 @@ of reported numbers belongs beside the numbers, drawn by the code that computed
 them.
 
 `figures.py` is the exception, for figures the R side does not have. There are
-two: the paired hazard-ratio bars of the reserve section (`hr_comparison`),
+two: the paired hazard-ratio bars of the robustness section (`hr_comparison`),
 where the comparison between the two Cox fits exists only here, and the
 three-estimate dots of the hazard-ratio and LOS ratio slides (`hazard_ratios`,
 `los_ratios`), which put estimates from different models on one axis.
@@ -2294,7 +2293,7 @@ Cell insets are tightened from pptx's tenth of an inch a side, which can add
 up across seven columns.
 
 **The high and low marks are arrows, not letters.** Outcome codes come from
-the user's data, so any letter can collide with one: on the OC data an `L`
+the user's data, so any letter can collide with one: on OC1 and OC2 an `L`
 beside a number would mean lowest while the `L` above it means community live.
 The tokens in the flag frame are still `H`, `L`, and `F`, which are data a
 spreadsheet renderer may express as a conditional format; only the pptx
@@ -2311,7 +2310,7 @@ entry.
 
 ### Everything a build writes
 
-One call to `deck.build` writes five things into `reports/`, from one bundle
+One call to `deck.build` writes the files below into `reports/`, from one bundle
 and one set of blocks, so they cannot come from different runs.
 
 | File | What | Overwritten? |

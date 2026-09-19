@@ -316,7 +316,7 @@ Which analyses run is driven entirely by which `expected_*` objects
 | `expected_census` | Census-by-tenure companion of the stratified KM (math methods §5.6): per-stratum intake rate, Little's-law predicted census, and the daily census profile | `period.Period_1.lambda`, `period.Period_1.predicted_census`, `group.SMALL.day5` |
 | `expected_cox` | Cox regression | `has_analysis`, `n`, `n_events`, `HR_animal_groupBIG` |
 | `expected_weibull` | Weibull regression (needs `parametric_regression: WEIBULL` in the case's settings) | `shape`, `TR_intake_typeOWNER` (LOS ratio), `HRw_intake_typeOWNER` (implied HR), `shape_unified` |
-| `expected_aj` | Pooled AJ competing-risk CIFs | `CIF_L_day10`, `CIF_Any_day3`, `CondRem_N_day5`, `n_outcome_states` |
+| `expected_aj` | Unified AJ competing-risk CIFs | `CIF_L_day10`, `CIF_Any_day3`, `CondRem_N_day5`, `n_outcome_states` |
 | `expected_aj_period` | AJ within each period | `Period_1.CIF_L_day10`, `n_periods` |
 | `expected_aj_intake` | AJ within each `intake_type` | `STRAY.CIF_L_day10`, `n_intake_types` |
 | `expected_aj_group` | AJ within each `animal_group` | `LARGE.CIF_L_day10`, `n_animal_groups` |
@@ -407,8 +407,8 @@ Current simulation cases:
   KM and Cox report the identical all-cause truth.
 - **`sim_size_mixture`** — the declining-hazard illusion: a 70/30 static
   mixture of SMALL (q = 0.12) and LARGE (q = 0.03) dogs, each memoryless,
-  nothing changing over time. The pooled statistics violate the
-  memoryless ratio benchmarks (the pooled hazard declines with tenure by
+  nothing changing over time. The unified statistics violate the
+  memoryless ratio benchmarks (the marginal hazard declines with tenure by
   composition alone) while the stratified KM shows each size
   flat-geometric and the size-adjusted Cox/Weibull fits dissolve the
   artifact (adjusted shape ≈ 1; the unadjusted fit's shape ≈ 0.87 is
@@ -419,8 +419,8 @@ Current simulation cases:
   mix flips 70/30 → 30/70 at constant 10 dogs/day. The crude pooled
   median rises 8 → 10 days and the census rises 155.7 → 173.3 (the
   shelter looks slower and fuller) while the size-adjusted Cox model
-  reports every dog 50% faster — both correct on the same data. The
-  first sim to fit two predictors jointly, with all three true
+  reports every dog 50% faster — both correct on the same data. It
+  fits two predictors jointly, with all three true
   coefficients known in closed form (period HR 1.5 twice, group HR
   0.238); period 2 is the transition and deliberately unchecked.
 - **`sim_crossed_shape`** — a Weibull shape that belongs to a *pairing*

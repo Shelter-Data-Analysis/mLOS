@@ -3,7 +3,7 @@
 Gathered from the August 2026 review of the mLOS guides. Everything here was
 settled by making the mistake first, so each rule names the failure it prevents.
 
-This file is the authority for all four markdown documents in the repository.
+This file is the authority for the user guide, the math methods, and the presentation guide. The other documents follow it as far as it fits.
 The HTML comment at the top of `mlos_math_methods.md` keeps the rules that are
 about LaTeX rather than prose: which constructs GitHub's markdown pass breaks
 before the math renderer sees them, and how to spell a subscript so it survives
