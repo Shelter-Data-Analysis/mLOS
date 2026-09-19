@@ -19,12 +19,6 @@ their unimportance. The analysis output remains the complete record.
 Reads `results/results.json` and the figures beside it, and nothing else. No R
 internals, no re-computation: every number here has already been computed,
 cross-checked, and written out by the analysis.
-
-The package is the display-name vocabulary (`names`), the bundle reader
-(`bundle`), the content blocks (`blocks`), a set of example slide rules
-(`deck`), and one renderer (`render_pptx`). The planner that would choose among
-the rules, and the report and spreadsheet renderers, come later and will share
-everything below them.
 """
 
 from mlos_review.names import Name, Vocabulary, capitalize_first
