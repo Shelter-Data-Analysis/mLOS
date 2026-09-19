@@ -902,9 +902,7 @@ def workload_slide(bundle: Bundle, vocab: Vocabulary, section: str,
             "happened. It relates to the column beside it as simply as the "
             "tenure columns did: days owed minus animal-days elapsed is the "
             "census, the number on the first slide, because every resident "
-            "owes one day more than it has served. On an average day this "
-            "shelter's residents have consumed a little over ten thousand "
-            "animal-days and will consume the census more.",
+            "owes one day more than it has served.",
             "Where the future workload SITS is the reading to take away, and "
             "the findings state it in words, since this table has no room for "
             "a fourth column: a level's share of the days owed is not its "

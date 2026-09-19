@@ -367,34 +367,39 @@ ROLE_SHORT = {"ci_lower": "lower", "ci_upper": "upper", "se": "SE"}
 # not author. The templates still keep the slot out of first position, because
 # "share of outcomes that are community live" reads better than the same words
 # reversed. Short forms keep the bare code, which ties a narrow column back to
-# the plot legend.
+# the plot legend. Each entry is (pattern, label, short, unit).
 OUTCOME_TEMPLATES = [
     (
         re.compile(r"^outcome_(\w+)_events$"),
         "outcomes recorded as {outcome}",
         "{code} outcomes",
+        None,
     ),
     (
         re.compile(r"^outcome_mix_(\w+)$"),
         "share of outcomes that are {outcome}",
         "{code} share",
+        "fraction",
     ),
     (
         re.compile(r"^incidence_(\w+)_per_100_animal_days$"),
         "exit rate to {outcome}",
         "{code} rate",
+        "per 100 animal-days",
     ),
     (
         re.compile(r"^aj_final_cif_(\w+)$"),
         "cumulative incidence of {outcome} at the cap",
         "{code} CIF",
+        "probability",
     ),
     (
         re.compile(r"^aj_restricted_mean_(\w+)$"),
         "restricted mean time to {outcome}",
         "{code} RMT",
+        "days",
     ),
-    (re.compile(r"^aj_rmtl_(\w+)$"), "RMTL for {outcome}", "{code} RMTL"),
+    (re.compile(r"^aj_rmtl_(\w+)$"), "RMTL for {outcome}", "{code} RMTL", "days"),
     # The conditional mix read at each of the three resident tenures. One
     # template per tenure because the mechanism formats a single capture, and
     # the tenure is what the reader is being told the mix is conditional ON, so
@@ -405,22 +410,21 @@ OUTCOME_TEMPLATES = [
         re.compile(r"^aj_condrem_(\w+)_at_median_tenure$"),
         "chance of {outcome} for an animal at median tenure",
         "{code} at median",
+        "probability",
     ),
     (
         re.compile(r"^aj_condrem_(\w+)_at_mean_tenure$"),
         "chance of {outcome} for an animal at mean tenure",
         "{code} at mean",
+        "probability",
     ),
     (
         re.compile(r"^aj_condrem_(\w+)_at_p90_tenure$"),
         "chance of {outcome} for an animal at P90 tenure",
         "{code} at P90",
+        "probability",
     ),
 ]
-
-# Units for the outcome-templated measures, keyed by the template's index.
-OUTCOME_UNITS = [None, "fraction", "per 100 animal-days", "probability", "days", "days",
-                 "probability", "probability", "probability"]
 
 
 def _tokenize(name: str) -> str:
@@ -501,7 +505,7 @@ class Vocabulary:
         return Name(_tokenize(base))
 
     def _outcome_metric(self, name: str) -> Name | None:
-        for index, (pattern, label, short) in enumerate(OUTCOME_TEMPLATES):
+        for pattern, label, short, unit in OUTCOME_TEMPLATES:
             match = pattern.match(name)
             if not match:
                 continue
@@ -511,7 +515,7 @@ class Vocabulary:
             return Name(
                 label=label.format(outcome=self.outcome_labels[code]),
                 short=short.format(code=code),
-                unit=OUTCOME_UNITS[index],
+                unit=unit,
             )
         return None
 

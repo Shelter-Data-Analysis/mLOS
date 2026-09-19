@@ -2278,7 +2278,7 @@ def check_vocabulary(case: str, bundle: Bundle) -> None:
     # Every configured outcome code, plus the Any pseudo-state.
     unresolved = []
     for code in vocab.outcome_labels:
-        for pattern, _, _ in names.OUTCOME_TEMPLATES:
+        for pattern, *_ in names.OUTCOME_TEMPLATES:
             probe = pattern.pattern.strip("^$").replace(r"(\w+)", code)
             if "\\" in probe:
                 continue
