@@ -485,8 +485,6 @@ MLOS_RESULTS_SCHEMA_VERSION <- 5L
   }
 
   s <- summary(cox_results$cox_model)
-  robscore <- if (is.null(s$robscore)) c(NA_real_, NA_real_, NA_real_) else s$robscore
-
   list(
     has_analysis = TRUE,
     formula = paste(deparse(stats::formula(cox_results$cox_model)), collapse = " "),
@@ -498,13 +496,7 @@ MLOS_RESULTS_SCHEMA_VERSION <- 5L
     # Clustering on animal_id is unconditional (ids are auto-generated when absent)
     uses_clustered_se = TRUE,
     xlevels = cox_results$cox_model$xlevels,
-    tests = data.frame(
-      test = c("Likelihood ratio", "Wald", "Score (logrank)", "Robust score"),
-      statistic = unname(c(s$logtest[1], s$waldtest[1], s$sctest[1], robscore[1])),
-      df = unname(c(s$logtest[2], s$waldtest[2], s$sctest[2], robscore[2])),
-      p_value = unname(c(s$logtest[3], s$waldtest[3], s$sctest[3], robscore[3])),
-      stringsAsFactors = FALSE
-    ),
+    tests = .cox_tests_table(s),
     hr_table = cox_results$hr_table,
     # The per-predictor stratified fits (see .cox_stratified_variants in
     # mlos_cox.R), already plain: each carries the same field set as this

@@ -1156,6 +1156,19 @@ break_down_by_period <- function(data, references) {
 }
 
 
+# Length in days of one group's window: the override when the caller supplies
+# one (a stratum subset spans several periods, so no single period length
+# exists), otherwise the subset's own period_start to period_end.
+.period_length_days <- function(period_subset, override = NULL) {
+  if (!is.null(override)) return(override)
+  as.numeric(unique(period_subset$period_end) - unique(period_subset$period_start))
+}
+
+# A total over a length in days, NA where the length is missing or not positive.
+.per_day <- function(total, days) {
+  if (!is.na(days) && days > 0) total / days else NA_real_
+}
+
 #' Calculate daily mean of total in-care days by period
 #' On each night an animal is in care it contributes its days in care as of that
 #' night, on the inclusive count, which is also the number of nights it has been
@@ -1202,17 +1215,8 @@ calculate_daily_mean_total_in_care_days <- function(period_data, col = "period_l
     )
 
     total_in_care_days_sum <- sum(per_animal_value, na.rm = TRUE)
-    period_days <- if (!is.null(window_days)) {
-      window_days
-    } else {
-      as.numeric(unique(period_subset$period_end) - unique(period_subset$period_start))
-    }
-
-    daily_mean_total_in_care_days <- if (!is.na(period_days) && period_days > 0) {
-      total_in_care_days_sum / period_days
-    } else {
-      NA_real_
-    }
+    period_days <- .period_length_days(period_subset, window_days)
+    daily_mean_total_in_care_days <- .per_day(total_in_care_days_sum, period_days)
 
     data.frame(
       period_num = if (by_period) unique(period_subset$period_num) else NA_integer_,
@@ -1248,11 +1252,7 @@ calculate_period_flow_metrics <- function(period_data, col = "period_label",
                                           window_days = NULL) {
   by_period <- identical(col, "period_label")
   rows <- .map_period_subsets(period_data, function(period_subset, lbl) {
-    period_days <- if (!is.null(window_days)) {
-      window_days
-    } else {
-      as.numeric(unique(period_subset$period_end) - unique(period_subset$period_start))
-    }
+    period_days <- .period_length_days(period_subset, window_days)
 
     # Each row is checked against its own row's period window. For a period
     # subset every row shares that period's bounds, so this is the original
@@ -1273,16 +1273,8 @@ calculate_period_flow_metrics <- function(period_data, col = "period_label",
       na.rm = TRUE
     )
 
-    mean_daily_intakes <- if (!is.na(period_days) && period_days > 0) {
-      total_intakes / period_days
-    } else {
-      NA_real_
-    }
-    mean_daily_outcomes <- if (!is.na(period_days) && period_days > 0) {
-      total_outcomes / period_days
-    } else {
-      NA_real_
-    }
+    mean_daily_intakes <- .per_day(total_intakes, period_days)
+    mean_daily_outcomes <- .per_day(total_outcomes, period_days)
 
     data.frame(
       period_num = if (by_period) unique(period_subset$period_num) else NA_integer_,
@@ -1339,16 +1331,12 @@ calculate_period_observation_stats <- function(period_data, period_labels = NULL
     period_days <- if (!is.null(period_days_lookup)) {
       period_days_lookup[lbl][[1L]]
     } else {
-      as.numeric(unique(period_subset$period_end) - unique(period_subset$period_start))
+      .period_length_days(period_subset)
     }
     if (length(period_days) == 0) period_days <- NA_real_
 
     total_animal_days <- sum(period_subset$days_at_risk, na.rm = TRUE)
-    mean_census <- if (!is.na(period_days) && period_days > 0) {
-      total_animal_days / period_days
-    } else {
-      NA_real_
-    }
+    mean_census <- .per_day(total_animal_days, period_days)
 
     data.frame(
       period_label       = lbl,

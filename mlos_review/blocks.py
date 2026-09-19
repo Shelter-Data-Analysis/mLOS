@@ -753,6 +753,15 @@ def observation_gaps(bundle: Bundle, stratifiers: Sequence[str]) -> pd.DataFrame
     return gaps[gaps["stratifier"].isin(list(stratifiers))]
 
 
+def plotted_gaps(bundle: Bundle, gaps: pd.DataFrame) -> pd.DataFrame:
+    """The gaps starting below the plot cap: the ones a drawn curve crosses.
+
+    Every gap when the bundle carries no plot cap.
+    """
+    plot_cap = bundle.value("settings", "presentation", "plot_stay_cap")
+    return gaps if plot_cap is None else gaps[gaps["gap_start_day"] < plot_cap]
+
+
 def _gap_day(value) -> str:
     """A gap boundary as it reads in a sentence, without a false decimal."""
     return f"{float(value):g}"
@@ -823,7 +832,7 @@ def _gap_notes(bundle: Bundle, stratifiers: Sequence[str], vocab) -> list[str]:
                 f"drawn across a stretch where the risk set had emptied."]
 
     plot_cap = bundle.value("settings", "presentation", "plot_stay_cap")
-    in_view = gaps if plot_cap is None else gaps[gaps["gap_start_day"] < plot_cap]
+    in_view = plotted_gaps(bundle, gaps)
     beyond = gaps.drop(index=in_view.index)
 
     notes = []
@@ -2169,12 +2178,7 @@ def findings_for_gaps(bundle: Bundle, vocab) -> list[str]:
     invalidates a curve the deck is showing, which is a finding in the
     strongest sense, so it is stated whatever else the deck found.
     """
-    gaps = observation_gaps(bundle, bundle.stratifiers())
-    if gaps.empty:
-        return []
-    plot_cap = bundle.value("settings", "presentation", "plot_stay_cap")
-    if plot_cap is not None:
-        gaps = gaps[gaps["gap_start_day"] < plot_cap]
+    gaps = plotted_gaps(bundle, observation_gaps(bundle, bundle.stratifiers()))
     if gaps.empty:
         return []
 

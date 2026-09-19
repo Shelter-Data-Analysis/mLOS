@@ -302,20 +302,6 @@ def ratio_comparison(frame: pd.DataFrame, series, title: str, path: str | Path,
     return path
 
 
-def _method_colors(palette: list[str] | None) -> tuple[str, str]:
-    """Colors for the two fits.
-
-    Taken from the run's own stratum palette so the deck stays one family of
-    colors. Note what they encode HERE: on this figure the two colors are the
-    two regressions, where on every KM and AJ figure a color is a stratum. The
-    legend says so, and it is why this figure always draws one even with two
-    series a caption could have named.
-    """
-    if not palette or len(palette) < 2:
-        return DEFAULT_COLORS
-    return palette[0], palette[1]
-
-
 def hazard_ratio_comparison(frame: pd.DataFrame, title: str, path: str | Path,
                             palette: list[str] | None = None) -> Path:
     """Paired hazard-ratio bars with 95% intervals, one pair per level.
@@ -337,7 +323,7 @@ def hazard_ratio_comparison(frame: pd.DataFrame, title: str, path: str | Path,
     levels. The faintness is what marks it, and it is enough on its own, so
     nothing is added to its tick.
     """
-    pooled_color, stratified_color = _method_colors(palette)
+    pooled_color, stratified_color = _series_colors(palette, 2)
     levels = list(frame.index)
     positions = range(len(levels))
     height = 0.38

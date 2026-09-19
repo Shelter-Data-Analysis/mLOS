@@ -33,6 +33,7 @@ from mlos_review.blocks import (
     _unified_stays,
     name_levels,
     observation_gaps,
+    plotted_gaps,
     summary_fields,
 )
 from mlos_review.bundle import BASELINE_STRATIFIER, Bundle
@@ -554,12 +555,7 @@ def gap_remedy(bundle: Bundle, vocab) -> list[str]:
     cap, matching the finding, since a gap no figure reaches is not what a
     settings change is for.
     """
-    gaps = observation_gaps(bundle, bundle.stratifiers())
-    if gaps.empty:
-        return []
-    plot_cap = bundle.value("settings", "presentation", "plot_stay_cap")
-    if plot_cap is not None:
-        gaps = gaps[gaps["gap_start_day"] < plot_cap]
+    gaps = plotted_gaps(bundle, observation_gaps(bundle, bundle.stratifiers()))
     if gaps.empty:
         return []
     return [f"Close the observation gap in {_gap_subjects(gaps, vocab)} before "

@@ -1,6 +1,20 @@
 # mLOS - Cox Regression Analysis
 # =======================================================================
 
+# The four global tests of a summary.coxph as a plain table. The robust score
+# test is NA where the fit's variance does not yield one (summary() leaves
+# robscore NULL).
+.cox_tests_table <- function(s) {
+  robscore <- if (is.null(s$robscore)) c(NA_real_, NA_real_, NA_real_) else s$robscore
+  data.frame(
+    test = c("Likelihood ratio", "Wald", "Score (logrank)", "Robust score"),
+    statistic = unname(c(s$logtest[1], s$waldtest[1], s$sctest[1], robscore[1])),
+    df = unname(c(s$logtest[2], s$waldtest[2], s$sctest[2], robscore[2])),
+    p_value = unname(c(s$logtest[3], s$waldtest[3], s$sctest[3], robscore[3])),
+    stringsAsFactors = FALSE
+  )
+}
+
 # Relevel a factor predictor column and report the reference level used.
 # Only called when the predictor has >1 level (has_xxxxx is TRUE).
 # Reference semantics:
@@ -403,8 +417,6 @@ cox_regression_analysis <- function(period_data, references) {
     events_per_stratum <- tapply(period_data$event, strata_key, sum)
 
     s <- summary(fit)
-    robscore <- if (is.null(s$robscore)) c(NA_real_, NA_real_, NA_real_) else s$robscore
-
     hr_table <- data.frame(
       variable = rownames(s$coefficients),
       hr       = exp(s$coefficients[, "coef"]),
@@ -438,13 +450,7 @@ cox_regression_analysis <- function(period_data, references) {
       n_strata             = length(events_per_stratum),
       n_strata_with_events = sum(events_per_stratum > 0),
       xlevels              = xlevels[term],
-      tests = data.frame(
-        test      = c("Likelihood ratio", "Wald", "Score (logrank)", "Robust score"),
-        statistic = unname(c(s$logtest[1], s$waldtest[1], s$sctest[1], robscore[1])),
-        df        = unname(c(s$logtest[2], s$waldtest[2], s$sctest[2], robscore[2])),
-        p_value   = unname(c(s$logtest[3], s$waldtest[3], s$sctest[3], robscore[3])),
-        stringsAsFactors = FALSE
-      ),
+      tests                = .cox_tests_table(s),
       hr_table = hr_table
     )
   }
