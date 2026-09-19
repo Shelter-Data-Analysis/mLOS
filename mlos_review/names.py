@@ -28,10 +28,9 @@ from the label, so a renderer can print units once per header instead of in
 every cell. Most entries fill only `label`; the other fields exist from the
 start because retrofitting them means rewriting every entry.
 
-A `short` must stand on its own. The first draft assumed the table title
-would supply the context, so `km_median_los` was just "median" -- which was
-fine until a table put it beside the resident-tenure median and the two
-columns both read "median". A table that spans the arriving-cohort and
+A `short` must stand on its own. A table title cannot be assumed to supply
+the context: a bare "median" for `km_median_los` reads the same as the
+resident-tenure median once a table puts the two side by side. A table that spans the arriving-cohort and
 resident views cannot lend context it does not have.
 
 Resolution is by explicit table first, with three structural rules underneath,
@@ -568,7 +567,7 @@ def bundle_names(bundle: dict) -> dict[str, set[str]]:
     # Keep only names shaped like machine vocabulary: underscore-joined tokens,
     # each either lowercase snake_case or an outcome code, which is user
     # configuration and uppercase-initial (L, T, N, Any). A stricter
-    # all-lowercase filter used to drop every per-outcome measure from the
+    # all-lowercase filter would drop every per-outcome measure from the
     # sweep, so a per-outcome family added without a template would have
     # rendered by tokenizer on slides without ever reaching the
     # awaiting-curation list this sweep exists to feed.

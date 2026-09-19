@@ -315,9 +315,9 @@ def tail_spread(bundle: Bundle, stratifier: str, vocab) -> list[str]:
         median = km.loc[level, "km_median_los"]
         p90 = km.loc[level, "km_p90_los"]
         # The stratifier is named in the opening clause rather than in a
-        # closing one. It used to close with "the {label} level where an
-        # average is least informative", which is a superlative, and two
-        # flagged levels then produced two bullets each claiming to be the one.
+        # closing one. A closing clause such as "the {label} level where an
+        # average is least informative" is a superlative, and two flagged
+        # levels would produce two bullets each claiming to be the one.
         lines.append(
             f"Look inside {label} {level}. Its 90th percentile stay is "
             f"{p90:.0f} days against a median of {median:.0f}, a spread "

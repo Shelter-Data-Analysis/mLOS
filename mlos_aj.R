@@ -486,10 +486,10 @@ aj_probability_mass <- function(aj_results, references) {
   ylim  <- c(0, top * .MASS_HEADROOM)
 
   # Which interval ends get printed. Left to barplot, a narrow width crowds the
-  # axis and R drops whichever labels collide, which took the last interval's
+  # axis and R drops whichever labels collide, which can take the last interval's
   # end with it: the one bar that spans a different number of days from its
-  # neighbours lost the only thing that said so. Thinning from the right
-  # instead keeps that end whatever the width, and the remainder bar is always
+  # neighbours would lose the only thing that says so. Thinning from the right
+  # keeps that end whatever the width, and the remainder bar is always
   # labelled since it stands apart from the axis it is not on.
   n_bin <- nrow(heights)
   step  <- ceiling(n_bin / .MASS_MAX_TICKS)

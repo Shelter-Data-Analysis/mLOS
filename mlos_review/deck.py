@@ -113,11 +113,11 @@ from mlos_review import workbook
 # describing a different run from the deck next to it.
 #
 # Named after the deck FILE and not its directory, so two decks can share one
-# directory. Deriving them from the directory meant a second build there took
+# directory. Deriving them from the directory would let a second build there take
 # the first one's workbook and figures while leaving its deck untouched: the
-# deck still opened, the workbook beside it described a different dataset, and
-# nothing said so. Building OC1 next to OC2 is the obvious way to meet that,
-# and it is a thing people do.
+# deck would still open, and the workbook beside it would describe a different
+# dataset with nothing to say so. Building OC1 next to OC2 is the obvious way
+# to meet that.
 WORKBOOK_SUFFIX = "_tables.xlsx"
 FIGURE_SUFFIX = "_figures"
 # What the deck holds, listed beside it: the file a variant deck reads to check
@@ -182,12 +182,11 @@ AUTOMATION_CAVEAT = (
 # What an audience has to know before reading a number off any later slide: the
 # statistics are tested, the slides around them are not.
 #
-# The caveat says both halves of that, so it replaced a terser second bullet
-# ("Slide generation pipeline is experimental and incomplete") rather than
-# joining it. Two near-identical warnings on one slide read as one warning
-# said twice, which is weaker than either alone, and the one that went says
-# less: incomplete is a promise that it will be finished, and what an audience
-# needs is what the thing in front of them can and cannot be trusted to do.
+# The caveat says both halves of that in one sentence, because two
+# near-identical warnings on one slide read as one warning said twice, which is
+# weaker than either alone. What an audience needs is what the thing in front
+# of them can and cannot be trusted to do; "incomplete" instead promises that
+# it will be finished.
 OPENING_BULLETS = [
     "Underlying statistical analysis by the mLOS tool, extensively tested",
     AUTOMATION_CAVEAT,
@@ -559,9 +558,9 @@ def resident_outlook(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
     curve has to be read against. Future demand is the number of residents at
     each tenure times the days each of them still owes, summed, so the two
     figures multiply and the slide holds both factors. The in-care tenure
-    profile that used to sit there is the same information integrated, the tail
-    of this curve rather than the curve, and a cumulative form cannot be
-    multiplied by the one beside it.
+    profile is the same information integrated, the tail of this curve rather
+    than the curve, and a cumulative form cannot be multiplied by the one
+    beside it, so it is not the left figure.
 
     It follows the whole-sample slide immediately, and its table is the other
     half of that slide's: the tenure trio in both, then what the curve reads at
@@ -1199,14 +1198,13 @@ def aj_by_stratifier(bundle: Bundle, stratifier: str, vocab: Vocabulary,
 # thinks in. A run that ends on "twice as long" has ended in the audience's
 # vocabulary rather than in the estimator's.
 #
-# They replaced a robustness check that asked whether the pooled Cox agreed
-# with a freer one. That check is still built, and still says something, but it
-# was too much statistics for a practitioner and not enough rigour for a
-# researcher, and it rested on a claim about the earlier slides that was not
-# true: they are unadjusted Kaplan-Meier, not the pooled Cox, and they assume
-# no proportional hazard at all. The pair below says the true version of what
-# it was reaching for. The old slides live on at the end of the deck, where a
-# question can reach them.
+# They are not the robustness check of the pooled Cox against a freer one.
+# That check is too much statistics for a practitioner and not enough rigour
+# for a researcher, and it rests on a claim about the earlier slides that is
+# not true: they are unadjusted Kaplan-Meier, not the pooled Cox, and they
+# assume no proportional hazard at all. The pair below says the true version of
+# what that check reaches for. The check itself lives at the end of the deck,
+# where a question can reach it.
 #
 # What each pair of slides is FOR is different, and the notes have to keep them
 # apart. On the hazard-ratio slide the three readings are two genuinely
@@ -1414,9 +1412,8 @@ def cox_comparison_by_stratifier(bundle: Bundle, stratifier: str,
     This slide is that same question drawn at length, for a room that asks.
 
     Its figure is drawn here rather than placed (see figures.py), because the
-    comparison exists nowhere in the R output. It is no longer the only drawn
-    one: _ratio_slide draws the three-estimate dots the same way, for the
-    slides that replaced this one. The figure goes to the figures directory
+    comparison exists nowhere in the R output. It is not the only drawn
+    figure: _ratio_slide draws the three-estimate dots the same way. The figure goes to the figures directory
     beside the deck, where a reader can pick it up for something else, and is
     regenerated on every build.
 
@@ -1600,7 +1597,7 @@ def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
     asked it does not want six minutes on it.
 
     Nothing here is gathered into the closing sections. What these slides found
-    is already in them, carried by the hazard-ratio slides that replaced them,
+    is already in them, carried by the hazard-ratio slides,
     and the divider is built after those sections precisely so that a second
     copy cannot creep in.
     """
@@ -1792,8 +1789,8 @@ def probability_intervals_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | No
 
     The two tables that reconcile the picture against the numbers are on the
     slide before this one, which carries them and nothing else. A room reads
-    them first and then reads the bars; putting them under the bars asked for
-    both at once and gave the figures half a page to do it in.
+    them first and then reads the bars; putting them under the bars would ask
+    for both at once and give the figures half a page to do it in.
 
     Built only where the run drew the figures, which is where
     `probability_mass_width` is set. Nothing here computes a bin; the figures
@@ -2099,10 +2096,10 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
     slides.extend(closing)
 
     # After the closing sections, and deliberately: these are not part of the
-    # presentation. They are the robustness check the ratio slides replaced,
+    # presentation. They are the robustness check behind the ratio slides,
     # kept where a question from the floor can reach them and nowhere a
     # presenter has to walk through them. Their findings and recommendations
-    # were gathered above, from the slides that carry them now, so appending
+    # were gathered above, from the slides that carry them, so appending
     # these after the closing sections is also what stops the same sentences
     # being counted twice.
     slides.extend(reserve_section(bundle, comparison, vocab, figures, settings))

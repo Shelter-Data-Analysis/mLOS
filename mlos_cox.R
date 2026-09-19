@@ -142,7 +142,7 @@ cox_regression_analysis <- function(period_data, references) {
   if (has_period_predictor) {
     # OLDEST/NEWEST name a policy, not a level: resolve them against the
     # periods that contain data, so an empty boundary period cannot make the
-    # requested reference unsatisfiable (the original pre-refactor semantics).
+    # requested reference unsatisfiable.
     ref_num <- if (references$period_reference == "NEWEST") {
       max(present_periods)
     } else {

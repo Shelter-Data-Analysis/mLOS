@@ -190,9 +190,8 @@ class Bundle:
         answer.
 
         `stratifier` is required and never None: every manifest entry names one,
-        a whole-sample file naming "all". It carried no default because the
-        whole-sample entries once had no stratifier at all, and a default of None
-        would now silently match nothing instead of failing.
+        a whole-sample file naming "all". It has no default: a default
+        of None would silently match nothing instead of failing.
 
         `variant` separates two drawings of the same numbers: "lines" is the
         default everywhere, and "stack" picks the stacked rendering where one

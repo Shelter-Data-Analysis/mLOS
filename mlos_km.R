@@ -460,10 +460,8 @@ stratified_km_analysis <- function(period_data, references) {
 # The part of a KM survival plot's own filename that says which curve it is, and
 # so the part a companion substitutes its own stem for: "survival" in both
 # km_survival_unified and km_survival_by_period. ONE spelling across both scopes
-# is what lets a single substitution serve every companion; it was two ("curve"
-# unified, "stratified" per stratifier) until the survival family's filenames
-# were brought into line with its manifest kind, which is why the substitution
-# needed to be told which spelling to expect.
+# is what lets a single substitution serve every companion, and it matches the
+# survival family's manifest kind.
 .KM_FILENAME_TOKEN <- "survival"
 
 # Derive a companion filename (stem "remaining_los", "census_by_tenure", or
@@ -804,10 +802,10 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
 # The summary row of a remaining-LOS companion CSV: each column's curve read at
 # that column's own mean in-care tenure, the sum of its tenure profile G.
 #
-# The row it replaced was the restricted mean, which is the same number the KM
-# survival CSV beside it already carries, reached through the identity
-# Remaining_LOS(0) = RMST. This row is instead a value the file alone holds, and
-# the one the unified plot's green mark stands at.
+# It is not the restricted mean, which is the number the KM survival CSV beside
+# it already carries, reached through the identity Remaining_LOS(0) = RMST.
+# This row is a value the file alone holds, and the one the unified plot's
+# green mark stands at.
 #
 # Derived from the two grids rather than taken from the bundle, for the callers
 # that have no bundle; where there is one, the caller passes the census row

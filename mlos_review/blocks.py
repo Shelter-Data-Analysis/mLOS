@@ -270,11 +270,11 @@ def extreme_levels(values: pd.Series, want_max: bool) -> list[str]:
     """EVERY level holding this column's extreme, or none when too many do.
 
     What `flag_extremes` already does in ink, done in prose. A flagged column
-    marks all three levels that hold the maximum; the sentence beside it used
-    to say `idxmax`, which is whichever of them sorts first, so a slide could
-    mark two levels highest and then name one of them. Nothing in the data ever
-    triggered it, floating-point means over hundreds of stays not being equal
-    to the last digit, but nothing in the code prevented it either.
+    marks all three levels that hold the maximum; the sentence beside it must
+    not use `idxmax`, which is whichever of them sorts first: a slide could
+    mark two levels highest and then name one of them. Ties are rare, since
+    floating-point means over hundreds of stays are not equal to the last
+    digit, but nothing in the data prevents one.
 
     Empty for a column that cannot separate the levels at all, which is
     `separates`' abstention, and empty again past MAX_TIED_LEVELS. Callers
@@ -1067,11 +1067,11 @@ WORKLOAD_SLIDE_HEADERS = {
 }
 
 # The workbook's reading order, which is its own rather than the slides'.
-# Deriving it from WORKLOAD_SECTIONS made the sheet inherit the slides' budget:
-# a column no slide had room for was dropped from the workbook too, against
-# what `workload_full_table` promises. Two went that way, the intakes per day
-# and the share of the days owed, and losing the first stranded the intake
-# share beside the study-window day total. Each share now follows the column it
+# Deriving it from WORKLOAD_SECTIONS would make the sheet inherit the slides'
+# budget: a column no slide has room for, the intakes per day or the share of
+# the days owed, would be dropped from the workbook too, against what
+# `workload_full_table` promises, and losing the first would strand the intake
+# share beside the study-window day total. Each share follows the column it
 # divides, which is also the order WORKLOAD_SHARE_OF states.
 WORKLOAD_WORKBOOK_ORDER = [
     CARE_DAYS_DELIVERED,
@@ -1206,7 +1206,7 @@ def workload_table(bundle: Bundle, stratifier: str, vocab, section: str) -> Tabl
     # The days-owed slide has no room for a share column, so the one number
     # anyone would read off it is written under the table instead: which level
     # holds most of what is owed, and how much of it. Small type, but a reader
-    # who wants it can find it, and the alternative was a column that does not
+    # who wants it can find it, the alternative being a column that does not
     # fit.
     if section == "animal_days":
         footnotes.append(_owed_share_footnote(bundle, stratifier, label))

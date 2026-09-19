@@ -34,8 +34,8 @@ GUTTER = Inches(0.2)
 
 # Preserving a figure's ratio matters more than filling the box it is given: a
 # stretched survival curve misreads. The ratio is READ from each file rather
-# than assumed, because it is R's decision and R has changed it once already;
-# an assumption here would have gone silently stale the day it did. The
+# than assumed, because it is R's decision, and an assumption here would go silently
+# stale the day R changed it. The
 # fallback is only for a file this cannot parse, which on a manifest entry that
 # resolved to an existing PNG should not happen.
 FIGURE_ASPECT_FALLBACK = 3 / 2
@@ -52,13 +52,9 @@ HIGH_COLOR = RGBColor(0x1F, 0x5C, 0xA8)
 LOW_COLOR = RGBColor(0xC0, 0x5A, 0x0E)
 
 # One size for everything inside a table: the row labels, the column headers,
-# and the numbers. An earlier draft set headers smaller so a long label would
-# not compete with the numbers, with an exemption for headers short enough not
-# to (a bare outcome code is an identifier, not a label, and set small it read
-# as an afterthought). The exemption was the tell: a table headed "From", "To",
-# "Days", "Count", "Share" got three of those at one size and two at another,
-# on the same row. A table reads as a grid, and a grid whose type size varies
-# by cell content does not.
+# and the numbers. A table reads as a grid, and a grid whose type size varies
+# by cell content does not: headers set smaller when long and larger when short
+# would put "From", "To", "Days", "Count" and "Share" at two sizes on one row.
 VALUE_PT = Pt(15)
 FLAG_PT = Pt(11)
 FOOTNOTE_PT = Pt(10)
@@ -121,8 +117,8 @@ MAX_COLUMN_WIDTH = Inches(1.8)
 # How wide a string is guessed to be: a fraction of an em per character,
 # applied at whatever point size that string is actually SET in. Doing it per
 # size matters, because a flag mark at 11pt is narrower than the 15pt number it
-# rides beside, and charging it at the value size was padding every flagged
-# column by a tenth of an inch it never used.
+# rides beside, and charging it at the value size would pad every flagged
+# column by a tenth of an inch it never uses.
 #
 # CAPITALS are charged half again as much. Level names are the one thing in
 # these tables that is written in capitals, and at the ordinary rate a name
@@ -831,8 +827,8 @@ def _shade_alternate_rows(grid) -> None:
     Bands separate rows with less ink than rules do, and on the stacked
     competing-risk table they separate something else for free: its rows come in
     share-then-days pairs, so banding every other one shades every share row and
-    leaves every days row white. What was a footnote telling the reader which
-    half was which becomes the shape of the table.
+    leaves every days row white. The shape of the table says which
+    half is which, with no footnote needed.
     """
     # Row 0 is the header and is even, so the one test covers it too.
     for index, row in enumerate(grid.rows):
@@ -970,9 +966,10 @@ def _add_table(slide, table: Table, vocab: Vocabulary, top: Emu, height: Emu,
 
     # One line's height for every row, header included. pptx divides the height
     # it is handed evenly among the rows, and that height counts the header as
-    # as many lines as _header_lines estimates: the room reserved for a second
-    # line was being spread over every DATA row as well, so a table under a
-    # header thought to wrap stood half again as tall as its numbers needed.
+    # as many lines as _header_lines estimates: left to divide evenly, the room
+    # reserved for a second line would be spread over every DATA row as well,
+    # and a table under a header thought to wrap would stand half again as tall
+    # as its numbers need.
     #
     # A row height is a MINIMUM to pptx, so a header that really does wrap
     # still grows to hold itself. That is the point of setting it here: the

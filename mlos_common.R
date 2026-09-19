@@ -360,7 +360,7 @@ stratifiers <- list(
 
 # Run plotting code in PNG device when filename is provided.
 #
-# 3:2 rather than the 4:3 these were drawn at until now. A figure is judged by
+# 3:2 rather than 4:3. A figure is judged by
 # how much of the space it is GIVEN it manages to use, and the spaces it is
 # given are wide: a slide slot beneath a table, a text column beside a caption.
 # A 4:3 figure dropped into any of them is letterboxed, losing on the slide

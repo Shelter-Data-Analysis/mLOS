@@ -1086,11 +1086,11 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
 #' Move the previous run's outputs into a dated subdirectory
 #'
 #' Called before a run writes anything, so the directory it writes into holds
-#' that run and nothing else. Two problems go away together: an output the new
-#' run does not produce can no longer linger and be read as current, and a
-#' result you wanted is no longer silently overwritten (the workbook and log
-#' are written with overwrite semantics today, so anything at those paths is
-#' lost without warning).
+#' that run and nothing else. Two problems are avoided together: an output the
+#' new run does not produce cannot linger and be read as current, and a result
+#' you wanted is not silently overwritten (the workbook and log are written
+#' with overwrite semantics, so anything at those paths would be lost without
+#' warning).
 #'
 #' Only this tool's own files move. The four configured names are taken from
 #' the caller, which reads them from the same variables the writers use, and
@@ -1136,7 +1136,7 @@ archive_previous_outputs <- function(output_dir, excel_file, log_file, json_file
   if (!all(moved)) {
     # A file held open elsewhere (a workbook still open in Excel, say) is worth
     # a note but not worth stopping a run over: it is about to be overwritten
-    # as it would have been before this existed.
+    # in any case.
     cat("*** WARNING: could not archive: ",
         paste(candidates[keep][!moved], collapse = ", "), " ***\n", sep = "")
   }
@@ -1483,8 +1483,8 @@ build_results_bundle <- function(cox_results,
 # Neither obvious alternative works. jsonlite's default is 4 significant
 # digits, which would degrade every value in the file. digits = NA reads like
 # "full precision" but gives 15, which is enough for most values and silently
-# wrong for the rest: a Cox likelihood-ratio statistic came back differing in
-# its last bits, which is how this was caught.
+# wrong for the rest: a Cox likelihood-ratio statistic read back differing in
+# its last bits.
 .JSON_DIGITS <- 17L
 
 #' Record what the run rendered
