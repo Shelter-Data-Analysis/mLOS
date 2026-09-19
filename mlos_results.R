@@ -181,7 +181,7 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
   # fits; the count-based bounds are exact Poisson (rates) and exact binomial
   # (proportions) intervals; the expected-census bounds are an INDICATIVE
   # delta-method interval (see below). The added assumptions of all three are
-  # stated in math methods 8.2. The AJ restricted means carry no CI (a ratio of
+  # stated in math methods 8.4. The AJ restricted means carry no CI (a ratio of
   # correlated CIF estimates with no ready-made interval), so they have no
   # triplet here.
   ci_rows <- list()
@@ -247,7 +247,7 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
   # first-order delta method gives var(log L) ~= 1/N_intakes +
   # (se_RMST/RMST)^2, ASSUMING the two factors are independent. We do not
   # believe they are: they are likely positively correlated, which would
-  # widen the true interval (math methods 8.2); a joint treatment is left
+  # widen the true interval (math methods 8.4); a joint treatment is left
   # for future versions. The other census aggregates carry no interval.
   predicted_census <- as.numeric(census_matrix["expected_census", ])
   rmean_est   <- as.numeric(km_matrix["km_restricted_mean", ])

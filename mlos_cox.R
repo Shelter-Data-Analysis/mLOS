@@ -307,12 +307,12 @@ cox_regression_analysis <- function(period_data, references) {
     # LOS. If period ever became a stay-level attribute (period of intake,
     # say), this reasoning would no longer hold and the term should be
     # dropped with the others.
-    unified_formula_parts <- paste("surv_obj ~",
+    crude_formula_parts <- paste("surv_obj ~",
                                    paste(c("1", if (has_period_predictor) "period"),
                                          collapse = " + "))
     weibull_results <- .weibull_regression_analysis(period_data, surv_obj, formula_parts,
                                                     cox_model$xlevels, canonical_levels,
-                                                    unified_formula_parts, predictors[-1],
+                                                    crude_formula_parts, predictors[-1],
                                                     isTRUE(references$weibull_shape_crossing))
   }
 
@@ -829,7 +829,7 @@ cox_regression_analysis <- function(period_data, references) {
 # is a documented choice; a by-animal cluster bootstrap is the upgrade path.
 .weibull_regression_analysis <- function(period_data, surv_obj, formula_parts,
                                          xlevels, canonical_levels,
-                                         unified_formula_parts, main_terms,
+                                         crude_formula_parts, main_terms,
                                          crossing_enabled) {
 
   cat("\n=======================================================================\n")
@@ -891,7 +891,7 @@ cox_regression_analysis <- function(period_data, references) {
   # signals a mix of fast and slow groups (the fast leavers drain out of
   # the risk set first), not stays that stall with tenure -- see the
   # sim_size_mixture fixture for a worked example.
-  crude <- if (identical(unified_formula_parts, formula_parts)) {
+  crude <- if (identical(crude_formula_parts, formula_parts)) {
     cat("Crude Weibull: the model above has no group terms, so it already is the crude fit\n")
     list(has_analysis = TRUE, same_as_main = TRUE, formula = formula_parts,
          n = fit$N, n_events = fit$events,
@@ -899,35 +899,35 @@ cox_regression_analysis <- function(period_data, references) {
          fit_unstable = main$unstable,
          los_table = los_table, hr_table = weibull_hr_table)
   } else {
-    unified_res <- if (identical(unified_formula_parts, "surv_obj ~ 1")) {
+    crude_res <- if (identical(crude_formula_parts, "surv_obj ~ 1")) {
       null_res
     } else {
-      .fit_weibull(unified_formula_parts, period_data, environment())
+      .fit_weibull(crude_formula_parts, period_data, environment())
     }
-    unified_fit <- if (inherits(unified_res$fit, "error")) NULL else unified_res$fit
-    if (is.null(unified_fit)) {
+    crude_fit <- if (inherits(crude_res$fit, "error")) NULL else crude_res$fit
+    if (is.null(crude_fit)) {
       cat("Crude Weibull fit failed -- skipping.\n")
       list(has_analysis = FALSE, message = "crude fit failed")
     } else {
-      ut <- .weibull_fit_tables(unified_fit)
+      crude_tables <- .weibull_fit_tables(crude_fit)
       # The crude model carries only the period term (if any), so only
       # the period reference row is inserted; a "~ 1" crude fit has no
       # terms and its tables stay empty.
-      uni_xlevels <- if (grepl("period", unified_formula_parts, fixed = TRUE)) {
+      crude_xlevels <- if (grepl("period", crude_formula_parts, fixed = TRUE)) {
         xlevels["period"]
       } else {
         list()
       }
-      uni_los <- .insert_reference_rows(ut$los_table, uni_xlevels, canonical_levels, "los_ratio")
-      uni_hr  <- .insert_reference_rows(ut$hr_table,  uni_xlevels, canonical_levels, "hr")
-      cat("Crude Weibull (", unified_formula_parts, "): shape k = ", round(ut$k, 3),
-          " [", round(ut$k_lo, 3), ", ", round(ut$k_hi, 3), "]\n", sep = "")
-      .report_unstable(unified_res$unstable, "  Crude Weibull fit")
-      list(has_analysis = TRUE, same_as_main = FALSE, formula = unified_formula_parts,
-           n = unified_fit$N, n_events = unified_fit$events,
-           shape = ut$k, shape_lo = ut$k_lo, shape_hi = ut$k_hi,
-           fit_unstable = unified_res$unstable,
-           los_table = uni_los, hr_table = uni_hr)
+      crude_los <- .insert_reference_rows(crude_tables$los_table, crude_xlevels, canonical_levels, "los_ratio")
+      crude_hr  <- .insert_reference_rows(crude_tables$hr_table,  crude_xlevels, canonical_levels, "hr")
+      cat("Crude Weibull (", crude_formula_parts, "): shape k = ", round(crude_tables$k, 3),
+          " [", round(crude_tables$k_lo, 3), ", ", round(crude_tables$k_hi, 3), "]\n", sep = "")
+      .report_unstable(crude_res$unstable, "  Crude Weibull fit")
+      list(has_analysis = TRUE, same_as_main = FALSE, formula = crude_formula_parts,
+           n = crude_fit$N, n_events = crude_fit$events,
+           shape = crude_tables$k, shape_lo = crude_tables$k_lo, shape_hi = crude_tables$k_hi,
+           fit_unstable = crude_res$unstable,
+           los_table = crude_los, hr_table = crude_hr)
     }
   }
 

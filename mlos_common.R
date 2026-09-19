@@ -426,12 +426,10 @@ stratifiers <- list(
 
 # Create a counting-process Surv object from period_data columns
 # @param df  Data frame with time_start, time_end, and an event column
-# @param event  Optional event-indicator override (default: df$event)
-.make_surv_obj <- function(df, event = NULL) {
-  if (is.null(event)) event <- df$event
+.make_surv_obj <- function(df) {
   survival::Surv(time  = df$time_start,
                  time2 = df$time_end,
-                 event = event,
+                 event = df$event,
                  type  = "counting")
 }
 
@@ -633,7 +631,7 @@ emitted_outputs <- function() unique(basename(.emitted_outputs_env$files))
 # .binom_prop_ci is the exact binomial (Clopper-Pearson) interval for x
 # successes in n trials. The distributional assumptions these add
 # (independent occurrences at a constant rate within the window; independent
-# Bernoulli trials) are stated in math methods 8.2.
+# Bernoulli trials) are stated in math methods 8.4.
 .poisson_rate_ci <- function(count, exposure) {
   if (is.na(count) || is.na(exposure) || exposure <= 0) return(c(NA_real_, NA_real_))
   as.numeric(stats::poisson.test(round(count), exposure)$conf.int)

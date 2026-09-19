@@ -1349,7 +1349,7 @@ write_weibull_by_stratifier_sheet <- function(wb, sheet, wres,
   # Census aggregates, observed beside expected. Observed: the mean census
   # (mean_census_inventory) and the mean nightly total accumulated in-care days
   # (daily_mean_total_in_care_days), both moved down from the observations
-  # section above. Expected (math methods 5.7): the steady-state census (the
+  # section above. Expected (math methods 5.6): the steady-state census (the
   # km_census_by_* CSV's expected_census, inventory convention via Little's law,
   # mean daily intakes x KM restricted mean; directly comparable to
   # mean_census_inventory, both capped at the restricted stay cap, so a gap
@@ -1384,7 +1384,7 @@ write_weibull_by_stratifier_sheet <- function(wb, sheet, wres,
   # Rows are estimate/lower/upper triplets in the order the sections above
   # introduce them; each estimate is re-displayed above its bounds so a triplet
   # reads on its own. Which intervals exist, and on what assumptions, is
-  # decided in compute_stratum_measures (math methods 8.2).
+  # decided in compute_stratum_measures (math methods 8.4).
   next_row <- write_matrix_section(next_row, "95% confidence intervals", measures$ci,
                                    shade = TRUE, note = "estimate, lower, upper")
 

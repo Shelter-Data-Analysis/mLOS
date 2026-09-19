@@ -651,7 +651,8 @@ def list_titles(results: str | Path, settings: Settings) -> list[str]:
 VALUED_FLAGS = ("--settings", "--template")
 SWITCHES = ("--list", "--no-check")
 USAGE = ("Usage: python3 -m mlos_review.variant OUTLINE.md "
-         "[results_dir] [out.pptx] [--settings=FILE] [--template=FILE]")
+         "[results_dir] [out.pptx] [--settings=FILE] [--template=FILE] "
+         "[--no-check]")
 
 
 def main(argv: list[str]) -> int:

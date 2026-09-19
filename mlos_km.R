@@ -66,7 +66,7 @@ km_unified_period <- function(period_data, references) {
 
   # Calculate fraction exceeding cap (from capped observations), with an
   # exact binomial (Clopper-Pearson) 95% CI; the independence assumption
-  # this adds is stated in math methods 8.2.
+  # this adds is stated in math methods 8.4.
   fraction_capped <- sum(period_data$capped_at_rmean) / nrow(period_data)
   fraction_capped_ci <- .binom_prop_ci(sum(period_data$capped_at_rmean), nrow(period_data))
 
@@ -78,7 +78,7 @@ km_unified_period <- function(period_data, references) {
   #
   # Read at elapsed day `cap`, NOT at cap - 1 where the reported day grids stop.
   # Both reasons point the same way. On the merits, the elapsed clock and the
-  # inclusive LOS clock differ by one (math methods 4), so S(cap) = P(LOS > cap),
+  # inclusive LOS clock differ by one (math methods 2.7), so S(cap) = P(LOS > cap),
   # which is exactly the event fraction_capped counts by tallying rows;
   # S(cap - 1) is P(LOS > cap - 1) and sits above it.
   # On the arithmetic, the Aalen-Johansen grid runs 0..cap while the KM day grid
@@ -291,8 +291,8 @@ plot_km_curve <- function(km_results, references, title = "Kaplan-Meier Survival
 # Restricted mean per stratum, the daily step-sum sum_{d=0}^{tau-1} S(d) (math
 # methods 5.3): the value the stratified KM CSV reports as its own
 # restricted_mean row. Also used, independently of .compute_remaining_los, for
-# the Remaining LOS companion CSV's own restricted_mean row (math methods 5.6,
-# 8.1): that row is computed here from the survival curve, not read off
+# the Remaining LOS companion CSV's own restricted_mean row (math methods 5.8,
+# 8.2): that row is computed here from the survival curve, not read off
 # Remaining_LOS(0), so the two rows cross-check the identity
 # Remaining_LOS(0) = RMST rather than one restating the other.
 .stratum_rmst_map <- function(km_fit, strata_names, tau) {
@@ -494,7 +494,7 @@ RESIDENT_TENURE_QUANTILE_ROWS <- c("per_resident_past_days_restricted_median",
 # statistic> says, how much longer does it expect", which is a statement about
 # an animal. The curve's own values have no median or mean worth taking: it is a
 # function of tenure, not a distribution over animals, so any average of its
-# column would be an average over a day grid (math methods 5.6).
+# column would be an average over a day grid (math methods 5.8).
 #
 # Do not read remaining_days_at_mean_tenure as the average remaining stay of the
 # in-care population. That average is per_resident_future_days, in this same
@@ -560,7 +560,7 @@ RESIDENT_VIEW_ROWS <- c(RESIDENT_TENURE_QUANTILE_ROWS, REMAINING_AT_TENURE_ROWS)
 # is rmean +/- 1.96 * the se(rmean) survfit reports.
 #
 # The last two rows are per unit intake rate, within the cap (math methods
-# 5.7), from the census-by-tenure profile N(d) = rate * S(d), d = 0..cap-1:
+# 5.6), from the census-by-tenure profile N(d) = rate * S(d), d = 0..cap-1:
 # the elapsed animal-days sum_d d * S(d) (backward-looking) and the future
 # animal-days sum_d (d+1) * S(d) (forward-looking). Scaling them by the
 # stratum's mean daily intake rate (stratum_census_aggregates) yields
@@ -698,7 +698,7 @@ stratum_km_summary <- function(period_data, col, labels, cap) {
 
 # Scale the per-intake KM helpers by each stratum's mean daily intake rate to
 # get the expected census and its elapsed/future animal-days (Little's law,
-# math methods 5.7), then assemble the census-aggregates matrix beside the
+# math methods 5.6), then assemble the census-aggregates matrix beside the
 # observed counts. km_summary is stratum_km_summary's matrix, still carrying its
 # resident-view rows, which pass through unscaled: neither a quantile of the
 # tenure distribution nor a reading off the remaining-LOS curve depends on the
@@ -747,7 +747,7 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
 #
 # the expected number of animals in care with current tenure d, assuming
 # intakes arrive at the observed mean daily rate and stays follow the
-# fitted KM curve (see math methods 5.7). Column sums give the predicted
+# fitted KM curve (see math methods 5.6). Column sums give the predicted
 # mean census (inventory convention), i.e. Little's law:
 # L = mean_daily_intakes * restricted mean.
 #
