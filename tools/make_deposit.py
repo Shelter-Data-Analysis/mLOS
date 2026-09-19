@@ -678,8 +678,9 @@ def deck_readme(runs, rows, out):
         "there is nothing there. Read a deck as raw material for a briefing, "
         "never as the record. The record is the results deposit.",
         "",
-        "Every number on every slide was computed and written out by the "
-        "analysis. The deck builder redoes none of the statistics.",
+        "The statistics on every slide were computed and written out by the "
+        "analysis. The deck builder does no new statistical analysis but may "
+        "do simple computations on statistical metrics for display purposes.",
         "",
         "## What is in it",
         "",
