@@ -19,12 +19,40 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-**No number changed**: the deck builder moved, and the guides were read for
-internal consistency. Every deck now names the
+**No number changed**: every number in `results.json`, the CSVs and the
+workbook is the one the release before wrote. What moved is presentation: plot
+legends, the deck builder, and some wording in the workbook, the deck and the
+guides, which were read for internal consistency. Every deck now names the
 layout its slides sit on `mLOS layout`, so none is byte-identical to the one
 before, and a deck built with a template now carries that template's artwork on
 slides that carry figures, as many of them as the band the artwork leaves has
-room for. A deck built without one is unchanged.
+room for. A deck built without one carries no artwork, as before.
+
+- Every boxed legend on a plot is drawn on 85% opaque white, so a curve passing
+  behind one stays faintly visible, and the stratified remaining-LOS plots carry
+  their legend in the top left, where no curve runs. The plots are not
+  byte-identical to the release before; their companion CSVs are.
+- `bullets.size`, 14 to 28 points and 18 by default, sets the size of a slide's
+  bullets and of the standing lines around them. Pagination and the template
+  fit are measured at the size set, where they were measured at 18 points
+  whatever the setting. At the default the deck is unchanged.
+- The counted-against-fitted sentence on the workload slides has to reach a gap
+  worth 1% of the whole sample's counted animal-days (`DRIFT_FLOOR`), so it no
+  longer goes to a small level whose two figures are both noisy. It states the
+  gap against the level's steady state and names no cause, since a change in how
+  fast stays end opens the same gap as a change in intakes. The slide's speaker
+  note and the presentation guide say so.
+- A header's wrap is judged against the cell's insets alone, so a column held
+  at its maximum width is not charged a second header line it never takes. A
+  footnote sits directly under its table, and a slide that only just missed a
+  template's band can take its artwork.
+- The metrics slide names its outcome codes in the second table's title, in the
+  words the figure legends use, and a table title's box grows to fit a title
+  wider than its table.
+- The educational overview cites its paper and software as DOI links. "Current"
+  is dropped where a steady-state population was meant, in speaker notes, the
+  user guide, the math methods and comments, and the animal-days lead says
+  "shelter residents".
 
 - `tools/histlos_by_period.R` computes HistLOS by period for teaching, outside
   the run, and a variant outline's `@extra HistLOS` sets it beside ExitLOS on
@@ -168,13 +196,31 @@ output moved.
   where they said the Orange County data. The presentation guide keeps
   the reserve section apart from the robustness check it holds, and no longer
   narrates the slides it replaced.
-- Code comments cite the math methods sections that hold what they cite, and
-  the gap-scan notes, the presentation guide and the code say unified where a
-  whole-sample statistic was called pooled; the crude Weibull is called crude
-  in the workbook note and the user guide. The presentation guide states no
-  slide widths, which the deck measures, and the README, the guide and the
-  package docstring say the deck builder does simple arithmetic on the
-  analysis's numbers, not none.
+- The presentation guide, the README and the package docstring say the deck
+  builder does simple computations on the analysis's numbers, not none. The
+  presentation guide and the user guide say unified and crude where a
+  whole-sample statistic or the crude fit was called pooled, and the
+  presentation guide states no slide widths, which the deck measures.
+
+Code, read for comment drift, dead code and duplication. No number moved; the
+two changes to text a reader sees are named below.
+
+- Comments cite the math methods sections that hold what they cite, and none
+  narrates an earlier design.
+- Unused code is gone: `requires_care_days`, the `event` argument of
+  `.make_surv_obj`, `_method_colors` (`_series_colors(palette, 2)` does its work
+  and differs only for a palette of one color), the `OUTCOME_UNITS` list (each
+  `OUTCOME_TEMPLATES` entry carries its own unit), and the package docstring's
+  module inventory.
+- Repeated code is shared: `.period_length_days` and `.per_day` in
+  `mlos_data.R`, `.cox_tests_table` for the four global Cox tests, and
+  `plotted_gaps` for the gaps a drawn curve crosses.
+- The crude Weibull is called crude where it was called unified or pooled: its
+  local names in `mlos_cox.R` and the note under it on the Weibull_Regression
+  sheet. The deck's gap notes say "the unified data" where they said "the pooled
+  data".
+- The animal-days speaker note no longer quotes a figure that holds for one
+  dataset.
 
 ---
 
