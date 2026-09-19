@@ -44,8 +44,7 @@ room for. A deck built without one carries no artwork, as before.
   note and the presentation guide say so.
 - A header's wrap is judged against the cell's insets alone, so a column held
   at its maximum width is not charged a second header line it never takes. A
-  footnote sits directly under its table, and a slide that only just missed a
-  template's band can take its artwork.
+  footnote sits directly under its table.
 - The metrics slide names its outcome codes in the second table's title, in the
   words the figure legends use, and a table title's box grows to fit a title
   wider than its table.
