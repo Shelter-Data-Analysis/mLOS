@@ -39,13 +39,13 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260918_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260918_003. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
 # 1. Introduction and Scope
 
-This document is the authoritative reference for all mathematical and statistical processing performed by mLOS (`mlos_setup.R`, `mlos_data.R`, `mlos_km.R`, `mlos_cox.R`, `mlos_aj.R`, `mlos_excel_export.R`, with shared helpers in `mlos_common.R`, orchestrated by `mlos_run_complete.R`). It states the conventions, estimators, and derived metrics precisely enough that results can be interpreted and reproduced without reading the code.
+This document is the authoritative reference for all mathematical and statistical processing performed by mLOS (`mlos_setup.R`, `mlos_data.R`, `mlos_km.R`, `mlos_cox.R`, `mlos_aj.R`, `mlos_results.R`, `mlos_excel_export.R`, `mlos_render.R`, with shared helpers in `mlos_common.R`, orchestrated by `mlos_run_complete.R`). It states the conventions, estimators, and derived metrics precisely enough that results can be interpreted and reproduced without reading the code.
 
 mLOS takes shelter intake/outcome records that distinguish three types of outcome (community live, other live, and non-live). The records may also carry two categorical covariates, intake type and a flexibly defined animal group. Those two, together with the analysis periods of §2.4, are the three axes the analysis partitions on: time period, intake type, and animal group. The analysis produces:
 
@@ -78,7 +78,7 @@ Each CSV row describes one shelter stay (each intake is a separate record, even 
   - **L** — community live outcome (return-to-owner, adoption)
   - **T** — other live outcome (transfer, foster, return-to-field)
   - **N** — non-live outcome (euthanasia, died in care, lost in care)
-- optional `intake_type` and `animal_group` (categorical covariates) and `animal_id` (used only for clustered standard errors in the Cox model, never to link successive stays of the same animal analytically). When the `animal_id` column is absent, or blank on some rows, ids are auto-generated at data-reading time, one per stay record, so each stay carries an id. A generated id treats each stay as a distinct animal.
+- optional `intake_type` and `animal_group` (categorical covariates) and `animal_id` (used for clustered standard errors in the Cox model and for the duplicate-stay and overlapping-stay checks of §2.3, never to link successive stays of the same animal analytically). When the `animal_id` column is absent, or blank on some rows, ids are auto-generated at data-reading time, one per stay record, so each stay carries an id. A generated id treats each stay as a distinct animal.
 
 `animal_group` may alternatively be **synthesized** (`animal_group_columns`): the listed CSV columns are concatenated in order with `_` as separator (e.g., gender `F` + size `LARGE` → `F_LARGE`), replacing any existing `animal_group` column.
 

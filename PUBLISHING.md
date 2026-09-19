@@ -466,7 +466,7 @@ and the guides say to compare them. `pooled`, `unified` and `crude` are settled
 
 ## The citable identifiers
 
-All twenty-one exist, and all twenty-one were checked against Zenodo rather
+All twenty-two exist, and all twenty-two were checked against Zenodo rather
 than copied from a page. Rows 4 to 6 are ShelterDataPrep's own release DOIs. They
 are that repository's to maintain and nothing here depends on them, but a data
 availability statement is written once from one list, and sending its author

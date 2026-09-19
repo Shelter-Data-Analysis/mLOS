@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260918_002. Read it in any markdown reader,
+presentation guide, version 20260918_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -1573,7 +1573,7 @@ single panel shows. The section puts one outcome in front of the audience at a
 time, on purpose, and a reader stepping through those panels cannot see that
 one level consistently sits at the same end. Either clause can appear
 without the other. On **OC1** the
-animal groups extremes split across LRG, XL, TOY, PUPPY, and
+animal group extremes split across LRG, XL, TOY, PUPPY, and
 `_UNKNOWN_`, while on **OC2** the fastest clause fires alone.
 
 **The test for it is the strict one**: every outcome must have a *sole* holder
@@ -1813,7 +1813,7 @@ build one.*
 
 Files that exist today: `names.py`, `bundle.py`, `regression.py`, `blocks.py`,
 `figures.py`, `workbook.py`, `settings.py`, `output.py`, `render_pptx.py`,
-`deck.py`, `variant.py`.
+`deck.py`, `variant.py`, `extras.py`, `recommend.py`, `salience.py`.
 
 ### Reading the bundle
 
@@ -2311,13 +2311,14 @@ entry.
 
 ### Everything a build writes
 
-One call to `deck.build` writes four things into `reports/`, from one bundle
+One call to `deck.build` writes five things into `reports/`, from one bundle
 and one set of blocks, so they cannot come from different runs.
 
 | File | What | Overwritten? |
 |---|---|---|
 | `mlos_deck.pptx` | the deck | archived first |
 | `mlos_deck_tables.xlsx` | every table the build made | archived first |
+| `mlos_deck_slides.json` | what the deck holds, slide by slide | archived first |
 | `mlos_deck_figures/*.png` | every figure this package drew | yes |
 | `mlos_deck_figures/manifest.json` | what those PNGs are | yes |
 

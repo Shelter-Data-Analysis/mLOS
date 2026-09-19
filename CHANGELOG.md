@@ -136,6 +136,17 @@ output moved.
   export, and `presentation_guide.md` carried no copyright line. Both fixed.
 - The presentation guide put six levels across the two stratifying fields. OC2
   has nine and OC1 ten.
+- The presentation guide said a build writes four things where the section
+  above it says five, and its file list left out three modules the guide
+  describes. The table now carries the slide list.
+- Math methods 2.1 and the user guide's limitations said `animal_id` serves
+  only for clustering, against the duplicate-stay and overlapping-stay checks
+  that also read it.
+- The user guide gave 254 days for the large dogs' resident 90th percentile
+  under a 200-day tail on OC1 and OC2. It is 254 on OC1 and about 250 on OC2.
+- `PUBLISHING.md` counted twenty-one identifiers above a table of twenty-two.
+  The README's package list lacked `digest`, and math methods 1 lacked the
+  results and render scripts.
 
 ---
 
