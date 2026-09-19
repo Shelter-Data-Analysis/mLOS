@@ -28,16 +28,16 @@ before, and a deck built with a template now carries that template's artwork on
 slides that carry figures, as many of them as the band the artwork leaves has
 room for. A deck built without one carries no artwork, as before.
 
-- Every boxed legend on a plot is drawn on 85% opaque white, so a curve passing
-  behind one stays faintly visible, and the stratified remaining-LOS plots carry
+- Every boxed legend on a plot is drawn on a translucent white, so a curve
+  passing behind one stays faintly visible, and the stratified remaining-LOS plots carry
   their legend in the top left, where no curve runs. The plots are not
   byte-identical to the release before; their companion CSVs are.
-- `bullets.size`, 14 to 28 points and 18 by default, sets the size of a slide's
-  bullets and of the standing lines around them. Pagination and the template
-  fit are measured at the size set, where they were measured at 18 points
-  whatever the setting. At the default the deck is unchanged.
+- `bullets.size` sets the size of a slide's bullets and of the standing lines
+  around them. Pagination and the template fit are measured at the size set,
+  where they were measured at the default size whatever the setting. At the
+  default the deck is unchanged.
 - The counted-against-fitted sentence on the workload slides has to reach a gap
-  worth 1% of the whole sample's counted animal-days (`DRIFT_FLOOR`), so it no
+  worth a set share of the whole sample's counted animal-days (`DRIFT_FLOOR`), so it no
   longer goes to a small level whose two figures are both noisy. It states the
   gap against the level's steady state and names no cause, since a change in how
   fast stays end opens the same gap as a change in intakes. The slide's speaker
