@@ -157,6 +157,11 @@ output moved.
 - The fixture READMEs and the tests README say unified, marginal and crude
   where a whole-sample statistic was called pooled, and no longer claim to
   hold the first fixture of a kind.
+- The user guide said the workbook always has a Cox sheet, which is dropped when
+  no predictor qualifies, and quoted a label for the capped fraction that no
+  output carries. The measured cost of the `predictor` rename is restated as
+  approximate. The presentation guide names `aj_teaser_stratifier` as the
+  function it is.
 - The runbook's release commands use `X.Y.Z`, and its sweep table marks the two
   rows a DOI had made stale.
 - The README, `CONTRIBUTING.md` and the presentation guide name OC1 and OC2

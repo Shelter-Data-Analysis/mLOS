@@ -429,7 +429,7 @@ real change has already forced.
 
 | Candidate | Why it is deferred |
 |---|---|
-| `predictor` to `factor` | The paper uses `factor` and reads better for it. Measured cost: 94 bare `predictor` in the guides and 152 in code. The hyphenated `per-predictor` cannot move alone, since sentences like "the per-predictor Cox regression, which gives the other predictors' combinations their own baselines" stop parsing when only half of them changes. Needs its own pass, with the bare word swept in the same commit. |
+| `predictor` to `factor` | The paper uses `factor` and reads better for it. Measured cost: about 100 bare `predictor` in the guides and about 150 in code. The hyphenated `per-predictor` cannot move alone, since sentences like "the per-predictor Cox regression, which gives the other predictors' combinations their own baselines" stop parsing when only half of them changes. Needs its own pass, with the bare word swept in the same commit. |
 | `stratifier` beside `factor` | The paper reserves `stratifier` for an axis actually being stratified on, and uses `factor` for a categorical predictor in a regression. The guides use `stratifier` for both. Most doc uses are already about real stratification, so this is a read-and-judge pass rather than a sweep. |
 | "survival" | Every section that uses it stops to say it means "still in care". The honest replacement is "in-care probability", but `survival` is the R package, the `Surv` object and the field's own word, so the apology may be cheaper than the divergence. |
 

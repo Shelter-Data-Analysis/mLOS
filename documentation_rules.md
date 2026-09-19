@@ -128,7 +128,7 @@ count, which is what a stay's length would be if it ended today.
 
 **`predictor` is the regression term.** The paper draft uses `factor` for the
 same three axes, which is equally correct and reads better in prose aimed at
-practitioners. The documents keep `predictor`, because 152 code sites and every
+practitioners. The documents keep `predictor`, because about 150 code sites and every
 `per-predictor` heading use it, and switching would pull about 110 prose sites
 with it. If it is ever switched, switch the bare word in the same pass or the
 sentences stop making sense.

@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260918_004. Read it in any markdown reader,
+presentation guide, version 20260918_005. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -766,8 +766,8 @@ The closing section de-dupes findings. If no AJ figures are emitted, the
 section degrades to a single stacked slide carrying just the table, in the
 same spirit as an LOS slide with its figures switched off.
 
-`aj_coverage: TEASER` carries one stratified slide, chosen by
-`aj_teaser_stratifier`. **Fewest levels wins**, since its figures are easier
+`aj_coverage: TEASER` carries one stratified slide, whose stratifier the
+function `aj_teaser_stratifier` picks. **Fewest levels wins**, since its figures are easier
 to read. A stratifier the run drew no AJ figures for is not a candidate; a
 stratifier with salience set to `NEVER` is not either. Ties go to the bundle's
 stratifier order. `FULL` carries every stratifier's slide instead.

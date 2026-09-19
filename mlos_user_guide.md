@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260918_003. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260918_004. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -464,8 +464,9 @@ The JSON also carries an `outputs` manifest: one entry per plot and companion CS
 
 #### The Excel workbook
 
-Many (but not all) statistical results and descriptive statistics are exported to a consolidated Excel workbook (`analysis_results.xlsx`). Four sheets are always present: `General` (the workbook's first sheet, a cover sheet), `Data_Preparation` (the screening ledger described above), `Cox_Regression`, and `By_All` (the whole-dataset version of the stratum-sheet layout: a single unified column carrying the full unified analysis, counts, KM, census aggregates, outcome mix, incidence, and AJ, so it lines up row-for-row with the stratified sheets). Further sheets are conditional:
+Many (but not all) statistical results and descriptive statistics are exported to a consolidated Excel workbook (`analysis_results.xlsx`). `General` (the workbook's first sheet, a cover sheet), `Data_Preparation` (the screening ledger described above), and `By_All` (the whole-dataset version of the stratum-sheet layout: a single unified column carrying the full unified analysis, counts, KM, census aggregates, outcome mix, incidence, and AJ, so it lines up row-for-row with the stratified sheets) are always present. Further sheets are conditional:
 
+- A `Cox_Regression` sheet when at least one predictor qualifies: two or more periods, or an intake type or animal group with two or more levels. Without one there is nothing to regress on and the sheet is dropped.
 - A `By_Period` sheet when two or more periods are defined. Period is treated as a stratifier like any other, so a single-period run has nothing to compare and the sheet is omitted. `By_All` carries the same numbers in that case, and the period's dates and duration are on the `General` worksheet.
 - `By_Intake_Type` and/or `By_Animal_Group` sheets when the respective column is present with two or more levels.
 - When `parametric_regression: WEIBULL` is set, a `Weibull_Regression` sheet as well as separate `Weibull_By_Period` / `Weibull_By_Intake_Type` / `Weibull_By_Animal_Group` sheets for qualifying predictors (see Per-predictor Weibull regressions, below).
@@ -616,6 +617,8 @@ Unlike everything else on the sheet, these two blocks do not sit on the same wor
 See the per-predictor Weibull sheets below for the fuller report that lives on its own worksheet: every level's p-value, and the shape-ratio table for the other predictors. The per-predictor Cox regression has no worksheet of its own; its hazard ratio here is all of it the workbook shows, and the rest of that fit is in `results.json`.
 
 #### The Cox_Regression sheet
+
+*Written only when at least one predictor qualifies.*
 
 The Cox regression tests whether LOS distributions differ significantly across periods, intake types, and animal groups when these stratifiers act simultaneously. It quantifies the differences as hazard ratios.
 
@@ -823,7 +826,7 @@ Each period is **left-closed, right-open**: the first date of a period is includ
 restricted_stay_cap: 365
 ```
 
-Positive integer. Stays exceeding this number of days are capped: their time in the analysis ends at the cap and they are treated as right-censored there. The cap is the analysis horizon for **every** method, not just the restricted mean: the KM curve ends at the cap (so the median or 90th percentile is reported as "not reached" if it would fall beyond it), outcomes occurring past the cap are censored in the Cox regression. The AJ analysis uses no information beyond the cap. Below the cap, the curves are unaffected. The fraction of stays capped is reported as "Fraction capped at limit". To shorten the plots without shortening the analysis, set [`plot_stay_cap`](#plot_stay_cap) instead; it truncates the x-axis and changes no computed value.
+Positive integer. Stays exceeding this number of days are capped: their time in the analysis ends at the cap and they are treated as right-censored there. The cap is the analysis horizon for **every** method, not just the restricted mean: the KM curve ends at the cap (so the median or 90th percentile is reported as "not reached" if it would fall beyond it), outcomes occurring past the cap are censored in the Cox regression. The AJ analysis uses no information beyond the cap. Below the cap, the curves are unaffected. The fraction of stays capped is reported as `fraction_capped`. To shorten the plots without shortening the analysis, set [`plot_stay_cap`](#plot_stay_cap) instead; it truncates the x-axis and changes no computed value.
 
 **This is one of the most consequential settings in the tool, not just a technical default.** It effectively defines (crucially, for the KM restricted mean) the boundary between a "long but real" stay and one that should be treated as an outlier or a potential data discrepancy. Choose it deliberately by inspecting your actual stay-length distribution rather than reusing a default from another dataset. Be more conservative the sparser your data: with few observations, a single implausible or erroneous stay recorded near or beyond the cap can dominate the restricted mean.
 
