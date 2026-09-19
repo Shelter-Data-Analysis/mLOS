@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260918_005. Read it in any markdown reader,
+presentation guide, version 20260918_006. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -2124,8 +2124,8 @@ matter" is a statistic, not a flag. A configuration language would also make it
 impossible to run every rule against every fixture in a loop, which is how this
 is tested.
 
-The rules that carry figures share a fallback discipline: the figures are
-optional, since output flags can switch them off. With one of two missing the
+The length-of-stay, resident-outlook, and competing-risk rules share a fallback
+discipline: their figures are optional, since output flags can switch them off. With one of two missing the
 survivor runs full width; with both missing the table still carries the slide.
 
 ### The deck plan
