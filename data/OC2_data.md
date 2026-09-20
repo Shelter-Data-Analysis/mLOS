@@ -127,9 +127,8 @@ means a `_shelter_raw` directory sitting beside the two repositories; adjust
 `source_dir` for your own machine. pandas reads `.csv.gz` directly, so nothing
 needs unpacking.
 
-The digest above is of the **uncompressed** contents, so it identifies the data
-rather than any particular archive of it: it is unchanged by compressing,
-recompressing, or moving the file. To check a copy:
+The digest above is of the **uncompressed** contents, so it identifies the data:
+it is unchanged by compressing, recompressing, or moving the file. To check a copy:
 
 ```bash
 gunzip -c OC_raw.csv.gz | shasum -a 256

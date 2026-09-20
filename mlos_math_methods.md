@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260919_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260919_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -248,13 +248,13 @@ The practical rule is that a cap chosen to exclude implausible records also sets
 
 ## 3.4 Invalid intervals
 
-The survival machinery requires $t_{\text{end}} > t_{\text{start}}$ strictly. The inclusive day-counting convention (§2.6) is what makes this strict inequality (rather than $\geq$) satisfiable by every genuine stay, because both the intake and outcome days count. A same-day intake and outcome yields $t_{\text{start}} = 0$ and $t_{\text{end}} = 1$, not a degenerate zero-length interval. If capping produces $t_{\text{start}} \geq t_{\text{end}}$ (e.g., an animal whose entire within-period exposure lies beyond the cap), the row is dropped from that period and the count is reported. Observed times are never altered to force validity.
+The survival machinery requires $t_{\text{end}} > t_{\text{start}}$ strictly. The inclusive day-counting convention (§2.6) is what makes this strict inequality (rather than $\geq$) satisfiable by every genuine stay, because both the intake and outcome days count. A same-day intake and outcome yields $t_{\text{start}} = 0$ and $t_{\text{end}} = 1$. If capping produces $t_{\text{start}} \geq t_{\text{end}}$ (e.g., an animal whose entire within-period exposure lies beyond the cap), the row is dropped from that period and the count is reported. Observed times are never altered to force validity.
 
 ## 3.5 Counting-process representation; multi-period animals
 
 Each row enters the analyses as a counting-process triple, `Surv(time_start, time_end, event, type = "counting")`. At any duration $t$, the **risk set** consists of the rows with $t_{\text{start}} < t \leq t_{\text{end}}$.
 
-An animal spanning $k$ periods contributes $k$ rows, contiguous on the days-since-intake scale. (Each period row’s censoring time equals the next row’s truncation time.) Pooled, these rows reconstruct exactly the risk-set contributions of the uncut stay. Rows are treated as separate at-risk intervals, not chained into per-animal trajectories. For KM and AJ the splitting is therefore fully neutral, for point estimates *and* confidence intervals alike, because the estimators and their variances depend on the data only through the aggregate event counts $d_{i}$ and risk-set sizes $n_{i}$, which the splitting leaves unchanged. What remains an assumption is independence across *distinct stays* (separate intakes, including successive stays of the same animal, §9). The Cox model corrects its standard errors for this via clustering (§6.3). If `animal_id` is provided, the correction applies across distinct stays. If it is not, one id is generated per stay, which still allows Cox to correct for the splitting of stays across periods.
+An animal spanning $k$ periods contributes $k$ rows, contiguous on the days-since-intake scale. (Each period row’s censoring time equals the next row’s truncation time.) Pooled, these rows reconstruct exactly the risk-set contributions of the uncut stay. Rows are treated as separate at-risk intervals. For KM and AJ the splitting is therefore fully neutral, for point estimates *and* confidence intervals alike, because the estimators and their variances depend on the data only through the aggregate event counts $d_{i}$ and risk-set sizes $n_{i}$, which the splitting leaves unchanged. What remains an assumption is independence across *distinct stays* (separate intakes, including successive stays of the same animal, §9). The Cox model corrects its standard errors for this via clustering (§6.3). If `animal_id` is provided, the correction applies across distinct stays. If it is not, one id is generated per stay, which still allows Cox to correct for the splitting of stays across periods.
 
 # 4. Occupancy and Flow Metrics (per period)
 

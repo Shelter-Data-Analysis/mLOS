@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260919_003. Read it in any markdown reader,
+presentation guide, version 20260919_004. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -400,8 +400,7 @@ worth](#what-a-deck-is-worth) says why. Four checks, in order:
 3. **Look for what is missing.** A deck is a selection, and a selection leaves
    no trace of what it dropped. `mlos_deck_tables.xlsx` holds the rows the
    slides had no room for, `analysis_results.xlsx` holds more than that, and
-   `results.json` holds everything. A finding's absence from a deck is not
-   evidence that it is absent from the data.
+   `results.json` holds everything.
 4. **Check the wording and the numbers**, with the two commands in the
    sections below.
 
@@ -1131,7 +1130,7 @@ Flags are inherited rather than recomputed, for the reason `flag_extremes`
 gives, and `LOS_SLIDE_MEASURES` and `OUTLOOK_SLIDE_MEASURES` name the two
 halves.
 
-Two columns are the fitted quantity rather than the observed tally beside it.
+Two columns are the fitted quantity.
 The at-cap column is `km_still_in_care_at_cap`, the fitted curve's terminal
 value, not `fraction_capped`; the census column is `expected_census`, the
 Little's-law figure the fitted curve implies, not `mean_census_inventory`.
@@ -1321,7 +1320,7 @@ Where that lands:
   and the two ends abstain independently.
 - **Numbers too small to state.** The committed-workload sentence abstains
   below what it can carry, since a fitted census of 0.4 animals owing 1.2 days
-  reads as nonsense rather than as a small number.
+  reads as nonsense.
 - **Recommendations.** Silent by default: one that fires on every deck stops
   being read. On the twenty-nine test fixtures, ten produce none at all.
 - **Shape.** One crossed Weibull variant silences the shape recommendation for
@@ -1413,7 +1412,7 @@ nineteenfold gap over hundreds of events each.
 **The committed-workload sentence abstains below what it can state.** Both its
 numbers are fitted, so a small enough dataset produces a real census of 0.4
 animals owing 1.2 days, and rounded into a sentence that is a claim about a
-shelter, that reads as nonsense rather than as a small number. The
+shelter, that reads as nonsense. The
 animal-years clause goes the same way on its own account: it exists to make a
 large number graspable and is dropped rather than printing "some 0
 animal-years".
@@ -1639,7 +1638,7 @@ method-of-moments estimate of the between-level variance. That estimator is
 DerSimonian and Laird's, the standard way meta-analysis separates real
 heterogeneity between studies from the imprecision of each study.
 
-It is a size-aware effect estimate, not a test: no p-value and no
+It is a size-aware effect estimate: no p-value and no
 distributional claim. At sixteen thousand stays a test rejects everything, and
 the question a deck asks is whether levels differ enough to be worth a slide.
 

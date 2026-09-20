@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260919_003. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260919_004. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -1058,7 +1058,7 @@ animal_group_reference: MED
 
 The value of `animal_group` used as the reference (baseline) level in Cox regression. Optional; defaults to the most frequent level if omitted. An `_UNKNOWN_` filled level counts like any other, because some datasets use blank to mean "normal". If the specified value is **not found in the data, the run stops with an error**: a misspelled reference would otherwise silently reparametrize the model around a different baseline. When `animal_group` is constructed via `animal_group_columns`, the reference must be a full composite value (e.g., `F_LARGE`, not `F`). Other groups are reported as hazard ratios relative to this reference. Does not affect KM curves or AJ analyses.
 
-**Choosing the reference is a reporting decision, not a modeling one.** It does not change the underlying model or its fit. The choice is purely a parametrization. Every hazard ratio in the output is a contrast against the reference, so a poor choice can make the whole table hard to read.
+**Choosing the reference is a reporting decision.** It does not change the underlying model or its fit. The choice is purely a parametrization. Every hazard ratio in the output is a contrast against the reference, so a poor choice can make the whole table hard to read.
 
 **Prefer a large group, with many outcomes, whose stays overlap well with the other groups.** Every reported hazard ratio and confidence interval inherits the precision of the reference. A small reference, or one whose animals are at risk over only a narrow stretch of the LOS range, widens the intervals of every row in the table, even for groups that are individually well estimated; a well-populated, well-overlapping reference confines any poor behavior to the problematic group's own row.
 

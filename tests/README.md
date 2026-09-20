@@ -78,8 +78,8 @@ python3 tests/run_review_tests.py --only care_days
 ```
 
 It reads the committed golden bundles rather than re-running R, so it needs
-`tests/golden/` to be populated (`Rscript tests/run_tests.R --update-golden`)
-but does not need R itself. It imports the deck builder, so it needs the same
+`tests/golden/` to be populated (`Rscript tests/run_tests.R --update-golden`).
+It imports the deck builder, so it needs the same
 packages `mlos_review` does, the ones `pyproject.toml` declares.
 
 Checks come in two kinds. Fixture checks assert invariants over every golden
