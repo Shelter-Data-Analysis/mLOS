@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260919_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260921_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -767,7 +767,7 @@ The conditional outcome mix is read at the same three tenures and truncated to t
 - the final AJ CIF for `Any` and each outcome type (the pointwise bounds of §7.3 evaluated at the horizon)
 - the AJ restricted mean days by state (§7.7)
 
-The AJ restricted means carry no interval: each is a ratio of correlated CIF estimates with no ready-made CI, and mLOS does not construct one by resampling (§6.6).
+The normalized AJ restricted means of §7.5 (mean days to outcome) carry no interval: each is a ratio of correlated CIF estimates with no ready-made CI, and mLOS does not construct one by resampling (§6.6).
 
 The KM and AJ intervals in this section carry no assumptions beyond those of the estimators themselves (§5, §7, and the independence conditions of §9). The count-based intervals do add distributional assumptions of their own, stated here because the survival machinery does not imply them. The mean daily intake and outcome rates and the incidence rates rely on exact Poisson (Garwood) intervals for the observed count over its exposure (calendar days of the window, or animal-days), which treat occurrences as independent events arriving at a constant rate within the window. Systematic structure inside the window, such as seasonality across a long window or same-day group arrivals (a litter surrendered together, a bulk transfer, a hoarding-case intake), makes the counts overdispersed relative to Poisson and these intervals too narrow.
 

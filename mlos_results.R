@@ -181,9 +181,9 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
   # fits; the count-based bounds are exact Poisson (rates) and exact binomial
   # (proportions) intervals; the expected-census bounds are an INDICATIVE
   # delta-method interval (see below). The added assumptions of all three are
-  # stated in math methods 8.4. The AJ restricted means carry no CI (a ratio of
-  # correlated CIF estimates with no ready-made interval), so they have no
-  # triplet here.
+  # stated in math methods 8.4. The normalized AJ restricted means (mean days to
+  # outcome, a ratio of correlated CIF estimates with no ready-made interval)
+  # have no triplet; the restricted mean days by state get theirs below.
   ci_rows <- list()
   add_ci_triplet <- function(name, est, bounds) {
     ci_rows[[name]] <<- est
