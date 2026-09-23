@@ -879,6 +879,10 @@ detect_optional_columns <- function(data, references) {
 }
 
 
+# Share of stays at or above which display_data_summary warns about
+# unclassified exits.
+UNCLASSIFIED_EXIT_WARN_FRACTION <- 0.005
+
 #' Display summary statistics of the data
 #'
 #' @param data Data frame from read_and_prepare_data
@@ -889,6 +893,23 @@ display_data_summary <- function(data) {
   cat("Animals still in care:", sum(data$in_care), "\n")
   cat("Animals censored (unclassified exit):", sum(data$censored_early), "\n")
   cat("Animals with outcomes:", sum(data$has_outcome), "\n\n")
+
+  # An unclassified exit (a departure date with no classified outcome type) is
+  # censored at its departure date, a deliberate convention that keeps KM and
+  # AJ on one event definition (math methods 3.2, source 4). It inflates LOS
+  # slightly, in proportion to the count, so a count this large is flagged as
+  # a data-quality matter to resolve upstream.
+  n_unclassified <- sum(data$censored_early)
+  if (n_unclassified > 0 &&
+      n_unclassified >= UNCLASSIFIED_EXIT_WARN_FRACTION * nrow(data)) {
+    cat("*** WARNING: ", n_unclassified, " unclassified ",
+        if (n_unclassified == 1) "exit" else "exits", " (",
+        sprintf("%.2f", 100 * n_unclassified / nrow(data)), "% of stays, at or above ",
+        sprintf("%.1f", 100 * UNCLASSIFIED_EXIT_WARN_FRACTION), "%): ",
+        "departures with no classified outcome type are censored at their ",
+        "departure dates, which inflates LOS estimates. Check for outcome types ",
+        "missing in the data ***\n\n", sep = "")
+  }
 
   cat("Date ranges:\n")
   cat("  Intake dates:  ", format(min(data$intake_date)), " to ",
