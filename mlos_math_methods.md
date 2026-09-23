@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260923_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260923_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -816,6 +816,21 @@ The full detail of §6.7 — each qualifying predictor's LOS ratio with a p-valu
 8.  **Gaps in the risk set.** If no animal is at risk over some range of durations, the curves are not identified past the gap. The tool warns when a gap occurs before $\tau$.
 9.  **Sample size.** Results become unstable below roughly 100 outcomes per KM or AJ stratum (level), resulting in wide confidence intervals and underpowered tests. Prefer longer periods and broader (potentially lumped) intake types and animal groups when in doubt.
 10. **Steady state (census by tenure only).** The predictions of §5.6 assume a stationary intake rate and a stationary LOS distribution over the fitted window. A period that inherits another regime's population violates this: its observed census reflects the transition, while the KM prediction gives the steady-state census the period is relaxing toward, so the two legitimately disagree (a diagnostic, not an error). Seasonal or trending intake makes $\bar{I}$ an average of unlike rates, blurring the same comparison. The cap does not break the comparison (both sides truncate at $\tau$, §5.6), but both sides then understate the true standing population by the animal-days beyond the cap.
+
+# 10. Validation Against Known Truth
+
+The test suite checks the estimators against exact hand-derived values on small fixtures, and against known truth on the simulation fixtures below. Each simulation fixture is a seeded sample from a fully specified model, in which left truncation and right censoring arise from the study window rather than being constructed. Its checks hold each estimate to about four standard errors of the generating value or, where whole-day counting shifts an estimator, of its discretized value. Counts are distinct stays, as in `unified_stay_counts` (§8.4).
+
+| Fixture | Stays | Left-truncated | Right-censored | Model, and what is recovered |
+| :--- | ---: | ---: | ---: | :--- |
+| `sim_weibull_truncation` | 1,180 | 68 | 94 | Weibull stays with shape 1.3 and scale 10 or 20 days by intake type: LOS ratio 2, hazard ratio 0.406, and the AJ outcome shares |
+| `sim_geometric_period_effect` | 1,475 | 73 | 23 | The within-day outcome rate doubles at a period boundary, for residents as well as new intakes: Cox period hazard ratio 2, per-period KM and AJ, and the steady-state census of §5.6 |
+| `sim_cause_rate_shift` | 2,052 | 157 | 85 | The all-cause rate doubles while the cause-specific rates change by factors of 3, 1/3, and 1: all-cause hazard ratio 2 and the shifted AJ shares |
+| `sim_intake_mix_shift` | 2,909 | 152 | 159 | Every dog leaves 50% faster while the SMALL/LARGE intake mix flips, a Simpson's paradox: adjusted Cox period hazard ratio 1.5 and size hazard ratio 0.238 |
+| `sim_size_mixture` | 2,007 | 142 | 156 | A static mixture of two constant-hazard sizes: a declining pooled hazard, an adjusted Weibull shape near 1 (§6.6), and a true-null period hazard ratio of 1 |
+| `sim_crossed_shape` | 2,429 | 237 | 266 | A Weibull shape set by the pairing of intake type and animal group: the crossed shape variant of §6.7, with two periods that do not differ |
+
+The README of each fixture in `tests/cases/` gives its model, the derivation of its truth, and what to look for in its output.
 
 # Appendix: Symbol Table
 

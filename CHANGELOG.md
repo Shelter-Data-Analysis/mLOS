@@ -28,6 +28,10 @@ before, and a deck built with a template now carries that template's artwork on
 slides that carry figures, as many of them as the band the artwork leaves has
 room for. A deck built without one carries no artwork, as before.
 
+- The math methods gain §10, a table of the simulation fixtures: stay
+  counts, left truncation and right censoring, and the known truth each
+  recovers. `check_fixture_inventory` holds the table to the fixtures and
+  their golden counts.
 - The console Data Summary warns when unclassified exits (a departure date
   with no classified outcome type) reach 0.5% of the stays in the study
   window. Console only; no output file changes.

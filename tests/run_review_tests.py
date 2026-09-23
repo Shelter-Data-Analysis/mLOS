@@ -4976,15 +4976,17 @@ def _spelled(word: str) -> int | None:
 SILENCE_CLAIM = re.compile(
     r"[Oo]n the (\S+) test fixtures, (\S+) produce none at all")
 SIM_CASE_BULLET = re.compile(r"^- \*\*`(sim_\w+)`\*\*", re.M)
+SIM_CASE_ROW = re.compile(r"^\| `(sim_\w+)` \| ([\d,]+) \| ([\d,]+) \| ([\d,]+) \|", re.M)
 
 
 def check_fixture_inventory() -> None:
     """What the documentation says the fixtures are, against the fixtures.
 
-    Three claims go stale the day a fixture is added, and nothing else here
+    Four claims go stale the day a fixture is added, and nothing else here
     reaches any of them: that the golden bundles this suite runs are the cases
-    the R suite defines, tests/README.md's list of the simulation cases, and
-    the presentation guide's count of how many fixtures the recommendation
+    the R suite defines, tests/README.md's list of the simulation cases, the
+    math methods' table of the simulation cases with their stay counts (§10),
+    and the presentation guide's count of how many fixtures the recommendation
     rules stay silent on. The last is a measurement rather than a label, so it
     also moves when a threshold is tuned and no fixture is added at all.
 
@@ -5010,6 +5012,24 @@ def check_fixture_inventory() -> None:
     expect_equal("tests/README.md lists every simulation case",
                  sorted(SIM_CASE_BULLET.findall(readme)),
                  [case for case in cases if case.startswith("sim_")])
+
+    # The math methods table is the one a paper cites, and it states counts as
+    # well as names, so a regenerated sample moves it as surely as a new case.
+    methods = (REPO_ROOT / "mlos_math_methods.md").read_text()
+    table = re.search(r"^# 10\. .*?(?=^# )", methods, re.M | re.S)
+    rows = {name: [int(n.replace(",", "")) for n in counts]
+            for name, *counts in SIM_CASE_ROW.findall(table.group(0) if table else "")}
+    expect_equal("the math methods (§10) tabulate every simulation case",
+                 sorted(rows), [case for case in cases if case.startswith("sim_")])
+    for case, stated in sorted(rows.items()):
+        path = REPO_ROOT / "tests" / "golden" / case / "results.json"
+        if not path.is_file():
+            continue            # reported above as a case with no golden
+        columns = json.loads(path.read_text())["strata"]["all"][
+            "unified_stay_counts"]["columns"]
+        expect_equal(f"the math methods (§10) counts for {case}", stated,
+                     [columns[key][0] for key in
+                      ("total_stays", "left_truncated_stays", "right_censored_stays")])
 
     from mlos_review.deck import assemble
     from mlos_review.figures import FigureSet

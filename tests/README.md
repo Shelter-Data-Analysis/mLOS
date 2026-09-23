@@ -335,11 +335,12 @@ default. A case can widen this in its `expected.R`: a top-level
 `tolerance <- 0.05` sets the case-wide tolerance, and any individual field
 written as `c(value, tol)` overrides it for that field alone.
 
-A new case also moves three things the documentation states rather than
+A new case also moves four things the documentation states rather than
 derives: the golden bundles this repository ships, the list of simulation
-cases below, and the presentation guide's count of how many fixtures the
+cases below, the table of simulation cases and their stay counts in the math
+methods (§10), and the presentation guide's count of how many fixtures the
 recommendation rules stay silent on. `check_fixture_inventory` in
-`run_review_tests.py` measures all three against the cases themselves, so a
+`run_review_tests.py` measures all four against the cases themselves, so a
 fixture added without them fails the Python suite with the numbers to write.
 Regenerate the goldens first (`Rscript tests/run_tests.R --update-golden`): a
 case with no bundle is a fixture the Python suite never runs, which is the
@@ -377,6 +378,11 @@ lives in the case's `settings.yaml` comment block, like any other fixture.
 Run `--prefix sim` to execute just these cases, and
 `--generate-outputs` to render their full plot/CSV/Excel output under
 `tests/results/<name>/`.
+
+The math methods (§10) summarize these cases in a table, with the stay counts
+of each golden bundle. That table is what the paper cites, so adding,
+removing, or regenerating a `sim_*` case means updating it, and
+`check_fixture_inventory` fails until it matches.
 
 Current simulation cases:
 
