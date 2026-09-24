@@ -85,6 +85,7 @@ The workbook, the plots and the two documentation guides remain the complete rec
 | `CHANGELOG.md` | What changed between releases, and whether the change moves a number. |
 | `PUBLISHING.md` | The runbook for making a release and depositing what it produces. Maintainer-facing. |
 | `tools/histlos_by_period.R` | Computes HistLOS, the naive by-period LOS that mLOS replaces, for teaching slides. Not part of a run. |
+| `tools/cox_zph.R` | Tests the proportional-hazards assumption of the pooled Cox model (`survival::cox.zph`). Not part of a run. |
 | `tools/make_deposit.py` | Stages a results or deck deposit, and refuses one whose files do not match the run behind them. Maintainer-facing. |
 | `make_docx.sh` | Rebuilds the Word version of each guide, if its version stamp is behind. |
 

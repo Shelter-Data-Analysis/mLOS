@@ -28,6 +28,9 @@ before, and a deck built with a template now carries that template's artwork on
 slides that carry figures, as many of them as the band the artwork leaves has
 room for. A deck built without one carries no artwork, as before.
 
+- `tools/cox_zph.R` runs the proportional-hazards test of `survival::cox.zph`
+  on the pooled Cox model, outside the run, and records the mLOS version and
+  input hashes beside its table.
 - The math methods gain §10, a table of the simulation fixtures: stay
   counts, left truncation and right censoring, and the known truth each
   recovers. `check_fixture_inventory` holds the table to the fixtures and
