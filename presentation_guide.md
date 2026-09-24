@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260923_001. Read it in any markdown reader,
+presentation guide, version 20260924_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -619,11 +619,11 @@ uneven: the two censuses agree within 4%, the tenures part by 14% on Early-C,
 and the animal-days by 13% on Late-C.
 
 **Two exact identities carry a bullet each.** On the second slide's last two
-columns: what a resident still has to come is what it has already served plus
-exactly one day, on every level, always. In a population at steady state, time
-served and time still to come have the same distribution, and the extra day is
-the day the animal is having. On the third slide, days owed minus animal-days
-elapsed is the census, which is the same fact multiplied out.
+columns: on average, what a resident still has to come is what it has already
+served plus exactly one day, on every level, always. In a population at steady
+state, time served and time still to come have the same distribution, and the
+extra day is the day the animal is having. On the third slide, days owed minus
+animal-days elapsed is the census, which is the same fact multiplied out.
 
 **The first slide's own reading is between the levels**, not between the
 columns. A level's share of the residents over its share of the arrivals is

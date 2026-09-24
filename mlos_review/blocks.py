@@ -1000,7 +1000,7 @@ def _care_days_owed(bundle: Bundle, stratifier: str) -> pd.Series | None:
     """Days of care each level's residents are still committed to.
 
     Read from the bundle rather than formed here. It is the census times what
-    each resident still owes, and R publishes exactly that product as
+    a resident still owes on average, and R publishes exactly that product as
     `expected_future_animal_days`; multiplying the two columns back together on
     this side would be a second route to a number the file already holds, which
     is the one thing the blocks are not for.

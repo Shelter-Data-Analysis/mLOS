@@ -873,9 +873,9 @@ def workload_slide(bundle: Bundle, vocab: Vocabulary, section: str,
             "animals as the slide before, counted by their time served rather "
             "than by their number.",
             "Read the last column against the one before it, and the whole "
-            "arithmetic of this slide is on the page: what an average day's "
-            "residents still have to come is what they have already served "
-            "plus exactly one day, on every level, always. It is not an "
+            "arithmetic of this slide is on the page: per resident, what an "
+            "average day's residents still have to come is what they have "
+            "already served plus exactly one day, on every level, always. It is not an "
             "approximation and not a coincidence. In a population at steady "
             "state, time already served and time still to come have the same "
             "distribution, and the extra day is the day the animal is having. "

@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260924_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260924_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -334,11 +334,15 @@ $$p(d)\mspace{6mu} = \mspace{6mu}\frac{\widehat{S}(d)}{\widetilde{\text{RMST}}},
 
 This distribution is length-biased. Because a long stay is present on more days than a short one, the animals seen in care on any given day overrepresent long stays relative to the intake cohort the KM curve models.
 
-**The workload the census carries.** The same profile carries two animal-day totals, both summed over the daily grid. The **elapsed** workload $\bar{I}\sum_{d}d\,\widehat{S}(d)$ is the care the standing population has already received, and it predicts the **daily mean of total in-care days** of §4: a stay of length $T$ is held on $T - 1$ nights, carrying tenures $1$ through $T - 1$, which sum to $T(T - 1)/2$. The **future** workload $\bar{I}\sum_{t}(t + 1)\,\widehat{S}(t)$ is the care it is still owed within the cap. The two differ by exactly the census:
+**The workload the census carries.** The same profile carries two animal-day totals, both summed over the daily grid. The **elapsed** workload $\bar{I}\sum_{d}d\,\widehat{S}(d)$ is the care the standing population has already received, and it predicts the **daily mean of total in-care days** of §4: a stay of length $T$ is held on $T - 1$ nights, carrying tenures $1$ through $T - 1$, which sum to $T(T - 1)/2$. The **future** workload is the care it is still owed within the cap: the number in care at each tenure times the days each can expect to remain, the Remaining LOS of §5.8. Substituting $N(d)$ and the expression of §5.8, the factor $\widehat{S}(d)$ cancels, $N(d)\,\text{Remaining LOS}(d) = \bar{I}\sum_{t = d}^{\tau - 1}\widehat{S}(t)$, and interchanging the order of summation counts each $\widehat{S}(t)$ once for every $d \leq t$:
+
+$$\sum_{d = 0}^{\tau - 1}N(d)\,\text{Remaining LOS}(d)\; = \;\bar{I}\sum_{d = 0}^{\tau - 1}\sum_{t = d}^{\tau - 1}\widehat{S}(t)\; = \;\bar{I}\sum_{t = 0}^{\tau - 1}(t + 1)\,\widehat{S}(t),$$
+
+with terms where $N(d) = 0$ read as $0$ (Remaining LOS is undefined there, but no animals are at stake). The two workloads differ by exactly the census:
 
 $$\bar{I}\sum_{t = 0}^{\tau - 1}(t + 1)\,\widehat{S}(t)\; - \;\bar{I}\sum_{d = 0}^{\tau - 1}d\,\widehat{S}(d)\; = \;\bar{I}\sum_{t = 0}^{\tau - 1}\widehat{S}(t)\; = \;L,$$
 
-Each resident contributes one day to the gap, so the two per-resident readings (dividing each workload by $L$) differ by exactly one day. §5.8 shows that the future workload is also the census profile multiplied by the remaining days each of its animals expects.
+The gap is one day per resident on average, not one day for each resident. A stay of length $T$ is in care at tenures $0$ through $T - 1$, and at tenure $d$ it has $d$ days behind it and $T - d$ ahead (Remaining LOS is the expectation of $T - d$), so over the whole stay the two differ by $\sum_{d = 0}^{T - 1}(T - 2d) = T$: one day for each day in care. A single resident's past and future can differ by any amount. Dividing each workload by $L$ gives two per-resident readings that differ by exactly one day.
 
 mLOS plots $N(d)$ for the unified fit and once per stratifier, a curve per stratum (“Expected Number in Care” against “Days Already in Care”), each plot with a companion CSV (§8.2), and gathers these aggregates in a **census aggregates** block on the aligned workbook sheets (§8.4): $L$ as `expected_census` beside the observed `mean_census_inventory`, the elapsed and future workloads as `expected_past_animal_days` and `expected_future_animal_days` beside the observed `daily_mean_total_in_care_days`, and the three per-resident readings. The same block, row-for-row identical, appears for the whole unstratified sample on the By_All sheet (§8.3). Agreement is consistent with a population near steady state. A gap flags a population still in transition (§9, item 10).
 
@@ -384,15 +388,7 @@ $$\text{Remaining LOS}(0) = \sum_{t = 0}^{\tau - 1}\widehat{S}(t),$$
 
 which is the daily step-sum restricted mean of §5.3. These curves are plotted for the unified fit and once per stratifier (“Expected Remaining Days in Care” against “Days Already in Care”), each plot with a companion CSV.
 
-**Complementarity with §5.6.** The census profile $N(d)$ of §5.6 says how many animals sit at each tenure. Remaining LOS says how many more days an animal at that tenure expects. Their product, summed over the grid, is the future workload of §5.6, the animal-days the steady-state census is still owed within the cap:
-
-$$\sum_{d = 0}^{\tau - 1}N(d)\,\text{Remaining LOS}(d)\mspace{6mu} = \mspace{6mu}\bar{I}\sum_{t = 0}^{\tau - 1}(t + 1)\,\widehat{S}(t),$$
-
-where terms with $N(d) = 0$ are read as $0$ (Remaining LOS is undefined there, but no animals are at stake). The closed form follows from
-
-$$N(d)\,\text{Remaining LOS}(d) = \bar{I}\,\left( \widehat{S}(d) + \sum_{t > d}\widehat{S}(t) \right)$$
-
-and reordering the double sum. The two analyses are two readings of the same partial sums of $\widehat{S}$, tied together by the identity $\text{Remaining LOS}(0) = \widetilde{\text{RMST}}$ above.
+**Complementarity with §5.6.** The census profile $N(d)$ of §5.6 says how many animals sit at each tenure. Remaining LOS says how many more days an animal at that tenure expects. Their product, summed over the grid, is the future workload of §5.6, the animal-days the steady-state census is still owed within the cap, and §5.6 derives its closed form $\bar{I}\sum_{t}(t + 1)\,\widehat{S}(t)$. The two analyses are two readings of the same partial sums of $\widehat{S}$, tied together by the identity $\text{Remaining LOS}(0) = \widetilde{\text{RMST}}$ above.
 
 **Where the unified curve is marked, and why not at its own quantiles.** Remaining LOS is a function of tenure, not a distribution over animals. Its column holds one value per day of the grid, so a median of those values would be a median over days, weighting the single day at tenure 200 exactly as it weights the single day at tenure 3. This would not say anything interesting about the shelter. What is meaningful is the value the curve takes **at** a tenure that is itself a statistic of the standing population. The unified plot is therefore marked at the median, the 90th percentile and the mean of the in-care tenure distribution $p$ of §§5.6 and 5.7, and its legend reports the Remaining LOS the curve takes at each: the animal in the middle of the standing population has been in care so long, and expects this many days more.
 
