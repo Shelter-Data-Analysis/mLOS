@@ -28,6 +28,12 @@ before, and a deck built with a template now carries that template's artwork on
 slides that carry figures, as many of them as the band the artwork leaves has
 room for. A deck built without one carries no artwork, as before.
 
+- Math methods §5.6 defines the future workload as the census at each tenure
+  times the Remaining LOS of §5.8 and derives its closed form; the elapsed and
+  future workloads are named W_past and W_future and listed in the Appendix
+  symbol table with their measure names. The one-day gap between them is
+  stated as an average per resident, not a property of each resident, in the
+  math methods, user guide, presentation guide and one deck speaker note.
 - `tools/cox_zph.R` runs the proportional-hazards test of `survival::cox.zph`
   on the pooled Cox model, outside the run, and records the mLOS version and
   input hashes beside its table.
