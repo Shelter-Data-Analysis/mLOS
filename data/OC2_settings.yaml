@@ -150,7 +150,7 @@ plot_stay_cap: 58
 probability_mass_width: 5
 
 # Scale font sizes in PNG plots (1.0 = default; increase for presentations or high-DPI screens).
-png_pointsize_factor: 1.5
+png_pointsize_factor: 2
 
 # Scale line widths in PNG plots (1.0 = default).
 png_line_width_factor: 2
