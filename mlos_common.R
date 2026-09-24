@@ -358,6 +358,15 @@ stratifiers <- list(
 .PLOT_MGP <- c(1.6, 0.25, 0)
 .PLOT_TCL <- 0.35
 
+# Plain title, same size as the axis labels, replacing R's stock bold 1.2x.
+# png_pointsize_factor scales the device's whole font size, so a title that
+# is already both bigger and bold outgrows the canvas before the axis labels
+# a reader raises the factor to see. Set here rather than per-plot for the
+# same reason as the margins above: one place, no site left free to drift
+# back to the stock look.
+.PLOT_CEX_MAIN <- 1
+.PLOT_FONT_MAIN <- 1
+
 # Run plotting code in PNG device when filename is provided.
 #
 # 3:2 rather than 4:3. A figure is judged by
@@ -391,7 +400,8 @@ stratifiers <- list(
     on.exit(dev.off(), add = TRUE)
     # Set AFTER the device opens, since par is per device. Nothing is set when
     # no file was asked for, so an interactive session keeps its own settings.
-    par(mar = .PLOT_MAR, mgp = .PLOT_MGP, tcl = .PLOT_TCL)
+    par(mar = .PLOT_MAR, mgp = .PLOT_MGP, tcl = .PLOT_TCL,
+        cex.main = .PLOT_CEX_MAIN, font.main = .PLOT_FONT_MAIN)
   }
   force(code)
 }

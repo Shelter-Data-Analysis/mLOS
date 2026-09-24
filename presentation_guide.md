@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260919_004. Read it in any markdown reader,
+presentation guide, version 20260923_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -2155,8 +2155,9 @@ three-estimate dots of the hazard-ratio and LOS ratio slides (`hazard_ratios`,
 `los_ratios`), which put estimates from different models on one axis.
 
 Both copy R's base-graphics look rather than matplotlib's, since they land on
-the same slides as R's own: bold title inside the figure, large type, dashed
-light-gray gridlines, boxed legend, and the same 3200 x 2133 pixels at 3:2.
+the same slides as R's own: plain title inside the figure at the axis-label
+size, dashed light-gray gridlines, boxed legend, and the same 3200 x 2133
+pixels at 3:2.
 Colors come from the run's `palette.stratum_colors`, with one caveat the legend
 has to carry: on these figures a color is a *model*, where on every KM and AJ
 figure a color is a stratum. They are written to the deck's own figures

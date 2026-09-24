@@ -61,7 +61,6 @@ FIGURE_DPI = 400
 # Type sizes chosen against the R output at this pixel size, not against
 # matplotlib's defaults, which are set for a 100-dpi screen figure and come out
 # unreadably small here.
-TITLE_SIZE = 16
 LABEL_SIZE = 15
 TICK_SIZE = 14
 LEGEND_SIZE = 14
@@ -293,7 +292,7 @@ def ratio_comparison(frame: pd.DataFrame, series, title: str, path: str | Path,
                 handletextpad=0.5,
                 loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=len(keys))
 
-    figure.suptitle(title, fontsize=TITLE_SIZE, fontweight="bold")
+    figure.suptitle(title, fontsize=LABEL_SIZE)
     figure.tight_layout(rect=(0, 0, 1, 1 - HEADER_BAND))
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -386,7 +385,7 @@ def hazard_ratio_comparison(frame: pd.DataFrame, title: str, path: str | Path,
                 fontsize=LEGEND_SIZE, frameon=True, edgecolor="#111111",
                 loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=len(series))
 
-    figure.suptitle(title, fontsize=TITLE_SIZE, fontweight="bold")
+    figure.suptitle(title, fontsize=LABEL_SIZE)
     figure.tight_layout(rect=(0, 0, 1, 1 - HEADER_BAND))
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

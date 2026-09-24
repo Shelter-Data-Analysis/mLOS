@@ -216,8 +216,7 @@ plot_km_curve <- function(km_results, references, title = "Kaplan-Meier Survival
          lwd = .png_lwd(3),
          mark.time = FALSE,                # No censoring marks
          xlim = c(0, x_limit),
-         ylim = c(0, 1),
-         cex.main = 1.2)
+         ylim = c(0, 1))
 
     # Add grid (behind the curve)
     .plot_grid()
