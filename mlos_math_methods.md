@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260924_004. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260925_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -223,7 +223,7 @@ An observation is censored ($\delta = 0$) when no classified outcome occurs with
 3.  **Capping** at the restricted stay cap (§3.3).
 4.  **Unclassified exit**: the animal left care on a recorded date but has no classified outcome, either because its raw code was recoded by `outcome_type_in_care` or because the CSV supplied a date with a blank type. Such a row is censored at its departure time $\min\left( (u - a) + 1,\mspace{6mu} e_{j} - a \right)$ and does not participate in periods after its departure.
 
-All four are treated as noninformative (independent) censoring. Sources 1 to 3 are administrative and satisfy this by construction: each follows from where the analysis places a boundary (the data extraction date, a period boundary, or the cap), not from anything about the stay itself. An animal still in care lacks an outcome only because the data were extracted before it left. Source 4 is a design choice. Its exit date shows that the stay ended, but counting that exit as an event in KM would require assigning it a cause in AJ, or else breaking the identity $\widehat{S}(t) = 1 - \mathrm{CIF_{\text{Any}}}(t)$ (§7.3) that ties the two together. Censoring keeps the row's observed days at risk and withholds only its unknown cause. The cost is a slight upward bias in LOS, in proportion to the number of such rows; the console Data Summary reports that number and warns when it reaches 0.5% of the stays.
+All four are treated as noninformative (independent) censoring. Sources 1 to 3 are administrative and satisfy this by construction: each follows from where the analysis places a boundary (the data extraction date, a period boundary, or the cap), not from anything about the stay itself. An animal still in care lacks an outcome only because the data were extracted before it left. Source 4 is a design choice. Its exit date shows that the stay ended, but counting that exit as an event in KM would require assigning it a cause in AJ, or else breaking the identity $\widehat{S}(t) = 1 - \mathrm{CIF_{\text{Any}}}(t)$ (§7.3) that ties the two together. Censoring keeps the row's observed days at risk and withholds only its outcome: the row is treated as if it were not known whether the stay ended. The cost is a slight upward bias in LOS, in proportion to the number of such rows; the console Data Summary reports that number and warns when it reaches 0.5% of the stays.
 
 ## 3.3 Restricted stay cap
 
