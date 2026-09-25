@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260925_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20260925_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -769,11 +769,11 @@ The KM and AJ intervals in this section carry no assumptions beyond those of the
 
 The fraction capped and the outcome-mix shares use exact binomial (Clopper-Pearson) intervals, which treat the rows (or the completed outcomes) as independent Bernoulli trials. The outcome-mix intervals are conditional on the completed-outcome total $E_{j}$, so the shares of one column are each tested against their own total rather than jointly as a multinomial. As throughout (§9), successive stays of one animal count as independent units, and no multiple-comparison adjustment is applied across the section's cells.
 
-The expected-census interval is **indicative only**, and is the one interval in the section built on an assumption that is likely wrong in a known direction. $L = \bar{I} \times \text{RMST}(\tau)$ is a product of two estimated quantities, and its interval combines the Poisson variance of the intake rate with the RMST standard error by a first-order delta method on the log scale,
+The expected-census interval is **indicative only**, and is the one interval in the section that combines two estimates whose joint behavior is not modeled. $L = \bar{I} \times \text{RMST}(\tau)$ is a product of two estimated quantities, and its interval combines the Poisson variance of the intake rate with the RMST standard error by a first-order delta method on the log scale,
 
 $$\widehat{\text{Var}}\left( \log L \right) \approx \frac{1}{N_{\text{intakes}}} + \left( \frac{{\widehat{se}}_{\text{RMST}}}{\text{RMST}(\tau)} \right)^{2},\qquad L \times \exp\left( \pm 1.96\sqrt{\widehat{\text{Var}}\left( \log L \right)} \right),$$
 
-under the **assumption that the two factors are independent**. The assumption probably fails: the intake rate and the stay-length estimate are likely positively correlated, which would add a positive covariance term and make the true interval wider than the one reported. Treating that dependence properly is an advanced topic left for future versions. Until then, read the reported interval as a lower bound on the real uncertainty. The other census aggregates (past and future animal-days, the per-resident ratios) carry no interval.
+under the **assumption that the two factors are independent**. The intake rate and the stay-length estimate need not be independent, and the sign of their covariance is not known in general, so the omitted term may widen or narrow the true interval. The Poisson term, by contrast, errs in a known direction: overdispersed intakes (see above) make it too small, and the reported interval too narrow. Treating the dependence properly is an advanced topic left for future versions. The other census aggregates (past and future animal-days, the per-resident ratios) carry no interval.
 
 ### Hazard ratios and LOS ratios
 

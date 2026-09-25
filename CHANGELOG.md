@@ -33,6 +33,11 @@ room for. A deck built without one carries no artwork, as before.
   date, not from anything about the stay.
 - Math methods §3.2 says censoring an unclassified exit withholds its outcome,
   not only its cause: the row is treated as if its end were unknown.
+- Math methods §8.4 and the user guide no longer say the intake rate and the
+  restricted mean are positively correlated, nor that the expected-census
+  interval is a lower bound on the uncertainty: the sign of their covariance
+  is unknown. What is known is that overdispersed intakes make the interval
+  too narrow.
 - Math methods §5.6 defines the future workload as the census at each tenure
   times the Remaining LOS of §5.8 and derives its closed form; the elapsed and
   future workloads are named W_past and W_future and listed in the Appendix

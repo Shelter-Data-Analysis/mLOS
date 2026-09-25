@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260924_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260925_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -579,7 +579,7 @@ Each family of intervals is computed differently:
 - **KM and AJ intervals** come directly from the fitted curves.
 - **Rate intervals** (daily intakes and outcomes, incidence) are exact Poisson intervals. They assume events occur independently at a steady rate within the window. Group arrivals, such as a litter surrendered together or a bulk transfer, and strong seasonality, make them somewhat too narrow.
 - **Proportion intervals** (fraction capped, outcome mix) are exact binomial intervals. They treat the counted rows as independent, including repeat stays of one animal. (The Cox regression, on the other hand, clusters its robust standard errors on `animal_id`, which keeps one animal's period-split rows in a single cluster.) Because these intervals are computed over rows, redrawing your period boundaries changes their width even when the point estimate is unmoved: a stay split in two contributes two rows.
-- **The expected census** gets an **indicative interval only**. It is the product of the intake rate and the restricted mean, and its interval treats those two estimates as independent, which is only a rough approximation. The estimates are likely positively correlated, so the true interval is wider than the one shown. A proper joint treatment is an advanced topic left for future versions. Until then, read the reported interval as a lower bound on the real uncertainty.
+- **The expected census** gets an **indicative interval only**. It is the product of the intake rate and the restricted mean, and its interval treats those two estimates as independent, which is only a rough approximation: their correlation, of unknown sign, is ignored, and intakes that vary more than a Poisson model allows make the interval too narrow. A proper joint treatment is an advanced topic left for future versions.
 
 The mathematical methods document states these assumptions in full, in section 8.4.
 

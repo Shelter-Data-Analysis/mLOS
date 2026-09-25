@@ -245,10 +245,10 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
   # Census-aggregates block: an INDICATIVE interval for the expected census
   # only. L = rate x RMST is a product of two estimates; on the log scale a
   # first-order delta method gives var(log L) ~= 1/N_intakes +
-  # (se_RMST/RMST)^2, ASSUMING the two factors are independent. We do not
-  # believe they are: they are likely positively correlated, which would
-  # widen the true interval (math methods 8.4); a joint treatment is left
-  # for future versions. The other census aggregates carry no interval.
+  # (se_RMST/RMST)^2, ASSUMING the two factors are independent. They need
+  # not be, and the sign of their covariance is unknown; overdispersed
+  # intakes make the Poisson term too small (math methods 8.4). A joint
+  # treatment is left for future versions. The other census aggregates carry no interval.
   predicted_census <- as.numeric(census_matrix["expected_census", ])
   rmean_est   <- as.numeric(km_matrix["km_restricted_mean", ])
   rmean_se_v  <- as.numeric(km_matrix["km_restricted_mean_se", ])
