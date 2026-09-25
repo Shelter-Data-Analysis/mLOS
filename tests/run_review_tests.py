@@ -36,6 +36,7 @@ than catch bugs. Add them once the block set settles.
 from __future__ import annotations
 
 import contextlib
+import fnmatch
 import itertools
 import json
 import math
@@ -1748,33 +1749,47 @@ def check_dependency_declaration() -> None:
 
 
 def check_notebook_file_listing() -> None:
-    """The Colab notebook's upload list names every file the package has.
+    """The Colab notebook's upload list covers every file the tool needs.
 
     A Colab session holds only what was uploaded into it, so that list is the
     install: a module missing from it is missing from the session, and Cell 3
-    ends in an ImportError rather than in a deck. Nothing about the list is
-    derived, which is how `recommend.py` and `salience.py` came to be absent
-    from it while `deck.py` imported both.
-
-    Compared as sets, since the notebook lists the modules in reading order and
-    not alphabetically. The data files beside the modules are checked too: the
-    diagram is opened at build time and travels with the package as
-    package-data, so leaving it behind fails the same way an absent module
-    would.
+    ends in an ImportError rather than in a deck. The list gives wildcards so
+    that a new file is covered without an edit; this checks that each pattern
+    still matches every file it stands for, should it return to naming them.
+    The diagram beside the modules counts too: it is opened at build time, so
+    leaving it behind costs the deck a slide.
     """
     section("notebook file listing")
     notebook = json.loads((REPO_ROOT / "colab_mlos.ipynb").read_text())
     markdown = "".join("".join(cell["source"]) for cell in notebook["cells"]
                        if cell["cell_type"] == "markdown")
-    block = re.search(r"^    mlos_review/\n((?:^        \S+\n)+)", markdown,
-                      re.MULTILINE)
-    expect("the notebook lists the package's files", block is not None)
+    tree = re.search(r"^/content/mLOS/\n((?:^    .*\n)+)", markdown,
+                     re.MULTILINE)
+    expect("the notebook lists the files to upload", tree is not None)
+    if tree is None:
+        return
+    top = [line.strip() for line in tree.group(1).splitlines()
+           if re.match(r"    \S", line)]
+    block = re.search(r"^    mlos_review/\n((?:^        \S+\n)+)",
+                      tree.group(1), re.MULTILINE)
+    expect("and the package's files", block is not None)
     if block is None:
         return
-    listed = set(block.group(1).split())
-    present = {path.name for path in (REPO_ROOT / "mlos_review").iterdir()
-               if path.is_file() and not path.name.startswith(".")}
-    expect_equal("and lists exactly the files the package has", listed, present)
+    package = block.group(1).split()
+
+    def uncovered(names: list[str], patterns: list[str]) -> list[str]:
+        return sorted(name for name in names
+                      if not any(fnmatch.fnmatchcase(name, pattern)
+                                 for pattern in patterns))
+
+    expect_equal("every mlos_*.R file is covered",
+                 uncovered([path.name for path in REPO_ROOT.glob("mlos_*.R")],
+                           top), [])
+    expect_equal("every file in the package is covered",
+                 uncovered([path.name for path in
+                            (REPO_ROOT / "mlos_review").iterdir()
+                            if path.is_file()
+                            and not path.name.startswith(".")], package), [])
 
 
 def check_example_template() -> None:
