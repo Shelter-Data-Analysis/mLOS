@@ -41,24 +41,137 @@ any source that moved, and every CSV and every plot is byte-identical to 0.2.3.
 **No number changed**: every number in `results.json`, the CSVs and the
 workbook is the one the release before wrote. What moved is presentation: plot
 titles, text size and legends, the deck builder, and some wording in the
-workbook, the deck and the guides, which were read for internal consistency.
-Every deck now names the layout its slides sit on `mLOS layout`, so none is
-byte-identical to the one before, and a deck built with a template now
-carries that template's artwork on slides that carry figures, as many of them
-as the band the artwork leaves has room for. A deck built without one carries
-no artwork, as before.
+workbook, the deck and the guides. No plot is byte-identical to the release
+before, and neither is any deck; the plots' companion CSVs are.
 
-- The guides carry what the paper revision added. The cap sensitivity rule
-  (the restricted mean moves by the at-cap KM fraction per day of cap) is in
-  math methods §5.3 and the user guide's cap section, which also covers a very
-  high cap. Steady state is framed by time scale in the user guide and math
-  methods §9. The user guide's period-boundary advice says to choose boundaries
-  before looking at results, names calendar intervals as the default, and says
-  where truncation and censoring matter most; its Limitations add three outcome
-  types as an initial choice and a descriptive, not causal, reading. The
-  100-outcome guideline is called a rule of thumb.
+Plots and the console.
+
+- Every boxed legend on a plot is drawn on a translucent white, so a curve
+  passing behind one stays faintly visible, and the stratified remaining-LOS
+  plots carry their legend in the top left, where no curve runs.
+- Plot titles are plain and the size of the axis labels, where R's default drew
+  them bold at 1.2 times, in every R plot and in the two deck figures drawn to
+  match them.
+- `data/OC2_settings.yaml` raises `png_pointsize_factor` from 1.5 to 2, so OC2
+  plot text is larger and the settings digest in `results.json` changes.
 - The in-care tenure plots' y-axis label is shortened to "In-Care Fraction with
   Longer Tenure", which fits the plot height at `png_pointsize_factor: 2`.
+- The console Data Summary warns when unclassified exits (a departure date
+  with no classified outcome type) reach 0.5% of the stays in the study
+  window. Console only; no output file changes.
+
+The deck builder. Every deck names the layout its slides sit on `mLOS layout`,
+and a deck built with a template carries that template's artwork on as many
+figure slides as the band the artwork leaves has room for. A deck built without
+one carries no artwork, as before.
+
+- The counted-against-fitted sentence on the workload slides has to reach a gap
+  worth a set share of the whole sample's counted animal-days (`DRIFT_FLOOR`),
+  so it no longer goes to a small level whose two figures are both noisy. It
+  states the gap against the level's steady state and names no cause, since a
+  change in how fast stays end opens the same gap as a change in intakes. The
+  slide's speaker note and the presentation guide say so.
+- The metrics slide names its outcome codes in the second table's title, in the
+  words the figure legends use, and a table title's box grows to fit a title
+  wider than its table.
+- A header's wrap is judged against the cell's insets alone, so a column held
+  at its maximum width is not charged a second header line it never takes. A
+  footnote sits directly under its table.
+- The educational overview cites its paper and software as DOI links, and the
+  animal-days lead says "shelter residents".
+- `bullets.size` sets the size of a slide's bullets and of the standing lines
+  around them. Pagination and the template fit are measured at the size set,
+  where they were measured at the default size whatever the setting. At the
+  default the deck is unchanged.
+- A slide carrying a figure now takes a template's artwork where the band the
+  artwork leaves costs its figures nothing. A figure is drawn as wide as its
+  share of the page and its own proportions allow, whichever is less; where the
+  width is what stops it, the slide holds height the figure cannot use. The
+  title and any table beside it move down, and the figure keeps the size and
+  the place a plain page would have given it. On OC2 with
+  `data/deck_example_template.pptx` the deck goes from 18 branded slides of 48
+  to 29, and the figure slides among them from 1 of 31 to 12.
+  `check_figure_slide_branding` tests it: a wide figure's slide is branded and
+  its figure is untouched to the EMU, a tall figure's slide is left plain, and
+  a tolerance of 1 brands both and is shown to cost the tall one height.
+- `figures.shrink_for_branding`, 0 to 1, is how much of a figure's height may
+  go anyway, as a share of what a plain page gives it. It defaults to 0, which
+  is the measured refusal above. On OC2, 0.06 brands six more figure slides at
+  a deepest cut of 5.8%, and 1 brands every slide whose text fits the band.
+  `data/OC_deck_settings.yaml` gains a `figures` section for it, which also
+  documents `ratio_log_scale`, a setting the file had never carried.
+- `Slide.schematic` is gone. It let the opening diagram's slide take the
+  artwork by conceding whatever the band asked for, which the measurement above
+  now grants that slide without being told: branding and figure geometry are
+  identical across the OC2 deck with it and without it. What it said belongs to
+  a deck rather than to a slide, and `figures.shrink_for_branding` says it
+  there.
+- A template whose artwork carries a hyperlink, a linked logo say, put the
+  link's id on every branded slide without the link, so each slide named a
+  relationship it did not hold, which PowerPoint reads as a damaged file.
+  Every relationship a copied shape names now travels with it, links as well
+  as images. `check_template_links` brands two slides with a linked logo and
+  checks that each holds every relationship its shapes name and that the logo
+  still reaches its site.
+- A template of more than one slide is refused, with how many it holds. Only
+  the first slide is read for its artwork and dropped, so the others were left
+  at the front of the deck. A template of another size and more than one slide
+  is told both at once. A template of no slides cost the deck its first slide,
+  which the drop at the end took for the template's; it now builds whole, on
+  the template's theme alone. `check_template_slide_count`: a three-slide
+  template is refused by the band measurement and by the render, and a template
+  of no slides builds every slide.
+- A template whose artwork leaves less than a title and one line clear is
+  refused, with how much it leaves. No slide could take its artwork, and the
+  closing sections broke their pages against its band anyway, one bullet to a
+  page: a picture covering the page turned a 46-slide deck into 80.
+  `check_template_without_room`: two bars leaving a narrow gap and a shape
+  covering the page are refused, and the same bars pulled apart are accepted.
+- A template with artwork on the layout its slides are built on, or on the
+  master behind it, is refused, naming the shapes. Artwork there sat under
+  every slide, figures included, while the band was measured from the
+  template's slide alone, so titles printed over it: on a conference template
+  with its header on the layout, every one of 45 slides. A layout that hides
+  the master's graphics is not charged for them.
+  `check_template_layout_artwork`: a bar on the layout and a bar on the master
+  are refused, and the master bar under a layout that hides it is accepted.
+- The layout every slide is built on is named `mLOS layout` in the deck
+  written. PowerPoint matches a slide pasted into another deck to that deck's
+  layouts by name, and a template's emptiest layout was "Title Slide" in a
+  conference deck whose own "Title Slide" carried its header artwork.
+  `check_layout_name`: every slide of a plain and of a branded deck sits on
+  `mLOS layout`.
+- `build` and `variant` refuse an argument written as a flag without its
+  dashes, `template=FILE` say, which was taken for the output path: the deck
+  went, unbranded, into a new directory named `template=templates`. They also
+  refuse an output path that is one of the run's own inputs, the template,
+  the settings file, the results file or the outline, which the write would
+  have archived out of the way. `check_command_line_guards`: both mistakes are
+  refused by both commands before the results are read, and the inputs stay
+  where they were.
+
+The named checks are in `tests/run_review_tests.py`.
+
+Tools that run outside the analysis.
+
+- `tools/cox_zph.R` runs the proportional-hazards test of `survival::cox.zph`
+  on the pooled Cox model, and records the mLOS version and input hashes
+  beside its table.
+- `tools/histlos_by_period.R` computes HistLOS by period for teaching, and a
+  variant outline's `@extra HistLOS` sets it beside ExitLOS on one slide when
+  its recorded inputs match the run.
+
+The guides, carrying what the paper revision added.
+
+- The cap sensitivity rule (the restricted mean moves by the at-cap KM
+  fraction per day of cap) is in math methods §5.3 and the user guide's cap
+  section, which also covers a very high cap. Steady state is framed by time
+  scale in the user guide and math methods §9. The user guide's
+  period-boundary advice says to choose boundaries before looking at results,
+  names calendar intervals as the default, and says where truncation and
+  censoring matter most; its Limitations add three outcome types as an initial
+  choice and a descriptive, not causal, reading. The 100-outcome guideline is
+  called a rule of thumb.
 - Math methods §9 names the Grambsch–Therneau test and credits the tenure
   average to Struthers and Kalbfleisch (1986) and the selection in
   within-tenure hazard ratios to Hernán (2010). The user guide names the test,
@@ -82,122 +195,12 @@ no artwork, as before.
   symbol table with their measure names. The one-day gap between them is
   stated as an average per resident, not a property of each resident, in the
   math methods, user guide, presentation guide and one deck speaker note.
-- `tools/cox_zph.R` runs the proportional-hazards test of `survival::cox.zph`
-  on the pooled Cox model, outside the run, and records the mLOS version and
-  input hashes beside its table.
 - The math methods gain §10, a table of the simulation fixtures: stay
   counts, left truncation and right censoring, and the known truth each
   recovers. `check_fixture_inventory` holds the table to the fixtures and
   their golden counts.
-- The console Data Summary warns when unclassified exits (a departure date
-  with no classified outcome type) reach 0.5% of the stays in the study
-  window. Console only; no output file changes.
-- Every boxed legend on a plot is drawn on a translucent white, so a curve
-  passing behind one stays faintly visible, and the stratified remaining-LOS plots carry
-  their legend in the top left, where no curve runs. The plots are not
-  byte-identical to the release before; their companion CSVs are.
-- Plot titles are plain and the size of the axis labels, where R's default drew
-  them bold at 1.2 times, in every R plot and in the two deck figures drawn to
-  match them.
-- `data/OC2_settings.yaml` raises `png_pointsize_factor` from 1.5 to 2, so OC2
-  plot text is larger and the settings digest in `results.json` changes.
-- `bullets.size` sets the size of a slide's bullets and of the standing lines
-  around them. Pagination and the template fit are measured at the size set,
-  where they were measured at the default size whatever the setting. At the
-  default the deck is unchanged.
-- The counted-against-fitted sentence on the workload slides has to reach a gap
-  worth a set share of the whole sample's counted animal-days (`DRIFT_FLOOR`), so it no
-  longer goes to a small level whose two figures are both noisy. It states the
-  gap against the level's steady state and names no cause, since a change in how
-  fast stays end opens the same gap as a change in intakes. The slide's speaker
-  note and the presentation guide say so.
-- A header's wrap is judged against the cell's insets alone, so a column held
-  at its maximum width is not charged a second header line it never takes. A
-  footnote sits directly under its table.
-- The metrics slide names its outcome codes in the second table's title, in the
-  words the figure legends use, and a table title's box grows to fit a title
-  wider than its table.
-- The educational overview cites its paper and software as DOI links. "Current"
-  is dropped where a steady-state population was meant, in speaker notes, the
-  user guide, the math methods and comments, and the animal-days lead says
-  "shelter residents".
-
-- `tools/histlos_by_period.R` computes HistLOS by period for teaching, outside
-  the run, and a variant outline's `@extra HistLOS` sets it beside ExitLOS on
-  one slide when its recorded inputs match the run.
-- A slide carrying a figure now takes a template's artwork where the band the
-  artwork leaves costs its figures nothing. A figure is drawn as wide as its
-  share of the page and its own proportions allow, whichever is less; where the
-  width is what stops it, the slide holds height the figure cannot use. The
-  title and any table beside it move down, and the figure keeps the size and
-  the place a plain page would have given it. On OC2 with
-  `data/deck_example_template.pptx` the deck goes from 18 branded slides of 48
-  to 29, and the figure slides among them from 1 of 31 to 12.
-- `figures.shrink_for_branding`, 0 to 1, is how much of a figure's height may
-  go anyway, as a share of what a plain page gives it. It defaults to 0, which
-  is the measured refusal above. On OC2, 0.06 brands six more figure slides at
-  a deepest cut of 5.8%, and 1 brands every slide whose text fits the band.
-- `Slide.schematic` is gone. It let the opening diagram's slide take the
-  artwork by conceding whatever the band asked for, which the measurement above
-  now grants that slide without being told: branding and figure geometry are
-  identical across the OC2 deck with it and without it. What it said belongs to
-  a deck rather than to a slide, and `figures.shrink_for_branding` says it
-  there.
-- `tests/run_review_tests.py` gains `check_figure_slide_branding`: a wide
-  figure's slide is branded and its figure is untouched to the EMU, a tall
-  figure's slide is left plain, and a tolerance of 1 brands both and is shown
-  to cost the tall one height.
-- `data/OC_deck_settings.yaml` gains a `figures` section, documenting
-  `ratio_log_scale`, which the file had never carried, beside the new setting.
-- A template whose artwork carries a hyperlink, a linked logo say, put the
-  link's id on every branded slide without the link, so each slide named a
-  relationship it did not hold, which PowerPoint reads as a damaged file.
-  Every relationship a copied shape names now travels with it, links as well
-  as images.
-- `tests/run_review_tests.py` gains `check_template_links`, which brands two
-  slides with a linked logo and checks that each holds every relationship its
-  shapes name and that the logo still reaches its site.
-- A template of more than one slide is refused, with how many it holds. Only
-  the first slide is read for its artwork and dropped, so the others were left
-  at the front of the deck. A template of another size and more than one slide
-  is told both at once.
-- A template of no slides cost the deck its first slide, which the drop at
-  the end took for the template's. It now builds whole, on the template's
-  theme alone.
-- `tests/run_review_tests.py` gains `check_template_slide_count`: a three-slide
-  template is refused by the band measurement and by the render, and a template
-  of no slides builds every slide.
-- A template whose artwork leaves less than a title and one line clear is
-  refused, with how much it leaves. No slide could take its artwork, and the
-  closing sections broke their pages against its band anyway, one bullet to a
-  page: a picture covering the page turned a 46-slide deck into 80.
-- `tests/run_review_tests.py` gains `check_template_without_room`: two bars
-  leaving a narrow gap and a shape covering the page are refused, and the same
-  bars pulled apart are accepted.
-- A template with artwork on the layout its slides are built on, or on the
-  master behind it, is refused, naming the shapes. Artwork there sat under
-  every slide, figures included, while the band was measured from the
-  template's slide alone, so titles printed over it: on a conference template
-  with its header on the layout, every one of 45 slides. A layout that hides
-  the master's graphics is not charged for them.
-- `tests/run_review_tests.py` gains `check_template_layout_artwork`: a bar on
-  the layout and a bar on the master are refused, and the master bar under a
-  layout that hides it is accepted.
-- The layout every slide is built on is named `mLOS layout` in the deck
-  written. PowerPoint matches a slide pasted into another deck to that deck's
-  layouts by name, and a template's emptiest layout was "Title Slide" in a
-  conference deck whose own "Title Slide" carried its header artwork.
-- `tests/run_review_tests.py` gains `check_layout_name`: every slide of a plain
-  and of a branded deck sits on `mLOS layout`.
-- `build` and `variant` refuse an argument written as a flag without its
-  dashes, `template=FILE` say, which was taken for the output path: the deck
-  went, unbranded, into a new directory named `template=templates`. They also
-  refuse an output path that is one of the run's own inputs, the template,
-  the settings file, the results file or the outline, which the write would
-  have archived out of the way.
-- `tests/run_review_tests.py` gains `check_command_line_guards`: both mistakes
-  are refused by both commands before the results are read, and the inputs
-  stay where they were.
+- "Current" is dropped where a steady-state population was meant, in speaker
+  notes, the user guide, the math methods and comments.
 
 Documentation, read across the guides for internal consistency. No
 output moved.
@@ -222,9 +225,9 @@ output moved.
   gets its own pass. Section 6 is retitled again, to "Regressions on the Three
   Predictors". No section renumbered and nothing links to the anchor.
 - The user guide gave the sample-size guideline as 50 outcomes per period in
-  one place against 100 in three others and in the math methods' own assumptions section. It
-  is 100, and on the filtering advice it is a floor per surviving stratum
-  rather than per period.
+  one place against 100 in three others and in the math methods' own
+  assumptions section. It is 100, and on the filtering advice it is a floor per
+  surviving stratum rather than per period.
 - The user guide described the unified census-by-tenure file twice, the second
   time counting its summary row as a second header row where the rest of the
   section counts one. Cut to what only it says.
