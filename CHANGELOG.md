@@ -28,6 +28,17 @@ before, and a deck built with a template now carries that template's artwork on
 slides that carry figures, as many of them as the band the artwork leaves has
 room for. A deck built without one carries no artwork, as before.
 
+- The guides carry what the paper revision added. The cap sensitivity rule
+  (the restricted mean moves by the at-cap KM fraction per day of cap) is in
+  math methods §5.3 and the user guide's cap section, which also covers a very
+  high cap. Steady state is framed by time scale in the user guide and math
+  methods §9. The user guide's period-boundary advice says to choose boundaries
+  before looking at results, names calendar intervals as the default, and says
+  where truncation and censoring matter most; its Limitations add three outcome
+  types as an initial choice and a descriptive, not causal, reading. The
+  100-outcome guideline is called a rule of thumb.
+- Math methods §9 and `tools/cox_zph.R` say one test per coefficient, which is
+  what `terms = FALSE` gives, not one per model term.
 - Math methods §3.2 and §9 call still-in-care censoring administrative, like
   period-boundary censoring and capping: it follows from the data extraction
   date, not from anything about the stay.

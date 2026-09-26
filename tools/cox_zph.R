@@ -1,6 +1,6 @@
 # Proportional-hazards test for the pooled Cox model, outside the run: the
 # scaled Schoenfeld residual test of survival::cox.zph on the same fit mLOS
-# reports (math methods §6.1), one test per model term plus the global test.
+# reports (math methods §6.1), one test per coefficient plus the global test.
 #
 # Usage (from the mLOS working copy):
 #   Rscript tools/cox_zph.R [--settings FILE] [--data FILE] [--results DIR]

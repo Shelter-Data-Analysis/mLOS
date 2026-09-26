@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260925_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260926_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -160,6 +160,8 @@ A few of the population numbers mLOS reports, like the expected census by tenure
 
 Comparing the two tells you something real. If your observed census and the steady-state prediction roughly agree, your population is behaving the way its current intake and outcome patterns imply it should, and there is nothing unusual building up or draining away. If they disagree, your shelter is still working through a transition, perhaps recovering from a surge of intakes, gradually clearing a backlog, or building up a backlog because stays have become longer. The steady-state number shows where the population is heading, not where it is today.
 
+Steady state does not require constant intakes; what matters is time scale. A change much slower than your period leaves the period close to steady state, and a moderate change within the period averages out. The two numbers disagree mainly when a change is under way, or happened just before the period, on a time scale close to the period's length. How long a population takes to settle after a change is set by the length of stay, especially its long tail, so a shelter with many long stays settles slowly.
+
 So when a plot or a metric refers to the "expected" or "predicted" population, read it as a projection from your fitted patterns, not a headcount. A true point-in-time snapshot, literally which animals are in the building right now, is not something mLOS computes. That could be added as a future feature, but today every population figure it reports is either a period average or a steady-state projection.
 
 ### What you feed it
@@ -187,7 +189,9 @@ If your shelter houses multiple species, run **one species at a time** (e.g., do
 
 The most consequential decision is where to draw the period boundaries. Useful dividing points are dates when something actually changed: a new program launched, a policy shift took effect, a staffing reorganization happened, a community initiative began. Aligning boundaries to real events makes the comparison meaningful: you are asking "did things change after our policy change?" rather than dividing time arbitrarily.
 
-Practical tips: align boundaries to a fixed day of the week (e.g., Monday) to avoid day-of-week noise in intakes and outcomes. Aim for at least 100 outcomes per period; start with longer periods and shorten only if data are sufficient (i.e., if the confidence intervals in numerical values and plots are narrow).
+Choose boundaries before looking at the results. A boundary picked because the census or the curves seemed to change there depends on the animals in care, and the comparison across it loses its meaning. Without a real event to align to, pre-set calendar intervals (quarters, half-years, or years) are a good default. Short periods are where truncation and censoring matter most: when a period is not much longer than most stays, including the long-stay tail, a large share of stays cross its boundaries.
+
+Practical tips: align boundaries to a fixed day of the week (e.g., Monday) to avoid day-of-week noise in intakes and outcomes. As a rule of thumb, aim for at least 100 outcomes per period; start with longer periods and shorten only if data are sufficient (i.e., if the confidence intervals in numerical values and plots are narrow).
 
 ### Choosing your `restricted_stay_cap`
 
@@ -205,6 +209,10 @@ Where the missing tail shows up, worst first:
 - **The median and 90th percentile of length of stay** are usually not affected, and flag themselves when they are. They come straight off the KM curve, which the cap does not distort below the cap. If the curve never falls to the level a quantile needs, the tool reports no value rather than a number pinned near the cap.
 
 The two jobs you are asking the cap to do therefore pull against each other: a low cap protects the restricted mean from bad records, but it also depresses every tenure and census figure. There is no setting that escapes the tension, but there is a cheap way to measure it. Runs are quick enough to repeat, so when `km_still_in_care_at_cap` is not near zero, run the analysis again at a noticeably different cap and compare. If a number you plan to quote moves materially, quote it as a range, say which cap produced it, and revisit your data. With more reliable data, you can afford to use a higher cap.
+
+**How fast the restricted mean moves with the cap.** Moving the cap by one day changes the restricted mean by `km_still_in_care_at_cap` days, so that number is also the sensitivity. On **OC2** it is 0.0034 for the unified data, and moving the cap from 365 to 345 or 385 days changes the unified restricted mean by 0.07 or 0.06 days.
+
+**A very high cap.** When the longest stay in a stratum ends in a recorded outcome, any cap beyond it has no effect, and the longest stay becomes the effective horizon. A shelter confident in its data can then set the cap high (e.g., 9999). The price is exposure to data errors and outliers: a comparison among strata can hinge on a single long stay.
 
 ### Getting more out of the tool
 
@@ -743,7 +751,7 @@ A full console log is written to `results/analysis_log.txt`.
 
 ### Outcome type codes
 
-The tool uses three canonical codes internally. The shelter data CSV can either use these codes directly, or use site-specific labels that are mapped in the settings file (see `outcome_type_L/T/N` below).
+The tool uses three canonical codes internally. The three are an initial design choice, matching the distinction Shelter Animals Count draws between community and non-community flows, and they keep the AJ plots and tables to a manageable number. A user-defined set of outcome types is a planned extension. The shelter data CSV can either use these codes directly, or use site-specific labels that are mapped in the settings file (see `outcome_type_L/T/N` below).
 
 | Code | Meaning |
 |---|---|
@@ -817,7 +825,7 @@ Defines the boundaries of the time periods to compare. N dates define N−1 peri
 
 Each period is **left-closed, right-open**: the first date of a period is included in it; the last date is the first date of the next period. For example, `2024-01-01` to `2024-04-01` includes January 1 but not April 1.
 
-**Recommendation:** align period boundaries to a fixed day of the week (e.g., Monday) to avoid noise from day-of-week variation in intakes and outcomes. Aim for at least 100 outcomes per period; start with longer periods and shorten only if data are sufficient.
+**Recommendation:** align period boundaries to a fixed day of the week (e.g., Monday) to avoid noise from day-of-week variation in intakes and outcomes. As a rule of thumb, aim for at least 100 outcomes per period; start with longer periods and shorten only if data are sufficient.
 
 #### `restricted_stay_cap` *(required)*
 
@@ -1289,9 +1297,11 @@ You can instead have the tool compute AnimLOS (discussed in [2, 3]), which attem
 - **Partial typographical checking.** Date fields and outcome type codes are validated (see `discard_bad_rows`). Errors in group labels or intake types are not caught and create unexpected factor levels in the output (blank values, by contrast, are handled: they are filled with `_UNKNOWN_`, as described in the [optional columns section](#optional-columns)). Validate your CSV before running.
 - **Unclassified exits are accepted, with a warning only at 0.5% of stays or above.** A row with an `outcome_date` but a blank `outcome_type` passes validation and is censored at its departure date (see the warning in the [data file section](#data-file-csv)). When such rows are data errors rather than deliberate, the censoring inflates the LOS estimates. The signal to check for this is the "Animals censored (unclassified exit)" count in the console Data Summary, which a warning follows when the count reaches 0.5% of the stays in the study window.
 - **Proportional hazards.** Cox regression assumes that hazard ratios are constant over the entire LOS range. Violations can occur when, for example, long-stay animals have a fundamentally different discharge profile. The per-predictor stratified Cox fits in `results.json` are a partial screen on this: they re-estimate each stratifier's hazard ratios without assuming proportional hazards for the *other* two. A large gap between one of these and the pooled Cox is a sign the assumption is straining for the remaining stratifiers, but says nothing about whether the assumption holds for the axis being estimated. `tools/cox_zph.R` runs the scaled Schoenfeld residual test (`survival::cox.zph`) on the same pooled fit, outside the run, with the same `--settings`, `--data`, and `--results` arguments as the run itself. A rejection means the pooled hazard ratio is an average over tenure rather than a constant multiplier. Hazard ratios within tenure ranges condition on the animals still in care, so they are not a substitute: a shelter that places its more adoptable animals sooner can show lower hazards later in the stay while doing better overall. The KM curves and restricted means are the measures to read for that.
-- **Minimum sample size.** Results become unstable with fewer than ~100 outcomes per period. With very few events, confidence intervals are wide and tests underpowered. When in doubt, use longer periods. The same goes for intake types or animal groups, and the remedy there is to condense values to a smaller set.
+- **Minimum sample size.** As a rule of thumb, results become unstable with fewer than about 100 outcomes per period. With very few events, confidence intervals are wide and tests underpowered. When in doubt, use longer periods. The same goes for intake types or animal groups, and the remedy there is to condense values to a smaller set.
 - **No interaction terms.** The Cox model includes period, intake type, and animal group as main effects only. Interactions (e.g., whether the period effect differs by animal group) are not estimated.
-- **Single-intake assumption.** Each row in the CSV is treated as an independent intake event. If an animal has multiple intakes, each is a separate record. The `animal_id` column is used for clustering standard errors and for the duplicate-stay and overlapping-stay checks, not to link successive stays analytically.
+- **Three outcome types.** The AJ analysis uses the three canonical outcome types (see [Outcome type codes](#outcome-type-codes)); a user-defined set is a planned extension.
+- **Descriptive, not causal.** A change in a metric between periods is a prompt to investigate, not proof that a policy change caused it: other changes in the shelter or its community can explain it. A comparison between shelters likewise describes how they differ without judging their decisions, since some differences reflect circumstances outside a shelter's control (community demographics, resources, legal obligations). Either comparison is only as good as the handling of each dataset's conventions and errors.
+- **Single-intake assumption.** Each row in the CSV is treated as a separate intake event. If an animal has multiple intakes, each is a separate record. The `animal_id` column is used for clustering standard errors and for the duplicate-stay and overlapping-stay checks, not to link successive stays analytically.
 - **AJ conditional probabilities do not sum to 1.** The conditional AJ probabilities at each day X give the probability of each outcome type occurring between day X and the end of the AJ analysis window (see the next point for what sets that window, which is at most `restricted_stay_cap`). Their sum across outcome types is less than 1 whenever some animals are still in care at the end of that window: the remainder represents animals expected to still be in care then.
 - **AJ conditional probabilities go to zero after the last observed event.** The AJ estimator is purely empirical. Its curves stop stepping at the last day any outcome was actually observed, which is often well before `restricted_stay_cap`. Once no more events are observed (even if animals are still at risk), the CIF stops stepping up, and the conditional probability of any future outcome drops to zero beyond that point. This does not mean those animals will have no outcome. It simply reflects the limit of the observed data. This is unlike the KM restricted mean (see the KM restricted mean above), which always extends all the way to `restricted_stay_cap` by holding the survival curve flat past its last observed value, a reasonable convention there because "still in care" is a stable, ongoing state, whereas holding a cumulative-incidence curve flat would wrongly imply that no further outcomes can occur.
 
