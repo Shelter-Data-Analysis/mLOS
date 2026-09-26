@@ -196,7 +196,15 @@ as "An exception occurred". Redeliver the failed delivery whose event name
 matches the one that went green on the release before, then check that the
 concept DOI resolves to the new version. Redeliver rather than delete and
 republish: the tag and the release are not what failed, and recreating them to
-repair a delivery archives under a different release.
+repair a delivery archives under a different release. GitHub keeps deliveries
+for a few days only, so the previous release's deliveries are usually gone;
+Zenodo archives on the `published` action.
+
+**A 409 is not a failure to receive.** It says Zenodo already holds the
+release, and its GitHub page for the repository shows the release as
+"Received" while the archive job is queued. Wait rather than redeliver. On
+0.2.3 both `published` and `released` returned 409, and the record minted about
+an hour later.
 
 Then edit the Zenodo record's `version` field to drop the leading `v`. Zenodo
 takes it from the tag name rather than from `CITATION.cff`, so the record reads
@@ -490,15 +498,16 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 13 | mLOS 0.2.0 | `10.5281/zenodo.22652051` |
 | 14 | mLOS 0.2.1 | `10.5281/zenodo.22662175` |
 | 15 | mLOS 0.2.2 | `10.5281/zenodo.22680313` |
-| 16 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 17 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 18 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
-| 19 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
-| 20 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 21 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 22 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
-| 23 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
-| 24 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
+| 16 | mLOS 0.2.3 | `10.5281/zenodo.22971450` |
+| 17 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 18 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 19 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
+| 20 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
+| 21 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 22 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 23 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 24 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
+| 25 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep

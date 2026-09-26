@@ -17,6 +17,20 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
+## 0.2.4 (2026-09-26)
+
+The DOIs the 0.2.3 release minted, caught. **No number changed**: no run reads
+any source that moved, and every CSV and every plot is byte-identical to 0.2.3.
+
+- `CITATION.cff`, `README.md` and `presentation_guide.md` name results version
+  3, `10.5281/zenodo.22971148`, and deck version 4, `10.5281/zenodo.22971252`.
+- `PUBLISHING.md`'s identifier table gains mLOS 0.2.3 and the two new deposit
+  versions, and its ancestry diagram names them. Step 5 says what a 409 from
+  the Zenodo webhook means: the release is already queued, and redelivering
+  does not help.
+- `tools/make_deposit.py` describes OC2 as dogs in the deposit README, where it
+  said all species, and derives the deck deposit from results version 3.
+
 ## 0.2.3 (2026-09-26)
 
 **No number changed**: every number in `results.json`, the CSVs and the
