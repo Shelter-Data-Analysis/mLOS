@@ -17,7 +17,7 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
-## Unreleased
+## 0.2.3 (2026-09-26)
 
 **No number changed**: every number in `results.json`, the CSVs and the
 workbook is the one the release before wrote. What moved is presentation: plot
