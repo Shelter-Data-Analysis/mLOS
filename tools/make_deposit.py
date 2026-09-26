@@ -58,7 +58,7 @@ RESULTS_DOI = "10.5281/zenodo.22652165"
 #  What each run is, and how far it has been checked.  A deposited result
 #  without this is a number with no provenance for its trustworthiness.
 DATASET = {
-    "OC2": ("Orange County Animal Care, all species, four intake types",
+    "OC2": ("Orange County Animal Care, dogs, four intake types",
             "the current definition of the dataset, and the default example"
             " the guides quote"),
     "OC1": ("Orange County Animal Care, dogs",
