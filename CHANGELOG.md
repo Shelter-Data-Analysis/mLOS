@@ -40,12 +40,13 @@ any source that moved, and every CSV and every plot is byte-identical to 0.2.3.
 
 **No number changed**: every number in `results.json`, the CSVs and the
 workbook is the one the release before wrote. What moved is presentation: plot
-legends, the deck builder, and some wording in the workbook, the deck and the
-guides, which were read for internal consistency. Every deck now names the
-layout its slides sit on `mLOS layout`, so none is byte-identical to the one
-before, and a deck built with a template now carries that template's artwork on
-slides that carry figures, as many of them as the band the artwork leaves has
-room for. A deck built without one carries no artwork, as before.
+titles, text size and legends, the deck builder, and some wording in the
+workbook, the deck and the guides, which were read for internal consistency.
+Every deck now names the layout its slides sit on `mLOS layout`, so none is
+byte-identical to the one before, and a deck built with a template now
+carries that template's artwork on slides that carry figures, as many of them
+as the band the artwork leaves has room for. A deck built without one carries
+no artwork, as before.
 
 - The guides carry what the paper revision added. The cap sensitivity rule
   (the restricted mean moves by the at-cap KM fraction per day of cap) is in
@@ -95,6 +96,11 @@ room for. A deck built without one carries no artwork, as before.
   passing behind one stays faintly visible, and the stratified remaining-LOS plots carry
   their legend in the top left, where no curve runs. The plots are not
   byte-identical to the release before; their companion CSVs are.
+- Plot titles are plain and the size of the axis labels, where R's default drew
+  them bold at 1.2 times, in every R plot and in the two deck figures drawn to
+  match them.
+- `data/OC2_settings.yaml` raises `png_pointsize_factor` from 1.5 to 2, so OC2
+  plot text is larger and the settings digest in `results.json` changes.
 - `bullets.size` sets the size of a slide's bullets and of the standing lines
   around them. Pagination and the template fit are measured at the size set,
   where they were measured at the default size whatever the setting. At the
