@@ -17,6 +17,11 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
+## Unreleased
+
+- `PUBLISHING.md`'s identifier table gains mLOS 0.2.4,
+  `10.5281/zenodo.22972448`.
+
 ## 0.2.4 (2026-09-26)
 
 The DOIs the 0.2.3 release minted, caught. **No number changed**: no run reads
