@@ -37,6 +37,11 @@ room for. A deck built without one carries no artwork, as before.
   where truncation and censoring matter most; its Limitations add three outcome
   types as an initial choice and a descriptive, not causal, reading. The
   100-outcome guideline is called a rule of thumb.
+- Math methods §9 names the Grambsch–Therneau test and credits the tenure
+  average to Struthers and Kalbfleisch (1986) and the selection in
+  within-tenure hazard ratios to Hernán (2010). The user guide names the test,
+  lists the Weibull fit's limited diagnostics among its Limitations, and says
+  up front that the tool is a toolkit, for practitioners and their advisors.
 - Math methods §9 and `tools/cox_zph.R` say one test per coefficient, which is
   what `terms = FALSE` gives, not one per model term.
 - Math methods §3.2 and §9 call still-in-care censoring administrative, like
