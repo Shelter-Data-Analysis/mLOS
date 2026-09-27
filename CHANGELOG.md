@@ -21,6 +21,9 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 - `PUBLISHING.md`'s identifier table gains mLOS 0.2.4,
   `10.5281/zenodo.22972448`.
+- `CITATION.cff`'s keywords add Aalen-Johansen estimate and Cox regression and
+  drop reproducible research, matching the 0.2.4 Zenodo record with length of
+  stay kept.
 
 ## 0.2.4 (2026-09-26)
 

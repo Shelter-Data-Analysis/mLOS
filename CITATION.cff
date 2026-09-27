@@ -80,7 +80,8 @@ keywords:
   - survival analysis
   - Kaplan-Meier
   - competing risks
-  - reproducible research
+  - Aalen-Johansen estimate
+  - Cox regression
 
 # The chain this software sits in: the prepared files it reads, the tool that
 # produced them, what it writes from them, and the raw extracts behind it all.
