@@ -19,6 +19,23 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
+**No number changed** for an existing settings file: every CSV is
+byte-identical, and `results.json` gains three keys, `outcome_type_censored` in
+the settings echo and `recoded_censored` and `stays_censored_by_setting` in
+`data_preparation`.
+
+- New setting `outcome_type_censored`: raw codes for a departure censored on
+  purpose, such as a transfer out when computing AnimLOS. These stays are
+  censored at their `outcome_date`, as before through `outcome_type_in_care`,
+  but the Data Summary counts them apart and they do not trigger the
+  unclassified-exit warning. `outcome_type_in_care` now means only "still in
+  care", so a dated stay with one of its codes counts as an unclassified exit.
+  The User Guide's AnimLOS recipe uses the new setting, and the math methods
+  list it as censoring source 5.
+- `outcome_type_L`, `outcome_type_T`, and `outcome_type_N` must still all be
+  present when any is, but a list may now be empty, provided one of the three
+  lists a label. AnimLOS on OC2, whose only T label is TRAN, needed a placeholder
+  label before.
 - `PUBLISHING.md`'s identifier table gains mLOS 0.2.4,
   `10.5281/zenodo.22972448`.
 - `CITATION.cff`'s keywords add Aalen-Johansen estimate and Cox regression and

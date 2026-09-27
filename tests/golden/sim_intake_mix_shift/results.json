@@ -32,6 +32,7 @@
     "other_filter": null,
     "outcome_type_delete": null,
     "outcome_type_in_care": null,
+    "outcome_type_censored": null,
     "outcome_type_mapping": null,
     "periods": {
       "type": "table",
@@ -195,6 +196,7 @@
       }
     },
     "recoded_in_care": 0,
+    "recoded_censored": 0,
     "mapped_intake_type": {
       "type": "table",
       "columns": {
@@ -215,6 +217,7 @@
     "n_animals": 2910,
     "stays_in_care": 148,
     "stays_censored_early": 0,
+    "stays_censored_by_setting": 0,
     "stays_with_outcome": 2762,
     "study_window_start": "2024-05-01",
     "study_window_end": "2025-02-01",

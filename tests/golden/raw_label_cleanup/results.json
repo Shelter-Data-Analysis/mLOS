@@ -40,6 +40,7 @@
       "names": ["Foster"],
       "values": ["Foster"]
     },
+    "outcome_type_censored": null,
     "outcome_type_mapping": {
       "type": "named_vector",
       "names": ["Adopted", "RTO", "Transfer", "Euth"],
@@ -207,6 +208,7 @@
       }
     },
     "recoded_in_care": 1,
+    "recoded_censored": 0,
     "mapped_intake_type": {
       "type": "table",
       "columns": {
@@ -227,6 +229,7 @@
     "n_animals": 6,
     "stays_in_care": 1,
     "stays_censored_early": 1,
+    "stays_censored_by_setting": 0,
     "stays_with_outcome": 4,
     "study_window_start": "2021-01-01",
     "study_window_end": "2021-02-01",

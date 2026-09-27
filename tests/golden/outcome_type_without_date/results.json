@@ -36,6 +36,7 @@
       "names": ["HOLD"],
       "values": ["HOLD"]
     },
+    "outcome_type_censored": null,
     "outcome_type_mapping": null,
     "periods": {
       "type": "table",
@@ -199,6 +200,7 @@
       }
     },
     "recoded_in_care": 1,
+    "recoded_censored": 0,
     "mapped_intake_type": {
       "type": "table",
       "columns": {
@@ -219,6 +221,7 @@
     "n_animals": 8,
     "stays_in_care": 1,
     "stays_censored_early": 1,
+    "stays_censored_by_setting": 0,
     "stays_with_outcome": 6,
     "study_window_start": "2021-01-01",
     "study_window_end": "2021-03-01",

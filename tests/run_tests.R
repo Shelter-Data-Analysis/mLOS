@@ -2213,7 +2213,19 @@ run_suite_checks <- function() {
                "max_plot_strata cannot exceed")
   expect_error("missing outcome_type_T (all-or-none rule; message has single prefix)",
                refs_for(with_base(outcome_type_L = list("Adopted"), outcome_type_N = list("Euth"))),
-               "outcome_type_T is missing or empty")
+               "outcome_type_T missing")
+  # Present but empty is allowed: presence switches to mapping mode, and a
+  # shelter may have no labels for a code. with_base(x = NULL) keeps the name,
+  # as an empty YAML key does.
+  empty_t_refs <- refs_for(with_base(outcome_type_L = list("Adopted"),
+                                     outcome_type_T = NULL,
+                                     outcome_type_N = list("Euth")))
+  expect_equal("empty outcome_type_T maps nothing to T",
+               sum(empty_t_refs$outcome_type_mapping == "T"), 0)
+  expect_error("all three outcome_type_L/T/N empty",
+               refs_for(with_base(outcome_type_L = NULL, outcome_type_T = NULL,
+                                  outcome_type_N = list())),
+               "outcome_type_L, outcome_type_T, and outcome_type_N are all empty")
   expect_error("YAML-boolean raw label",
                refs_for(with_base(outcome_type_L = list(TRUE),
                                   outcome_type_T = list("Transf"),
@@ -2234,6 +2246,12 @@ run_suite_checks <- function() {
                                   outcome_type_T = list("Transf"),
                                   outcome_type_N = list("Euth"),
                                   outcome_type_delete = list("Adopted"))),
+               "Raw outcome labels appear in more than one outcome_type_* setting")
+  expect_error("raw label duplicated across mapping and censored",
+               refs_for(with_base(outcome_type_L = list("Adopted"),
+                                  outcome_type_T = list("Transf"),
+                                  outcome_type_N = list("Euth"),
+                                  outcome_type_censored = list("Transf"))),
                "Raw outcome labels appear in more than one outcome_type_* setting")
   expect_error("outcome_type_delete present but empty",
                refs_for(with_base(outcome_type_delete = list())),
@@ -2341,6 +2359,43 @@ run_suite_checks <- function() {
   expect_equal("outcome_type_in_care shields a blank outcome_date from the check",
                nrow(in_care_data), 2)
   expect_equal("the shielded row is still in care", sum(in_care_data$in_care), 1)
+  # outcome_type_censored runs after that check, so one of its codes without
+  # an outcome_date stops the run like any other outcome.
+  censored_refs <- refs_for(with_base(outcome_type_in_care = list("HOLD"),
+                                      outcome_type_censored = list("OUT")))
+  expect_error("outcome_type_censored code with no outcome_date",
+               read_and_prepare_data(write_temp_csv(c(
+                 "intake_date,outcome_date,outcome_type",
+                 "2024-02-01,,OUT")), censored_refs),
+               "1 row(s) have an outcome_type but no outcome_date: OUT (1)")
+  # The Data Summary counts a dated HOLD (an in-care code on a stay that has
+  # left) and a dated blank as unclassified exits, and a dated OUT apart. Two
+  # of the four stays are unclassified, well above the warning threshold.
+  censored_data <- read_and_prepare_data(write_temp_csv(c(
+    "intake_date,outcome_date,outcome_type",
+    "2024-02-01,2024-02-10,L",
+    "2024-02-02,2024-02-12,HOLD",
+    "2024-02-03,2024-02-13,",
+    "2024-02-04,2024-02-14,OUT")), censored_refs)
+  expect_equal("outcome_type_censored flags its stay",
+               sum(censored_data$censored_by_setting), 1)
+  expect_equal("the censored stay has no classified outcome",
+               sum(censored_data$censored_early), 3)
+  summary_out <- capture.output(display_data_summary(censored_data))
+  expect_equal("Data Summary: unclassified exits exclude outcome_type_censored",
+               sum(grepl("Animals censored (unclassified exit): 2", summary_out, fixed = TRUE)), 1)
+  expect_equal("Data Summary: outcome_type_censored counted apart",
+               sum(grepl("Animals censored at departure (outcome_type_censored): 1",
+                         summary_out, fixed = TRUE)), 1)
+  expect_equal("Data Summary: warning counts the two unclassified exits",
+               sum(grepl("*** WARNING: 2 unclassified exits", summary_out, fixed = TRUE)), 1)
+  censored_only <- read_and_prepare_data(write_temp_csv(c(
+    "intake_date,outcome_date,outcome_type",
+    "2024-02-01,2024-02-10,L",
+    "2024-02-04,2024-02-14,OUT")), censored_refs)
+  expect_equal("Data Summary: no warning for outcome_type_censored alone",
+               sum(grepl("WARNING", capture.output(display_data_summary(censored_only)),
+                         fixed = TRUE)), 0)
   expect_error("animal_group_columns column absent from CSV",
                read_and_prepare_data(write_temp_csv(c(
                  "intake_date,outcome_date,outcome_type",

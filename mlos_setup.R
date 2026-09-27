@@ -127,7 +127,10 @@ define_periods <- function(settings) {
 #'     - "Euthanized"
 #'
 #' If none of the three keys are present, the CSV is assumed to already
-#' use L/T/N directly and NULL is returned.
+#' use L/T/N directly and NULL is returned. Otherwise all three keys must be
+#' present, since their presence is what switches to mapping mode, but a list
+#' may be empty: a shelter can lack an outcome type, or move its only labels
+#' elsewhere (outcome_type_censored for AnimLOS).
 #' Quote all values to avoid YAML parsing words like Yes/No as booleans.
 #'
 #' @param settings List containing settings
@@ -138,17 +141,26 @@ parse_outcome_type_mapping <- function(settings) {
 
   raw_by_code <- lapply(keys, function(k) settings[[k]])
 
-  if (all(vapply(raw_by_code, is.null, logical(1)))) {
+  # Presence is tested by name: an empty YAML key parses to NULL, the same
+  # value an absent key reads as.
+  present <- keys %in% names(settings)
+  if (!any(present)) {
     return(NULL)
+  }
+  if (!all(present)) {
+    stop(paste(keys[!present], collapse = ", "), " missing. ",
+         "All three (outcome_type_L, outcome_type_T, outcome_type_N) must be ",
+         "present when any is; a list may be empty.")
+  }
+  if (sum(lengths(raw_by_code)) == 0) {
+    stop("outcome_type_L, outcome_type_T, and outcome_type_N are all empty, ",
+         "so no stay could end in a classified outcome.")
   }
 
   result <- character(0)
   for (code in names(keys)) {
     vals <- raw_by_code[[code]]
-    if (is.null(vals) || length(vals) == 0) {
-      stop(keys[[code]], " is missing or empty. ",
-           "All three (outcome_type_L, outcome_type_T, outcome_type_N) must be provided.")
-    }
+    if (length(vals) == 0) next
     char_vals <- .parse_raw_labels(vals, keys[[code]])
     # Duplicates must be caught BEFORE the assignment: result[label] <- code
     # overwrites an existing entry rather than appending, so a label already
@@ -166,10 +178,11 @@ parse_outcome_type_mapping <- function(settings) {
 }
 
 
-#' Parse outcome_type_delete or outcome_type_in_care from settings
+#' Parse outcome_type_delete, outcome_type_in_care, or outcome_type_censored
 #'
 #' @param settings List containing settings
-#' @param key Either "outcome_type_delete" or "outcome_type_in_care"
+#' @param key "outcome_type_delete", "outcome_type_in_care", or
+#'   "outcome_type_censored"
 #' @return Character vector of raw labels, or NULL if key is absent
 parse_outcome_type_filter <- function(settings, key) {
   vals <- settings[[key]]
@@ -257,7 +270,7 @@ extract_references <- function(settings, periods) {
     "period_dates", "period_labels",
     "restricted_stay_cap", "plot_stay_cap", "probability_mass_width",
     "outcome_type_L", "outcome_type_T", "outcome_type_N",
-    "outcome_type_delete", "outcome_type_in_care",
+    "outcome_type_delete", "outcome_type_in_care", "outcome_type_censored",
     "animal_group_columns", "animal_group_reference", "intake_type_reference",
     "period_reference", "discard_bad_rows", "discard_overlapping_rows",
     "show_km_ci_ribbons", "show_aj_cif_ci_ribbons",
@@ -423,6 +436,7 @@ extract_references <- function(settings, periods) {
   outcome_type_mapping  <- parse_outcome_type_mapping(settings)
   outcome_type_delete   <- parse_outcome_type_filter(settings, "outcome_type_delete")
   outcome_type_in_care  <- parse_outcome_type_filter(settings, "outcome_type_in_care")
+  outcome_type_censored <- parse_outcome_type_filter(settings, "outcome_type_censored")
 
   # Cross-setting duplicate check: a raw label must appear in at most one outcome_type_* setting.
   outcome_type_lists <- list(
@@ -430,7 +444,8 @@ extract_references <- function(settings, periods) {
     outcome_type_T       = if (!is.null(outcome_type_mapping)) names(outcome_type_mapping)[outcome_type_mapping == "T"] else NULL,
     outcome_type_N       = if (!is.null(outcome_type_mapping)) names(outcome_type_mapping)[outcome_type_mapping == "N"] else NULL,
     outcome_type_delete  = outcome_type_delete,
-    outcome_type_in_care = outcome_type_in_care
+    outcome_type_in_care = outcome_type_in_care,
+    outcome_type_censored = outcome_type_censored
   )
   outcome_type_lists <- Filter(Negate(is.null), outcome_type_lists)
   if (length(outcome_type_lists) >= 2) {
@@ -556,6 +571,7 @@ extract_references <- function(settings, periods) {
     outcome_type_mapping   = outcome_type_mapping,
     outcome_type_delete    = outcome_type_delete,
     outcome_type_in_care   = outcome_type_in_care,
+    outcome_type_censored  = outcome_type_censored,
     discard_bad_rows       = discard_bad_rows,
     discard_overlapping_rows = discard_overlapping_rows,
     # Optional value maps (named character vectors, names = the values to

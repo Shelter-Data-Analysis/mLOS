@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260926_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260927_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -57,6 +57,7 @@
         - [`outcome_type_L`, `outcome_type_T`, `outcome_type_N` (all-or-none)](#outcome_type_l-outcome_type_t-outcome_type_n-all-or-none)
         - [`outcome_type_delete`](#outcome_type_delete)
         - [`outcome_type_in_care`](#outcome_type_in_care)
+        - [`outcome_type_censored`](#outcome_type_censored)
     - [Defining the comparison groups](#defining-the-comparison-groups)
         - [`animal_group_columns`](#animal_group_columns)
         - [Value maps](#value-maps)
@@ -729,7 +730,7 @@ A full console log is written to `results/analysis_log.txt`.
 | `outcome_date` | Date the animal left care. Blank or empty for animals currently in care. Format: `YYYY-MM-DD`. A date paired with a blank `outcome_type` is an "unclassified exit"; see the warning below. Blank alongside a non-blank `outcome_type`, it is a data error; see [`discard_bad_rows`](#discard_bad_rows). |
 | `outcome_type` | Outcome code. See below for canonical values and how to map other values to the canonical ones. Blank for animals currently in care.  But a blank `outcome_type` with a recorded `outcome_date` is an unclassified exit; see warning below. An outcome code that a shelter uses to mean the animal is still resident belongs in [`outcome_type_in_care`](#outcome_type_in_care); otherwise it stops the run when its `outcome_date` is blank. |
 
-**Warning: an `outcome_date` with a blank `outcome_type` is accepted, as an "unclassified exit."** Such a row passes validation without any error, even under the strict default `discard_bad_rows: false`. The animal is treated as leaving observation on its departure date: it contributes at-risk time through that date and is censored there, counting as an outcome nowhere. It is not an event in the KM curves or the Cox regression, does not count as an outcome in any AJ cumulative incidence, and is excluded from the `total_outcomes` flow counts. This is exactly the treatment the `outcome_type_in_care` setting produces on purpose (see below), and rows recoded by that setting are the intended source of the pattern. If date-with-blank-type rows exist in your raw data, make sure that is what you mean: if the animal truly left care and only its outcome code went unrecorded, the analysis treats the animal as having an unknown departure date later than its actual one, and this inflates LOS estimates. The count of such rows (recoded and raw together) is printed in the console Data Summary as "Animals censored (unclassified exit)"; check that it matches what you expect, and consider `outcome_type_delete` for rows that are simply bad records. When these rows reach 0.5% of the stays in the study window, the Data Summary also prints a warning.
+**Warning: an `outcome_date` with a blank `outcome_type` is accepted, as an "unclassified exit."** Such a row passes validation without any error, even under the strict default `discard_bad_rows: false`. The animal is treated as leaving observation on its departure date: it contributes at-risk time through that date and is censored there, counting as an outcome nowhere. It is not an event in the KM curves or the Cox regression, does not count as an outcome in any AJ cumulative incidence, and is excluded from the `total_outcomes` flow counts. A dated row whose code is listed under `outcome_type_in_care` is an unclassified exit too, since that setting declares that the animal has not left. If the animal truly left care and only its outcome code went unrecorded, the analysis treats the animal as having an unknown departure date later than its actual one, and this inflates LOS estimates. The count of unclassified exits is printed in the console Data Summary as "Animals censored (unclassified exit)"; check that it matches what you expect, and consider `outcome_type_delete` for rows that are simply bad records. When the count reaches 0.5% of the stays in the study window, the Data Summary also prints a warning. To censor departures on purpose, list their codes under [`outcome_type_censored`](#outcome_type_censored): the treatment is the same, but those stays are counted separately and do not trigger the warning.
 
 ### Optional columns
 
@@ -759,7 +760,7 @@ The tool uses three canonical codes internally. The three are an initial design 
 | `T` | Other live outcome: transfer, foster, return-to-field. |
 | `N` | Non-live outcome: euthanasia (any type), died in care, lost in care. |
 
-Animals still in care have a blank `outcome_type` and a blank `outcome_date`. But a blank `outcome_type` with a recorded `outcome_date` is instead an unclassified exit (see the warning in the [mandatory-columns section](#mandatory-columns) above). Other `outcome_type` values in the data can also be converted to the in care status (see the `outcome_type_in_care` setting below).
+Animals still in care have a blank `outcome_type` and a blank `outcome_date`. But a blank `outcome_type` with a recorded `outcome_date` is instead an unclassified exit (see the warning in the [mandatory-columns section](#mandatory-columns) above). Other `outcome_type` values in the data can also be converted to the in care status (see the `outcome_type_in_care` setting below), or censored at departure (`outcome_type_censored`).
 
 ### Fine print on dates and LOS
 
@@ -794,7 +795,7 @@ Data preparation runs these stages in this order. Each stage driven by a setting
 | 1 | `outcome_type_delete` | Drop rows whose raw `outcome_type` is in the delete list |
 | 2 | Mandatory-column check | Stop if `intake_date` / `outcome_date` / `outcome_type` are missing |
 | 3 | Build `animal_group` | Concatenate `animal_group_columns` (if set) |
-| 4 | Row validation | Bad/short dates, `outcome_type_in_care` recode, factor variable conversion (`discard_bad_rows`) |
+| 4 | Row validation | Bad/short dates, `outcome_type_in_care` recode, `outcome_type_censored` recode, factor variable conversion (`discard_bad_rows`) |
 | 5 | Value maps | Rewrite `intake_type` / `animal_group` values (`intake_type_map`, `animal_group_map`) |
 | 6 | **Duplicate-stay removal** | Collapse rows sharing `animal_id` + `intake_date` + `outcome_date` |
 | 7 | **Overlapping-stay screen** | Detect/stop-or-drop physically impossible overlapping stays (`discard_overlapping_rows`) |
@@ -871,7 +872,7 @@ outcome_type_N:
   - "Lost"
 ```
 
-Maps site-specific raw labels from the CSV `outcome_type` column to the canonical L/T/N codes. If the data file already uses `L`, `T`, and `N` directly, omit all three keys. Otherwise, provide all three; each must list at least one value. No raw label may appear under more than one code. If none of the three keys are present, the CSV is assumed to already contain `L`, `T`, or `N` directly. The two modes are exclusive: when the mappings are given, only the listed labels are recognized, so a literal `L`, `T`, or `N` in the data is then an error unless it appears in one of the lists.
+Maps site-specific raw labels from the CSV `outcome_type` column to the canonical L/T/N codes. If the data file already uses `L`, `T`, and `N` directly, omit all three keys. Otherwise, all three keys must be present, but a list may be empty (the key with nothing after the colon) when there are no labels for that code; at least one of the three must list a value. No raw label may appear under more than one code. If none of the three keys are present, the CSV is assumed to already contain `L`, `T`, or `N` directly. The two modes are exclusive: when the mappings are given, only the listed labels are recognized, so a literal `L`, `T`, or `N` in the data is then an error unless it appears in one of the lists.
 
 Quote all values because YAML may otherwise interpret certain strings as booleans.
 
@@ -897,7 +898,19 @@ Raw CSV labels that indicate an animal is **still in care** despite having a non
 
 A code listed here is also exempt from the check that stops the run on an outcome code with a blank `outcome_date` (see [`discard_bad_rows`](#discard_bad_rows)): the recode runs first, and a placeholder code with no departure date is precisely what the setting exists to absorb.
 
-Another use is the treatment of reversible outcomes (such as "FOSTER") as inconclusive. For such outcome type entries, the animal is no longer residing in the shelter, but its eventual outcome (type or date) is undetermined. In fact, many shelters code FOSTER not as an outcome but as a change of location (like a move from one kennel to another).
+A row with one of these codes and an `outcome_date` counts as an unclassified exit in the console Data Summary. For codes that mean the animal has left, use `outcome_type_censored`.
+
+#### `outcome_type_censored`
+
+```yaml
+outcome_type_censored:
+  - "Foster"
+  - "TransferOut"
+```
+
+Raw CSV labels for a departure to be **censored on purpose**: the animal left on its `outcome_date`, but its outcome is not counted. Rows matching these labels are recoded to blank outcome type and censored at their `outcome_date`, the same treatment an unclassified exit receives. The console Data Summary counts them separately, as "Animals censored at departure (outcome_type_censored)", and they do not trigger the unclassified-exit warning. Applied before outcome type mapping, and after the check that stops the run on an outcome code with a blank `outcome_date`, so a listed code without a departure date is a data error like any other.
+
+One use is computing AnimLOS, which censors transfers to another organization (see [HistLOS, ExitLOS, and AnimLOS](#histlos-exitlos-and-animlos)). Another is the treatment of reversible outcomes (such as "FOSTER") as inconclusive: the animal is no longer residing in the shelter, but its eventual outcome (type or date) is undetermined. In fact, many shelters code FOSTER not as an outcome but as a change of location (like a move from one kennel to another).
 
 ### Defining the comparison groups
 
@@ -1023,7 +1036,7 @@ The following checks are applied to every row:
 |---|---|
 | `intake_date` | Cannot be parsed as a `YYYY-MM-DD` date. |
 | `outcome_date` | Present but cannot be parsed, or is earlier than `intake_date`. (But same-day intake and outcome is allowed.) |
-| `outcome_type` | Non-blank value that is not in `outcome_type_delete`, `outcome_type_in_care`, or among the recognized outcome labels: the mapped raw labels when the `outcome_type_L/T/N` settings are given, or the literal codes `L`/`T`/`N` when they are not. |
+| `outcome_type` | Non-blank value that is not in `outcome_type_delete`, `outcome_type_in_care`, `outcome_type_censored`, or among the recognized outcome labels: the mapped raw labels when the `outcome_type_L/T/N` settings are given, or the literal codes `L`/`T`/`N` when they are not. |
 | `outcome_type` with `outcome_date` | An outcome code paired with a blank `outcome_date`: the stay claims to have ended without saying when, and no analysis can tell it apart from an animal still in care. Applied after the `outcome_type_in_care` recode, so a code meaning the animal has not left belongs in that setting and is not flagged here. |
 
 - **`discard_bad_rows: false`** (default) — the run stops immediately with an error message describing the problem. Use this when data quality must be verified before any results are produced.
@@ -1288,14 +1301,14 @@ A variant deck sets it beside ExitLOS with `@extra HistLOS` (see the Presentatio
 
 The L/T/N outcome types this tool reports on by default correspond to ExitLOS, as defined in [1]: length of stay measured up to the animal's exit from this organization, whatever form that exit takes.
 
-You can instead have the tool compute AnimLOS (discussed in [2, 3]), which attempts to model an animal's length of stay across organizations rather than considering the stay completed when the animal exits the initial organization being analyzed. For AnimLOS, animals transferred out to another organization need to be treated as censored rather than as a classified outcome, since their stay continues elsewhere and this tool has no visibility into it. To recode transfers as censoring, identify the raw outcome codes in your data that denote transfer to another organization, and list them under `outcome_type_in_care` (see the [settings reference](#settings-file-yaml) above), so that they are treated as right-censored in the statistics. The computation for AnimLOS is thereafter the same as for ExitLOS. They differ only in how the transfer codes are read. Note that if all outcomes originally coded as T (other live outcome) are recoded, then the AJ analysis for AnimLOS will lack that outcome type; this can also happen to ExitLOS for shelters whose only live outcomes are community outcomes. 
+You can instead have the tool compute AnimLOS (discussed in [2, 3]), which attempts to model an animal's length of stay across organizations rather than considering the stay completed when the animal exits the initial organization being analyzed. For AnimLOS, animals transferred out to another organization need to be treated as censored rather than as a classified outcome, since their stay continues elsewhere and this tool has no visibility into it. To recode transfers as censoring, identify the raw outcome codes in your data that denote transfer to another organization, and list them under [`outcome_type_censored`](#outcome_type_censored), so that they are treated as right-censored at their departure dates. The computation for AnimLOS is thereafter the same as for ExitLOS. They differ only in how the transfer codes are read. If every label under `outcome_type_T` moves to `outcome_type_censored`, leave `outcome_type_T` present but empty; the AJ analysis for AnimLOS then lacks that outcome type, which can also happen to ExitLOS for shelters whose only live outcomes are community outcomes. 
 
 ---
 
 ## Limitations
 
 - **Partial typographical checking.** Date fields and outcome type codes are validated (see `discard_bad_rows`). Errors in group labels or intake types are not caught and create unexpected factor levels in the output (blank values, by contrast, are handled: they are filled with `_UNKNOWN_`, as described in the [optional columns section](#optional-columns)). Validate your CSV before running.
-- **Unclassified exits are accepted, with a warning only at 0.5% of stays or above.** A row with an `outcome_date` but a blank `outcome_type` passes validation and is censored at its departure date (see the warning in the [data file section](#data-file-csv)). When such rows are data errors rather than deliberate, the censoring inflates the LOS estimates. The signal to check for this is the "Animals censored (unclassified exit)" count in the console Data Summary, which a warning follows when the count reaches 0.5% of the stays in the study window.
+- **Unclassified exits are accepted, with a warning only at 0.5% of stays or above.** A row with an `outcome_date` but a blank `outcome_type`, or an `outcome_type_in_care` code, passes validation and is censored at its departure date (see the warning in the [data file section](#data-file-csv)). When such rows are data errors, the censoring inflates the LOS estimates. The signal to check for this is the "Animals censored (unclassified exit)" count in the console Data Summary, which a warning follows when the count reaches 0.5% of the stays in the study window. Stays censored through `outcome_type_censored` are counted apart and do not trigger it.
 - **Proportional hazards.** Cox regression assumes that hazard ratios are constant over the entire LOS range. Violations can occur when, for example, long-stay animals have a fundamentally different discharge profile. The per-predictor stratified Cox fits in `results.json` are a partial screen on this: they re-estimate each stratifier's hazard ratios without assuming proportional hazards for the *other* two. A large gap between one of these and the pooled Cox is a sign the assumption is straining for the remaining stratifiers, but says nothing about whether the assumption holds for the axis being estimated. `tools/cox_zph.R` runs the Grambsch–Therneau test on scaled Schoenfeld residuals (`survival::cox.zph`) on the same pooled fit, outside the run, with the same `--settings`, `--data`, and `--results` arguments as the run itself. A rejection means the pooled hazard ratio is an average over tenure rather than a constant multiplier. Hazard ratios within tenure ranges condition on the animals still in care, so they are not a substitute: a shelter that places its more adoptable animals sooner can show lower hazards later in the stay while doing better overall. The KM curves and restricted means are the measures to read for that.
 - **Weibull fit.** The run assesses the Weibull form only through the per-predictor shape variants (a shape ratio far from one says a single shared shape does not fit) and the confidence intervals; it provides no goodness-of-fit diagnostics beyond those.
 - **Minimum sample size.** As a rule of thumb, results become unstable with fewer than about 100 outcomes per period. With very few events, confidence intervals are wide and tests underpowered. When in doubt, use longer periods. The same goes for intake types or animal groups, and the remedy there is to condense values to a smaller set.

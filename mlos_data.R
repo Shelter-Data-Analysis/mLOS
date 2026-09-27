@@ -411,11 +411,12 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
   }
 
   # Check 3: outcome_type must be blank/NA, in outcome_type_delete, in outcome_type_in_care,
-  #          or mappable to L/T/N.
+  #          in outcome_type_censored, or mappable to L/T/N.
   all_known_labels <- c(
     if (!is.null(references$outcome_type_mapping)) names(references$outcome_type_mapping),
     if (!is.null(references$outcome_type_delete))  references$outcome_type_delete,
     if (!is.null(references$outcome_type_in_care)) references$outcome_type_in_care,
+    if (!is.null(references$outcome_type_censored)) references$outcome_type_censored,
     if (is.null(references$outcome_type_mapping))  c("L", "T", "N")
   )
   ot_cur        <- trimws(data$outcome_type)
@@ -510,6 +511,31 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
            "means the animal has not left, or set discard_bad_rows: true to drop ",
            "these rows.")
     }
+  }
+
+  # Apply outcome_type_censored: a recorded departure whose outcome is censored
+  # on purpose, such as a transfer out when computing AnimLOS. It runs after
+  # Check 4, so one of these codes without an outcome_date is caught there like
+  # any other outcome. The flag keeps these stays out of the unclassified-exit
+  # count that display_data_summary warns about.
+  data$censored_by_setting <- FALSE
+  n_censored_recode <- 0L
+  if (!is.null(references$outcome_type_censored)) {
+    raw_ot <- trimws(data$outcome_type)
+    to_censor <- !is.na(raw_ot) & raw_ot %in% references$outcome_type_censored
+    n_censored_recode <- sum(to_censor)
+    cat("outcome_type_censored: recoded", n_censored_recode, "animal(s) matching",
+        paste(references$outcome_type_censored, collapse = ", "),
+        "to NA outcome_type (censored at outcome_date)\n")
+    record_step("outcome_type_censored", "map", "outcome_type",
+                paste0(paste(references$outcome_type_censored, collapse = ", "),
+                       " -> censored at outcome_date"),
+                data, data, affected = to_censor,
+                breakdown = .value_breakdown("map from", "outcome_type",
+                                             references$outcome_type_censored,
+                                             raw_ot, to_censor, "rows mapped"))
+    data$outcome_type[to_censor] <- NA
+    data$censored_by_setting <- to_censor
   }
 
   if (!is.null(outcome_type_mapping)) {
@@ -820,6 +846,7 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
     ledger_detail        = if (length(ledger_detail) > 0) do.call(rbind, ledger_detail)
                            else .empty_ledger_detail(),
     recoded_in_care      = n_recoded,
+    recoded_censored     = n_censored_recode,
     # Value-map hit counts, one row per configured pair (from, to,
     # rows_mapped). Recodes rather than removals, so they sit beside the
     # attrition register like recoded_in_care above. No rows means the map was
@@ -831,6 +858,7 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
     n_animals            = length(unique(data$animal_id)),
     stays_in_care        = sum(data$in_care),
     stays_censored_early = sum(data$censored_early),
+    stays_censored_by_setting = sum(data$censored_by_setting),
     stays_with_outcome   = sum(data$has_outcome),
     study_window_start   = as.character(first_date),
     study_window_end     = as.character(last_date),
@@ -891,15 +919,22 @@ display_data_summary <- function(data) {
   cat("\n=== Data Summary ===\n")
   cat("Total records:", nrow(data), "\n")
   cat("Animals still in care:", sum(data$in_care), "\n")
-  cat("Animals censored (unclassified exit):", sum(data$censored_early), "\n")
+  # An unclassified exit (a departure date with no classified outcome type,
+  # whether blank in the CSV or an outcome_type_in_care code on a stay that has
+  # left) is censored at its departure date, a deliberate convention that keeps
+  # KM and AJ on one event definition (math methods 3.2, source 4). It inflates
+  # LOS slightly, in proportion to the count, so a count this large is flagged
+  # as a data-quality matter to resolve upstream. Stays censored at departure by
+  # outcome_type_censored are censored the same way, but on purpose, and are
+  # counted apart.
+  n_by_setting   <- sum(data$censored_by_setting)
+  n_unclassified <- sum(data$censored_early) - n_by_setting
+  cat("Animals censored (unclassified exit):", n_unclassified, "\n")
+  if (n_by_setting > 0) {
+    cat("Animals censored at departure (outcome_type_censored):", n_by_setting, "\n")
+  }
   cat("Animals with outcomes:", sum(data$has_outcome), "\n\n")
 
-  # An unclassified exit (a departure date with no classified outcome type) is
-  # censored at its departure date, a deliberate convention that keeps KM and
-  # AJ on one event definition (math methods 3.2, source 4). It inflates LOS
-  # slightly, in proportion to the count, so a count this large is flagged as
-  # a data-quality matter to resolve upstream.
-  n_unclassified <- sum(data$censored_early)
   if (n_unclassified > 0 &&
       n_unclassified >= UNCLASSIFIED_EXIT_WARN_FRACTION * nrow(data)) {
     cat("*** WARNING: ", n_unclassified, " unclassified ",
@@ -908,7 +943,9 @@ display_data_summary <- function(data) {
         sprintf("%.1f", 100 * UNCLASSIFIED_EXIT_WARN_FRACTION), "%): ",
         "departures with no classified outcome type are censored at their ",
         "departure dates, which inflates LOS estimates. Check for outcome types ",
-        "missing in the data ***\n\n", sep = "")
+        "missing in the data, or outcome_type_in_care codes on stays that have ",
+        "left. Codes to censor at departure on purpose belong under ",
+        "outcome_type_censored ***\n\n", sep = "")
   }
 
   cat("Date ranges:\n")

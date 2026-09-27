@@ -530,7 +530,7 @@ write_general_sheet <- function(wb, bundle, title_style,
   # of results. Deliberately excluded: plot-only cosmetics (plot_stay_cap, the
   # png_* factors, max_plot_strata, the CI-ribbon toggles) and the
   # output-emission flags. The raw-label -> L/T/N relabeling is substantive too
-  # but keeps its own "Outcome type mapping" section below; the two outcome
+  # but keeps its own "Outcome type mapping" section below; the three outcome
   # settings that DROP rows or reclassify outcomes as censored are shown here.
   # restricted_stay_cap also appears in Unified KM detail below; it leads here
   # as the headline knob.
@@ -556,7 +556,8 @@ write_general_sheet <- function(wb, bundle, title_style,
     "Animal group filter",
     "Other filter",
     "Outcome types deleted",
-    "Outcome types treated as in-care"
+    "Outcome types treated as in-care",
+    "Outcome types censored at departure"
   )
   settings_values <- list(
     settings$restricted_stay_cap,
@@ -571,7 +572,8 @@ write_general_sheet <- function(wb, bundle, title_style,
     fmt_filter(settings$animal_group_filter),
     fmt_filter(settings$other_filter),
     fmt_labels(settings$outcome_type_delete),
-    fmt_labels(settings$outcome_type_in_care)
+    fmt_labels(settings$outcome_type_in_care),
+    fmt_labels(settings$outcome_type_censored)
   )
   next_row <- .excel_write_section_title(
     wb, "General", next_row, "Analysis settings",
