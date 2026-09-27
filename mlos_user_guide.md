@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260927_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260927_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -910,7 +910,7 @@ outcome_type_censored:
 
 Raw CSV labels for a departure to be **censored on purpose**: the animal left on its `outcome_date`, but its outcome is not counted. Rows matching these labels are recoded to blank outcome type and censored at their `outcome_date`, the same treatment an unclassified exit receives. The console Data Summary counts them separately, as "Animals censored at departure (outcome_type_censored)", and they do not trigger the unclassified-exit warning. Applied before outcome type mapping, and after the check that stops the run on an outcome code with a blank `outcome_date`, so a listed code without a departure date is a data error like any other.
 
-One use is computing AnimLOS, which censors transfers to another organization (see [HistLOS, ExitLOS, and AnimLOS](#histlos-exitlos-and-animlos)). Another is the treatment of reversible outcomes (such as "FOSTER") as inconclusive: the animal is no longer residing in the shelter, but its eventual outcome (type or date) is undetermined. In fact, many shelters code FOSTER not as an outcome but as a change of location (like a move from one kennel to another).
+One use is computing AnimLOS, which censors transfers to another organization (see [HistLOS, ExitLOS, and AnimLOS](#histlos-exitlos-and-animlos)). Another is the treatment of reversible outcomes (such as "FOSTER") as inconclusive: the animal is no longer residing in the shelter, but its eventual outcome (type or date) is undetermined. (Foster coding varies among shelters, and mLOS accordingly does not constrain it to one interpretation. A shelter that counts foster as an outcome lists the code under `outcome_type_T`, and one that treats it as inconclusive lists it here. Where foster is only a change of location, like a move from one kennel to another, the stay continues and its real outcome comes later, so the foster record should not end the stay in the data file at all.)
 
 ### Defining the comparison groups
 
