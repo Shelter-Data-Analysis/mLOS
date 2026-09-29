@@ -24,8 +24,9 @@ plot is byte-identical to 0.3.0.
 
 - `CITATION.cff`, `README.md` and `presentation_guide.md` name results version
   4, `10.5281/zenodo.23047014`, and deck version 5, `10.5281/zenodo.23047087`.
-- `PUBLISHING.md`'s identifier table gains the two new deposit versions, and
-  its ancestry diagram names them.
+- `PUBLISHING.md`'s identifier table gains mLOS 0.3.0,
+  `10.5281/zenodo.23047477`, and the two new deposit versions, and its
+  ancestry diagram names them.
 
 ## 0.3.0 (2026-09-29)
 
