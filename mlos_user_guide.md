@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260927_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260929_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -630,7 +630,7 @@ See the per-predictor Weibull sheets below for the fuller report that lives on i
 
 The Cox regression tests whether LOS distributions differ significantly across periods, intake types, and animal groups when these stratifiers act simultaneously. It quantifies the differences as hazard ratios.
 
-The hazard-ratio table lists every level of every predictor. The reference level appears as a definitional row: hazard ratio exactly 1, with a blank confidence interval and p-value, because the reference is the denominator of the ratios rather than an estimate of its own.
+The hazard-ratio table lists every level of every predictor. The reference level appears as a definitional row: hazard ratio exactly 1, with a blank confidence interval and p-value, because the reference is the denominator of the ratios rather than an estimate of its own. A note beside the table's title says that each hazard ratio is an average over tenure, constant only if hazards are proportional, and names `tools/cox_zph.R`, which tests that assumption (see [Limitations](#limitations)).
 
 Levels appear in the fixed canonical order described under [Strata (level) ordering](#plots) above: chronological for periods, character-code order for intake types and animal groups. The table's rows therefore line up with the `By_Period`, `By_Intake_Type`, and `By_Animal_Group` columns, and they stay in the same positions across repeated runs on the same shelter and across machines. The Weibull sheets follow the same convention.
 

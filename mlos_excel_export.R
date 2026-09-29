@@ -236,9 +236,12 @@ write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style
   )
   next_row <- next_row + nrow(tests) + 3
 
-  openxlsx::writeData(wb, "Cox_Regression", "Hazard ratios", startRow = next_row,
-                      startCol = 1, colNames = FALSE)
-  openxlsx::addStyle(wb, "Cox_Regression", title_style, rows = next_row, cols = 1)
+  .excel_write_section_title(
+    wb, "Cox_Regression", next_row, "Hazard ratios",
+    paste("averages over tenure, constant only if hazards are proportional;",
+          "test proportionality of hazards with tools/cox_zph.R"),
+    title_style
+  )
   hr_start <- next_row + 1
   openxlsx::writeData(wb, "Cox_Regression", hr_export, startRow = next_row + 1, startCol = 1)
   .excel_apply_table_num_styles(
@@ -1041,15 +1044,17 @@ write_data_preparation_sheet <- function(wb, bundle, title_style,
     next_row
   }
 
+  zph_note <- "(to test hazard proportionality for the pooled ratios use tools/cox_zph.R)"
   next_row <- write_block(
     start_row, "Hazard ratios",
     .stratifier_hazard_ratio_matrix(stratifier_id, labels, cox_bundle, weibull_bundle,
                                     cox_stratified, weibull_on),
     if (weibull_on) {
       paste0("comparable with one another; see the Cox_Regression and ",
-             target_sheet, " sheets for the full regressions")
+             target_sheet, " sheets for the full regressions ", zph_note)
     } else {
-      "comparable with one another; see the Cox_Regression sheet for the full regression"
+      paste("comparable with one another; see the Cox_Regression sheet for the",
+            "full regression", zph_note)
     }
   )
 
