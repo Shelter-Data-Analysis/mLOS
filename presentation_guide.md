@@ -190,7 +190,7 @@ is enough to look at what it produces.
 ### Running it, and what it writes
 
 A deck built from the shipped OC2 settings is deposited at
-[10.5281/zenodo.22971252](https://doi.org/10.5281/zenodo.22971252), with its
+[10.5281/zenodo.23047087](https://doi.org/10.5281/zenodo.23047087), with its
 table workbook, its figures, and the settings file it was built under, so the
 output described below can be read without running anything. That deposit is
 derived from the results deposit rather than standing on its own, and the

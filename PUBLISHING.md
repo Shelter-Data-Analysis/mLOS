@@ -504,11 +504,13 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 19 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
 | 20 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
 | 21 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
-| 22 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 23 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 24 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
-| 25 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
-| 26 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
+| 22 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
+| 23 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 24 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 25 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 26 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
+| 27 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
+| 28 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
@@ -530,7 +532,7 @@ raw extract   …091
      |  isDerivedFrom
 prepared data …368   <-- isCompiledBy -- ShelterDataPrep …338
      |  isDerivedFrom
-mLOS results  …148   <-- isCompiledBy -- mLOS …814
+mLOS results  …014   <-- isCompiledBy -- mLOS …814
      |  isDerivedFrom
-mLOS deck     …252   <-- isCompiledBy -- mLOS …814
+mLOS deck     …087   <-- isCompiledBy -- mLOS …814
 ```

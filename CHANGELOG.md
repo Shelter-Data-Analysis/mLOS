@@ -17,6 +17,16 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
+## Unreleased
+
+The DOIs the 0.3.0 release minted. **No number changed**: every CSV and every
+plot is byte-identical to 0.3.0.
+
+- `CITATION.cff`, `README.md` and `presentation_guide.md` name results version
+  4, `10.5281/zenodo.23047014`, and deck version 5, `10.5281/zenodo.23047087`.
+- `PUBLISHING.md`'s identifier table gains the two new deposit versions, and
+  its ancestry diagram names them.
+
 ## 0.3.0 (2026-09-29)
 
 **The AJ confidence bounds changed; no estimate changed.** The AJ fit now
