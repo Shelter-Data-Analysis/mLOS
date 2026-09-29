@@ -66,6 +66,8 @@
 #     median_los = 8,                      # uses the case-wide tolerance
 #     restricted_mean = c(11.2, 0.5)       # c(value, tol) per-field override
 #   )
+# A passing check with a widened tolerance prints its target and tolerance
+# beside the recovered value, unless the two are equal.
 #
 # Usage (from the project root):
 #   Rscript tests/run_tests.R
@@ -173,7 +175,13 @@ expect_equal <- function(label, actual, expected, tol = 1e-6) {
 
   if (ok) {
     .n_pass <<- .n_pass + 1L
-    cat(sprintf("  [PASS] %s = %s\n", label, format(actual)))
+    # A check with a widened tolerance (the sim_* fixtures) prints its target
+    # beside what the fit recovered, so the log records both. Exact matches,
+    # the sampled counts among them, print as before.
+    truth <- if (tol > 1e-6 && !is.na(expected) && actual != expected) {
+      sprintf(" (true %s +/- %s)", format(expected), format(tol))
+    } else ""
+    cat(sprintf("  [PASS] %s = %s%s\n", label, format(actual), truth))
   } else {
     .n_fail <<- .n_fail + 1L
     cat(sprintf("  [FAIL] %s: expected %s, got %s\n", label, format(expected), format(actual)))
