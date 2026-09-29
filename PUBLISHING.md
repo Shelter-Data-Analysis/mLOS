@@ -225,17 +225,24 @@ a leading `v` out of a package version, so `pyproject.toml` would report the
 bare form whatever it was given and the three declarations would stop
 agreeing.
 
-In the same edit, add the two *compiles* relations under Related works. A
-record built from a GitHub release carries only the automatic *is supplement
-to* link to its tree, and relations entered by hand on an earlier release do
-not carry forward to it, as they do through New Version on a hand deposit:
+In the same edit, add the two *compiles* relations under Related works, and
+the methodology paper under References. A record built from a GitHub release
+carries only the automatic *is supplement to* link to its tree, and what was
+entered by hand on an earlier release does not carry forward to it, as it
+does through New Version on a hand deposit:
 
 - *compiles* `10.5281/zenodo.22084230`, the results deposit, all versions
 - *compiles* `10.5281/zenodo.22085156`, the deck deposit, all versions
+- Reference: `Mavrovouniotis ML. Use of Kaplan-Meier and Cox regressions in
+  the distribution of length of stay in animal shelters for pre-specified
+  calendar periods: Definition, computation, and examples of dog length of
+  stay in Orange County California. PLOS ONE. 2026;21(1):e0342102.
+  doi:10.1371/journal.pone.0342102`
 
-Both are concept DOIs, so the pair is the same on every release. The deposits
-already point back with *is compiled by*, so the chain holds without these;
-they make it walkable from the software record as well.
+The two relations are concept DOIs, so all three entries are the same on
+every release. The deposits already point back with *is compiled by*, so the
+chain holds without the relations; they make it walkable from the software
+record as well.
 
 ### 6. Stage and upload the results deposit
 
