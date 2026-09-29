@@ -36,6 +36,13 @@ the settings echo and `recoded_censored` and `stays_censored_by_setting` in
   present when any is, but a list may now be empty, provided one of the three
   lists a label. AnimLOS on OC2, whose only T label is TRAN, needed a placeholder
   label before.
+- The workbook notes, beside the Cox hazard ratios, that they are averages over
+  tenure, constant only if hazards are proportional, and names
+  `tools/cox_zph.R`; the By_* sheets add that it tests the pooled ratios.
+- `tools/cox_zph.R` adds one test per factor (`terms = TRUE`) to its table,
+  between the per-coefficient rows and the global test, with a `test` column
+  naming the kind. The per-factor and global tests do not depend on the choice
+  of reference level; the per-coefficient tests do.
 - `PUBLISHING.md`'s identifier table gains mLOS 0.2.4,
   `10.5281/zenodo.22972448`.
 - `CITATION.cff`'s keywords add Aalen-Johansen estimate and Cox regression and

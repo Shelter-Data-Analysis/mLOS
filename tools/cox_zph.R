@@ -5,11 +5,14 @@
 # Usage (from the mLOS working copy):
 #   Rscript tools/cox_zph.R [--settings FILE] [--data FILE] [--results DIR]
 #
-# The time transform is cox.zph's default, the Kaplan-Meier transform, and
-# terms = FALSE tests each dummy indicator separately, so each non-reference
-# level of a factor gets its own row. A rejection says that the pooled hazard
-# ratio is an average over tenure rather than a constant multiplier (math
-# methods §9).
+# The time transform is cox.zph's default, the Kaplan-Meier transform. The
+# table gives three kinds of test, named in its `test` column: one per
+# coefficient (terms = FALSE), so each non-reference level of a factor gets its
+# own row; one per factor (terms = TRUE); and the global test. A
+# per-coefficient test depends on the choice of reference level, since a dummy
+# for a different reference is a different contrast; the per-factor and global
+# tests do not. A rejection says that the pooled hazard ratio is an average
+# over tenure rather than a constant multiplier (math methods §9).
 # cox_zph_inputs.csv records the mLOS version and input hashes, as
 # tools/histlos_by_period.R does for its own output.
 
@@ -38,11 +41,19 @@ invisible(capture.output({
 if (!isTRUE(cox_results$has_analysis)) stop("No pooled Cox model was fitted for this data and settings.")
 
 fit <- cox_results$cox_model
-zph <- survival::cox.zph(fit, transform = "km", terms = FALSE)
-tab <- data.frame(term  = rownames(zph$table),
-                  chisq = unname(zph$table[, "chisq"]),
-                  df    = unname(zph$table[, "df"]),
-                  p     = unname(zph$table[, "p"]))
+zph_rows <- function(terms) {
+  z <- survival::cox.zph(fit, transform = "km", terms = terms)$table
+  data.frame(term  = rownames(z),
+             chisq = unname(z[, "chisq"]),
+             df    = unname(z[, "df"]),
+             p     = unname(z[, "p"]))
+}
+by_coef   <- zph_rows(terms = FALSE)
+by_factor <- zph_rows(terms = TRUE)
+global    <- by_coef$term == "GLOBAL"   # the same in both
+tab <- rbind(cbind(test = "coefficient", by_coef[!global, ]),
+             cbind(test = "factor", by_factor[by_factor$term != "GLOBAL", ]),
+             cbind(test = "global", by_coef[global, ]))
 .write_plot_csv(tab, out("cox_zph.csv"), "Proportional-hazards test")
 cat("Events:", fit$nevent, "\n")
 print(transform(tab, chisq = round(chisq, 2), p = signif(p, 3)), row.names = FALSE)
