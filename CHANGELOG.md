@@ -17,7 +17,7 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
-## Unreleased
+## 0.3.0 (2026-09-29)
 
 **The AJ confidence bounds changed; no estimate changed.** The AJ fit now
 clusters its variance on `animal_id`, so the bounds in the AJ CIF CSVs,
