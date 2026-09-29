@@ -30,6 +30,9 @@ plot is byte-identical to 0.3.0.
 - `PUBLISHING.md` step 5 adds the two *compiles* relations and the PLOS ONE
   reference a software record needs on every release, since Zenodo does not
   carry hand-entered metadata from one GitHub release to the next.
+- `tests/README.md` lists the standalone checks that follow the validation
+  section, among them the AJ clustering and `aj_cif_any` checks 0.3.0 added,
+  and says the simulation checks print their targets.
 
 ## 0.3.0 (2026-09-29)
 

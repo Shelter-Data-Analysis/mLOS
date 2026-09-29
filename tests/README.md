@@ -229,7 +229,34 @@ something else. `--generate-outputs` stays a local step.
 production pipeline and its `expected_*` values are checked. Afterwards, a
 validation section asserts the exact error messages of the settings parsers
 and row-level data checks (these `stop()` paths can't be reached through
-fixtures, because a fixture that trips one would abort its own run).
+fixtures, because a fixture that trips one would abort its own run). The same
+section checks the Data Summary's two censoring counts, unclassified exits and
+`outcome_type_censored`, and when its warning fires.
+
+Standalone checks follow, none tied to a fixture:
+
+- **filter invariance**: cutting one intake type leaves the KM, AJ, and
+  observation results of the others unchanged, bit for bit;
+- **results.json precision**: every double in a bundle survives the JSON round
+  trip, where jsonlite's default precision would not;
+- **AJ variance clustering**: the AJ fit matches `survfit` with the stay as
+  subject and the animal as cluster, and a repeat animal changes its standard
+  errors;
+- **aj_cif_any**: the all-cause plots and CSVs are written only with the
+  setting on, and the manifest describes them;
+- **schema tolerance**: a bundle written before newer fields existed still
+  renders, to the same sheets;
+- **stratifier registry wiring**: a stratifier the Cox and Weibull fits have no
+  term for is refused by name;
+- **probability-mass bins**: the interval edges, the whole bin at
+  `plot_stay_cap`, and no sliver at the cap;
+- **output family naming**: every plot stem follows its family's pattern;
+- **collation order**: label sorting is pinned to byte order and survives a
+  hostile locale;
+- **release metadata**: `CITATION.cff` and `pyproject.toml` carry the version,
+  and the log header prints it;
+- **entry-point script checks**: `--help`, unrecognized arguments, and errors
+  reaching the console rather than the log.
 
 **`--generate-outputs`** — additionally runs *every* analysis on *every*
 fixture (even ones a fixture wasn't built to test — small edge-case data is
@@ -357,6 +384,10 @@ purposes: they check that the analyses recover known truth from realistic
 data (larger n, natural left truncation and right censoring), and they are
 worked examples users can open to see what every output looks like when
 the data samples a predetermined form.
+
+A passing check with a widened tolerance prints its target beside the
+recovered value, for example `= 0.4065535 (true 0.406127 +/- 0.12)`, so the log
+records what each simulation recovered.
 
 Each `sim_*` case carries two extra committed files beyond the usual
 three:
