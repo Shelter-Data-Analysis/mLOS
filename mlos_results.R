@@ -1404,6 +1404,7 @@ build_results_bundle <- function(cox_results,
         max_plot_strata        = references$max_plot_strata,
         show_km_ci_ribbons     = references$show_km_ci_ribbons,
         show_aj_cif_ci_ribbons = references$show_aj_cif_ci_ribbons,
+        aj_cif_any             = references$aj_cif_any,
         png_pointsize_factor   = references$png_pointsize_factor,
         png_line_width_factor  = references$png_line_width_factor,
         output_flags           = references$output_flags
@@ -1490,7 +1491,9 @@ build_results_bundle <- function(cox_results,
 #' @param bundle The bundle from build_results_bundle
 #' @return The bundle with its `outputs` manifest filled in
 attach_output_manifest <- function(bundle) {
-  bundle$outputs <- .build_output_manifest(emitted_outputs(), .OUTCOME_STATE_LEVELS)
+  # "Any" is listed too so the aj_cif_any plots are described when written;
+  # the manifest keeps only files the run emitted.
+  bundle$outputs <- .build_output_manifest(emitted_outputs(), c(.OUTCOME_STATE_LEVELS, "Any"))
   bundle
 }
 

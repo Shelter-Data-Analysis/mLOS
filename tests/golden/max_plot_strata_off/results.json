@@ -68,6 +68,7 @@
       "max_plot_strata": 1,
       "show_km_ci_ribbons": false,
       "show_aj_cif_ci_ribbons": false,
+      "aj_cif_any": false,
       "png_pointsize_factor": 1,
       "png_line_width_factor": 1,
       "output_flags": {

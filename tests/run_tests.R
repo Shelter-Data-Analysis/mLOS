@@ -3075,6 +3075,71 @@ run_suite_checks <- function() {
     cat("  (", length(leaves), " doubles checked)\n", sep = "")
   }
 
+  # AJ variance clustering: the fit takes each stay's period rows as one
+  # subject and clusters the infinitesimal-jackknife variance on animal_id.
+  # One animal has two stays, and one stay spans the period boundary. The fit
+  # must match a direct survfit call with that id and cluster, and giving the
+  # second stay its own animal must change the standard errors.
+  cat("\n=== AJ variance clustering ===\n")
+  cl_run <- function(second_stay_id) {
+    csv <- write_temp_csv(c(
+      "animal_id,intake_date,outcome_date,outcome_type",
+      "A,2021-01-01,2021-01-05,L",
+      paste0(second_stay_id, ",2021-01-10,2021-01-20,T"),
+      "B,2021-01-03,2021-02-15,L",
+      "C,2021-01-04,2021-01-09,N",
+      "D,2021-01-06,2021-01-30,L",
+      "E,2021-02-02,2021-02-12,L",
+      "F,2021-02-03,2021-02-06,T",
+      "G,2021-02-05,2021-02-25,N",
+      "H,2021-02-08,2021-02-11,L"))
+    refs <- refs_for(list(period_dates = c("2021-01-01", "2021-02-01", "2021-04-01"),
+                          restricted_stay_cap = 60))
+    capture.output({
+      d   <- read_and_prepare_data(csv, refs)
+      pd  <- break_down_by_period(d, refs)
+      res <- compute_aj_cif_results(pd, print_summary = FALSE, rmean_cap = 60)
+    })
+    list(pd = pd, res = res)
+  }
+  cl_rep <- cl_run("A")
+  cl_sep <- cl_run("Z")
+  expect_equal("AJ clustering: a stay spans the period boundary",
+               as.numeric(nrow(cl_rep$pd) > length(unique(cl_rep$pd$stay_id))), 1)
+  cl_state <- as.character(cl_rep$pd$outcome_type)
+  cl_state[is.na(cl_state) | cl_rep$pd$event == 0] <- "Censor"
+  cl_direct <- survival::survfit(
+    survival::Surv(cl_rep$pd$time_start, cl_rep$pd$time_end,
+                   factor(cl_state, levels = c("Censor", cl_rep$res$outcome_states))) ~ 1,
+    id = cl_rep$pd$stay_id, cluster = cl_rep$pd$animal_id)
+  cl_direct_se <- as.numeric(summary(cl_direct, rmean = 60)$table[, "se(rmean)"])
+  cl_fit_se <- cl_rep$res$rmtl$se[cl_rep$res$rmtl$state != "Any"]
+  expect_equal("AJ clustering: matches survfit with id = stay, cluster = animal",
+               max(abs(cl_fit_se - cl_direct_se)), 0, tol = 1e-12)
+  expect_equal("AJ clustering: a repeat animal changes the standard errors",
+               as.numeric(max(abs(cl_rep$res$rmtl$se - cl_sep$res$rmtl$se)) > 1e-8), 1)
+
+  # aj_cif_any adds an all-cause plot and CSV per stratifier, and the manifest
+  # describes them; absent, neither is written.
+  cat("\n=== aj_cif_any ===\n")
+  any_dir <- tempfile("aj_cif_any")
+  dir.create(any_dir)
+  any_prefix <- file.path(any_dir, paste0("aj_cif", fi_intake$suffix))
+  any_files <- paste0("aj_cif", fi_intake$suffix, "_outcome_Any", c(".png", ".csv"))
+  capture.output(plot_aj_cif_by_stratum_lines(fi_full$aj, references = fi_full$refs,
+                                              save_prefix = any_prefix))
+  expect_equal("aj_cif_any absent: no all-cause files",
+               sum(file.exists(file.path(any_dir, any_files))), 0)
+  any_refs <- fi_full$refs
+  any_refs$aj_cif_any <- TRUE
+  capture.output(plot_aj_cif_by_stratum_lines(fi_full$aj, references = any_refs,
+                                              save_prefix = any_prefix))
+  expect_equal("aj_cif_any: all-cause plot and CSV written",
+               sum(file.exists(file.path(any_dir, any_files))), 2)
+  any_manifest <- .build_output_manifest(any_files, c(.OUTCOME_STATE_LEVELS, "Any"))
+  expect_equal("aj_cif_any: the manifest describes the all-cause files",
+               sum(vapply(any_manifest, function(e) identical(e$outcome, "Any"), logical(1))), 1)
+
   cat("\n=== schema tolerance ===\n")
 
   # What the schema version promises. It moves when a field changes meaning or

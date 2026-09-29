@@ -134,6 +134,11 @@ mlos_file_sha256 <- function(path) {
 # .STRATIFIED_COLORS so it can never collide with an outcome color.
 .MASS_REMAINDER_COLOR <- "gray85"
 
+# The all-cause ("Any") CIF curve on the unified CIF plot (aj_cif_any). Black,
+# outside .OUTCOME_COLORS, so it reads as the total of the three outcome curves
+# and leaves the exported outcome palette unchanged.
+.ANY_OUTCOME_COLOR <- "black"
+
 # How many interval ends the probability-mass axis prints before it starts
 # thinning them. Twelve is what fits across the standard canvas at the standard
 # type size without labels touching.
@@ -178,7 +183,8 @@ mlos_file_sha256 <- function(path) {
 # Human-readable outcome labels for legends, tables, and plot titles
 # @param code Outcome code: "L", "T", or "N"
 .outcome_label <- function(code) {
-  switch(code, "L" = "L community live", "T" = "T other live", "N" = "N non-live", code)
+  switch(code, "L" = "L community live", "T" = "T other live", "N" = "N non-live",
+         "Any" = "Any all-cause", code)
 }
 
 # Resolve R color names to "#RRGGBB". R's color names are not portable: its

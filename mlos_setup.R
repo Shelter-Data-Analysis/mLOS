@@ -273,7 +273,7 @@ extract_references <- function(settings, periods) {
     "outcome_type_delete", "outcome_type_in_care", "outcome_type_censored",
     "animal_group_columns", "animal_group_reference", "intake_type_reference",
     "period_reference", "discard_bad_rows", "discard_overlapping_rows",
-    "show_km_ci_ribbons", "show_aj_cif_ci_ribbons",
+    "show_km_ci_ribbons", "show_aj_cif_ci_ribbons", "aj_cif_any",
     "png_pointsize_factor", "png_line_width_factor",
     "max_plot_strata",
     "parametric_regression", "weibull_shape_crossing",
@@ -466,6 +466,7 @@ extract_references <- function(settings, periods) {
   discard_overlapping_rows <- parse_logical_flag("discard_overlapping_rows")
   show_aj_cif_ci_ribbons <- parse_logical_flag("show_aj_cif_ci_ribbons")
   show_km_ci_ribbons     <- parse_logical_flag("show_km_ci_ribbons")
+  aj_cif_any             <- parse_logical_flag("aj_cif_any")
 
   # Optional value filter for one column: at most one of a pass-list (keep only
   # these values) or a cut-list (drop these values). Returns list(mode, values)
@@ -586,6 +587,9 @@ extract_references <- function(settings, periods) {
     other_filter           = other_filter,
     show_aj_cif_ci_ribbons = show_aj_cif_ci_ribbons,
     show_km_ci_ribbons     = show_km_ci_ribbons,
+    # Adds the all-cause ("Any") CIF to the AJ CIF plots, unified and by
+    # stratifier. Off by default; the numbers are computed either way.
+    aj_cif_any             = aj_cif_any,
     parametric_regression  = parametric_regression,
     weibull_shape_crossing = weibull_shape_crossing,
     # Per-stratified-output emission flags, keyed by setting name; each is a

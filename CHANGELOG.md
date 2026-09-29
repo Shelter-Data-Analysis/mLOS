@@ -19,10 +19,26 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-**No number changed** for an existing settings file: every CSV is
-byte-identical, and `results.json` gains three keys, `outcome_type_censored` in
-the settings echo and `recoded_censored` and `stays_censored_by_setting` in
-`data_preparation`.
+**The AJ confidence bounds changed; no estimate changed.** The AJ fit now
+clusters its variance on `animal_id`, so the bounds in the AJ CIF CSVs,
+`results.json`, and the workbook move. On OC2, within the plotted days, the
+AJ interval widths change by -14% to +27% (median about +1%), and the
+standard error of the in-care restricted mean rises from 0.313 to 0.324 days.
+Every other CSV is byte-identical. `results.json` also gains four keys:
+`outcome_type_censored` and `aj_cif_any` in the settings echo, and
+`recoded_censored` and `stays_censored_by_setting` in `data_preparation`.
+
+- The AJ fit takes each stay's period rows as one subject (`id` = the stay)
+  and clusters its infinitesimal-jackknife variance on `animal_id`. It gave
+  each period row its own id, which the math methods (section 3.5) called
+  neutral for the AJ intervals; on OC2 the split alone moved them by at most
+  0.2%. Clustering by animal lets the AJ intervals, the in-care restricted mean
+  among them, allow for the repeat stays of one animal. The KM intervals still
+  treat stays as independent.
+- New setting `aj_cif_any` (default `false`): the AJ CIF plots also show the
+  all-cause cumulative incidence, one minus the KM curve, with its clustered
+  interval. The unified plot adds it as a black curve, and each stratifier
+  gets an `aj_cif_by_<stratifier>_outcome_Any` plot and CSV.
 
 - New setting `outcome_type_censored`: raw codes for a departure censored on
   purpose, such as a transfer out when computing AnimLOS. These stays are

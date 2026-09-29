@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260929_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20260929_003. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -77,6 +77,7 @@
         - [`max_plot_strata`](#max_plot_strata)
         - [`show_km_ci_ribbons`](#show_km_ci_ribbons)
         - [`show_aj_cif_ci_ribbons`](#show_aj_cif_ci_ribbons)
+        - [`aj_cif_any`](#aj_cif_any)
         - [`png_pointsize_factor`](#png_pointsize_factor)
         - [`png_line_width_factor`](#png_line_width_factor)
         - [Stratified-output selection](#stratified-output-selection)
@@ -367,7 +368,7 @@ Both quantities are computed pooled, and again separately within each level of e
 | `aj_cif_<stratifier>_outcome_T` | CIF for other live outcomes (T), with one line per stratum. |
 | `aj_cif_<stratifier>_outcome_N` | CIF for non-live outcomes (N), with one line per stratum. |
 
-The `aj_cif_<stratifier>_outcome_*` plots can optionally show the same style of confidence-interval ribbon, one per stratum. Off by default (unlike the unified plot above, where it is always on); enable with `show_aj_cif_ci_ribbons: true` in the settings file. The setting governs the picture only: the bounds are in `aj_cif_<stratifier>_outcome_*.csv` either way. Not available on the conditional outcome-probability plots below, for which the fit does not produce an interval.
+The `aj_cif_<stratifier>_outcome_*` plots can optionally show the same style of confidence-interval ribbon, one per stratum. Off by default (unlike the unified plot above, where it is always on); enable with `show_aj_cif_ci_ribbons: true` in the settings file. The setting governs the picture only: the bounds are in `aj_cif_<stratifier>_outcome_*.csv` either way. Not available on the conditional outcome-probability plots below, for which the fit does not produce an interval. With [`aj_cif_any`](#aj_cif_any) set, the unified plot adds the all-cause curve and each stratifier gets an `aj_cif_<stratifier>_outcome_Any` plot.
 
 | File | Description |
 |---|---|
@@ -585,7 +586,7 @@ Rows come in estimate/lower/upper triplets, with the estimate re-displayed above
 
 Each family of intervals is computed differently:
 
-- **KM and AJ intervals** come directly from the fitted curves.
+- **KM and AJ intervals** come directly from the fitted curves. The AJ intervals cluster on `animal_id`, so they allow for the repeat stays of one animal; the KM intervals treat stays as independent. The in-care row of the restricted mean days by state therefore has a slightly wider interval than the KM restricted mean, whose point estimate it equals.
 - **Rate intervals** (daily intakes and outcomes, incidence) are exact Poisson intervals. They assume events occur independently at a steady rate within the window. Group arrivals, such as a litter surrendered together or a bulk transfer, and strong seasonality, make them somewhat too narrow.
 - **Proportion intervals** (fraction capped, outcome mix) are exact binomial intervals. They treat the counted rows as independent, including repeat stays of one animal. (The Cox regression, on the other hand, clusters its robust standard errors on `animal_id`, which keeps one animal's period-split rows in a single cluster.) Because these intervals are computed over rows, redrawing your period boundaries changes their width even when the point estimate is unmoved: a stay split in two contributes two rows.
 - **The expected census** gets an **indicative interval only**. It is the product of the intake rate and the restricted mean, and its interval treats those two estimates as independent, which is only a rough approximation: their correlation, of unknown sign, is ignored, and intakes that vary more than a Poisson model allows make the interval too narrow. A proper joint treatment is an advanced topic left for future versions.
@@ -746,7 +747,7 @@ A full console log is written to `results/analysis_log.txt`.
 
 **What real `animal_id` values enable.** Three parts of the analysis behave differently when the column holds genuine identifiers rather than generated ones.
 
-- **Clustered standard errors in Cox regression.** The fit always clusters on `animal_id` (see [The Cox_Regression sheet](#the-cox_regression-sheet)). Generated ids are assigned one per stay, before the period split, so the segments of a single stay share a cluster whether or not you supply the column. What real ids add is the link between an animal's *separate* stays: with generated ids a repeat visitor counts as two unrelated animals, and the interval widths do not account for the correlation between its visits.
+- **Clustered standard errors in Cox regression and AJ.** The Cox fit and the AJ variance always cluster on `animal_id` (see [The Cox_Regression sheet](#the-cox_regression-sheet)); the KM intervals do not. Generated ids are assigned one per stay, before the period split, so the segments of a single stay share a cluster whether or not you supply the column. What real ids add is the link between an animal's *separate* stays: with generated ids a repeat visitor counts as two unrelated animals, and the interval widths do not account for the correlation between its visits.
 - **Duplicate-stay removal.** Rows sharing `animal_id`, `intake_date`, and `outcome_date` are reduced to the last one, and the count is printed. If `outcome_date` > `intake_date`, one row in the pair cannot be real. If `outcome_date` = `intake_date`, it is theoretically possible that these are two real round trips within one day, but they are far more likely a correction, re-classification, or accidental copy.
 - **The overlapping-stay check.** Two stays of one animal that overlap in time are physically impossible, so the run either stops or drops the shorter stay. See [`discard_overlapping_rows`](#discard_overlapping_rows).
 
@@ -1173,6 +1174,16 @@ show_aj_cif_ci_ribbons: true
 ```
 
 `true` or `false`. When `true`, the stratified AJ CIF plots (`aj_cif_by_period_outcome_*`, and likewise for intake type and animal group) show a shaded confidence-interval ribbon per stratum. Default is `false`. The unified `aj_cif_unified` plot always shows its ribbons regardless of this setting, and the conditional outcome-probability (`aj_conditional_by_*`) plots never do. The setting affects the plots only: the companion CSVs carry the bounds at either setting, in their own columns to the right of the estimates. See the [Aalen-Johansen plots section](#aalen-johansen-aj-plots) above.
+
+#### `aj_cif_any`
+
+```yaml
+aj_cif_any: true
+```
+
+`true` or `false`. When `true`, the AJ CIF plots also show the all-cause cumulative incidence (`Any`), the probability of having left care by each day for any reason. The unified `aj_cif_unified` plot adds it as a black curve with its ribbon, and each stratifier gets one more plot, `aj_cif_<stratifier>_outcome_Any`, drawn when `aj_cif_by_stratifier` draws the others. Default is `false`. The numbers are computed either way: the companion CSV of the unified plot carries `cif_Any` and its bounds at either setting.
+
+The all-cause CIF is one minus the Kaplan-Meier curve, and its interval comes from the AJ fit, which clusters on `animal_id`. It therefore shows the KM information with an interval that allows for the repeat stays of one animal, where the KM plots treat stays as independent. With no `animal_id` column the two intervals nearly coincide.
 
 #### `png_pointsize_factor`
 

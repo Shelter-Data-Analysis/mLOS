@@ -39,12 +39,16 @@ compute_aj_cif_results <- function(period_data,
 
   # A factor status makes Surv() build the multistate object directly; the
   # older type = "mstate" spelling is deprecated as of survival 3.8 and its
-  # survfit path breaks there. The per-row id keeps each row its own subject:
-  # rows are independent at-risk intervals, not chained per-animal
-  # trajectories (see the math methods document, section 7.1).
+  # survfit path breaks there. The id is the stay, so a stay's period rows form
+  # one subject, contiguous on the tenure scale, and the infinitesimal-jackknife
+  # variance treats the stay as the unit the period split must not multiply.
+  # The cluster is the animal, so repeat stays of one animal are one unit of
+  # that variance; with generated ids (one per stay) it reduces to the stay.
+  # See the math methods document, sections 3.5 and 7.3.
   aj_fit <- survival::survfit(
     survival::Surv(period_data$time_start, period_data$time_end, event_factor) ~ 1,
-    id = seq_along(event_factor)
+    id = period_data$stay_id,
+    cluster = period_data$animal_id
   )
 
   if (is.null(max_time)) {
@@ -239,9 +243,11 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
   cif_df <- aj_results$cif_df
   cif_cols <- grep("^cif_", names(cif_df), value = TRUE)
   cif_cols <- setdiff(cif_cols, "cif_Any")
+  if (isTRUE(references$aj_cif_any)) cif_cols <- c(cif_cols, "cif_Any")
 
   states <- sub("^cif_", "", cif_cols)
-  cols <- .outcome_state_colors(states)
+  cols <- ifelse(states == "Any", .ANY_OUTCOME_COLOR,
+                 .OUTCOME_COLORS[states])
   x_limit <- references$plot_stay_cap
 
   .with_png(save_file, {
@@ -276,7 +282,11 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
 
     .plot_grid()
     legend_labels <- sapply(states, .outcome_label)
-    legend("topleft", legend = legend_labels, col = cols, lwd = lwd, bg = .LEGEND_BG)
+    # The all-cause curve climbs through the top-left corner, so with it drawn
+    # the legend moves to the right-hand middle, between the community-live
+    # curve and the two smaller outcomes.
+    legend_pos <- if ("Any" %in% states) "right" else "topleft"
+    legend(legend_pos, legend = legend_labels, col = cols, lwd = lwd, bg = .LEGEND_BG)
   })
   if (!is.null(save_file)) {
     cat("\nPlot saved to:", save_file, "\n")
@@ -1129,8 +1139,25 @@ plot_aj_cif_by_stratum_lines <- function(aj_stratum_results, references = NULL, 
     }
   }
 
+  # aj_cif_any adds one more plot per stratifier, of the all-cause CIF, whose
+  # bounds come from the in-care state (see compute_aj_cif_results).
+  if (isTRUE(references$aj_cif_any)) {
+    any_rows <- lapply(names(aj_stratum_results$per_stratum), function(stratum_name) {
+      res <- aj_stratum_results$per_stratum[[stratum_name]]
+      if (is.null(res) || !isTRUE(res$has_analysis)) return(NULL)
+      data.frame(stratum = stratum_name, days = res$cif_df$days, Outcome = "Any",
+                 conditional_probability = NA_real_, cif_Any = res$cif_df$cif_Any,
+                 CIF = res$cif_df$cif_Any, ci_lower = res$cif_df$ci_lower_Any,
+                 ci_upper = res$cif_df$ci_upper_Any, stringsAsFactors = FALSE)
+    })
+    cif_long <- rbind(cif_long, do.call(rbind, any_rows))
+  }
+
   aj_cif_stratum_results <- aj_stratum_results
   aj_cif_stratum_results$cond_long <- cif_long
+  if (isTRUE(references$aj_cif_any)) {
+    aj_cif_stratum_results$outcome_states <- c(aj_stratum_results$outcome_states, "Any")
+  }
 
   flag <- .output_flag(references, "aj_cif_by_stratifier")
   .plot_aj_metric_by_stratum_lines(
