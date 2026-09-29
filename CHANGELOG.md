@@ -39,6 +39,8 @@ Every other CSV is byte-identical. `results.json` also gains four keys:
   all-cause cumulative incidence, one minus the KM curve, with its clustered
   interval. The unified plot adds it as a black curve, and each stratifier
   gets an `aj_cif_by_<stratifier>_outcome_Any` plot and CSV.
+  `data/OC2_settings.yaml` turns it on, so OC2 results carry the all-cause
+  curves the paper compares with KM.
 
 - New setting `outcome_type_censored`: raw codes for a departure censored on
   purpose, such as a transfer out when computing AnimLOS. These stays are

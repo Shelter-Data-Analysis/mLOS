@@ -160,6 +160,12 @@ png_line_width_factor: 2
 # since ribbons can clutter a plot with many overlapping strata.
 show_aj_cif_ci_ribbons: true
 
+# If true, the AJ CIF plots also show the all-cause ("Any") cumulative
+# incidence: one minus the KM curve, with the AJ interval clustered by animal.
+# On for OC2 so that its results carry the all-cause curves the paper compares
+# with KM. Off by default.
+aj_cif_any: true
+
 # If true, the stratified Kaplan-Meier plots also draw shaded confidence interval
 # ribbons per stratum, drawn as true step/stair shapes matching the KM curves
 # themselves. Off by default since ribbons can clutter a plot with many overlapping strata.
