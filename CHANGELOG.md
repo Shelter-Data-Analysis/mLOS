@@ -41,7 +41,6 @@ Every other CSV is byte-identical. `results.json` also gains four keys:
   gets an `aj_cif_by_<stratifier>_outcome_Any` plot and CSV.
   `data/OC2_settings.yaml` turns it on, so OC2 results carry the all-cause
   curves the paper compares with KM.
-
 - New setting `outcome_type_censored`: raw codes for a departure censored on
   purpose, such as a transfer out when computing AnimLOS. These stays are
   censored at their `outcome_date`, as before through `outcome_type_in_care`,
@@ -61,6 +60,12 @@ Every other CSV is byte-identical. `results.json` also gains four keys:
   between the per-coefficient rows and the global test, with a `test` column
   naming the kind. The per-factor and global tests do not depend on the choice
   of reference level; the per-coefficient tests do.
+- The simulation fixtures' passing checks print the generating value and
+  tolerance beside the recovered estimate, e.g. `= 0.4065535 (true 0.406127
+  +/- 0.12)`, so a test run records what each simulation recovered.
+- The User Guide says that foster coding varies among shelters and mLOS takes
+  no single reading: count it as an outcome under `outcome_type_T`, or censor
+  it under `outcome_type_censored`.
 - `PUBLISHING.md`'s identifier table gains mLOS 0.2.4,
   `10.5281/zenodo.22972448`.
 - `CITATION.cff`'s keywords add Aalen-Johansen estimate and Cox regression and
