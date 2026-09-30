@@ -588,10 +588,15 @@ def build_variant(results: str | Path | Bundle, outline_path: str | Path,
     elif check:
         differences = correspondence(base, manifest)
         if differences:
+            # Settings are named before the deck is, because a variant built
+            # with different ones than the deck reports exactly these
+            # differences and rebuilding the deck does not touch them.
             raise SettingsError(
                 f"this run does not build the deck at {settings.output_path}: "
                 + "; ".join(differences)
-                + ". Rebuild the deck, or pass --no-check to build anyway.")
+                + ". Check that this build and the deck's used the same "
+                  "--settings file, rebuild the deck, or pass --no-check to "
+                  "build anyway.")
 
     # An extra whose files are missing or belong to another run REFUSES the
     # build, as an `@insert` naming no slide does: the outline asked for that

@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260929_002. Read it in any markdown reader,
+presentation guide, version 20260929_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -952,7 +952,10 @@ builds disagreeing is `mlos_deck_slides.json`: a variant compares the slides it
 assembled against the ones the deck recorded and refuses if a title has
 appeared or vanished, naming which. Pagination is exempt, since how many pages
 a run takes is decided by height at render time and a branded variant
-legitimately breaks the findings differently. `--no-check` builds anyway.
+legitimately breaks the findings differently. Settings are the other way to
+reach that refusal, and the message names them first: a variant built without
+the settings the deck was built with assembles a different set of slides, and
+rebuilding the deck does not reconcile them. `--no-check` builds anyway.
 
 Slides are addressed by title, which stands in for the rule ids the registry
 below will carry. Titles hold vocabulary labels, so an outline written for one
