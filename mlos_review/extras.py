@@ -2,9 +2,10 @@
 
 An extra is built from files a separate tool writes beside a run, not from the
 bundle alone, so no standard deck carries one and `@insert` cannot reach one.
-Each builder returns its slide, or None with the reason it was skipped: files
-that are missing, or that belong to a different run, cost the variant that one
-slide and a warning, never the build.
+Each builder returns its slide, or None with the reason it could not be built:
+files that are missing, or that belong to a different run. That reason refuses
+the build, since an outline that names a slide is wrong about the run rather
+than asking for less; `--no-check` builds over it and leaves a stub.
 """
 
 from __future__ import annotations

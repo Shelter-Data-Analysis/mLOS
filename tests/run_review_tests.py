@@ -4138,7 +4138,9 @@ def check_extra_histlos() -> None:
     is copied from the bundle or deliberately broken.
     """
     from PIL import Image
-    from mlos_review.variant import OutlineError, build_variant, parse_outline
+    from mlos_review.settings import SettingsError
+    from mlos_review.variant import (STUB_PREFIX, OutlineError, build_variant,
+                                     parse_outline)
 
     for text, problem in (("@extra HistLOSS", "Did you mean 'HistLOS'"),
                           ("@extra", "needs a name"),
@@ -4170,14 +4172,32 @@ def check_extra_histlos() -> None:
             source / "histlos_by_period_summary.csv", index=False)
         run = bundle.data["run"]
 
-        def build_with(**inputs) -> tuple[list, list[str]]:
+        def write_inputs(**inputs) -> None:
             fields = {name: run[name] for name in
                       ("mlos_version", "data_sha256", "settings_sha256")}
             pd.DataFrame([{**fields, **inputs}]).to_csv(
                 source / "histlos_inputs.csv", index=False)
+
+        # Into the temporary directory, so the repo's own deck sidecar cannot
+        # make the correspondence check answer for the extra's.
+        settings = settings_mod.Settings(output_directory=Path(tmp))
+
+        def build_with(check: bool = False, **inputs) -> tuple[list, list[str]]:
+            write_inputs(**inputs)
             out = Path(tmp) / "variant.pptx"
-            _, _, warnings = build_variant(staged, outline, out, check=False)
+            _, _, warnings = build_variant(staged, outline, out, settings,
+                                           check=check)
             return list(Presentation(str(out)).slides), warnings
+
+        def refusal(**inputs) -> str:
+            """What a checked build says about these inputs, or "" if it builds."""
+            write_inputs(**inputs)
+            try:
+                build_variant(staged, outline, Path(tmp) / "checked.pptx",
+                              settings)
+                return ""
+            except SettingsError as exc:
+                return str(exc)
 
         slides, warnings = build_with()
         expect_equal("@extra HistLOS: one slide from matching files",
@@ -4203,28 +4223,37 @@ def check_extra_histlos() -> None:
         expect("@extra HistLOS: the copied figure is in the manifest",
                any(r["kind"] == "histlos" for r in manifest["figures"]))
 
+        expect("@extra HistLOS: matching files build under the check too",
+               refusal() == "")
+
         for label, inputs in (
                 ("another dataset", {"data_sha256": "0" * 64}),
                 ("another mLOS version", {"mlos_version": "0.0.0"})):
+            said = refusal(**inputs)
+            expect(f"@extra HistLOS: refuses the build for {label}",
+                   "not this run's" in said and "--no-check" in said, said)
             slides, warnings = build_with(**inputs)
-            expect(f"@extra HistLOS: skipped for {label}",
-                   not slides and any("skipped" in w for w in warnings),
-                   str(warnings))
+            expect(f"@extra HistLOS: --no-check leaves a stub for {label}",
+                   [_slide_title(s) for s in slides]
+                   == [f"{STUB_PREFIX}: @extra HistLOS"]
+                   and any("not this run's" in w for w in warnings),
+                   f"{[_slide_title(s) for s in slides]} {warnings}")
 
         # Placeholders on both sides would match, and must not pass.
         placeholder = "(digest package not installed)"
         run["data_sha256"] = placeholder
         (staged / "results.json").write_text(json.dumps(bundle.data))
-        slides, warnings = build_with(data_sha256=placeholder)
-        expect("@extra HistLOS: skipped when the hashes are placeholders",
-               not slides and any("no usable" in w for w in warnings),
-               str(warnings))
+        expect("@extra HistLOS: refuses when the hashes are placeholders",
+               "no usable" in refusal(data_sha256=placeholder))
 
         shutil.rmtree(source)
-        _, _, warnings = build_variant(staged, outline, Path(tmp) / "v2.pptx",
-                                       check=False)
-        expect("@extra HistLOS: skipped when the files are missing",
-               any("histlos_inputs.csv" in w for w in warnings), str(warnings))
+        try:
+            build_variant(staged, outline, Path(tmp) / "v2.pptx", settings)
+            expect("@extra HistLOS: refuses when the files are missing", False,
+                   "built")
+        except SettingsError as exc:
+            expect("@extra HistLOS: refuses when the files are missing",
+                   "histlos_inputs.csv" in str(exc), str(exc))
 
 
 # ---------------------------------------------------------------------------

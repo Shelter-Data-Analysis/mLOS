@@ -33,6 +33,10 @@ plot is byte-identical to 0.3.0.
 - `tests/README.md` lists the standalone checks that follow the validation
   section, among them the AJ clustering and `aj_cif_any` checks 0.3.0 added,
   and says the simulation checks print their targets.
+- An `@extra` whose files are missing, or which belong to another run, now
+  refuses the variant build instead of warning and leaving the slide out, so
+  a rehearsal is not where the gap is found. `--no-check` builds anyway and
+  puts a `TO WRITE` stub in its place.
 
 ## 0.3.0 (2026-09-29)
 

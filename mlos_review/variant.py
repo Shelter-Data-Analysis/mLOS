@@ -161,7 +161,8 @@ def parse_outline(text: str, source: str = "outline") -> list[Page]:
                            item, or two spaces ending a line start another
         @insert <title>    the deck's slide of that title, and its run
         @stub <title>      a gap, held open and warned about
-        @extra <name>      a slide from extras.EXTRAS, or a warning
+        @extra <name>      a slide from extras.EXTRAS; its files missing or
+                           stale refuses the build
         <!-- anything -->  a comment, at the end of a line or on its own,
                            over as many lines as it takes
 
@@ -500,6 +501,19 @@ def _written_slides(page: Page, budget: int | None,
             for index, bullets in enumerate(pages)]
 
 
+def _extra_stub(page: Page, reason: str) -> Slide:
+    """What stands in for an extra that could not be built, under `--no-check`.
+
+    A stub rather than nothing, and worded as the reason it is not the slide,
+    so a deck built over a refusal cannot be shown without the hole being seen.
+    """
+    return Slide(
+        title=f"{STUB_PREFIX}: @extra {page.title}",
+        bullets=[Bullet(reason)],
+        notes=page.notes or [f"@extra {page.title} could not be built: {reason}"],
+        layout="TITLE")
+
+
 def read_manifest(deck_path: str | Path) -> list[dict] | None:
     """The deck's sidecar, or None when there is no deck to correspond to."""
     path = manifest_path(deck_path)
@@ -579,14 +593,28 @@ def build_variant(results: str | Path | Bundle, outline_path: str | Path,
                 + "; ".join(differences)
                 + ". Rebuild the deck, or pass --no-check to build anyway.")
 
-    extras = {}
+    # An extra whose files are missing or belong to another run REFUSES the
+    # build, as an `@insert` naming no slide does: the outline asked for that
+    # slide by name, so leaving it out quietly hands back a deck that is wrong
+    # in a way only a rehearsal finds. `--no-check` builds anyway and leaves a
+    # stub in its place, which is loud on the page rather than in a log line.
+    extras: dict[int, Slide | None] = {}
+    refused: list[str] = []
     for page in pages:
         if page.kind != "EXTRA":
             continue
         extras[page.line], skipped = EXTRAS[page.title](bundle, figures)
-        if skipped:
-            warnings.append(f"{outline_path.name}:{page.line}: @extra "
-                            f"{page.title} skipped: {skipped}")
+        if not skipped:
+            continue
+        refused.append(f"{outline_path.name}:{page.line}: @extra "
+                       f"{page.title}: {skipped}")
+        if not check:
+            extras[page.line] = _extra_stub(page, skipped)
+    if refused and check:
+        raise SettingsError("; ".join(refused)
+                            + " Fix it, or pass --no-check to build without "
+                              "the slide.")
+    warnings.extend(refused)
 
     slides = compose(pages, base, outline_path.name,
                      text_budget(template_band(settings.template)),
