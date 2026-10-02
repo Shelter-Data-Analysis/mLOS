@@ -910,6 +910,33 @@ detect_optional_columns <- function(data, references) {
 }
 
 
+# Stop on a plot_intake_types or plot_animal_groups name that is not a level.
+# Levels are those after the value maps and before the value filters, which
+# keep a filtered-out level in the list: a named level with no rows is legal and
+# simply draws nothing, as an emptied level does today. Periods were checked
+# against period_labels when the settings were read.
+check_plot_level_names <- function(data, references) {
+  for (stratifier in stratifiers) {
+    named <- references$plot_levels[[stratifier$id]]
+    if (is.null(named) || identical(stratifier$id, "period")) next
+    column <- data[[stratifier$col]]
+    if (is.null(column)) {
+      stop(stratifier$plot_setting, " is set, but the data has no ",
+           stratifier$col, " column.")
+    }
+    available <- if (is.factor(column)) levels(column) else sort(unique(as.character(column)))
+    unknown <- setdiff(named, available)
+    if (length(unknown) > 0) {
+      stop(stratifier$plot_setting, " names ", paste(unknown, collapse = ", "),
+           ", which is not a level of ", stratifier$col, " (the levels are: ",
+           paste(available, collapse = ", "),
+           "). Name levels as they are after any value map.")
+    }
+  }
+  invisible(NULL)
+}
+
+
 # Share of stays at or above which display_data_summary warns about
 # unclassified exits.
 UNCLASSIFIED_EXIT_WARN_FRACTION <- 0.005

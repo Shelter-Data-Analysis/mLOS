@@ -244,6 +244,12 @@ Standalone checks follow, none tied to a fixture:
   errors;
 - **aj_cif_any**: the all-cause plots and CSVs are written only with the
   setting on, and the manifest describes them;
+- **plot level selection**: `plot_periods`, `plot_intake_types`, and
+  `plot_animal_groups` stop the run on an unknown or doubled name and on a
+  selection without the reference level (a default reference included), a
+  drawn stratum keeps its color from the full list, a selection draws a
+  stratifier over the strata limit, the CSVs are the same bytes with and
+  without one, and the bundle records it only where it is set;
 - **schema tolerance**: a bundle written before newer fields existed still
   renders, to the same sheets;
 - **stratifier registry wiring**: a stratifier the Cox and Weibull fits have no

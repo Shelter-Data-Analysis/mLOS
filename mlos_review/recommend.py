@@ -108,7 +108,11 @@ def narrowing(bundle: Bundle, vocab) -> list[str]:
     it was swamping get to state their own behavior on every other split and
     in both regressions, where at present they are pooled with a level several
     times their size.
+
+    Read across every level, shown or not, since the carrier's share is of
+    them all.
     """
+    bundle = bundle.complete()
     lines = []
     for stratifier in summary_fields(bundle):
         found = burden_carrier(bundle, stratifier)

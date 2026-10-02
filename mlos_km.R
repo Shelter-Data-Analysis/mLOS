@@ -866,8 +866,10 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
 # exactly as draw_png/filename/csv_file do in .plot_single_stratified.
 .plot_km_companion <- function(spec, n_series, references) {
   companion_table <- spec$table
-  series_names    <- setdiff(names(companion_table), "days")
-  cols            <- .get_series_colors(n_series)
+  # A plot selection names the series drawn, with their colors; the CSV below
+  # is written from the whole table either way.
+  series_names    <- if (is.null(spec$series)) setdiff(names(companion_table), "days") else spec$series
+  cols            <- if (is.null(spec$cols)) .get_series_colors(n_series) else spec$cols
   x_vals          <- companion_table$days
   in_plot         <- x_vals <= references$plot_stay_cap
 
@@ -1158,11 +1160,12 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
                                measures_by_stratifier = NULL) {
 
   # Helper function to plot a single stratified KM
-  .plot_single_stratified <- function(km_fit, n_strata, title, filename = NULL, csv_file = NULL,
-                                      draw_png = TRUE, rmst_map = NULL) {
-    cols <- .get_series_colors(n_strata)
+  # plot_fit is the fit drawn, km_fit the one the CSV is written from: a plot
+  # selection draws some strata, and the CSV keeps them all.
+  .plot_single_stratified <- function(km_fit, cols, title, filename = NULL, csv_file = NULL,
+                                      draw_png = TRUE, rmst_map = NULL, plot_fit = km_fit) {
     if (isTRUE(draw_png)) .with_png(filename, {
-      plot(km_fit,
+      plot(plot_fit,
            conf.int = FALSE,
            xlab = "Days Already in Care",
            ylab = "Probability Still in Care",
@@ -1179,8 +1182,8 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
       # edges align exactly with the KM curves' own step jumps (see .ci_ribbon_stair_xy).
       if (isTRUE(references$show_km_ci_ribbons)) {
         x_max <- references$plot_stay_cap
-        for (i in seq_along(km_fit$strata)) {
-          raw  <- .stratum_ci_steps(km_fit, i)
+        for (i in seq_along(plot_fit$strata)) {
+          raw  <- .stratum_ci_steps(plot_fit, i)
           poly <- .ci_ribbon_stair_xy(raw$time, raw$lower, raw$upper, x_max)
           ribbon_col <- grDevices::adjustcolor(cols[i], alpha.f = 0.15)
           graphics::polygon(poly$x, poly$y, col = ribbon_col, border = NA)
@@ -1188,7 +1191,7 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
       }
 
       # Redraw curves on top of grid (and ribbons)
-      lines(km_fit,
+      lines(plot_fit,
             conf.int = FALSE,
             col = cols,
             lty = 1,
@@ -1197,7 +1200,7 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
 
       # Add legend
       legend("topright",
-             legend = .strip_stratum_prefix(names(km_fit$strata)),
+             legend = .strip_stratum_prefix(names(plot_fit$strata)),
              col = cols,
              lty = 1,
              lwd = .png_lwd(2),
@@ -1309,10 +1312,24 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
            csv_file  = in_care_csv)
     )
 
-    if (info$n > references$max_plot_strata) {
-      cat("\nSkipping KM plot by ", stratifier$label, ": ", info$n,
-          " strata exceeds the ", references$max_plot_strata, " strata plot limit.",
-          if (!is.null(csv_file)) " CSV still written.", "\n", sep = "")
+    # The strata drawn: all of them, or the stratifier's plot selection. The
+    # limit counts what would be drawn, so a selection is also how a
+    # stratifier with more strata than the limit gets its plots.
+    shown <- .plot_strata(strata_names, references$plot_levels[[stratifier$id]])
+    # Without a selection the limit counts the stratifier's levels, as it always
+    # has, which can exceed the strata in the fit.
+    if (!shown$selected) shown$n <- info$n
+    if (shown$selected) {
+      for (i in seq_along(companions)) {
+        companions[[i]]$series <- shown$names
+        companions[[i]]$cols   <- shown$cols
+      }
+    }
+
+    if (.skip_strata_plot(shown, references$max_plot_strata)) {
+      cat(.strata_limit_message("KM plot", stratifier$label, shown,
+                                references$max_plot_strata,
+                                if (!is.null(csv_file)) " CSV still written."), sep = "")
       if (!is.null(csv_file))
         .export_stratified_km_csv(km_fit, csv_file, references$restricted_stay_cap, rmst_map)
       # Companion CSVs are still written; their PNGs are skipped with the rest.
@@ -1324,12 +1341,13 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
     } else {
       .plot_single_stratified(
         km_fit,
-        info$n,
+        shown$cols,
         paste("Kaplan-Meier Curves by", stratifier$label),
         filename,
         csv_file,
         draw_png = draw_km,
-        rmst_map = rmst_map
+        rmst_map = rmst_map,
+        plot_fit = if (shown$selected) km_fit[which(shown$keep)] else km_fit
       )
       for (spec in companions) .plot_km_companion(spec, info$n, references)
     }

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import pandas as pd
@@ -66,6 +66,10 @@ class Bundle:
 
     data: dict
     root: Path
+    # The bundle this one was narrowed from (see narrow.py), or None for a
+    # bundle as read. A narrowed bundle shows some levels; a computation across
+    # levels, such as a share of the total, reads `complete()` instead.
+    full: Bundle | None = field(default=None, compare=False, repr=False)
 
     @classmethod
     def load(cls, path: str | Path) -> "Bundle":
@@ -75,6 +79,16 @@ class Bundle:
         data = json.loads(path.read_text())
         _check_schema_version(data.get("schema_version"), path)
         return cls(data=data, root=path.parent)
+
+    def complete(self) -> Bundle:
+        """The bundle with every level, whether or not this one was narrowed.
+
+        For a reading that spans a stratifier's levels rather than showing them
+        one at a time: a level's share of the total, or how far the levels
+        spread. Read from the narrowed bundle, the total would be the shown
+        levels' total and every share would be inflated.
+        """
+        return self.full if self.full is not None else self
 
     # -- presence -----------------------------------------------------------
 

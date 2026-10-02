@@ -83,7 +83,11 @@ def _weighted(bundle: Bundle, stratifier: str):
     level cannot be far from anything, and a level nobody arrived into carries
     no weight by construction. Returns None when fewer than two survive, since
     a spread needs two points.
+
+    Every level counts, shown or not: whether a stratifier's levels differ is a
+    property of all of them, not of the ones a plot selection kept.
     """
+    bundle = bundle.complete()
     if not (bundle.has("strata", stratifier, "km")
             and bundle.has("strata", stratifier, "observations")):
         return None

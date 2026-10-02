@@ -247,13 +247,16 @@ mlos_file_sha256 <- function(path) {
 stratifiers <- list(
   list(id = "period", col = "period_label", label = "Period",       km_result_key = "km_period",
        suffix = "_by_period",       sheet_name = "By_Period",       model_term = "period",
-       has_field = "has_period",       n_field = "n_periods"),
+       has_field = "has_period",       n_field = "n_periods",
+       plot_setting = "plot_periods"),
   list(id = "intake", col = "intake_type",  label = "Intake Type",  km_result_key = "km_intake",
        suffix = "_by_intake_type",  sheet_name = "By_Intake_Type",  model_term = "intake_type",
-       has_field = "has_intake_type",  n_field = "n_intake_types"),
+       has_field = "has_intake_type",  n_field = "n_intake_types",
+       plot_setting = "plot_intake_types"),
   list(id = "group",  col = "animal_group", label = "Animal Group", km_result_key = "km_group",
        suffix = "_by_animal_group", sheet_name = "By_Animal_Group", model_term = "animal_group",
-       has_field = "has_animal_group", n_field = "n_animal_groups")
+       has_field = "has_animal_group", n_field = "n_animal_groups",
+       plot_setting = "plot_animal_groups")
 )
 
 # stratifier id -> its model-formula term, and the inverse. Both are derived
@@ -437,6 +440,39 @@ stratifiers <- list(
 # Get n colors cycling through a palette
 .get_series_colors <- function(n, palette = .STRATIFIED_COLORS) {
   palette[(seq_len(n) - 1) %% length(palette) + 1]
+}
+
+# The strata a stratified plot draws, and their colors. `selection` is the
+# stratifier's plot_levels entry (plot_periods and the like), NULL for every
+# stratum. A drawn stratum keeps the color of its position among all of the
+# plot's strata, so it looks the same with or without a selection. When there
+# are more strata than colors, which only a selection can bring to a plot,
+# colors go by position within the selection instead.
+.plot_strata <- function(names_all, selection = NULL) {
+  keep <- if (is.null(selection)) rep(TRUE, length(names_all)) else names_all %in% selection
+  cols <- if (length(names_all) <= length(.STRATIFIED_COLORS)) {
+    .get_series_colors(length(names_all))[keep]
+  } else {
+    .get_series_colors(sum(keep))
+  }
+  list(keep = keep, names = names_all[keep], cols = cols, n = sum(keep),
+       selected = !is.null(selection))
+}
+
+# Whether a stratified plot is skipped: more strata than the limit, or a
+# selection naming only levels with no data here, which leaves nothing to draw.
+.skip_strata_plot <- function(strata, limit) strata$n == 0 || strata$n > limit
+
+# The console line for a stratified plot skipped by .skip_strata_plot. A
+# selection is named as such, since then the count is the selection's.
+.strata_limit_message <- function(what, label, strata, limit, csv_note) {
+  reason <- if (strata$n == 0) {
+    "no selected stratum has data here."
+  } else {
+    paste0(strata$n, if (strata$selected) " selected", " strata exceeds the ",
+           limit, " strata plot limit.")
+  }
+  paste0("\nSkipping ", what, " by ", label, ": ", reason, csv_note, "\n")
 }
 
 

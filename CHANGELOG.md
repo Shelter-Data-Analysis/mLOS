@@ -22,6 +22,18 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 The DOIs the 0.3.0 release minted. **No number changed**: every CSV and every
 plot is byte-identical to 0.3.0.
 
+- `plot_periods`, `plot_intake_types`, and `plot_animal_groups` name the
+  levels a stratifier's plots draw. Every analysis and every CSV keeps all
+  levels; the plots draw the named ones, each in the color it has when all are
+  drawn, and the strata limit counts the named ones, so a selection also draws
+  a stratifier with more levels than `max_plot_strata`. A name that is not a
+  level, or a selection without the reference level, stops the run.
+  `results.json` records a selection under `settings.presentation.plot_levels`
+  and on the manifest entries of the plots it governs (`plotted_levels`); a run
+  without one writes the file it did before.
+- The deck shows the selected levels on that stratifier's slides, regression
+  tables included, with a note naming those left out. The opening slides,
+  every share, salience, and the review workbook still read every level.
 - The settings file and the data CSV are read as UTF-8 whatever the locale.
   Under the C locale a non-ASCII label, such as the em dash a shelter uses for
   "still in care", stopped the run with a YAML scanner error. Runs on ASCII

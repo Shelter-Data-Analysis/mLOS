@@ -1173,6 +1173,26 @@ implying a difference that is not there.
 
 ### Which levels a table shows
 
+**The run's plot selection comes first.** Where the run set `plot_periods`,
+`plot_intake_types`, or `plot_animal_groups` (see the user guide), the deck
+shows that stratifier's selected levels and no others, so a slide's tables list
+the levels its figures draw. `narrow.narrowed` cuts the bundle down once, before
+any slide is built: the stratum tables, the per-level counts, and the levels
+the regression tables are read through, so the hazard-ratio and
+length-of-stay-ratio slides follow too. mLOS refuses a selection without the
+reference level, so every ratio shown has its denominator on the slide.
+Highlights and findings are chosen among the shown levels.
+
+What stays whole: the two opening slides, which describe the sample the run
+analyzed; every share, which divides by the whole stratifier's total rather
+than by the levels left on the slide (a reading across levels takes
+`Bundle.complete()`); salience, which is a property of all the levels; and the
+review workbook. Each narrowed slide carries a speaker note naming the levels
+it leaves out, since a level missing without a word reads as one the data
+does not have. Without a selection, nothing here changes.
+
+The rest of this section applies within the levels that remain.
+
 `selected_levels` is the shared mechanism: up to a show-all limit every level
 appears, and beyond it the levels holding the given selectors' superlatives are
 taken as a union, in canonical order, with pinned levels joining rather than

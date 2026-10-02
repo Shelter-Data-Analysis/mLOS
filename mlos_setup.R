@@ -280,7 +280,7 @@ extract_references <- function(settings, periods) {
     "period_reference", "discard_bad_rows", "discard_overlapping_rows",
     "show_km_ci_ribbons", "show_aj_cif_ci_ribbons", "aj_cif_any",
     "png_pointsize_factor", "png_line_width_factor",
-    "max_plot_strata",
+    "max_plot_strata", "plot_periods", "plot_intake_types", "plot_animal_groups",
     "parametric_regression", "weibull_shape_crossing",
     "km_survival_by_stratifier", "km_remaining_los_by_stratifier",
     "km_census_by_tenure_by_stratifier", "km_in_care_tenure_by_stratifier",
@@ -422,6 +422,37 @@ extract_references <- function(settings, periods) {
   }
 
   n_periods <- nrow(periods)
+
+  # Which levels each stratifier's plots draw, keyed by stratifier id; NULL
+  # draws them all. A presentation choice only: every analysis and every CSV
+  # keeps all levels. Period labels are known now and are checked here; intake
+  # types and animal groups exist only once the data is read, and
+  # check_plot_level_names checks them then. The reference level must be among
+  # the named ones (check_plot_level_references, once the regressions have
+  # settled it).
+  parse_plot_levels <- function(key) {
+    val <- settings[[key]]
+    if (is.null(val)) return(NULL)
+    levels <- .parse_raw_labels(val, key)
+    if (length(levels) == 0) {
+      stop(key, " is present but empty. Name at least one level or remove the key.")
+    }
+    if (anyDuplicated(levels) > 0) {
+      stop(key, " names a level more than once: ",
+           paste(unique(levels[duplicated(levels)]), collapse = ", "))
+    }
+    levels
+  }
+  plot_levels <- list()
+  for (stratifier in stratifiers) {
+    plot_levels[stratifier$id] <- list(parse_plot_levels(stratifier$plot_setting))
+  }
+  unknown_periods <- setdiff(plot_levels$period, periods$period_label)
+  if (length(unknown_periods) > 0) {
+    stop("plot_periods names ", paste(unknown_periods, collapse = ", "),
+         ", which is not a period label (the labels are: ",
+         paste(periods$period_label, collapse = ", "), ").")
+  }
 
   # period_reference is a POLICY, not a period number: it is resolved against
   # the periods that actually contain data at Cox time (mlos_cox.R), so a
@@ -573,6 +604,8 @@ extract_references <- function(settings, periods) {
     png_pointsize_factor   = png_pointsize_factor,
     png_line_width_factor  = png_line_width_factor,
     max_plot_strata        = max_plot_strata,
+    # Levels each stratifier's plots draw, by stratifier id; NULL for all.
+    plot_levels            = plot_levels,
     # names = raw CSV values, values = L/T/N codes; NULL if CSV uses L/T/N directly.
     outcome_type_mapping   = outcome_type_mapping,
     outcome_type_delete    = outcome_type_delete,

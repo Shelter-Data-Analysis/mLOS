@@ -88,6 +88,7 @@ from mlos_review.blocks import (
 from mlos_review.bundle import Bundle
 from mlos_review.figures import FigureSet
 from mlos_review.names import Vocabulary
+from mlos_review.narrow import hidden_levels, narrowed
 from mlos_review.output import prepare_output
 from mlos_review.regression import (comparison as cox_comparison, pooled,
                                     stratified, hazard_ratio_panel,
@@ -1608,6 +1609,7 @@ def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
         slide = cox_comparison_by_stratifier(bundle, stratifier, comparison,
                                              vocab, figures)
         if slide is not None:
+            _mark_narrowed([slide], [stratifier], bundle, vocab)
             # Emptied rather than left as they were: these sentences are on the
             # hazard-ratio slides now, and a slide that carries them here too
             # would print them twice in one deck's notes.
@@ -1917,6 +1919,43 @@ def findings_section(slides: list[Slide], budget: int | None = None,
                              budget=budget, size=size)
 
 
+def _listing(items: Sequence[str]) -> str:
+    """Items as a sentence lists them: "A", "A and B", "A, B, and C"."""
+    items = list(items)
+    if len(items) <= 2:
+        return " and ".join(items)
+    return ", ".join(items[:-1]) + f", and {items[-1]}"
+
+
+def narrowing_note(bundle: Bundle, stratifier: str, vocab: Vocabulary) -> str | None:
+    """The note on a slide that shows only the levels the run's plots draw.
+
+    None where the stratifier shows every level. Said on every slide that
+    narrows, because a level absent without a word reads as a level the data
+    does not have.
+    """
+    hidden = hidden_levels(bundle, stratifier)
+    if not hidden:
+        return None
+    shown = [level for level in bundle.complete().levels(stratifier)
+             if level not in hidden]
+    label = vocab.stratifier(stratifier).label
+    verb = "is" if len(hidden) == 1 else "are"
+    return (f"{label}: this slide shows {_listing(shown)}, the levels the run's "
+            f"plots draw. {_listing(hidden)} {verb} left out here; every level "
+            f"is in the run's CSVs and workbook.")
+
+
+def _mark_narrowed(slides: Sequence[Slide], stratifiers: Sequence[str],
+                   bundle: Bundle, vocab: Vocabulary) -> None:
+    """Add the narrowing note for each of `stratifiers` to each slide."""
+    for slide in slides:
+        for stratifier in stratifiers:
+            note = narrowing_note(bundle, stratifier, vocab)
+            if note is not None and note not in slide.notes:
+                slide.notes.append(note)
+
+
 def missing_pinned_levels(bundle: Bundle, settings: Settings) -> dict[str, list[str]]:
     """Levels the settings pinned that this dataset does not have.
 
@@ -1969,6 +2008,12 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
     """
     settings = resolved_settings(bundle, settings)
 
+    # The opening slides describe the whole sample and read every level. The
+    # rest read the bundle narrowed to the levels the run's plots draw, which
+    # is the bundle itself when the run has no plot selection (see narrow.py).
+    full = bundle
+    bundle = narrowed(full)
+
     # Built once and passed down: three slides read it, and recomputing it per
     # slide would let one of them silently disagree with another. Empty when
     # the run had no Cox regression or no stratified variant, in which case
@@ -1978,7 +2023,7 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
     # The opening leads and is not negotiable: what the deck is, then what it
     # was computed over. Everything after it is a finding, and a finding read
     # without knowing the sample it came from is worth less than nothing.
-    slides = opening_slides(bundle, vocab)
+    slides = opening_slides(full, vocab)
     for stratifier in bundle.stratifiers():
         # `all` leads, and takes its own rule: the whole sample is the baseline
         # every later slide is read against, so it comes first rather than
@@ -2002,17 +2047,21 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
             built = [los_by_stratifier(bundle, stratifier, vocab, settings),
                      resident_outlook_by_stratifier(bundle, stratifier, vocab,
                                                     settings)]
-        slides.extend(slide for slide in built if slide is not None)
+        built = [slide for slide in built if slide is not None]
+        _mark_narrowed(built, [stratifier], bundle, vocab)
+        slides.extend(built)
 
     # The workload run closes the durations: three pages that turn them into a
     # quantity of care, each reading across every stratifier at once, so they
     # can only follow all of them. In order, because each is built on the one
     # before: how many animals, how long each has been here, and the two
     # multiplied.
-    slides.extend(slide for slide in
-                  (workload_slide(bundle, vocab, section, settings)
-                   for section in WORKLOAD_SLIDES)
-                  if slide is not None)
+    workload = [slide for slide in
+                (workload_slide(bundle, vocab, section, settings)
+                 for section in WORKLOAD_SLIDES)
+                if slide is not None]
+    _mark_narrowed(workload, bundle.stratifiers(), bundle, vocab)
+    slides.extend(workload)
 
     # The two ratio runs close the length-of-stay section rather than opening
     # the deck's methods discussion, because they are about the differences
@@ -2043,12 +2092,14 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
             recommendations=unestimable_levels(bundle, stratifier,
                                                comparison, vocab))
         if slide is not None:
+            _mark_narrowed([slide], [stratifier], bundle, vocab)
             slides.append(slide)
 
     for stratifier in wanted:
         slide = los_ratios_by_stratifier(bundle, stratifier, los_panel, vocab,
                                          figures, settings)
         if slide is not None:
+            _mark_narrowed([slide], [stratifier], bundle, vocab)
             slides.append(slide)
 
     # Competing risks sit after the length-of-stay section: they answer a
@@ -2081,7 +2132,9 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
         destination = resident_destination(bundle, vocab)
         if destination is not None:
             slides.append(destination)
-        slides.extend(slide for _, section in built for slide in section)
+        for stratifier, section in built:
+            _mark_narrowed(section, [stratifier], bundle, vocab)
+            slides.extend(section)
 
     # Both closing sections read the same list, the slides built so far, and
     # both are built before either is appended, so neither can gather the

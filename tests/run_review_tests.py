@@ -3268,6 +3268,107 @@ def check_workload_drift_floor() -> None:
            not said(small, "tenure"), said(small, "tenure"))
 
 
+def check_plot_level_narrowing() -> None:
+    """A run's plot selection narrows the deck, and only the deck's display.
+
+    Built on a golden bundle with the selection written in, since no fixture
+    sets one: a stratifier with three or more levels in the Cox fit, narrowed
+    to its reference level and one other. What is checked: the narrowed
+    bundle's tables and regression panels hold the shown levels; shares are
+    still of the whole stratifier; the opening slides read every level; the
+    narrowed slides say what they leave out; and a run without a selection is
+    left as it is.
+    """
+    import copy
+
+    from mlos_review.deck import assemble, narrowing_note
+    from mlos_review.figures import FigureSet
+    from mlos_review.narrow import hidden_levels, narrowed
+    from mlos_review.regression import _term_to_stratifier, hazard_ratio_panel
+
+    section("plot level narrowing (synthetic)")
+
+    # A stratifier other than period where one qualifies, since only those
+    # carry the shares the workload slides compute.
+    candidates = []
+    for path in sorted((REPO_ROOT / "tests" / "golden").glob("*/results.json")):
+        candidate = Bundle.load(path.parent)
+        if not candidate.value("cox", "has_analysis"):
+            continue
+        xlevels = candidate.value("cox", "xlevels") or {}
+        for term, stratifier in _term_to_stratifier(candidate).items():
+            if stratifier != "all" and len(candidate.levels(stratifier)) >= 3 \
+                    and term in xlevels:
+                candidates.append((path.parent.name, candidate, stratifier, xlevels[term]))
+    candidates.sort(key=lambda found: found[2] == "period")
+    chosen = candidates[0] if candidates else None
+    if chosen is None:
+        skipped("plot level narrowing", "no golden bundle has a three-level Cox term")
+        return
+    case, full, stratifier, model_levels = chosen
+    reference = model_levels[0]
+    other = next(level for level in full.levels(stratifier) if level != reference)
+    shown = [level for level in full.levels(stratifier) if level in (reference, other)]
+
+    expect(f"{case}: no selection leaves the bundle as it is",
+           narrowed(full) is full)
+
+    data = copy.deepcopy(full.data)
+    data["settings"]["presentation"]["plot_levels"] = {stratifier: [other, reference]}
+    selected = Bundle(data=data, root=full.root)
+    narrow = narrowed(selected)
+
+    expect_equal(f"{case}: the narrowed levels, in the stratifier's order",
+                 narrow.levels(stratifier), shown)
+    expect_equal(f"{case}: a stratum table holds the shown levels",
+                 list(narrow.stratum(stratifier, "km").index), shown)
+    expect_equal(f"{case}: the other stratifiers keep every level",
+                 [narrow.levels(s) for s in narrow.stratifiers() if s != stratifier],
+                 [full.levels(s) for s in full.stratifiers() if s != stratifier])
+    panel = hazard_ratio_panel(narrow)
+    expect_equal(f"{case}: the hazard-ratio panel holds the shown levels",
+                 list(panel.xs(stratifier, level="stratifier").index), shown)
+    expect(f"{case}: the narrowed bundle reads the whole one as complete()",
+           narrow.complete() is selected)
+    expect_equal(f"{case}: hidden levels are the rest",
+                 hidden_levels(narrow, stratifier),
+                 [level for level in full.levels(stratifier) if level not in shown])
+
+    whole = blocks._workload_frame(full, stratifier)
+    part = blocks._workload_frame(narrow, stratifier)
+    expect_equal(f"{case}: the workload frame holds the shown levels",
+                 list(part.index), shown if len(whole.index) else [])
+    for share in blocks.WORKLOAD_SHARE_OF:
+        if share in whole.columns:
+            expect(f"{case}: {share} is a share of every level, not the shown ones",
+                   bool((part[share] - whole.loc[shown, share]).abs().max() < 1e-12))
+
+    vocab = Vocabulary(data)
+    note = narrowing_note(narrow, stratifier, vocab)
+    expect(f"{case}: the note names what is left out",
+           note is not None and "left out here" in note
+           and all(level in note for level in hidden_levels(narrow, stratifier)))
+    expect(f"{case}: no note where every level shows",
+           all(narrowing_note(narrow, s, vocab) is None
+               for s in narrow.stratifiers() if s != stratifier))
+
+    with tempfile.TemporaryDirectory() as tmp:
+        plain = assemble(full, Vocabulary(full.data),
+                         FigureSet(directory=Path(tmp) / "plain"))
+        slides = assemble(selected, vocab, FigureSet(directory=Path(tmp) / "narrow"))
+    expect_equal(f"{case}: a selection changes no slide's title",
+                 [slide.title for slide in slides], [slide.title for slide in plain])
+    tables = lambda slide: ([slide.table] if slide.table else []) + slide.tables  # noqa: E731
+    expect(f"{case}: the opening slides read every level",
+           all(len(tables(a)) == len(tables(b))
+               and all(x.df.equals(y.df) for x, y in zip(tables(a), tables(b)))
+               for a, b in zip(slides[:2], plain[:2])))
+    expect(f"{case}: some slide carries the note",
+           any(note in slide.notes for slide in slides))
+    expect(f"{case}: no slide carries it without a selection",
+           not any("left out here" in n for slide in plain for n in slide.notes))
+
+
 def check_order_shift_thresholds() -> None:
     """Which differences count, which are noise, and which pair leads.
 
@@ -5219,6 +5320,7 @@ def main(argv: list[str]) -> int:
         check_falling_hazard_gates,
         check_order_shift_thresholds,
         check_workload_drift_floor,
+        check_plot_level_narrowing,
         check_salience_statistic,
         check_single_stratifier_default,
         check_capital_widths,

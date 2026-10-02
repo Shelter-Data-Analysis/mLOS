@@ -954,7 +954,8 @@ aj_by_stratifier <- function(period_data,
                                              ci_lower_col = NULL,
                                              ci_upper_col = NULL,
                                              emit_png = TRUE,
-                                             emit_csv = TRUE) {
+                                             emit_csv = TRUE,
+                                             selection = NULL) {
   if (!isTRUE(aj_stratum_results$has_analysis)) {
     cat("No by-stratum AJ results available to plot.\n")
     return(invisible(NULL))
@@ -969,13 +970,15 @@ aj_by_stratifier <- function(period_data,
   # analyzable outcomes at all, in which case KM can skip a plot that AJ still
   # draws. Rare enough to leave alone; noted in the User Guide.
   max_strata <- aj_stratum_results$max_plot_strata
-  too_many <- length(strata) > max_strata
+  # The strata drawn: all of them, or the stratifier's plot selection (see
+  # .plot_strata); the CSVs keep every stratum either way.
+  shown <- .plot_strata(strata, selection)
+  too_many <- .skip_strata_plot(shown, max_strata)
   if (too_many) {
-    cat("\nSkipping AJ plots by ", label, ": ", length(strata), " strata exceeds the ",
-        max_strata, " strata plot limit.",
-        if (emit_csv) " CSVs still written.", "\n", sep = "")
+    cat(.strata_limit_message("AJ plots", label, shown, max_strata,
+                              if (emit_csv) " CSVs still written."), sep = "")
   }
-  cols <- .get_series_colors(length(strata))
+  cols <- shown$cols
   for (outcome in aj_stratum_results$outcome_states) {
     plot_df <- aj_stratum_results$cond_long[
       aj_stratum_results$cond_long$Outcome == outcome &
@@ -993,10 +996,11 @@ aj_by_stratifier <- function(period_data,
     # part of every stratum into the bottom of the panel. A stratum whose
     # values all sit past the cap falls back to the full range, there being
     # nothing in view to scale to.
-    y_vals <- plot_df[[value_col]][plot_df$days <= x_limit]
+    drawn <- plot_df$stratum %in% shown$names
+    y_vals <- plot_df[[value_col]][drawn & plot_df$days <= x_limit]
     y_vals <- y_vals[is.finite(y_vals)]
     if (length(y_vals) == 0) {
-      y_vals <- plot_df[[value_col]]
+      y_vals <- plot_df[[value_col]][drawn]
       y_vals <- y_vals[is.finite(y_vals)]
     }
     if (length(y_vals) == 0) {
@@ -1024,8 +1028,8 @@ aj_by_stratifier <- function(period_data,
         legend_labels <- character(0)
         legend_cols <- character(0)
 
-        for (i in seq_along(strata)) {
-          stratum_name <- strata[i]
+        for (i in seq_along(shown$names)) {
+          stratum_name <- shown$names[i]
           stratum_df <- plot_df[plot_df$stratum == stratum_name, , drop = FALSE]
           if (nrow(stratum_df) == 0) next
           # Step rendering (type = "s" and stair ribbons), matching the unified
@@ -1100,7 +1104,8 @@ plot_aj_conditional_by_stratum_lines <- function(aj_stratum_results, references 
                          aj_stratum_results$stratifier$label),
     outcome_formatter = .outcome_label,
     emit_png = isTRUE(flag[["png"]]),
-    emit_csv = isTRUE(flag[["csv"]])
+    emit_csv = isTRUE(flag[["csv"]]),
+    selection = references$plot_levels[[aj_stratum_results$stratifier$id]]
   )
 }
 
@@ -1173,6 +1178,7 @@ plot_aj_cif_by_stratum_lines <- function(aj_stratum_results, references = NULL, 
     ci_lower_col = "ci_lower",
     ci_upper_col = "ci_upper",
     emit_png = isTRUE(flag[["png"]]),
-    emit_csv = isTRUE(flag[["csv"]])
+    emit_csv = isTRUE(flag[["csv"]]),
+    selection = references$plot_levels[[aj_stratum_results$stratifier$id]]
   )
 }

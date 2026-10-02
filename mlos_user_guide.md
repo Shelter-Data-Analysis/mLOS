@@ -75,6 +75,7 @@
         - [`plot_stay_cap`](#plot_stay_cap)
         - [`probability_mass_width`](#probability_mass_width)
         - [`max_plot_strata`](#max_plot_strata)
+        - [`plot_periods`, `plot_intake_types`, `plot_animal_groups`](#plot_periods-plot_intake_types-plot_animal_groups)
         - [`show_km_ci_ribbons`](#show_km_ci_ribbons)
         - [`show_aj_cif_ci_ribbons`](#show_aj_cif_ci_ribbons)
         - [`aj_cif_any`](#aj_cif_any)
@@ -395,6 +396,8 @@ Stratified plots (KM curves and AJ lines, each by period, intake type, or animal
 
 This limit exists purely for **visual legibility**. How many curves stay readable on one panel depends on how well they happen to separate, on whether confidence-interval ribbons are drawn (ribbons overlap and muddy a panel and can be controlled with `show_km_ci_ribbons` and `show_aj_cif_ci_ribbons`), and on your own preference. Ten curves that separate cleanly may read better than four that tangle. Since nothing but the rendering is affected, and the CSV of every stratum is written either way, setting the limit is a matter of taste. See `max_plot_strata` in the [settings reference](#settings-file-yaml) for how to change it, including how to turn stratified plots off entirely while keeping their data.
 
+To plot a stratifier with more levels than the limit, name the levels to draw with [`plot_periods`, `plot_intake_types`, or `plot_animal_groups`](#plot_periods-plot_intake_types-plot_animal_groups). The limit then counts the named levels, so a selection within it is drawn.
+
 The plot limit is applied slightly differently by the two analyses: the KM plots count the stratifier's **levels**, while the AJ plots count the strata that actually produced a usable fit. The two agree unless some stratum contains no analyzable outcome at all. Such a stratum gets no AJ line, so an AJ panel can show fewer lines than the KM panel for the same stratifier, and because AJ counts it as one fewer, AJ can stay within the limit and draw its plots where KM exceeds it and skips. This is not common, but if you see KM and AJ differ in the number of lines they show or in which stratified plots they construct, this is the reason.
 
 ### Numerical output
@@ -458,7 +461,7 @@ These three are reported in `results.json` only. The `Data_Preparation` workshee
 
 #### How to read the JSON
 
-**How the run drew things.** `settings.presentation` holds the settings that change no result: the plot day cap, the maximum number of strata plotted, the confidence-ribbon toggles, the PNG sizing factors, and the per-output emission flags. These are carried so a figure you build downstream can be made to match the tool's own, using the same x-axis truncation and the same stratum limit. The settings that do affect results sit outside this group, in `settings` itself.
+**How the run drew things.** `settings.presentation` holds the settings that change no result: the plot day cap, the maximum number of strata plotted, the confidence-ribbon toggles, the PNG sizing factors, the per-output emission flags, and, where any is set, the levels each stratifier's plots draw (`plot_levels`, by stratifier: `period`, `intake`, `group`). These are carried so a figure you build downstream can be made to match the tool's own, using the same x-axis truncation and the same stratum limit. The settings that do affect results sit outside this group, in `settings` itself.
 
 **One name per measure.** Every quantity has a single name, in lower case with underscores, and it is the same name in the workbook, in `results.json`, and in the CSV files: `total_animal_days` is `total_animal_days` wherever you meet it. The canonical outcome codes keep their upper case inside those names (`outcome_mix_L`, `aj_rmtl_N`, `cif_Any`), because they are values rather than words. These names are chosen to be unambiguous and easy for a program to match, not to be pretty; turning `km_median_los` into "Median length of stay" belongs in a report or slide deck built on these outputs, where the wording is being chosen anyway.
 
@@ -466,7 +469,7 @@ The JSON describes its own shapes, so a reader needs no knowledge of the analysi
 
 The JSON carries the plot palette, under `palette`, so a chart you build downstream can match the tool's own figures. Colors are given as `#RRGGBB` hex rather than by name, because color names are not portable. `stratum_colors` is the stratified-curve palette, applied to strata in the order each sheet or CSV lists them, never recycled. `outcome_colors` and `outcome_labels` are keyed by outcome code instead, so an outcome keeps its color and its wording even in a chart that shows only some of them, and `outcome_order` is the canonical L, T, N order used everywhere in the tool (best outcome first, worst outcome last, deliberately not alphabetical).
 
-The JSON also carries an `outputs` manifest: one entry per plot and companion CSV the run actually wrote, giving the file name, what it contains, which stratifier and outcome it belongs to (a whole-data file names `all` as its stratifier, the same name the `strata` block and the `By_All` sheet use for the whole sample, so one lookup key serves both halves of the JSON), what the `days` column and the value columns mean, their units, and what the summary row above the day grid is, including how that row follows from the grid beneath it (a column sum for the survival, census, and tenure files; remaining LOS at mean tenure for the remaining LOS files; the normalized form of restricted mean time to outcome for AJ cumulative incidence). Which files a run produces depends on your settings and on what the data supports (see [Stratified-output selection](#stratified-output-selection)), so this is how a downstream script discovers what is there rather than guessing from file names. The per-day grids themselves stay in the CSVs, which are easier than JSON for reading and replotting.
+The JSON also carries an `outputs` manifest: one entry per plot and companion CSV the run actually wrote, giving the file name, what it contains, which stratifier and outcome it belongs to (a whole-data file names `all` as its stratifier, the same name the `strata` block and the `By_All` sheet use for the whole sample, so one lookup key serves both halves of the JSON), what the `days` column and the value columns mean, their units, and what the summary row above the day grid is, including how that row follows from the grid beneath it (a column sum for the survival, census, and tenure files; remaining LOS at mean tenure for the remaining LOS files; the normalized form of restricted mean time to outcome for AJ cumulative incidence). An entry for a stratified plot drawn from a [plot selection](#plot_periods-plot_intake_types-plot_animal_groups) also lists its `plotted_levels`. Which files a run produces depends on your settings and on what the data supports (see [Stratified-output selection](#stratified-output-selection)), so this is how a downstream script discovers what is there rather than guessing from file names. The per-day grids themselves stay in the CSVs, which are easier than JSON for reading and replotting.
 
 #### Rebuilding the workbook from the JSON
 
@@ -1155,9 +1158,27 @@ This setting affects **plots only**. Every numerical analysis runs on every stra
 
 If the curves separate cleanly and you want to see all the plots, keep the limit at 13 so that the run produces as many plots as its palette allows.
 
-If you use a high limit and end up with plots that are too cluttered to be useful, lower the limit to stop producing those plots.  This will allow your run to complete faster, but some of your results will not be plotted.  If you want those plotted, you are left with two choices: Reformulate to fewer strata (which changes the results), or take the CSV files and build your own plots, perhaps partitioning the levels for an offending stratifier and doing multiple plots instead of one.
+If you use a high limit and end up with plots that are too cluttered to be useful, lower the limit to stop producing those plots.  This will allow your run to complete faster, but some of your results will not be plotted.  If you want those plotted, you have three choices: name the levels to plot with [`plot_periods`, `plot_intake_types`, or `plot_animal_groups`](#plot_periods-plot_intake_types-plot_animal_groups), reformulate to fewer strata (which changes the results), or take the CSV files and build your own plots, perhaps partitioning the levels for an offending stratifier and doing multiple plots instead of one.
 
 Set `max_plot_strata` to `1` to turn stratified plots off entirely while still producing all their CSVs. Every stratifier has at least two levels by definition (a single-level column is not a stratifier at all and is skipped earlier), so a limit of 1 suppresses all of them. `0` is rejected: it would mean the same thing, and allowing two spellings of "off" invites ambiguity or typos.
+
+#### `plot_periods`, `plot_intake_types`, `plot_animal_groups`
+
+```yaml
+plot_periods:
+  - "Control"
+  - "Bingo"
+```
+
+Lists of levels: which periods, intake types, or animal groups the stratified plots of that stratifier draw. Absent, a stratifier's plots draw every level. Use them to leave a level out of the pictures, such as a period between the two you are comparing, or to draw a stratifier with more levels than [`max_plot_strata`](#max_plot_strata), which then counts the named levels.
+
+These settings affect **plots only**, like `max_plot_strata`. Every analysis runs on every level, and every CSV holds every level, byte for byte as without a selection. A drawn level keeps the color it has when every level is drawn, so a picture with and without a selection reads alike; only where a stratifier has more levels than there are colors (13) do the named levels take the colors in order. The deck built from the run (see the [presentation guide](presentation_guide.md)) shows the same levels on its slides for that stratifier, regression tables included.
+
+Rules, each enforced by stopping the run:
+
+- A name must be a level: a period label for `plot_periods`, and for the other two a value as it is after any [value map](#value-maps). A level emptied by a [value filter](#value-filters) is still a level, and a selection may name it; it draws nothing.
+- Each list must name at least one level, and none twice.
+- The list must include the stratifier's reference level, the one its hazard ratios are measured against: the level named by [`period_reference`](#period_reference), [`intake_type_reference`](#intake_type_reference), or [`animal_group_reference`](#animal_group_reference), or the default chosen when that setting is absent. The deck shows hazard ratios for the selected levels only, and a ratio needs its reference on the same slide.
 
 #### `show_km_ci_ribbons`
 

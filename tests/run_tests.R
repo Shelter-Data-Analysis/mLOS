@@ -3140,6 +3140,124 @@ run_suite_checks <- function() {
   expect_equal("aj_cif_any: the manifest describes the all-cause files",
                sum(vapply(any_manifest, function(e) identical(e$outcome, "Any"), logical(1))), 1)
 
+  # plot_periods, plot_intake_types, and plot_animal_groups name the levels a
+  # stratifier's plots draw. Every analysis and every CSV keeps all levels; the
+  # reference level must be among the named ones, since the deck narrows its
+  # regression tables to them.
+  cat("\n=== plot level selection ===\n")
+
+  expect_error("plot_periods: a name that is not a period label",
+               refs_for(with_base(plot_periods = list("Nope"))),
+               "plot_periods names Nope, which is not a period label")
+  expect_error("plot_intake_types: present but empty",
+               refs_for(with_base(plot_intake_types = list())),
+               "plot_intake_types is present but empty")
+  expect_error("plot_animal_groups: a level named twice",
+               refs_for(with_base(plot_animal_groups = list("A", "A"))),
+               "plot_animal_groups names a level more than once: A")
+
+  pl_setup <- function(...) {
+    s <- c(list(period_dates = c("2021-01-01", "2021-04-01"), restricted_stay_cap = 60),
+           list(...))
+    refs <- refs_for(s)
+    d    <- fi_quiet(read_and_prepare_data(fi_csv, refs))
+    refs <- detect_optional_columns(d, refs)
+    list(refs = refs, data = d, pd = fi_quiet(break_down_by_period(d, refs)))
+  }
+  pl_ok <- function(expr) as.numeric(is.null(tryCatch(expr, error = function(e) "error")))
+
+  pl_bad <- pl_setup(plot_intake_types = list("STRAY", "NOPE"))
+  expect_error("plot_intake_types: a name that is not a level",
+               check_plot_level_names(pl_bad$data, pl_bad$refs),
+               "plot_intake_types names NOPE, which is not a level of intake_type")
+  pl_cut <- pl_setup(intake_filter_cut = list("TRANSFER"),
+                     plot_intake_types = list("STRAY", "TRANSFER"))
+  expect_equal("plot_intake_types: a filtered-out level is still a level",
+               pl_ok(check_plot_level_names(pl_cut$data, pl_cut$refs)), 1)
+  pl_nogroup <- pl_setup(plot_animal_groups = list("MED"))
+  expect_error("plot_animal_groups: the data has no animal_group",
+               check_plot_level_names(pl_nogroup$data, pl_nogroup$refs),
+               "plot_animal_groups is set, but the data has no animal_group column")
+
+  pl_cox <- function(...) {
+    x <- pl_setup(intake_type_reference = "STRAY", ...)
+    list(refs = x$refs, cox = fi_quiet(cox_regression_analysis(x$pd, x$refs)))
+  }
+  pl_noref <- pl_cox(plot_intake_types = list("OWNER", "TRANSFER"))
+  expect_error("plot_intake_types: the reference level must be named",
+               check_plot_level_references(pl_noref$cox, pl_noref$refs),
+               "plot_intake_types must include the reference level, STRAY")
+  pl_ref <- pl_cox(plot_intake_types = list("STRAY", "OWNER"))
+  expect_equal("plot_intake_types: a selection holding the reference passes",
+               pl_ok(check_plot_level_references(pl_ref$cox, pl_ref$refs)), 1)
+  pl_default <- pl_setup(plot_intake_types = list("STRAY", "TRANSFER"))
+  pl_default_cox <- fi_quiet(cox_regression_analysis(pl_default$pd, pl_default$refs))
+  pl_default_ref <- .model_reference_level(pl_default_cox, "intake")
+  expect_error("plot_intake_types: a default reference counts too",
+               check_plot_level_references(pl_default_cox, pl_default$refs),
+               paste0("must include the reference level, ", pl_default_ref))
+
+  # Colors: a drawn stratum keeps the color of its place among all of them,
+  # unless there are more strata than colors.
+  pl_strata <- .plot_strata(c("A", "B", "C"), c("C", "A"))
+  expect_equal("plot strata: the named strata, in the plot's order",
+               as.numeric(identical(pl_strata$names, c("A", "C"))), 1)
+  expect_equal("plot strata: each keeps its color from the full list",
+               as.numeric(identical(pl_strata$cols, .STRATIFIED_COLORS[c(1, 3)])), 1)
+  pl_many <- paste0("L", seq_len(length(.STRATIFIED_COLORS) + 1))
+  pl_wide <- .plot_strata(pl_many, pl_many[c(2, length(pl_many))])
+  expect_equal("plot strata: more strata than colors, colored within the selection",
+               as.numeric(identical(pl_wide$cols, .STRATIFIED_COLORS[1:2])), 1)
+  pl_all <- .plot_strata(c("A", "B"))
+  expect_equal("plot strata: no selection draws every stratum",
+               as.numeric(identical(pl_all$cols, .STRATIFIED_COLORS[1:2]) && !pl_all$selected), 1)
+
+  # Rendering. Three intake types against a limit of two: skipped without a
+  # selection, drawn with one, and the CSVs the same bytes either way.
+  pl_render <- function(selection) {
+    x <- pl_setup(max_plot_strata = 2)
+    x$refs$plot_levels$intake <- selection
+    dir <- tempfile("plot_levels")
+    dir.create(dir)
+    strat <- fi_quiet(stratified_km_analysis(x$pd, x$refs))
+    aj    <- fi_quiet(aj_by_stratifier(x$pd, x$refs, fi_intake))
+    fi_quiet(plot_stratified_km(strat, x$refs, save_prefix = file.path(dir, "km_survival")))
+    fi_quiet(plot_aj_cif_by_stratum_lines(aj, references = x$refs,
+                                          save_prefix = file.path(dir, paste0("aj_cif", fi_intake$suffix))))
+    dir
+  }
+  pl_none <- pl_render(NULL)
+  pl_some <- pl_render(c("STRAY", "OWNER"))
+  pl_km_png <- paste0("km_survival", fi_intake$suffix, ".png")
+  pl_aj_png <- paste0("aj_cif", fi_intake$suffix, "_outcome_L.png")
+  expect_equal("plot selection: over the limit, nothing drawn without one",
+               sum(file.exists(file.path(pl_none, c(pl_km_png, pl_aj_png)))), 0)
+  expect_equal("plot selection: a selection within the limit is drawn",
+               sum(file.exists(file.path(pl_some, c(pl_km_png, pl_aj_png)))), 2)
+  pl_csvs <- list.files(pl_none, pattern = "\\.csv$")
+  expect_equal("plot selection: the CSVs are written either way",
+               as.numeric(length(pl_csvs) > 0 &&
+                          setequal(pl_csvs, list.files(pl_some, pattern = "\\.csv$"))), 1)
+  expect_equal("plot selection: every CSV has the same bytes",
+               as.numeric(all(vapply(pl_csvs, function(f)
+                 identical(readBin(file.path(pl_none, f), "raw", 1e7),
+                           readBin(file.path(pl_some, f), "raw", 1e7)), logical(1)))), 1)
+
+  # The bundle: echoed only for a stratifier given a selection, and recorded on
+  # the manifest entries of the plots it governs; absent, neither key exists.
+  expect_equal("plot selection echo: absent with no selection",
+               as.numeric(is.null(.plot_levels_echo(list(period = NULL, intake = NULL)))), 1)
+  pl_echo <- .plot_levels_echo(list(period = NULL, intake = "STRAY"))
+  expect_equal("plot selection echo: only the stratifier with one",
+               as.numeric(identical(names(pl_echo), "intake")), 1)
+  pl_manifest <- .build_output_manifest(c(pl_km_png, sub("png$", "csv", pl_km_png)),
+                                        .OUTCOME_STATE_LEVELS, pl_echo)
+  expect_equal("plot selection manifest: the plot records its levels",
+               as.numeric(identical(as.character(pl_manifest[[1]]$plotted_levels), "STRAY")), 1)
+  pl_plain <- .build_output_manifest(c(pl_km_png), .OUTCOME_STATE_LEVELS)
+  expect_equal("plot selection manifest: no key without a selection",
+               as.numeric(!("plotted_levels" %in% names(pl_plain[[1]]))), 1)
+
   cat("\n=== schema tolerance ===\n")
 
   # What the schema version promises. It moves when a field changes meaning or

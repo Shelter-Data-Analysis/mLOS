@@ -971,7 +971,11 @@ def burden_carrier(bundle: Bundle,
     One definition, used by the finding that reports the finding and by the
     recommendation that acts on it, so the deck cannot suggest narrowing to a
     level it did not name as the carrier.
+
+    Read across every level, shown or not: a share of the days owed is a share
+    of all of them.
     """
+    bundle = bundle.complete()
     owed = _care_days_owed(bundle, stratifier)
     if owed is None or owed.sum() <= 0 or len(owed) < 2:
         return None
@@ -1133,7 +1137,15 @@ def _workload_frame(bundle: Bundle, stratifier: str) -> pd.DataFrame:
     Assembled once and sliced by the three slides and by the workbook, so a
     column cannot be computed one way for a slide and another for the sheet it
     is checked against.
+
+    Built from every level and then cut to the levels shown, so that a share
+    is of the whole stratifier's total rather than of the levels a plot
+    selection left on the slide.
     """
+    shown = (bundle.levels(stratifier)
+             if bundle.full is not None and bundle.has("strata", stratifier, "labels")
+             else None)
+    bundle = bundle.complete()
     frame = pd.DataFrame()
     if bundle.has("strata", stratifier, "observations"):
         observations = bundle.stratum(stratifier, "observations")
@@ -1156,6 +1168,8 @@ def _workload_frame(bundle: Bundle, stratifier: str) -> pd.DataFrame:
             total = frame[column].sum()
             if total:
                 frame[share] = frame[column] / total
+    if shown is not None and len(frame.index):
+        frame = frame.loc[[level for level in frame.index if level in shown]]
     return frame
 
 
@@ -1761,6 +1775,7 @@ def _levels_partition_census(bundle: Bundle, stratifier: str) -> bool:
     written against, so a caller cannot get a different answer by holding a
     different column.
     """
+    bundle = bundle.complete()
     if not bundle.has("strata", stratifier, "census"):
         return False
     census = bundle.stratum(stratifier, "census").get("expected_census")

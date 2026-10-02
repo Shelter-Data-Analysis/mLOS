@@ -967,14 +967,14 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
 # this run's. A suppressed output flag, a stratifier the data cannot support,
 # and an analysis that declined all drop out here the same way, by not having
 # been written.
-.build_output_manifest <- function(emitted, outcome_states) {
+.build_output_manifest <- function(emitted, outcome_states, plot_levels = NULL) {
   entry <- function(family, stem, stratifier_id = NULL, outcome = NULL) {
     csv <- paste0(stem, ".csv")
     png <- paste0(stem, ".png")
     has_csv <- csv %in% emitted
     has_png <- png %in% emitted
     if (!has_csv && !has_png) return(NULL)
-    list(
+    e <- list(
       csv         = if (has_csv) csv else NULL,
       plot        = if (has_png) png else NULL,
       kind        = family$kind,
@@ -1004,6 +1004,11 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
              # day this stratum's per_resident_past_days falls in.
              derivation = family$aggregate_rule)
     )
+    # The levels the plot draws, where its stratifier has a plot selection; with
+    # none the key is absent and the plot draws every level. The CSV holds
+    # every level either way.
+    if (has_png && !is.null(stratifier_id)) e$plotted_levels <- plot_levels[[stratifier_id]]
+    e
   }
 
   entries <- list()
@@ -1186,6 +1191,29 @@ KM_RATIO_ROWS <- c("km_restricted_mean_ratio",
   as.character(levels_used[[1L]])
 }
 
+# Stop when a stratifier's plot selection leaves out its reference level. The
+# deck narrows its regression tables to the plotted levels, and every ratio in
+# them is against the reference, so a selection without it would show ratios
+# against a denominator the slide does not have. Checked against the level the
+# model used, so a default reference (the most frequent level) and
+# period_reference OLDEST/NEWEST are covered too.
+check_plot_level_references <- function(cox_results, references) {
+  setting_for_reference <- c(period = "period_reference",
+                             intake = "intake_type_reference",
+                             group  = "animal_group_reference")
+  for (stratifier in stratifiers) {
+    named <- references$plot_levels[[stratifier$id]]
+    if (is.null(named)) next
+    reference <- .model_reference_level(cox_results, stratifier$id)
+    if (is.na(reference) || reference %in% named) next
+    stop(stratifier$plot_setting, " must include the reference level, ",
+         reference, " (set by ", setting_for_reference[[stratifier$id]],
+         ", or the default when it is absent). Add it to ",
+         stratifier$plot_setting, " or choose another reference.")
+  }
+  invisible(NULL)
+}
+
 # Each level's restricted mean stay as a multiple of the reference level's,
 # with a 95% interval, appended to the KM matrix.
 #
@@ -1336,7 +1364,7 @@ build_results_bundle <- function(cox_results,
   version_fields <- mlos_environment_versions()
   names(version_fields) <- MLOS_VERSION_FIELDS
 
-  list(
+  bundle <- list(
     schema_version = MLOS_RESULTS_SCHEMA_VERSION,
     run = c(
       list(
@@ -1468,6 +1496,13 @@ build_results_bundle <- function(cox_results,
     # manifest records what was written, which is not known yet.
     outputs = list()
   )
+  # The levels each stratifier's plots draw, by stratifier id, for a stratifier
+  # given a selection (plot_periods and the like). The deck narrows its
+  # stratified slides to these; every number in the bundle still covers all
+  # levels. Assigned rather than listed above so that, with no selection, the
+  # key is absent and the file is the one a run has always written.
+  bundle$settings$presentation$plot_levels <- .plot_levels_echo(references$plot_levels)
+  bundle
 }
 
 # Significant digits for every number in the file. 17 is the IEEE 754
@@ -1493,8 +1528,19 @@ build_results_bundle <- function(cox_results,
 attach_output_manifest <- function(bundle) {
   # "Any" is listed too so the aj_cif_any plots are described when written;
   # the manifest keeps only files the run emitted.
-  bundle$outputs <- .build_output_manifest(emitted_outputs(), c(.OUTCOME_STATE_LEVELS, "Any"))
+  bundle$outputs <- .build_output_manifest(emitted_outputs(), c(.OUTCOME_STATE_LEVELS, "Any"),
+                                           bundle$settings$presentation$plot_levels)
   bundle
+}
+
+# references$plot_levels as the settings echo carries it: only the stratifiers
+# given a selection, each a JSON array even when it names one level. NULL when
+# none has one, which leaves the key out of the file, so a run without a
+# selection writes the bundle it always has.
+.plot_levels_echo <- function(plot_levels) {
+  named <- Filter(Negate(is.null), plot_levels)
+  if (length(named) == 0) return(NULL)
+  lapply(named, function(levels) I(unname(as.character(levels))))
 }
 
 #' Write the results bundle to JSON

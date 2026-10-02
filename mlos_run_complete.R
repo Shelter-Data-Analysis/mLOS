@@ -157,6 +157,7 @@ print(unlist(references))
 cat("\n\n>>> Reading CSV and preparing data...\n")
 data <- read_and_prepare_data(data_filename, references)
 references <- detect_optional_columns(data, references)
+check_plot_level_names(data, references)
 display_data_summary(data)
 
 cat("\n\n>>> Breaking data down by period...\n")
@@ -181,6 +182,7 @@ cat("Median LOS:", round(km_results$median_los, 1),
 cat("\n\n>>> Cox regression analysis...\n")
 
 cox_results <- cox_regression_analysis(period_data, references)
+check_plot_level_references(cox_results, references)
 
 cat("\n\n>>> Stratified Kaplan-Meier analysis...\n")
 
