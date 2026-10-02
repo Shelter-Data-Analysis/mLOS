@@ -204,7 +204,10 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
   # a gender column of an all-female subset becomes FALSE -- the CSV-side
   # analog of the YAML boolean gotcha guarded in .parse_raw_labels. Dates
   # are parsed explicitly below, and no column is ever used as numeric.
-  data <- read.csv(csv_file, stringsAsFactors = FALSE, colClasses = "character")
+  # encoding = "UTF-8" marks the text as UTF-8 without converting it, so
+  # non-ASCII values match the settings file's labels whatever the locale.
+  data <- read.csv(csv_file, stringsAsFactors = FALSE, colClasses = "character",
+                   encoding = "UTF-8")
   rows_read <- nrow(data)
 
   # The screening ledger: how the rows of the CSV became the stays this analysis

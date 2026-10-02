@@ -13,7 +13,12 @@ read_settings <- function(settings_file) {
     stop("Settings file not found: ", settings_file)
   }
 
-  settings <- yaml::read_yaml(settings_file)
+  # Read as UTF-8 whatever the locale. yaml::read_yaml converts through the
+  # native encoding, so under the C locale a non-ASCII label such as an em
+  # dash stops the run with a scanner error. readLines(encoding = "UTF-8")
+  # marks the text without converting it.
+  text <- readLines(settings_file, encoding = "UTF-8", warn = FALSE)
+  settings <- yaml::yaml.load(paste(text, collapse = "\n"))
   if (!is.list(settings)) {
     stop("Settings file must contain a YAML mapping (key-value pairs).")
   }

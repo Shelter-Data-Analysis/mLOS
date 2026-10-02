@@ -22,6 +22,10 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 The DOIs the 0.3.0 release minted. **No number changed**: every CSV and every
 plot is byte-identical to 0.3.0.
 
+- The settings file and the data CSV are read as UTF-8 whatever the locale.
+  Under the C locale a non-ASCII label, such as the em dash a shelter uses for
+  "still in care", stopped the run with a YAML scanner error. Runs on ASCII
+  data are unaffected.
 - `CITATION.cff`, `README.md` and `presentation_guide.md` name results version
   4, `10.5281/zenodo.23047014`, and deck version 5, `10.5281/zenodo.23047087`.
 - `PUBLISHING.md`'s identifier table gains mLOS 0.3.0,
