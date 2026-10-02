@@ -79,11 +79,19 @@ def histlos(bundle: Bundle, figures: FigureSet) -> tuple[Slide | None, str]:
     if exit_plot is None or not bundle.has("strata", "period", "km"):
         return None, "this run has no Kaplan-Meier curves by period."
 
-    exit_df = bundle.stratum("period", "km")
+    # Matched against every period, since the summary CSV keeps them all, and
+    # then cut to the periods the run's plots draw (plot_periods), so the two
+    # tables list the curves above them. See narrow.py.
+    from mlos_review.narrow import narrowed
+    full = bundle.complete()
+    exit_df = full.stratum("period", "km")
     hist_df = pd.read_csv(summary, index_col="period", dtype={"period": str})
     if list(hist_df.index) != list(exit_df.index):
         return None, (f"the periods in {summary} ({list(hist_df.index)}) are "
                       f"not the run's ({list(exit_df.index)}).")
+    shown = narrowed(full).levels("period")
+    exit_df = exit_df.loc[shown]
+    hist_df = hist_df.loc[shown]
 
     copied = figures.copy(
         plot, "histlos_by_period", kind="histlos", stratifier="period",
@@ -96,9 +104,17 @@ def histlos(bundle: Bundle, figures: FigureSet) -> tuple[Slide | None, str]:
         notes=["ExitLOS is what mLOS reports: each period sees only the part "
                "of a stay that falls inside it. HistLOS counts the whole stay "
                "of every animal that left during the period, as a shelter's "
-               "usual average does."],
+               "usual average does."] + _narrowing_notes(full),
         layout="STACKED",
     ), ""
+
+
+def _narrowing_notes(bundle: Bundle) -> list[str]:
+    """The deck's note naming the periods left out, where any are."""
+    from mlos_review.deck import narrowing_note
+    from mlos_review.names import Vocabulary
+    note = narrowing_note(bundle, "period", Vocabulary(bundle.data))
+    return [] if note is None else [note]
 
 
 EXTRAS: dict[str, Callable[[Bundle, FigureSet], tuple[Slide | None, str]]] = {

@@ -4340,6 +4340,22 @@ def check_extra_histlos() -> None:
                    and any("not this run's" in w for w in warnings),
                    f"{[_slide_title(s) for s in slides]} {warnings}")
 
+        # A run's plot selection reaches the slide: its tables list the
+        # selected periods, the summary CSV keeping all of them, and the
+        # notes name the one left out.
+        selected = json.loads(json.dumps(bundle.data))
+        selected["settings"]["presentation"]["plot_levels"] = {"period": [levels[0]]}
+        (staged / "results.json").write_text(json.dumps(selected))
+        slides, _ = build_with()
+        cells = [cell.text for shape in slides[0].shapes if shape.has_table
+                 for row in shape.table.rows for cell in row.cells]
+        expect("@extra HistLOS: the tables list the selected periods",
+               levels[0] in cells and levels[1] not in cells, str(cells))
+        expect("@extra HistLOS: the notes name the period left out",
+               f"{levels[1]} is left out here"
+               in slides[0].notes_slide.notes_text_frame.text)
+        (staged / "results.json").write_text(json.dumps(bundle.data))
+
         # Placeholders on both sides would match, and must not pass.
         placeholder = "(digest package not installed)"
         run["data_sha256"] = placeholder

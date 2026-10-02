@@ -932,7 +932,9 @@ so no standard deck carries one and `@insert` cannot reach one. The names are
 the keys of `extras.EXTRAS`. `@extra HistLOS` puts the Kaplan-Meier curves by
 period on the left, where the standard LOS slide has them, and HistLOS on the
 right: the whole stay of every animal that exits in a period. Each sits over a
-table of its median, mean, and P90. The HistLOS files come from
+table of its median, mean, and P90. Where the run sets `plot_periods`, both
+plots draw the selected periods and both tables list them, with the note
+naming the periods left out. The HistLOS files come from
 `tools/histlos_by_period.R`, run into `histlos/` beside the run's
 `results.json`. They record the mLOS version and the data and settings hashes,
 and the slide is built only when all three match the run's. Otherwise the

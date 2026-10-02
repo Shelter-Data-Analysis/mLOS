@@ -59,24 +59,28 @@ summary_rows <- data.frame(period             = labels,
 print(summary_rows, row.names = FALSE)
 
 # Styled as km_survival_by_period.png, CI ribbons included when the settings
-# draw them there, so the two read alike side by side on a slide.
-cols <- .get_series_colors(length(labels))
+# draw them there, so the two read alike side by side on a slide. The same
+# periods too: plot_periods names the ones drawn, each in the color it has with
+# every period drawn, while both CSVs keep every period.
+shown <- .plot_strata(labels, references$plot_levels$period)
+cols  <- shown$cols
+drawn <- if (shown$selected) fit[which(shown$keep)] else fit
 .with_png(out("histlos_by_period.png"), {
-  plot(fit, conf.int = FALSE, col = cols, lty = 1, lwd = .png_lwd(2), mark.time = FALSE,
+  plot(drawn, conf.int = FALSE, col = cols, lty = 1, lwd = .png_lwd(2), mark.time = FALSE,
        xlim = c(0, references$plot_stay_cap), ylim = c(0, 1),
        xlab = "Days Already in Care", ylab = "Probability Still in Care",
        main = "HistLOS by Period")
   .plot_grid()
   if (isTRUE(references$show_km_ci_ribbons)) {
-    for (i in seq_along(fit$strata)) {
-      raw  <- .stratum_ci_steps(fit, i)
+    for (i in seq_along(drawn$strata)) {
+      raw  <- .stratum_ci_steps(drawn, i)
       poly <- .ci_ribbon_stair_xy(raw$time, raw$lower, raw$upper, references$plot_stay_cap)
       graphics::polygon(poly$x, poly$y, col = grDevices::adjustcolor(cols[i], alpha.f = 0.15),
                         border = NA)
     }
   }
-  lines(fit, conf.int = FALSE, col = cols, lty = 1, lwd = .png_lwd(2), mark.time = FALSE)
-  legend("topright", legend = labels, col = cols, lty = 1, lwd = .png_lwd(2), bg = .LEGEND_BG)
+  lines(drawn, conf.int = FALSE, col = cols, lty = 1, lwd = .png_lwd(2), mark.time = FALSE)
+  legend("topright", legend = shown$names, col = cols, lty = 1, lwd = .png_lwd(2), bg = .LEGEND_BG)
 })
 .export_stratified_km_csv(fit, out("histlos_by_period.csv"), cap)
 

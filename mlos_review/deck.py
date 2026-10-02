@@ -87,7 +87,7 @@ from mlos_review.blocks import (
 )
 from mlos_review.bundle import Bundle
 from mlos_review.figures import FigureSet
-from mlos_review.names import Vocabulary
+from mlos_review.names import Vocabulary, capitalize_first
 from mlos_review.narrow import hidden_levels, narrowed
 from mlos_review.output import prepare_output
 from mlos_review.regression import (comparison as cox_comparison, pooled,
@@ -1939,7 +1939,7 @@ def narrowing_note(bundle: Bundle, stratifier: str, vocab: Vocabulary) -> str | 
         return None
     shown = [level for level in bundle.complete().levels(stratifier)
              if level not in hidden]
-    label = vocab.stratifier(stratifier).label
+    label = capitalize_first(vocab.stratifier(stratifier).label)
     verb = "is" if len(hidden) == 1 else "are"
     return (f"{label}: this slide shows {_listing(shown)}, the levels the run's "
             f"plots draw. {_listing(hidden)} {verb} left out here; every level "

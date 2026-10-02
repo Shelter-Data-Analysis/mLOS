@@ -1329,7 +1329,7 @@ HistLOS, as defined in [1], is the whole intake-to-outcome stay of every animal 
 Rscript tools/histlos_by_period.R --settings data/OC2_settings.yaml --data data/OC2_data.csv --results results/histlos
 ```
 
-A variant deck sets it beside ExitLOS with `@extra HistLOS` (see the Presentation Guide).
+With [`plot_periods`](#plot_periods-plot_intake_types-plot_animal_groups) set, the plot draws the selected periods, as `km_survival_by_period` does; both CSVs keep every period. A variant deck sets it beside ExitLOS with `@extra HistLOS` (see the Presentation Guide).
 
 The L/T/N outcome types this tool reports on by default correspond to ExitLOS, as defined in [1]: length of stay measured up to the animal's exit from this organization, whatever form that exit takes.
 
