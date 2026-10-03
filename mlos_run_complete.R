@@ -157,6 +157,7 @@ print(unlist(references))
 cat("\n\n>>> Reading CSV and preparing data...\n")
 data <- read_and_prepare_data(data_filename, references)
 references <- detect_optional_columns(data, references)
+references <- apply_regression_exclusions(data, references)
 check_plot_level_names(data, references)
 display_data_summary(data)
 

@@ -248,15 +248,18 @@ stratifiers <- list(
   list(id = "period", col = "period_label", label = "Period",       km_result_key = "km_period",
        suffix = "_by_period",       sheet_name = "By_Period",       model_term = "period",
        has_field = "has_period",       n_field = "n_periods",
-       plot_setting = "plot_periods"),
+       plot_setting = "plot_periods",
+       regression_exclude_setting = "regression_exclude_periods"),
   list(id = "intake", col = "intake_type",  label = "Intake Type",  km_result_key = "km_intake",
        suffix = "_by_intake_type",  sheet_name = "By_Intake_Type",  model_term = "intake_type",
        has_field = "has_intake_type",  n_field = "n_intake_types",
-       plot_setting = "plot_intake_types"),
+       plot_setting = "plot_intake_types",
+       regression_exclude_setting = NULL),
   list(id = "group",  col = "animal_group", label = "Animal Group", km_result_key = "km_group",
        suffix = "_by_animal_group", sheet_name = "By_Animal_Group", model_term = "animal_group",
        has_field = "has_animal_group", n_field = "n_animal_groups",
-       plot_setting = "plot_animal_groups")
+       plot_setting = "plot_animal_groups",
+       regression_exclude_setting = NULL)
 )
 
 # stratifier id -> its model-formula term, and the inverse. Both are derived
@@ -457,6 +460,59 @@ stratifiers <- list(
   }
   list(keep = keep, names = names_all[keep], cols = cols, n = sum(keep),
        selected = !is.null(selection))
+}
+
+# --- Level lists: plot selections and regression exclusions ----------------
+# Two kinds of setting name levels of one stratifier: which levels its plots
+# draw (plot_setting in the registry), and which levels the regressions leave
+# out (regression_exclude_setting; NULL where the stratifier offers none). The
+# helpers below are written for any stratifier, so offering exclusion for
+# another one is a registry entry, its checks, and its docs.
+
+# Stop on a name that is not one of `available`. `what` is how the error
+# names a level: "a period label", say, or "a level of intake_type".
+.check_level_names <- function(named, available, setting, what) {
+  unknown <- setdiff(named, available)
+  if (length(unknown) > 0) {
+    stop(setting, " names ", paste(unknown, collapse = ", "), ", which is not ",
+         what, " (the ", if (grepl("period", what)) "labels" else "levels",
+         " are: ", paste(available, collapse = ", "), ").")
+  }
+  invisible(NULL)
+}
+
+# The checks a regression exclusion takes once its stratifier's levels are
+# known: every name a level, and at least two levels left for the stratifier
+# to be a predictor at all. One left would drop it from the models, which is
+# what a single-level stratifier does anyway, so asking for it is a mistake.
+.check_regression_exclusion <- function(excluded, available, setting, what) {
+  if (is.null(excluded)) return(invisible(NULL))
+  .check_level_names(excluded, available, setting, what)
+  if (length(setdiff(available, excluded)) < 2) {
+    stop(setting, " leaves fewer than two levels in the regressions; at least ",
+         "two must remain.")
+  }
+  invisible(NULL)
+}
+
+# A stratifier's plot selection, defaulted: with no plot setting and an
+# exclusion, the plots draw the levels left in the regressions.
+.default_plot_levels <- function(selection, excluded, available) {
+  if (is.null(selection) && !is.null(excluded)) setdiff(available, excluded) else selection
+}
+
+# The rows the regressions fit: period_data less the rows of every excluded
+# level. The levels themselves stay in their factors, so each keeps its row in
+# every coefficient table, blank, as an emptied level does.
+.regression_rows <- function(period_data, references) {
+  keep <- rep(TRUE, nrow(period_data))
+  for (stratifier in stratifiers) {
+    excluded <- references$regression_exclude[[stratifier$id]]
+    if (!is.null(excluded)) {
+      keep <- keep & !(as.character(period_data[[stratifier$col]]) %in% excluded)
+    }
+  }
+  period_data[keep, , drop = FALSE]
 }
 
 # Whether a stratified plot is skipped: more strata than the limit, or a

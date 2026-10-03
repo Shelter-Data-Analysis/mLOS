@@ -1193,6 +1193,12 @@ review workbook. Each narrowed slide carries a speaker note naming the levels
 it leaves out, since a level missing without a word reads as one the data
 does not have. Without a selection, nothing here changes.
 
+A period left out of the regressions (`regression_exclude_periods`) is not
+shown by default, since the run's plot selection defaults to the periods the
+regressions keep. Where a selection names one anyway, it appears on the ratio
+slides with blank model ratios, and the slide carries a note saying it is out
+of the regressions.
+
 The rest of this section applies within the levels that remain.
 
 `selected_levels` is the shared mechanism: up to a show-all limit every level

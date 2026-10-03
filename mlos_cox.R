@@ -64,7 +64,8 @@
 # canonical_levels carries the pre-relevel order captured in
 # cox_regression_analysis. Only terms actually in the fit (present in
 # xlevels) get a row, so a dropped period predictor or an absent optional
-# column inserts nothing.
+# column inserts nothing. A canonical level with no coefficient gets a blank
+# row (see below).
 .insert_reference_rows <- function(tbl, xlevels, canonical_levels, value_col) {
   blocks <- list()
   used <- rep(FALSE, nrow(tbl))
@@ -82,6 +83,14 @@
         if (length(idx) > 0) {
           used[idx] <- TRUE
           block[[length(block) + 1]] <- tbl[idx, , drop = FALSE]
+        } else {
+          # A level the fit has no coefficient for: one left out of the
+          # regressions (regression_exclude_periods), which a Weibull fit
+          # drops where Cox reports it as NA. A blank row keeps every table
+          # the same shape as the stratifier's levels.
+          blank <- tbl[NA_integer_, , drop = FALSE]
+          blank$variable <- var_name
+          block[[length(block) + 1]] <- blank
         }
       }
     }
@@ -110,6 +119,13 @@ cox_regression_analysis <- function(period_data, references) {
   # contain data: a defined-but-empty period (warned about in
   # break_down_by_period) contributes no rows, and a single-level factor
   # would crash coxph.
+  # A regression exclusion (regression_exclude_periods) drops the excluded
+  # levels' rows here, for every fit below. The periods with data are counted before
+  # the drop, so an excluded period stays a factor level with no rows and keeps
+  # a blank row in every coefficient table; the reference and the
+  # predictor's qualification are settled on the periods the models fit.
+  periods_in_data <- sort(unique(period_data$period_num))
+  period_data <- .regression_rows(period_data, references)
   present_periods <- sort(unique(period_data$period_num))
   has_period_predictor <- length(present_periods) > 1
 
@@ -138,11 +154,15 @@ cox_regression_analysis <- function(period_data, references) {
   # alone would sort labels alphabetically ("Q10" before "Q2"). Only periods
   # with data become levels (an empty period would be a zero-row level).
   n_periods <- references$n_periods
-  periods_with_data <- references$periods[references$periods$period_num %in% present_periods, ]
+  periods_with_data <- references$periods[references$periods$period_num %in% periods_in_data, ]
   period_data$period <- factor(period_data$period_label,
                                levels = periods_with_data$period_label)
   cat("\nPeriods: ", n_periods, " period(s) defined, ",
-      length(present_periods), " with data\n", sep = "")
+      length(present_periods), " with data",
+      if (length(periods_in_data) > length(present_periods))
+        paste0(" in the regressions (", length(periods_in_data) - length(present_periods),
+               " excluded)"),
+      "\n", sep = "")
 
   # Canonical level orders, captured BEFORE any releveling: chronological
   # for period (set explicitly above), alphabetical for intake_type and

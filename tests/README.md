@@ -244,6 +244,11 @@ Standalone checks follow, none tied to a fixture:
   errors;
 - **aj_cif_any**: the all-cause plots and CSVs are written only with the
   setting on, and the manifest describes them;
+- **regression exclusion**: `regression_exclude_periods` stops the run on an
+  unknown name or on fewer than two periods left, defaults the plots to the
+  periods kept, keeps every Cox and Weibull row (blank for the excluded
+  period), resolves `OLDEST` among the periods kept, and, set by hand for
+  intake type, takes the same checks and default;
 - **plot level selection**: `plot_periods`, `plot_intake_types`, and
   `plot_animal_groups` stop the run on an unknown or doubled name and on a
   selection without the reference level (a default reference included), a

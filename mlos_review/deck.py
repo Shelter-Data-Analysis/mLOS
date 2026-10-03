@@ -88,7 +88,7 @@ from mlos_review.blocks import (
 from mlos_review.bundle import Bundle
 from mlos_review.figures import FigureSet
 from mlos_review.names import Vocabulary, capitalize_first
-from mlos_review.narrow import hidden_levels, narrowed
+from mlos_review.narrow import hidden_levels, narrowed, regression_excluded
 from mlos_review.output import prepare_output
 from mlos_review.regression import (comparison as cox_comparison, pooled,
                                     stratified, hazard_ratio_panel,
@@ -1610,6 +1610,7 @@ def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
                                              vocab, figures)
         if slide is not None:
             _mark_narrowed([slide], [stratifier], bundle, vocab)
+            _mark_excluded([slide], stratifier, bundle, vocab)
             # Emptied rather than left as they were: these sentences are on the
             # hazard-ratio slides now, and a slide that carries them here too
             # would print them twice in one deck's notes.
@@ -1946,6 +1947,35 @@ def narrowing_note(bundle: Bundle, stratifier: str, vocab: Vocabulary) -> str | 
             f"is in the run's CSVs and workbook.")
 
 
+def exclusion_note(bundle: Bundle, stratifier: str, vocab: Vocabulary) -> str | None:
+    """The note on a ratio slide showing a level left out of the regressions.
+
+    None where the slide shows no such level. The run's plot selection
+    defaults to the levels the regressions keep, so this speaks only when a
+    selection names an excluded level on purpose.
+    """
+    shown = bundle.levels(stratifier) if bundle.has("strata", stratifier) else []
+    excluded = [level for level in regression_excluded(bundle).get(stratifier, [])
+                if level in shown]
+    if not excluded:
+        return None
+    label = capitalize_first(vocab.stratifier(stratifier).label)
+    verb = "is" if len(excluded) == 1 else "are"
+    return (f"{label}: {_listing(excluded)} {verb} left out of the regressions "
+            f"by the run's settings, so the model ratios for "
+            f"{'it' if len(excluded) == 1 else 'them'} are blank. The unadjusted "
+            f"Kaplan-Meier ratio fits no model and is shown.")
+
+
+def _mark_excluded(slides: Sequence[Slide], stratifier: str, bundle: Bundle,
+                   vocab: Vocabulary) -> None:
+    """Add the exclusion note for `stratifier` to each slide, where it applies."""
+    note = exclusion_note(bundle, stratifier, vocab)
+    for slide in slides:
+        if note is not None and note not in slide.notes:
+            slide.notes.append(note)
+
+
 def _mark_narrowed(slides: Sequence[Slide], stratifiers: Sequence[str],
                    bundle: Bundle, vocab: Vocabulary) -> None:
     """Add the narrowing note for each of `stratifiers` to each slide."""
@@ -2093,6 +2123,7 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
                                                comparison, vocab))
         if slide is not None:
             _mark_narrowed([slide], [stratifier], bundle, vocab)
+            _mark_excluded([slide], stratifier, bundle, vocab)
             slides.append(slide)
 
     for stratifier in wanted:
@@ -2100,6 +2131,7 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
                                          figures, settings)
         if slide is not None:
             _mark_narrowed([slide], [stratifier], bundle, vocab)
+            _mark_excluded([slide], stratifier, bundle, vocab)
             slides.append(slide)
 
     # Competing risks sit after the length-of-stay section: they answer a

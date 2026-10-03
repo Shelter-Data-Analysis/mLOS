@@ -1501,7 +1501,11 @@ build_results_bundle <- function(cox_results,
   # stratified slides to these; every number in the bundle still covers all
   # levels. Assigned rather than listed above so that, with no selection, the
   # key is absent and the file is the one a run has always written.
-  bundle$settings$presentation$plot_levels <- .plot_levels_echo(references$plot_levels)
+  bundle$settings$presentation$plot_levels <- .level_lists_echo(references$plot_levels)
+  # The levels left out of the regressions, by stratifier id, where any are
+  # (regression_exclude_periods). Beside the substantive settings rather than
+  # in presentation, since it changes the fitted numbers; absent otherwise.
+  bundle$settings$regression_exclude <- .level_lists_echo(references$regression_exclude)
   bundle
 }
 
@@ -1533,12 +1537,13 @@ attach_output_manifest <- function(bundle) {
   bundle
 }
 
-# references$plot_levels as the settings echo carries it: only the stratifiers
-# given a selection, each a JSON array even when it names one level. NULL when
-# none has one, which leaves the key out of the file, so a run without a
-# selection writes the bundle it always has.
-.plot_levels_echo <- function(plot_levels) {
-  named <- Filter(Negate(is.null), plot_levels)
+# A level list by stratifier id (references$plot_levels, or
+# references$regression_exclude) as the bundle carries it: only the
+# stratifiers with a list, each a JSON array even when it names one level. NULL
+# when none has one, which leaves the key out of the file, so a run without one
+# writes the bundle it always has.
+.level_lists_echo <- function(level_lists) {
+  named <- Filter(Negate(is.null), level_lists)
   if (length(named) == 0) return(NULL)
   lapply(named, function(levels) I(unname(as.character(levels))))
 }

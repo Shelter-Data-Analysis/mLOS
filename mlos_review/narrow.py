@@ -29,6 +29,19 @@ def plot_levels(bundle: Bundle) -> dict[str, list[str]]:
             for stratifier, levels in raw.items()}
 
 
+def regression_excluded(bundle: Bundle) -> dict[str, list[str]]:
+    """The levels left out of the regressions, by stratifier id.
+
+    From `settings.regression_exclude` (mLOS's regression_exclude_periods).
+    Their rows in every regression table are blank, and a run that plots one
+    shows it on a ratio slide as a row with no estimate.
+    """
+    raw = bundle.complete().value("settings", "regression_exclude") or {}
+    return {stratifier: [str(level) for level in
+                         (levels if isinstance(levels, list) else [levels])]
+            for stratifier, levels in raw.items()}
+
+
 def hidden_levels(bundle: Bundle, stratifier: str) -> list[str]:
     """The levels of a stratifier that the run's plot selection leaves out."""
     full = bundle.complete()

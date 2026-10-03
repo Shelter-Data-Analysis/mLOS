@@ -3368,6 +3368,19 @@ def check_plot_level_narrowing() -> None:
     expect(f"{case}: no slide carries it without a selection",
            not any("left out here" in n for slide in plain for n in slide.notes))
 
+    # A selection naming a level the regressions leave out: the ratio slides
+    # say so, and no slide does when the excluded level is not shown.
+    from mlos_review.deck import exclusion_note
+    data["settings"]["regression_exclude"] = {stratifier: [other]}
+    with_exclusion = narrowed(Bundle(data=data, root=full.root))
+    said = exclusion_note(with_exclusion, stratifier, vocab)
+    expect(f"{case}: the exclusion note names the shown level left out",
+           said is not None and other in said and "regressions" in said)
+    data["settings"]["presentation"]["plot_levels"] = {stratifier: [reference]}
+    expect(f"{case}: no exclusion note when the excluded level is not shown",
+           exclusion_note(narrowed(Bundle(data=data, root=full.root)),
+                          stratifier, vocab) is None)
+
 
 def check_order_shift_thresholds() -> None:
     """Which differences count, which are noise, and which pair leads.

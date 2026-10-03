@@ -173,7 +173,17 @@
   invisible(NULL)
 }
 
-write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style_int, num_style_float) {
+# The levels left out of the regressions (regression_exclude_periods), as one
+# cell: "period: Gap", one stratifier after another. NULL when there are none.
+.excel_regression_exclusions <- function(excluded) {
+  if (length(excluded) == 0) return(NULL)
+  paste(vapply(names(excluded), function(id)
+    paste0(id, ": ", paste(unlist(excluded[[id]]), collapse = ", ")), character(1)),
+    collapse = "; ")
+}
+
+write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style_int, num_style_float,
+                                       excluded = NULL) {
   openxlsx::addWorksheet(wb, "Cox_Regression")
   openxlsx::setColWidths(wb, "Cox_Regression", cols = 1, widths = 30)
   openxlsx::setColWidths(wb, "Cox_Regression", cols = 2:20, widths = 13)
@@ -205,6 +215,11 @@ write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style
     coverage$intake$n,
     coverage$group$n
   )
+  # Their rows in the coefficient table are blank: the fit has no estimate.
+  if (!is.null(.excel_regression_exclusions(excluded))) {
+    overview_metrics <- c(overview_metrics, "Excluded from the regressions")
+    overview_values  <- c(overview_values, list(.excel_regression_exclusions(excluded)))
+  }
 
   tests <- cox$tests
 
@@ -269,7 +284,8 @@ write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style
 }
 
 write_weibull_regression_sheet <- function(wb, wres, cox_has_analysis, coverage,
-                                           title_style, num_style_int, num_style_float) {
+                                           title_style, num_style_int, num_style_float,
+                                           excluded = NULL) {
   openxlsx::addWorksheet(wb, "Weibull_Regression")
   openxlsx::setColWidths(wb, "Weibull_Regression", cols = 1, widths = 30)
   openxlsx::setColWidths(wb, "Weibull_Regression", cols = 2:20, widths = 13)
@@ -304,6 +320,10 @@ write_weibull_regression_sheet <- function(wb, wres, cox_has_analysis, coverage,
     coverage$intake$n,
     coverage$group$n
   )
+  if (!is.null(.excel_regression_exclusions(excluded))) {
+    overview_metrics <- c(overview_metrics, "Excluded from the regressions")
+    overview_values  <- c(overview_values, list(.excel_regression_exclusions(excluded)))
+  }
 
   openxlsx::writeData(wb, "Weibull_Regression", "Model overview", startRow = next_row,
                       startCol = 1, colNames = FALSE)
@@ -578,6 +598,11 @@ write_general_sheet <- function(wb, bundle, title_style,
     fmt_labels(settings$outcome_type_in_care),
     fmt_labels(settings$outcome_type_censored)
   )
+  if (!is.null(.excel_regression_exclusions(settings$regression_exclude))) {
+    settings_metrics <- c(settings_metrics, "Excluded from the regressions")
+    settings_values  <- c(settings_values,
+                          list(.excel_regression_exclusions(settings$regression_exclude)))
+  }
   next_row <- .excel_write_section_title(
     wb, "General", next_row, "Analysis settings",
     "substantive; excludes plot and output-emission settings", title_style
@@ -1557,12 +1582,14 @@ write_results_excel <- function(excel_file, bundle) {
   write_data_preparation_sheet(wb, bundle, title_style, num_style_int, num_style_float)
 
   write_cox_regression_sheet(wb, bundle$cox, settings$coverage,
-                             title_style, num_style_int, num_style_float)
+                             title_style, num_style_int, num_style_float,
+                             excluded = settings$regression_exclude)
 
   if (weibull_on) {
     write_weibull_regression_sheet(wb, bundle$weibull, bundle$cox$has_analysis,
                                    settings$coverage,
-                                   title_style, num_style_int, num_style_float)
+                                   title_style, num_style_int, num_style_float,
+                                   excluded = settings$regression_exclude)
   }
 
   # By_All: the whole dataset as a single unified column, structurally identical

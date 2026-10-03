@@ -937,6 +937,37 @@ check_plot_level_names <- function(data, references) {
 }
 
 
+# Regression exclusions for the stratifiers whose levels exist only once the
+# data is read: each name checked, at least two levels left, a named reference
+# not excluded, and an unset plot selection defaulted to the levels left in.
+# Period's are settled with the settings (extract_references), and only period
+# offers an exclusion today, so this finds nothing to do yet; it is where
+# another stratifier's exclusion is checked once the registry offers one.
+apply_regression_exclusions <- function(data, references) {
+  for (stratifier in stratifiers) {
+    if (identical(stratifier$id, "period")) next
+    excluded <- references$regression_exclude[[stratifier$id]]
+    if (is.null(excluded)) next
+    setting <- stratifier$regression_exclude_setting
+    column  <- data[[stratifier$col]]
+    if (is.null(column)) {
+      stop(setting, " is set, but the data has no ", stratifier$col, " column.")
+    }
+    available <- if (is.factor(column)) levels(column) else sort(unique(as.character(column)))
+    .check_regression_exclusion(excluded, available, setting,
+                                paste("a level of", stratifier$col))
+    reference <- references[[paste0(stratifier$col, "_reference")]]
+    if (!is.null(reference) && reference %in% excluded) {
+      stop(setting, " excludes the reference level, ", reference,
+           ". Choose another reference or keep it in the regressions.")
+    }
+    references$plot_levels[stratifier$id] <- list(.default_plot_levels(
+      references$plot_levels[[stratifier$id]], excluded, available))
+  }
+  references
+}
+
+
 # Share of stays at or above which display_data_summary warns about
 # unclassified exits.
 UNCLASSIFIED_EXIT_WARN_FRACTION <- 0.005

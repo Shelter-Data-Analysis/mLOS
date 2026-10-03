@@ -36,6 +36,16 @@ plot is byte-identical to 0.3.0.
   draws the selected periods, and the `@extra HistLOS` slide's tables list
   them. The opening slides,
   every share, salience, and the review workbook still read every level.
+- `regression_exclude_periods` leaves periods out of the Cox and Weibull
+  regressions, their variants included. Every Kaplan-Meier, Aalen-Johansen,
+  census, and flow result, and every CSV, still covers all periods. An
+  excluded period keeps a blank row in every regression table, so each grid
+  has the shape it has without the setting; `period_reference` resolves among
+  the periods kept, and the period plots default to them. At least two periods
+  must remain. `results.json` records the exclusion under
+  `settings.regression_exclude`, and the workbook's General and regression
+  sheets name it. A run without the setting writes the outputs it did before.
+  The mechanism is written for any stratifier; only period offers it.
 - The settings file and the data CSV are read as UTF-8 whatever the locale.
   Under the C locale a non-ASCII label, such as the em dash a shelter uses for
   "still in care", stopped the run with a YAML scanner error. Runs on ASCII

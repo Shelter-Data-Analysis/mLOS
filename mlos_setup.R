@@ -281,6 +281,7 @@ extract_references <- function(settings, periods) {
     "show_km_ci_ribbons", "show_aj_cif_ci_ribbons", "aj_cif_any",
     "png_pointsize_factor", "png_line_width_factor",
     "max_plot_strata", "plot_periods", "plot_intake_types", "plot_animal_groups",
+    "regression_exclude_periods",
     "parametric_regression", "weibull_shape_crossing",
     "km_survival_by_stratifier", "km_remaining_los_by_stratifier",
     "km_census_by_tenure_by_stratifier", "km_in_care_tenure_by_stratifier",
@@ -423,14 +424,15 @@ extract_references <- function(settings, periods) {
 
   n_periods <- nrow(periods)
 
-  # Which levels each stratifier's plots draw, keyed by stratifier id; NULL
-  # draws them all. A presentation choice only: every analysis and every CSV
-  # keeps all levels. Period labels are known now and are checked here; intake
-  # types and animal groups exist only once the data is read, and
-  # check_plot_level_names checks them then. The reference level must be among
-  # the named ones (check_plot_level_references, once the regressions have
-  # settled it).
-  parse_plot_levels <- function(key) {
+  # Level lists, keyed by stratifier id (see "Level lists" in mlos_common.R).
+  # Regression exclusions first: they change what is computed, and a plot
+  # selection left unset defaults to the levels they leave in. Plot selections
+  # draw levels and change nothing computed; the reference level must be among
+  # them (check_plot_level_references, once the regressions have settled it).
+  # Period labels are known now and are checked here; other stratifiers' levels
+  # exist only once the data is read (check_plot_level_names,
+  # apply_regression_exclusions).
+  parse_level_list <- function(key) {
     val <- settings[[key]]
     if (is.null(val)) return(NULL)
     levels <- .parse_raw_labels(val, key)
@@ -443,16 +445,21 @@ extract_references <- function(settings, periods) {
     }
     levels
   }
+  regression_exclude <- list()
   plot_levels <- list()
   for (stratifier in stratifiers) {
-    plot_levels[stratifier$id] <- list(parse_plot_levels(stratifier$plot_setting))
+    regression_exclude[stratifier$id] <- list(
+      if (is.null(stratifier$regression_exclude_setting)) NULL
+      else parse_level_list(stratifier$regression_exclude_setting))
+    plot_levels[stratifier$id] <- list(parse_level_list(stratifier$plot_setting))
   }
-  unknown_periods <- setdiff(plot_levels$period, periods$period_label)
-  if (length(unknown_periods) > 0) {
-    stop("plot_periods names ", paste(unknown_periods, collapse = ", "),
-         ", which is not a period label (the labels are: ",
-         paste(periods$period_label, collapse = ", "), ").")
-  }
+  period_labels <- periods$period_label
+  .check_regression_exclusion(regression_exclude$period, period_labels,
+                              "regression_exclude_periods", "a period label")
+  .check_level_names(plot_levels$period, period_labels, "plot_periods", "a period label")
+  plot_levels["period"] <- list(.default_plot_levels(plot_levels$period,
+                                                     regression_exclude$period,
+                                                     period_labels))
 
   # period_reference is a POLICY, not a period number: it is resolved against
   # the periods that actually contain data at Cox time (mlos_cox.R), so a
@@ -606,6 +613,9 @@ extract_references <- function(settings, periods) {
     max_plot_strata        = max_plot_strata,
     # Levels each stratifier's plots draw, by stratifier id; NULL for all.
     plot_levels            = plot_levels,
+    # Levels each stratifier leaves out of the regressions, by stratifier id;
+    # NULL for none. Only period offers it today.
+    regression_exclude     = regression_exclude,
     # names = raw CSV values, values = L/T/N codes; NULL if CSV uses L/T/N directly.
     outcome_type_mapping   = outcome_type_mapping,
     outcome_type_delete    = outcome_type_delete,

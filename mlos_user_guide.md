@@ -67,6 +67,7 @@
         - [`discard_overlapping_rows`](#discard_overlapping_rows)
     - [Regression options](#regression-options)
         - [`period_reference`](#period_reference)
+        - [`regression_exclude_periods`](#regression_exclude_periods)
         - [`intake_type_reference`](#intake_type_reference)
         - [`animal_group_reference`](#animal_group_reference)
         - [`parametric_regression`](#parametric_regression)
@@ -1073,7 +1074,28 @@ period_reference: OLDEST
 
 Which period serves as the reference in Cox regression. Choices: `OLDEST` (default) or `NEWEST`; any other value stops the run. This is a policy, not a period number: the reference is the oldest (or newest) period **that contains data**. Normally that is simply the first (or last) period, but if a boundary period turns out to be empty (the tool prints a warning when a defined period has no observations), the reference moves inward to the nearest period with data rather than failing. Other periods are reported as hazard ratios relative to the reference period. Does not change the underlying statistical model, only the parametrization.
 
+With [`regression_exclude_periods`](#regression_exclude_periods) set, `OLDEST` and `NEWEST` resolve among the periods the regressions keep, so excluding a period never takes away the reference.
+
 Unlike `animal_group_reference` and `intake_type_reference`, the reference-choice pitfalls above rarely bite here: periods are the same shelter's population observed over different time windows, so one period is not normally expected to be radically faster, slower, or sparser than another the way a deliberately distinct animal group or intake type might be.
+
+#### `regression_exclude_periods`
+
+```yaml
+regression_exclude_periods:
+  - "Gap"
+```
+
+Periods to leave out of the Cox and Weibull regressions, including their stratified and per-predictor variants. Absent, the regressions use every period. Use it when the comparison of interest is between periods that are not adjacent, such as a program period against the same season a year earlier, and the stretch between them is not part of the question.
+
+Only the regressions change. The stays are still read, screened, and split by period as before, and every Kaplan-Meier and Aalen-Johansen result, every census and flow figure, and every CSV is computed over all periods. The regressions fit the period rows of the remaining periods; a stay that crosses an excluded period contributes its rows on either side of it. An excluded period keeps its row in every regression table, in `results.json`, on the workbook's regression sheets, and on `By_Period`, with blank cells, as a level with no data does. The unadjusted Kaplan-Meier restricted-mean ratio on `By_Period` fits no model and stays filled. The workbook's General, Cox_Regression, and Weibull_Regression sheets name the excluded periods, and `results.json` records them under `settings.regression_exclude`.
+
+Rules:
+
+- Each name must be a period label, none twice, and at least two periods must remain in the regressions; otherwise the run stops.
+- [`period_reference`](#period_reference) resolves among the periods kept.
+- With no [`plot_periods`](#plot_periods-plot_intake_types-plot_animal_groups), the plots and the deck show the periods kept. A `plot_periods` list may still name an excluded period: its curves are drawn as usual, and on the deck's ratio slides it appears with blank model ratios and a note saying why.
+
+Intake types and animal groups have no counterpart setting. For them, a [value filter](#value-filters) already removes stays, and leaving a level out of the regressions alone would differ from that only in keeping it in the Kaplan-Meier and Aalen-Johansen results.
 
 #### `animal_group_reference`
 
@@ -1170,7 +1192,7 @@ plot_periods:
   - "Bingo"
 ```
 
-Lists of levels: which periods, intake types, or animal groups the stratified plots of that stratifier draw. Absent, a stratifier's plots draw every level. Use them to leave a level out of the pictures, such as a period between the two you are comparing, or to draw a stratifier with more levels than [`max_plot_strata`](#max_plot_strata), which then counts the named levels.
+Lists of levels: which periods, intake types, or animal groups the stratified plots of that stratifier draw. Absent, a stratifier's plots draw every level, except that with [`regression_exclude_periods`](#regression_exclude_periods) set, the period plots draw the periods the regressions keep. Use them to leave a level out of the pictures, such as a period between the two you are comparing, or to draw a stratifier with more levels than [`max_plot_strata`](#max_plot_strata), which then counts the named levels.
 
 These settings affect **plots only**, like `max_plot_strata`. Every analysis runs on every level, and every CSV holds every level, byte for byte as without a selection. A drawn level keeps the color it has when every level is drawn, so a picture with and without a selection reads alike; only where a stratifier has more levels than there are colors (13) do the named levels take the colors in order. The deck built from the run (see the [presentation guide](presentation_guide.md)) shows the same levels on its slides for that stratifier, regression tables included.
 

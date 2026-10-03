@@ -3246,8 +3246,8 @@ run_suite_checks <- function() {
   # The bundle: echoed only for a stratifier given a selection, and recorded on
   # the manifest entries of the plots it governs; absent, neither key exists.
   expect_equal("plot selection echo: absent with no selection",
-               as.numeric(is.null(.plot_levels_echo(list(period = NULL, intake = NULL)))), 1)
-  pl_echo <- .plot_levels_echo(list(period = NULL, intake = "STRAY"))
+               as.numeric(is.null(.level_lists_echo(list(period = NULL, intake = NULL)))), 1)
+  pl_echo <- .level_lists_echo(list(period = NULL, intake = "STRAY"))
   expect_equal("plot selection echo: only the stratifier with one",
                as.numeric(identical(names(pl_echo), "intake")), 1)
   pl_manifest <- .build_output_manifest(c(pl_km_png, sub("png$", "csv", pl_km_png)),
@@ -3257,6 +3257,74 @@ run_suite_checks <- function() {
   pl_plain <- .build_output_manifest(c(pl_km_png), .OUTCOME_STATE_LEVELS)
   expect_equal("plot selection manifest: no key without a selection",
                as.numeric(!("plotted_levels" %in% names(pl_plain[[1]]))), 1)
+
+  # regression_exclude_periods leaves periods out of the Cox and Weibull fits.
+  # Each excluded period keeps its row in every coefficient table, blank, and
+  # the plots default to the periods the regressions keep.
+  cat("\n=== regression exclusion ===\n")
+
+  re_periods <- c("2021-01-01", "2021-01-06", "2021-01-11", "2021-04-01")
+  re_base <- list(period_dates = re_periods, restricted_stay_cap = 60)
+  expect_error("regression_exclude_periods: a name that is not a period label",
+               refs_for(c(re_base, list(regression_exclude_periods = list("Nope")))),
+               "regression_exclude_periods names Nope, which is not a period label")
+  expect_error("regression_exclude_periods: fewer than two periods left",
+               refs_for(c(re_base, list(regression_exclude_periods =
+                                          list("Period_1", "Period_2")))),
+               "leaves fewer than two levels in the regressions")
+  re_refs <- refs_for(c(re_base, list(regression_exclude_periods = list("Period_2"))))
+  expect_equal("regression exclusion: the plots default to the periods kept",
+               as.numeric(identical(re_refs$plot_levels$period, c("Period_1", "Period_3"))), 1)
+  re_named <- refs_for(c(re_base, list(regression_exclude_periods = list("Period_2"),
+                                       plot_periods = list("Period_1", "Period_2"))))
+  expect_equal("regression exclusion: a plot selection may name an excluded period",
+               as.numeric(identical(re_named$plot_levels$period, c("Period_1", "Period_2"))), 1)
+
+  re_fit <- function(...) {
+    refs <- refs_for(c(re_base, list(parametric_regression = "WEIBULL"), list(...)))
+    d    <- fi_quiet(read_and_prepare_data(fi_csv, refs))
+    refs <- detect_optional_columns(d, refs)
+    pd   <- fi_quiet(break_down_by_period(d, refs))
+    list(pd = pd, cox = fi_quiet(cox_regression_analysis(pd, refs)))
+  }
+  re_full <- re_fit()
+  re_cut  <- re_fit(regression_exclude_periods = list("Period_2"))
+  re_vars <- function(tbl) as.character(tbl$variable)
+  expect_equal("regression exclusion: the Cox table keeps every row",
+               as.numeric(identical(re_vars(re_cut$cox$hr_table), re_vars(re_full$cox$hr_table))), 1)
+  expect_equal("regression exclusion: the excluded period's Cox row is blank",
+               as.numeric(is.na(re_cut$cox$hr_table$hr[re_vars(re_cut$cox$hr_table) == "periodPeriod_2"])), 1)
+  if (isTRUE(re_cut$cox$weibull$has_analysis) && isTRUE(re_full$cox$weibull$has_analysis)) {
+    expect_equal("regression exclusion: the Weibull table keeps every row",
+                 as.numeric(identical(re_vars(re_cut$cox$weibull$los_table),
+                                      re_vars(re_full$cox$weibull$los_table))), 1)
+    expect_equal("regression exclusion: the excluded period's Weibull row is blank",
+                 as.numeric(is.na(re_cut$cox$weibull$los_table$los_ratio[
+                   re_vars(re_cut$cox$weibull$los_table) == "periodPeriod_2"])), 1)
+  }
+  expect_equal("regression exclusion: the fit uses fewer rows",
+               as.numeric(re_cut$cox$cox_model$n < re_full$cox$cox_model$n), 1)
+  expect_equal("regression exclusion: the rows dropped are the excluded period's",
+               nrow(.regression_rows(re_full$pd, list(regression_exclude = list(period = "Period_2")))),
+               sum(re_full$pd$period_label != "Period_2"))
+  re_oldest <- re_fit(regression_exclude_periods = list("Period_1"))
+  expect_equal("regression exclusion: OLDEST resolves among the periods kept",
+               as.numeric(identical(.model_reference_level(re_oldest$cox, "period"), "Period_2")), 1)
+
+  # The mechanism is written for any stratifier; only period offers it. An
+  # intake-type exclusion, set by hand, takes the same checks and default.
+  re_intake <- pl_setup(intake_type_reference = "STRAY")
+  re_intake$refs$regression_exclude$intake <- "TRANSFER"
+  re_applied <- apply_regression_exclusions(re_intake$data, re_intake$refs)
+  expect_equal("regression exclusion, any stratifier: the plots default to the levels kept",
+               as.numeric(identical(re_applied$plot_levels$intake, c("OWNER", "STRAY"))), 1)
+  re_intake$refs$regression_exclude$intake <- "STRAY"
+  expect_error("regression exclusion, any stratifier: a named reference cannot be excluded",
+               apply_regression_exclusions(re_intake$data, re_intake$refs),
+               "excludes the reference level, STRAY")
+  expect_error("regression_exclude_periods: only period offers an exclusion",
+               refs_for(with_base(regression_exclude_intake_types = list("A"))),
+               "Unrecognized setting")
 
   cat("\n=== schema tolerance ===\n")
 
