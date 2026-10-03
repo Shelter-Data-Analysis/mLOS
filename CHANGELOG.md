@@ -19,8 +19,27 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-The DOIs the 0.3.0 release minted. **No number changed**: every CSV and every
-plot is byte-identical to 0.3.0.
+The DOIs the 0.3.0 release minted, and regression settings added since.
+**Numbers move only where a regression reference had no outcomes**, a case
+whose ratios were undefined before (see below). Otherwise every CSV and every
+plot is byte-identical to 0.3.0 for a settings file that sets none of the new
+options.
+
+- A regression reference must have an outcome. `period_reference` resolves
+  `OLDEST`/`NEWEST` among the periods with an outcome in the regressions, and a
+  default intake-type or animal-group reference is the most frequent level
+  with one; a named reference with none stops the run. Before, such a
+  reference was used, and every ratio against it was blank or ran off toward
+  infinity. Two test fixtures had one: `auto_animal_id` and
+  `truncation_censoring_split` now take their second period as reference.
+- Cox coefficients that are infinite or nearly so (a hazard ratio beyond 1000
+  either way, or a standard error of its logarithm above 5) are listed under
+  `cox.unstable_terms` and on the Cox_Regression sheet, and the deck notes
+  them on the predictor's ratio slides. Seven fixtures gain the list.
+- The deck's hazard-ratio slide says how many ways it shows ("two ways"
+  without Weibull), and the length-of-stay-ratio slide is built only with at
+  least two readings, so a run without Weibull no longer shows one holding the
+  unadjusted ratio alone under the title "adjusted and not".
 
 - `plot_periods`, `plot_intake_types`, and `plot_animal_groups` name the
   levels a stratifier's plots draw. Every analysis and every CSV keeps all
@@ -36,6 +55,13 @@ plot is byte-identical to 0.3.0.
   draws the selected periods, and the `@extra HistLOS` slide's tables list
   them. The opening slides,
   every share, salience, and the review workbook still read every level.
+- `regression_from_day` and `regression_to_day` limit the Cox and Weibull
+  regressions to those days of each stay: stays enter on the first day and an
+  outcome after the last is censored there. Kaplan-Meier, Aalen-Johansen, and
+  every CSV are unaffected. A start above 0 cannot be combined with the Weibull
+  fit, whose length-of-stay ratios describe whole stays. `results.json`, the
+  workbook, and the deck's regression slides record the window; a run without
+  it writes the outputs it did before.
 - `regression_exclude_periods` leaves periods out of the Cox and Weibull
   regressions, their variants included. Every Kaplan-Meier, Aalen-Johansen,
   census, and flow result, and every CSV, still covers all periods. An

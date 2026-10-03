@@ -21,10 +21,12 @@
 #   - named and present -> used;
 #   - named but absent  -> ERROR (typo protection: silently substituting a
 #     different baseline would reparametrize the model behind the user's back);
-#   - NULL (unnamed)    -> most frequent level, counted over animal-period
-#     rows; a filled _UNKNOWN_ level is eligible like any other.
+#   - NULL (unnamed)    -> most frequent level with an outcome, counted over
+#     animal-period rows (count_rows: before any day window); a filled
+#     _UNKNOWN_ level is eligible like any other.
 # setting_name is the settings-file key named in the error message.
-.relevel_and_report <- function(data, col, reference, label, setting_name) {
+.relevel_and_report <- function(data, col, reference, label, setting_name,
+                                count_rows = data) {
   if (!is.null(reference)) {
     ref_str <- as.character(reference)
     if (!ref_str %in% levels(data[[col]])) {
@@ -34,12 +36,38 @@
     }
     default <- ""
   } else {
-    ref_str <- names(which.max(table(data[[col]])))
+    # Counted over count_rows, the regression rows before any day window
+    # (regression_from_day), so a window does not change the default; and
+    # among the levels with an outcome in the rows fitted, since a reference
+    # with none leaves every ratio against it undefined.
+    counts <- table(count_rows[[col]])
+    with_outcomes <- unique(as.character(data[[col]][data$event > 0]))
+    if (any(names(counts) %in% with_outcomes)) counts <- counts[names(counts) %in% with_outcomes]
+    ref_str <- names(which.max(counts))
     default <- " (most frequent)"
   }
   data[[col]] <- relevel(data[[col]], ref = ref_str)
   cat(label, " reference: ", ref_str, default, "\n", sep = "")
   data
+}
+
+# Coefficients whose estimate is infinite or nearly so: a level with too few
+# outcomes, or none in a day window, to fix its ratio. coxph reports one as a
+# huge or tiny number and warns only on the console ("beta may be infinite"),
+# and the number would otherwise reach every table as if it were an estimate.
+# Flagged when |log HR| exceeds log(1000), a ratio beyond 1000 either way, or
+# its standard error exceeds 5, an interval spanning a factor of e^19.6. An NA
+# coefficient (a level with no rows, or one left out of the regressions) is
+# blank rather than unstable and is not flagged.
+.UNSTABLE_LOG_HR <- log(1000)
+.UNSTABLE_SE     <- 5
+
+.unstable_terms <- function(coef_table) {
+  b  <- coef_table[, "coef"]
+  se <- coef_table[, if ("robust se" %in% colnames(coef_table)) "robust se" else "se(coef)"]
+  flag <- !is.na(b) & (!is.finite(b) | abs(b) > .UNSTABLE_LOG_HR |
+                         (!is.na(se) & se > .UNSTABLE_SE))
+  rownames(coef_table)[flag]
 }
 
 # One definitional reference row for a coefficient table: the effect
@@ -126,8 +154,35 @@ cox_regression_analysis <- function(period_data, references) {
   # predictor's qualification are settled on the periods the models fit.
   periods_in_data <- sort(unique(period_data$period_num))
   period_data <- .regression_rows(period_data, references)
+  # regression_from_day / regression_to_day: every fit below sees only those
+  # days of each stay. A period left with no rows in them keeps its blank row,
+  # as an excluded one does, and a default reference is counted over the rows
+  # kept.
+  before_window <- period_data
+  period_data <- .regression_window_rows(period_data, references)
+  if (!is.null(references$regression_window)) {
+    window <- references$regression_window
+    cat("Regressions fitted to days ", window[["from_day"]], " to ",
+        window[["to_day"]], " of each stay\n", sep = "")
+    if (sum(period_data$event) == 0) {
+      stop("No outcomes fall between day ", window[["from_day"]], " and day ",
+           window[["to_day"]], " of any stay, so there is nothing to regress. ",
+           "Widen regression_from_day / regression_to_day.")
+    }
+  }
   present_periods <- sort(unique(period_data$period_num))
   has_period_predictor <- length(present_periods) > 1
+  # With periods excluded on purpose, the comparison is between the periods
+  # kept; if a day window or the data leaves fewer than two of them with rows,
+  # period would quietly leave the model, and with it the comparison asked for.
+  if (!is.null(references$regression_exclude$period) && references$has_period &&
+      !has_period_predictor) {
+    stop("With regression_exclude_periods set, fewer than two periods have rows ",
+         "in the regressions", if (!is.null(references$regression_window))
+           " within regression_from_day / regression_to_day",
+         ", so period would drop out of the model. Exclude fewer periods or widen ",
+         "the window.")
+  }
 
   # With no qualifying predictor (fewer than two periods with data, no
   # intake_type or animal_group column), the formula would be surv_obj ~ 1: a
@@ -175,17 +230,20 @@ cox_regression_analysis <- function(period_data, references) {
 
   if (has_period_predictor) {
     # OLDEST/NEWEST name a policy, not a level: resolve them against the
-    # periods that contain data, so an empty boundary period cannot make the
-    # requested reference unsatisfiable.
+    # periods with an outcome in the rows fitted, so neither an empty boundary
+    # period nor one whose stays all continue into the next (no outcome, every
+    # ratio against it undefined) can become the reference.
+    periods_with_outcomes <- sort(unique(period_data$period_num[period_data$event > 0]))
+    if (length(periods_with_outcomes) == 0) periods_with_outcomes <- present_periods
     ref_num <- if (references$period_reference == "NEWEST") {
-      max(present_periods)
+      max(periods_with_outcomes)
     } else {
-      min(present_periods)
+      min(periods_with_outcomes)
     }
     ref_label <- references$periods$period_label[match(ref_num, references$periods$period_num)]
     period_data <- .relevel_and_report(period_data, "period", ref_label, "Period",
                                        setting_name = "period_reference")
-    cat("  (", tolower(references$period_reference), " period with data)\n", sep = "")
+    cat("  (", tolower(references$period_reference), " period with outcomes)\n", sep = "")
   } else if (references$has_period) {
     cat("Period: only one period contains data -- excluded from the model\n")
   }
@@ -194,12 +252,38 @@ cox_regression_analysis <- function(period_data, references) {
   if (references$has_intake_type) {
     period_data <- .relevel_and_report(period_data, "intake_type",
                                        references$intake_type_reference, "Intake type",
-                                       setting_name = "intake_type_reference")
+                                       setting_name = "intake_type_reference",
+                                       count_rows = before_window)
   }
   if (references$has_animal_group) {
     period_data <- .relevel_and_report(period_data, "animal_group",
                                        references$animal_group_reference, "Animal group",
-                                       setting_name = "animal_group_reference")
+                                       setting_name = "animal_group_reference",
+                                       count_rows = before_window)
+  }
+
+  # A reference level with no outcomes leaves every ratio against it
+  # undefined: the other levels' coefficients run off toward infinity, or
+  # come out blank where the reference has no rows at all. Stopped rather than
+  # reported, since no table built on that denominator means anything. A day
+  # window (regression_from_day) makes this likelier, so the message says how
+  # to widen one when it is set.
+  reference_checks <- list(
+    period       = if (has_period_predictor) "period_reference",
+    intake_type  = if (references$has_intake_type) "intake_type_reference",
+    animal_group = if (references$has_animal_group) "animal_group_reference")
+  for (col in names(Filter(Negate(is.null), reference_checks))) {
+    ref <- levels(period_data[[col]])[1]
+    if (sum(period_data$event[period_data[[col]] == ref]) == 0) {
+      window <- references$regression_window
+      stop("The ", col, " reference level, ", ref, ", has no outcomes",
+           if (!is.null(window)) paste0(" between day ", window[["from_day"]],
+                                        " and day ", window[["to_day"]]),
+           " in the regressions, so no ratio against it is defined. ",
+           if (col == "period") "Change period_reference (OLDEST or NEWEST)"
+           else paste0("Set ", reference_checks[[col]], " to another level"),
+           if (!is.null(window)) ", or widen the window", ".")
+    }
   }
 
   # animal_id is guaranteed present and fully populated by read_and_prepare_data
@@ -361,6 +445,14 @@ cox_regression_analysis <- function(period_data, references) {
     stratified_variants = stratified_variants,
     weibull             = weibull_results
   )
+  # Present only when some coefficient is unstable (see .unstable_terms), so a
+  # run with none writes the bundle it always has.
+  unstable <- .unstable_terms(coef_table)
+  if (length(unstable) > 0) {
+    cat("  Unstable estimates (infinite or nearly so): ", paste(unstable, collapse = ", "),
+        "\n", sep = "")
+    results$unstable_terms <- unstable
+  }
 
   return(results)
 }
@@ -473,6 +565,8 @@ cox_regression_analysis <- function(period_data, references) {
       tests                = .cox_tests_table(s),
       hr_table = hr_table
     )
+    unstable <- .unstable_terms(s$coefficients)
+    if (length(unstable) > 0) variants[[sid]]$unstable_terms <- I(unstable)
   }
 
   variants

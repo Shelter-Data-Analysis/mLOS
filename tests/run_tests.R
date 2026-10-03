@@ -3326,6 +3326,87 @@ run_suite_checks <- function() {
                refs_for(with_base(regression_exclude_intake_types = list("A"))),
                "Unrecognized setting")
 
+  # regression_from_day / regression_to_day: the regressions fit only those days
+  # of each stay, entering at the first and censoring after the last.
+  cat("\n=== regression window ===\n")
+
+  expect_error("regression window: the end beyond the cap",
+               refs_for(with_base(regression_to_day = 101)),
+               "regression_to_day must be at most restricted_stay_cap (100)")
+  expect_error("regression window: the start not before the end",
+               refs_for(with_base(regression_from_day = 30, regression_to_day = 30)),
+               "regression_from_day must be less than regression_to_day")
+  expect_error("regression window: a later start rules out Weibull",
+               refs_for(with_base(regression_from_day = 5, parametric_regression = "WEIBULL")),
+               "regression_from_day above 0 cannot be combined with parametric_regression")
+  expect_equal("regression window: a later end leaves Weibull on",
+               as.numeric(!inherits(tryCatch(refs_for(with_base(regression_to_day = 50,
+                                                               parametric_regression = "WEIBULL")),
+                                             error = function(e) e), "error")), 1)
+  rw_refs <- refs_for(with_base(regression_from_day = 5))
+  expect_equal("regression window: the end defaults to the cap",
+               rw_refs$regression_window[["to_day"]], 100)
+  expect_equal("regression window: absent, no window",
+               as.numeric(is.null(refs_for(base_settings)$regression_window)), 1)
+
+  rw_rows <- data.frame(time_start = c(0, 0, 3, 8, 0), time_end = c(4, 9, 12, 20, 6),
+                        event = c(1, 1, 1, 1, 0))
+  rw_cut <- .regression_window_rows(rw_rows, list(regression_window = c(from_day = 5, to_day = 10)))
+  expect_equal("regression window: rows ending by the start are dropped", nrow(rw_cut), 4)
+  expect_equal("regression window: rows enter at the start",
+               as.numeric(identical(rw_cut$time_start, c(5, 5, 8, 5))), 1)
+  expect_equal("regression window: rows end at the end",
+               as.numeric(identical(rw_cut$time_end, c(9, 10, 10, 6))), 1)
+  expect_equal("regression window: an outcome past the end is censored",
+               as.numeric(identical(rw_cut$event, c(1, 0, 0, 0))), 1)
+  expect_equal("regression window: absent, the rows are untouched",
+               as.numeric(identical(.regression_window_rows(rw_rows, list()), rw_rows)), 1)
+
+  # The fit matches coxph on the same rows cut by hand.
+  rw_fit <- function(...) {
+    refs <- refs_for(c(re_base, list(...)))
+    d    <- fi_quiet(read_and_prepare_data(fi_csv, refs))
+    refs <- detect_optional_columns(d, refs)
+    pd   <- fi_quiet(break_down_by_period(d, refs))
+    list(pd = pd, refs = refs, cox = fi_quiet(cox_regression_analysis(pd, refs)))
+  }
+  rw_win <- rw_fit(regression_from_day = 3, intake_type_reference = "STRAY")
+  rw_hand <- rw_win$pd
+  rw_hand <- rw_hand[rw_hand$time_end > 3, ]
+  rw_hand$time_start <- pmax(rw_hand$time_start, 3)
+  expect_equal("regression window: the fit uses the rows past the start",
+               rw_win$cox$cox_model$n, nrow(rw_hand))
+  expect_equal("regression window: the fit counts the outcomes past the start",
+               rw_win$cox$cox_model$nevent, sum(rw_hand$event))
+
+  # References with no outcomes, and estimates that are infinite or nearly so.
+  cat("\n=== reference outcomes and unstable estimates ===\n")
+  ro_csv <- write_temp_csv(c(
+    "intake_date,outcome_date,outcome_type,intake_type",
+    "2021-01-01,2021-01-05,L,STRAY", "2021-01-02,2021-01-09,N,STRAY",
+    "2021-01-03,2021-01-04,L,OWNER", "2021-01-04,2021-01-12,T,OWNER",
+    "2021-01-05,,,HELD", "2021-01-06,,,HELD", "2021-01-07,,,HELD",
+    "2021-01-08,,,HELD", "2021-01-09,,,HELD"))
+  ro_fit <- function(...) {
+    refs <- refs_for(c(list(period_dates = c("2021-01-01", "2021-04-01"),
+                            restricted_stay_cap = 60), list(...)))
+    d    <- fi_quiet(read_and_prepare_data(ro_csv, refs))
+    refs <- detect_optional_columns(d, refs)
+    pd   <- fi_quiet(break_down_by_period(d, refs))
+    fi_quiet(cox_regression_analysis(pd, refs))
+  }
+  expect_error("reference outcomes: a named reference with none stops the run",
+               ro_fit(intake_type_reference = "HELD"),
+               "The intake_type reference level, HELD, has no outcomes")
+  expect_equal("reference outcomes: the default skips a frequent level with none",
+               as.numeric(.model_reference_level(ro_fit(), "intake") != "HELD"), 1)
+
+  ut <- cbind(coef = c(0.3, 25, NA, 1), "se(coef)" = c(0.2, 3, NA, 9),
+              "robust se" = c(0.2, 3, NA, 9))
+  rownames(ut) <- c("a", "b", "c", "d")
+  expect_equal("unstable estimates: a huge ratio and a huge interval are flagged",
+               as.numeric(identical(.unstable_terms(ut), c("b", "d"))), 1)
+
   cat("\n=== schema tolerance ===\n")
 
   # What the schema version promises. It moves when a field changes meaning or

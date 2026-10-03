@@ -88,8 +88,10 @@ from mlos_review.blocks import (
 from mlos_review.bundle import Bundle
 from mlos_review.figures import FigureSet
 from mlos_review.names import Vocabulary, capitalize_first
-from mlos_review.narrow import hidden_levels, narrowed, regression_excluded
+from mlos_review.narrow import (hidden_levels, narrowed, regression_excluded,
+                                regression_window)
 from mlos_review.output import prepare_output
+from mlos_review.regression import unstable_levels
 from mlos_review.regression import (comparison as cox_comparison, pooled,
                                     stratified, hazard_ratio_panel,
                                     los_ratio_panel, panel_stratifiers,
@@ -1299,17 +1301,29 @@ def hazard_ratios_by_stratifier(bundle: Bundle, stratifier: str, panel,
         return None
 
     label = vocab.stratifier(stratifier).label
+    # The readings this run has: no Weibull column when the run fitted none,
+    # as with parametric_regression off or a regression window starting
+    # after day 0. Title and notes say what the slide shows.
+    rows = panel.loc[stratifier]
+    series = tuple(entry for entry in HR_SERIES if rows[entry[0]].notna().any())
+    keys = {entry[0] for entry in series}
+    ways = {1: "one way", 2: "two ways", 3: "three ways"}[len(series)]
     notes = [
-        f"One question, three ways of answering it: how much sooner or later "
+        f"One question, {ways} of answering it: how much sooner or later "
         f"does each {label} leave care than the reference level. A ratio above "
         f"1 means a faster discharge and so a shorter stay; below 1, longer. "
         f"The whiskers are 95% intervals.",
+    ]
+    if {"hr_cox_pooled", "hr_cox_stratified"} <= keys:
+        notes.append(
         "The two Cox columns differ in what they assume about everything else. "
         "The pooled fit puts every dimension in one model with one shared "
         "baseline hazard; the stratified one gives each combination of the "
         "other dimensions its own baseline and asks only about this one. Where "
         "they sit on top of each other, the shared baseline was costing "
-        "nothing.",
+        "nothing.")
+    if "hr_weibull_pooled" in keys:
+        notes += [
         "The Weibull column is the same pooled model with a Weibull baseline "
         "imposed on it, and it is the one that can differ for a reason that is "
         "not about this dimension at all. Cox lets the baseline hazard take "
@@ -1328,17 +1342,21 @@ def hazard_ratios_by_stratifier(bundle: Bundle, stratifier: str, panel,
         "own and the days version can be read straight; where it does not, "
         "that level's time ratio is partly a statement about the assumed "
         "shape, and the Kaplan-Meier column beside it is the check.",
-    ]
-    notes.extend(_reference_note(bundle, stratifier, panel, HR_SERIES, vocab))
+        ]
+    notes.extend(_reference_note(bundle, stratifier, panel, series, vocab))
 
+    estimates = {1: "One Estimate", 2: "Two Estimates", 3: "Three Estimates"}[len(series)]
+    fits = [name for key, name in (("hr_cox_pooled", "the pooled Cox"),
+                                   ("hr_cox_stratified", "the stratified Cox"),
+                                   ("hr_weibull_pooled", "the pooled Weibull"))
+            if key in keys]
     return _ratio_slide(
-        bundle, stratifier, vocab, figures, settings, panel, HR_SERIES,
+        bundle, stratifier, vocab, figures, settings, panel, series,
         kind="hazard_ratios",
-        title=f"Hazard ratios (HR) by {label}, three ways",
-        figure_title=f"HR by {label.title()}: Three Estimates",
-        description=(f"Hazard ratios by {label} from the pooled Cox, the "
-                     f"stratified Cox and the pooled Weibull, with 95% "
-                     f"confidence intervals."),
+        title=f"Hazard ratios (HR) by {label}, {ways}",
+        figure_title=f"HR by {label.title()}: {estimates}",
+        description=(f"Hazard ratios by {label} from {_listing(fits)}, with "
+                     f"95% confidence intervals."),
         notes=notes, findings=findings, recommendations=recommendations)
 
 
@@ -1610,7 +1628,7 @@ def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
                                              vocab, figures)
         if slide is not None:
             _mark_narrowed([slide], [stratifier], bundle, vocab)
-            _mark_excluded([slide], stratifier, bundle, vocab)
+            _mark_regression([slide], stratifier, bundle, vocab)
             # Emptied rather than left as they were: these sentences are on the
             # hazard-ratio slides now, and a slide that carries them here too
             # would print them twice in one deck's notes.
@@ -1967,13 +1985,57 @@ def exclusion_note(bundle: Bundle, stratifier: str, vocab: Vocabulary) -> str | 
             f"Kaplan-Meier ratio fits no model and is shown.")
 
 
-def _mark_excluded(slides: Sequence[Slide], stratifier: str, bundle: Bundle,
-                   vocab: Vocabulary) -> None:
-    """Add the exclusion note for `stratifier` to each slide, where it applies."""
-    note = exclusion_note(bundle, stratifier, vocab)
+def window_note(bundle: Bundle) -> str | None:
+    """The note on a regression slide when the fit sees only some days of each stay.
+
+    None for whole stays. Said because a hazard ratio from a window answers a
+    narrower question: for dogs still in care on the first day, how fast do
+    they leave before the last.
+    """
+    window = regression_window(bundle)
+    if window is None:
+        return None
+    start, end = window
+    if start == 0:
+        return (f"The regressions are fitted to days 0 to {end} of each stay: an "
+                f"outcome after day {end} is counted as still in care there.")
+    return (f"The regressions are fitted to days {start} to {end} of each stay, so "
+            f"these ratios compare animals still in care on day {start}, over the "
+            f"rest of the stay to day {end}; the earlier days do not enter them.")
+
+
+def unstable_note(bundle: Bundle, stratifier: str, vocab: Vocabulary) -> str | None:
+    """The note naming levels whose ratio the regressions could not fix.
+
+    None where every shown level's estimate is finite. Said because the table
+    prints such an estimate as a number, often an absurd one, and a reader who
+    is not told takes it for a finding.
+    """
+    levels = unstable_levels(bundle).get(stratifier, [])
+    if not levels:
+        return None
+    label = capitalize_first(vocab.stratifier(stratifier).label)
+    one = len(levels) == 1
+    return (f"{label}: the hazard ratio{'' if one else 's'} for {_listing(levels)} "
+            f"{'is' if one else 'are'} infinite or nearly so: too few outcomes to "
+            f"fix {'it' if one else 'them'}. Read {'it' if one else 'them'} as "
+            f"undetermined, not as a large effect.")
+
+
+def _mark_regression(slides: Sequence[Slide], stratifier: str, bundle: Bundle,
+                     vocab: Vocabulary) -> None:
+    """Add the notes on what limits the regressions, where they apply.
+
+    A level of `stratifier` left out of them (exclusion_note), days of each
+    stay left out of them (window_note), and levels whose estimate is
+    infinite or nearly so (unstable_note).
+    """
+    notes = [exclusion_note(bundle, stratifier, vocab), window_note(bundle),
+             unstable_note(bundle, stratifier, vocab)]
     for slide in slides:
-        if note is not None and note not in slide.notes:
-            slide.notes.append(note)
+        for note in notes:
+            if note is not None and note not in slide.notes:
+                slide.notes.append(note)
 
 
 def _mark_narrowed(slides: Sequence[Slide], stratifiers: Sequence[str],
@@ -2123,15 +2185,19 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
                                                comparison, vocab))
         if slide is not None:
             _mark_narrowed([slide], [stratifier], bundle, vocab)
-            _mark_excluded([slide], stratifier, bundle, vocab)
+            _mark_regression([slide], stratifier, bundle, vocab)
             slides.append(slide)
 
-    for stratifier in wanted:
+    # Its own panel decides, not the hazard-ratio one: without a Weibull fit
+    # the length-of-stay panel has only the unadjusted Kaplan-Meier column,
+    # and a slide titled "adjusted and not" would have nothing adjusted on it.
+    los_wanted = set(panel_stratifiers(los_panel, LOS_SERIES))
+    for stratifier in [s for s in wanted if s in los_wanted]:
         slide = los_ratios_by_stratifier(bundle, stratifier, los_panel, vocab,
                                          figures, settings)
         if slide is not None:
             _mark_narrowed([slide], [stratifier], bundle, vocab)
-            _mark_excluded([slide], stratifier, bundle, vocab)
+            _mark_regression([slide], stratifier, bundle, vocab)
             slides.append(slide)
 
     # Competing risks sit after the length-of-stay section: they answer a

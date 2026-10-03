@@ -281,7 +281,7 @@ extract_references <- function(settings, periods) {
     "show_km_ci_ribbons", "show_aj_cif_ci_ribbons", "aj_cif_any",
     "png_pointsize_factor", "png_line_width_factor",
     "max_plot_strata", "plot_periods", "plot_intake_types", "plot_animal_groups",
-    "regression_exclude_periods",
+    "regression_exclude_periods", "regression_from_day", "regression_to_day",
     "parametric_regression", "weibull_shape_crossing",
     "km_survival_by_stratifier", "km_remaining_los_by_stratifier",
     "km_census_by_tenure_by_stratifier", "km_in_care_tenure_by_stratifier",
@@ -572,6 +572,40 @@ extract_references <- function(settings, periods) {
     if (parametric_regression == "FALSE") parametric_regression <- FALSE
   }
 
+  # regression_from_day / regression_to_day: the days of each stay the Cox and
+  # Weibull regressions fit (see .regression_window_rows). Absent, they fit
+  # whole stays up to the cap, which is the end day's default and its upper
+  # limit: no row runs past the cap, so a later end could only claim days the
+  # analysis does not use. A start above 0 rules out the Weibull fit, whose
+  # length-of-stay ratios describe whole stays from intake; a later end only
+  # censors earlier, as the cap does, and leaves them their meaning.
+  parse_day <- function(key) {
+    if (is.null(settings[[key]])) return(NULL)
+    parse_nonnegative_integer(settings[[key]], key)
+  }
+  from_day <- parse_day("regression_from_day")
+  to_day   <- parse_day("regression_to_day")
+  regression_window <- NULL
+  if (!is.null(from_day) || !is.null(to_day)) {
+    if (is.null(from_day)) from_day <- 0L
+    if (is.null(to_day)) to_day <- restricted_stay_cap
+    if (to_day > restricted_stay_cap) {
+      stop("regression_to_day must be at most restricted_stay_cap (", restricted_stay_cap,
+           "); found ", to_day, ".")
+    }
+    if (from_day >= to_day) {
+      stop("regression_from_day must be less than regression_to_day (found ",
+           from_day, " and ", to_day, ").")
+    }
+    if (from_day > 0 && !isFALSE(parametric_regression)) {
+      stop("regression_from_day above 0 cannot be combined with parametric_regression: ",
+           "WEIBULL. Weibull length-of-stay ratios describe whole stays, which a fit ",
+           "starting at day ", from_day, " does not see. Set parametric_regression: ",
+           "false, or regression_from_day: 0.")
+    }
+    regression_window <- c(from_day = from_day, to_day = to_day)
+  }
+
   # weibull_shape_crossing: whether the per-predictor shape variants may give
   # every COMBINATION of the other predictors a Weibull shape of its own. FALSE
   # by default, so a variant fits an additive shape formula, one shape term per
@@ -616,6 +650,9 @@ extract_references <- function(settings, periods) {
     # Levels each stratifier leaves out of the regressions, by stratifier id;
     # NULL for none. Only period offers it today.
     regression_exclude     = regression_exclude,
+    # c(from_day, to_day): the days of each stay the regressions fit; NULL for
+    # whole stays.
+    regression_window      = regression_window,
     # names = raw CSV values, values = L/T/N codes; NULL if CSV uses L/T/N directly.
     outcome_type_mapping   = outcome_type_mapping,
     outcome_type_delete    = outcome_type_delete,

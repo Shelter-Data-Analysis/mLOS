@@ -270,7 +270,8 @@
         "p_value": [null, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
       }
     },
-    "stratified_variants": []
+    "stratified_variants": [],
+    "unstable_terms": ["animal_groupG02", "animal_groupG03", "animal_groupG04", "animal_groupG05", "animal_groupG06", "animal_groupG07", "animal_groupG08", "animal_groupG09", "animal_groupG10", "animal_groupG11"]
   },
   "weibull": {
     "has_analysis": false,

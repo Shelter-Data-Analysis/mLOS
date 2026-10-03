@@ -485,7 +485,7 @@ MLOS_RESULTS_SCHEMA_VERSION <- 5L
   }
 
   s <- summary(cox_results$cox_model)
-  list(
+  bundle <- list(
     has_analysis = TRUE,
     formula = paste(deparse(stats::formula(cox_results$cox_model)), collapse = " "),
     n = cox_results$cox_model$n,
@@ -506,6 +506,12 @@ MLOS_RESULTS_SCHEMA_VERSION <- 5L
     # hazard ratios are.
     stratified_variants = cox_results$stratified_variants
   )
+  # Coefficients that are infinite or nearly so (.unstable_terms in mlos_cox.R),
+  # where any are; each stratified variant carries its own.
+  if (length(cox_results$unstable_terms) > 0) {
+    bundle$unstable_terms <- I(cox_results$unstable_terms)
+  }
+  bundle
 }
 
 # The serializable half of .weibull_regression_analysis's value: everything
@@ -1506,6 +1512,11 @@ build_results_bundle <- function(cox_results,
   # (regression_exclude_periods). Beside the substantive settings rather than
   # in presentation, since it changes the fitted numbers; absent otherwise.
   bundle$settings$regression_exclude <- .level_lists_echo(references$regression_exclude)
+  # The days of each stay the regressions fit (regression_from_day,
+  # regression_to_day), where set; absent otherwise.
+  if (!is.null(references$regression_window)) {
+    bundle$settings$regression_window <- as.list(references$regression_window)
+  }
   bundle
 }
 

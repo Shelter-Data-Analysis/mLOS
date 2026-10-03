@@ -16,11 +16,13 @@ expected_km <- list(
 )
 
 # Cox runs (2 periods). Period_1 has zero events, so the period
-# coefficient is complete-separation: HR is NA, not a crash. Clustering is on
+# coefficient is complete-separation: HR is NA, not a crash. The reference is
+# Period_2, the oldest period with outcomes. Clustering is on
 # the auto-generated animal_id; the fit matches truncation_censoring_split.
 expected_cox <- list(
   has_analysis      = 1,
   n                 = 6,
   n_events          = 5,
-  HR_periodPeriod_2 = NA
+  HR_periodPeriod_1 = NA,
+  HR_periodPeriod_2 = 1
 )

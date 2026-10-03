@@ -340,9 +340,11 @@
             "ci_upper": [2.6677674728707381e-09, null],
             "p_value": [5.3581597028088988e-178, null]
           }
-        }
+        },
+        "unstable_terms": ["animal_groupLARGE"]
       }
-    }
+    },
+    "unstable_terms": ["animal_groupLARGE"]
   },
   "weibull": {
     "has_analysis": false,
@@ -1050,7 +1052,8 @@
             "ci_upper": [2.6677674728707381e-09, null],
             "p_value": [5.3581597028088988e-178, null]
           }
-        }
+        },
+        "unstable_terms": ["animal_groupLARGE"]
       }
     }
   },

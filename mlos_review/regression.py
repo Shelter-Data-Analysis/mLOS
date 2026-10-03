@@ -124,6 +124,34 @@ def _term_to_stratifier(bundle: Bundle) -> dict[str, str]:
     return mapping
 
 
+def unstable_levels(bundle: Bundle) -> dict[str, list[str]]:
+    """Levels whose hazard ratio is infinite or nearly so, by stratifier.
+
+    From `cox.unstable_terms` and each stratified variant's own, which mLOS
+    writes where a coefficient's log hazard ratio or its standard error is out
+    of all proportion (`.unstable_terms` in mlos_cox.R). Mapped to levels
+    through `xlevels`, as `_rows_from` maps table rows, so a narrowed bundle
+    reports only the levels it shows.
+    """
+    terms = _term_to_stratifier(bundle)
+    found: dict[str, list[str]] = {}
+
+    def add(names, xlevels: dict) -> None:
+        names = set(names if isinstance(names, list) else [names])
+        for term, levels in (xlevels or {}).items():
+            if term not in terms:
+                continue
+            for level in (levels if isinstance(levels, list) else [levels]):
+                if f"{term}{level}" in names and level not in found.get(terms[term], []):
+                    found.setdefault(terms[term], []).append(str(level))
+
+    add(bundle.value("cox", "unstable_terms") or [], bundle.value("cox", "xlevels"))
+    for variant in (bundle.value("cox", "stratified_variants") or {}).values():
+        if isinstance(variant, dict) and variant.get("unstable_terms"):
+            add(variant["unstable_terms"], variant.get("xlevels"))
+    return found
+
+
 def _empty() -> pd.DataFrame:
     """The shape both readers return when there is no regression to report."""
     index = pd.MultiIndex.from_arrays([[], []], names=INDEX_NAMES)

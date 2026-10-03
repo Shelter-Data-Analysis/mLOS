@@ -270,7 +270,8 @@
         "p_value": [0, null]
       }
     },
-    "stratified_variants": []
+    "stratified_variants": [],
+    "unstable_terms": ["animal_groupLARGE"]
   },
   "weibull": {
     "has_analysis": false,

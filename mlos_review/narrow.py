@@ -42,6 +42,18 @@ def regression_excluded(bundle: Bundle) -> dict[str, list[str]]:
             for stratifier, levels in raw.items()}
 
 
+def regression_window(bundle: Bundle) -> tuple[int, int] | None:
+    """The days of each stay the regressions fit, or None for whole stays.
+
+    From `settings.regression_window` (mLOS's regression_from_day and
+    regression_to_day).
+    """
+    window = bundle.complete().value("settings", "regression_window")
+    if not window:
+        return None
+    return int(window["from_day"]), int(window["to_day"])
+
+
 def hidden_levels(bundle: Bundle, stratifier: str) -> list[str]:
     """The levels of a stratifier that the run's plot selection leaves out."""
     full = bundle.complete()

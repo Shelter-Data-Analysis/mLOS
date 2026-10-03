@@ -292,7 +292,8 @@
         "p_value": [1.1109825862512776e-97, null, null]
       }
     },
-    "stratified_variants": []
+    "stratified_variants": [],
+    "unstable_terms": ["intake_typeOWNER"]
   },
   "weibull": {
     "has_analysis": false,

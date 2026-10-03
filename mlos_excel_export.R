@@ -173,17 +173,31 @@
   invisible(NULL)
 }
 
-# The levels left out of the regressions (regression_exclude_periods), as one
-# cell: "period: Gap", one stratifier after another. NULL when there are none.
-.excel_regression_exclusions <- function(excluded) {
-  if (length(excluded) == 0) return(NULL)
-  paste(vapply(names(excluded), function(id)
-    paste0(id, ": ", paste(unlist(excluded[[id]]), collapse = ", ")), character(1)),
-    collapse = "; ")
+# What limits the regressions, as rows for a key-value table: the levels left
+# out (regression_exclude_periods), as "period: Gap", one stratifier after
+# another; and the days of each stay fitted (regression_from_day,
+# regression_to_day), as "20 to 153". A list of metrics and values, empty when
+# neither is set, so a run without them writes the sheets it always has.
+.excel_regression_scope <- function(settings) {
+  metrics <- character(0)
+  values  <- list()
+  excluded <- settings$regression_exclude
+  if (length(excluded) > 0) {
+    metrics <- c(metrics, "Excluded from the regressions")
+    values  <- c(values, list(paste(vapply(names(excluded), function(id)
+      paste0(id, ": ", paste(unlist(excluded[[id]]), collapse = ", ")), character(1)),
+      collapse = "; ")))
+  }
+  window <- settings$regression_window
+  if (!is.null(window)) {
+    metrics <- c(metrics, "Days of each stay fitted")
+    values  <- c(values, list(paste0(window$from_day, " to ", window$to_day)))
+  }
+  list(metrics = metrics, values = values)
 }
 
 write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style_int, num_style_float,
-                                       excluded = NULL) {
+                                       scope = NULL) {
   openxlsx::addWorksheet(wb, "Cox_Regression")
   openxlsx::setColWidths(wb, "Cox_Regression", cols = 1, widths = 30)
   openxlsx::setColWidths(wb, "Cox_Regression", cols = 2:20, widths = 13)
@@ -215,10 +229,15 @@ write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style
     coverage$intake$n,
     coverage$group$n
   )
-  # Their rows in the coefficient table are blank: the fit has no estimate.
-  if (!is.null(.excel_regression_exclusions(excluded))) {
-    overview_metrics <- c(overview_metrics, "Excluded from the regressions")
-    overview_values  <- c(overview_values, list(.excel_regression_exclusions(excluded)))
+  # An excluded level's rows in the coefficient table are blank: the fit has
+  # no estimate.
+  overview_metrics <- c(overview_metrics, scope$metrics)
+  overview_values  <- c(overview_values, scope$values)
+  # Estimates that are infinite or nearly so, which the table would otherwise
+  # show as if they were numbers.
+  if (length(cox$unstable_terms) > 0) {
+    overview_metrics <- c(overview_metrics, "Unstable estimates (infinite or nearly so)")
+    overview_values  <- c(overview_values, list(paste(unlist(cox$unstable_terms), collapse = ", ")))
   }
 
   tests <- cox$tests
@@ -285,7 +304,7 @@ write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style
 
 write_weibull_regression_sheet <- function(wb, wres, cox_has_analysis, coverage,
                                            title_style, num_style_int, num_style_float,
-                                           excluded = NULL) {
+                                           scope = NULL) {
   openxlsx::addWorksheet(wb, "Weibull_Regression")
   openxlsx::setColWidths(wb, "Weibull_Regression", cols = 1, widths = 30)
   openxlsx::setColWidths(wb, "Weibull_Regression", cols = 2:20, widths = 13)
@@ -320,10 +339,8 @@ write_weibull_regression_sheet <- function(wb, wres, cox_has_analysis, coverage,
     coverage$intake$n,
     coverage$group$n
   )
-  if (!is.null(.excel_regression_exclusions(excluded))) {
-    overview_metrics <- c(overview_metrics, "Excluded from the regressions")
-    overview_values  <- c(overview_values, list(.excel_regression_exclusions(excluded)))
-  }
+  overview_metrics <- c(overview_metrics, scope$metrics)
+  overview_values  <- c(overview_values, scope$values)
 
   openxlsx::writeData(wb, "Weibull_Regression", "Model overview", startRow = next_row,
                       startCol = 1, colNames = FALSE)
@@ -598,11 +615,9 @@ write_general_sheet <- function(wb, bundle, title_style,
     fmt_labels(settings$outcome_type_in_care),
     fmt_labels(settings$outcome_type_censored)
   )
-  if (!is.null(.excel_regression_exclusions(settings$regression_exclude))) {
-    settings_metrics <- c(settings_metrics, "Excluded from the regressions")
-    settings_values  <- c(settings_values,
-                          list(.excel_regression_exclusions(settings$regression_exclude)))
-  }
+  scope <- .excel_regression_scope(settings)
+  settings_metrics <- c(settings_metrics, scope$metrics)
+  settings_values  <- c(settings_values, scope$values)
   next_row <- .excel_write_section_title(
     wb, "General", next_row, "Analysis settings",
     "substantive; excludes plot and output-emission settings", title_style
@@ -1583,13 +1598,13 @@ write_results_excel <- function(excel_file, bundle) {
 
   write_cox_regression_sheet(wb, bundle$cox, settings$coverage,
                              title_style, num_style_int, num_style_float,
-                             excluded = settings$regression_exclude)
+                             scope = .excel_regression_scope(settings))
 
   if (weibull_on) {
     write_weibull_regression_sheet(wb, bundle$weibull, bundle$cox$has_analysis,
                                    settings$coverage,
                                    title_style, num_style_int, num_style_float,
-                                   excluded = settings$regression_exclude)
+                                   scope = .excel_regression_scope(settings))
   }
 
   # By_All: the whole dataset as a single unified column, structurally identical

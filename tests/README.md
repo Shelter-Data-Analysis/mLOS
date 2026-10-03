@@ -244,6 +244,14 @@ Standalone checks follow, none tied to a fixture:
   errors;
 - **aj_cif_any**: the all-cause plots and CSVs are written only with the
   setting on, and the manifest describes them;
+- **reference outcomes and unstable estimates**: a named reference with no
+  outcomes stops the run, a default one skips a frequent level without
+  outcomes, and the instability rule flags a huge ratio and a huge interval
+  but not a blank;
+- **regression window**: `regression_from_day` and `regression_to_day` stop the
+  run on an end past the cap, a start not before the end, or a later start
+  with Weibull; the rows are cut, entered, and censored as documented; and the
+  fit matches the rows cut by hand;
 - **regression exclusion**: `regression_exclude_periods` stops the run on an
   unknown name or on fewer than two periods left, defaults the plots to the
   periods kept, keeps every Cox and Weibull row (blank for the excluded

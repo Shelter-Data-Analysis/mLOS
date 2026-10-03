@@ -19,7 +19,9 @@ expected_km <- list(
 # With 2 periods now (n_periods > 1), Cox actually runs here (unlike the
 # single-period fixtures, where it's skipped). Period_1 has zero events, so
 # the period coefficient is a genuine complete-separation case: HR is
-# NA, not a crash. This also regression-tests a real bug this fixture caught:
+# NA, not a crash. OLDEST resolves among the periods with outcomes, so the
+# reference is Period_2 and Period_1 carries the NA (a reference with no
+# outcomes would leave every ratio against it undefined). This also regression-tests a real bug this fixture caught:
 # coxph's robust score test (summary()$robscore) can be NULL in this exact
 # degenerate shape, which used to crash cox_regression_analysis() on
 # round(NULL, 1) -- see the robscore NULL check in mlos_cox.R.
@@ -27,10 +29,10 @@ expected_cox <- list(
   has_analysis      = 1,
   n                 = 6,
   n_events          = 5,
-  HR_periodPeriod_2 = NA,
-  # Definitional reference row for Period_1 (OLDEST default): HR exactly
-  # 1, even though the non-reference coefficient diverged to NA above.
-  HR_periodPeriod_1 = 1
+  HR_periodPeriod_1 = NA,
+  # Definitional reference row for Period_2 (OLDEST with outcomes): HR
+  # exactly 1, even though the non-reference coefficient diverged to NA above.
+  HR_periodPeriod_2 = 1
 )
 
 # parametric_regression: WEIBULL is set, but the pooled Weibull fit itself

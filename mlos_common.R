@@ -515,6 +515,25 @@ stratifiers <- list(
   period_data[keep, , drop = FALSE]
 }
 
+# The regression rows cut to the days of stay in references$regression_window
+# (regression_from_day, regression_to_day). A row ending by the first day, or
+# starting at the last, is dropped. The rest enter at the first day, as a
+# left-truncated row does, so a dog counts only once it has reached that day;
+# and an outcome after the last day is censored there, as the stay cap censors
+# one. NULL leaves the rows as they are.
+.regression_window_rows <- function(period_data, references) {
+  window <- references$regression_window
+  if (is.null(window)) return(period_data)
+  from <- window[["from_day"]]
+  to   <- window[["to_day"]]
+  rows <- period_data[period_data$time_end > from & period_data$time_start < to, , drop = FALSE]
+  rows$time_start <- pmax(rows$time_start, from)
+  past <- rows$time_end > to
+  rows$time_end[past] <- to
+  rows$event[past]    <- 0
+  rows
+}
+
 # Whether a stratified plot is skipped: more strata than the limit, or a
 # selection naming only levels with no data here, which leaves nothing to draw.
 .skip_strata_plot <- function(strata, limit) strata$n == 0 || strata$n > limit

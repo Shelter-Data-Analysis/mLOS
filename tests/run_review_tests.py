@@ -3381,6 +3381,55 @@ def check_plot_level_narrowing() -> None:
            exclusion_note(narrowed(Bundle(data=data, root=full.root)),
                           stratifier, vocab) is None)
 
+    # A regression window: the note says which days, and none without one.
+    from mlos_review.deck import window_note
+    expect(f"{case}: no window note for whole stays", window_note(full) is None)
+    data["settings"]["regression_window"] = {"from_day": 20, "to_day": 60}
+    said = window_note(Bundle(data=data, root=full.root))
+    expect(f"{case}: the window note names the days",
+           said is not None and "days 20 to 60" in said and "day 20" in said)
+
+
+def check_regression_slide_readings() -> None:
+    """The ratio slides say what they show, and flag what they cannot estimate.
+
+    On golden bundles: one fitted without Weibull, whose hazard-ratio slide
+    must say two ways and whose length-of-stay slide must not exist, having
+    nothing adjusted to show; and one with estimates mLOS flags as infinite or
+    nearly so, whose slides must say so.
+    """
+    from mlos_review.deck import assemble, unstable_note
+    from mlos_review.figures import FigureSet
+    from mlos_review.regression import unstable_levels
+
+    section("regression slide readings (synthetic)")
+    goldens = [Bundle.load(p.parent) for p in
+               sorted((REPO_ROOT / "tests" / "golden").glob("*/results.json"))]
+    no_weibull = next((b for b in goldens if b.value("cox", "stratified_variants")
+                       and not b.value("weibull", "has_analysis")), None)
+    if no_weibull is None:
+        skipped("regression slide readings", "no golden bundle without Weibull")
+    else:
+        with tempfile.TemporaryDirectory() as tmp:
+            titles = [slide.title for slide in
+                      assemble(no_weibull, Vocabulary(no_weibull.data),
+                               FigureSet(directory=Path(tmp)))]
+        expect("without Weibull, the hazard-ratio slides say two ways",
+               any(t.startswith("Hazard ratios (HR) by") and t.endswith("two ways")
+                   for t in titles) and not any(t.endswith("three ways") for t in titles),
+               str(titles))
+        expect("without Weibull, no length-of-stay ratio slide",
+               not any(t.startswith("Length of stay by") for t in titles), str(titles))
+
+    flagged = next((b for b in goldens if unstable_levels(b)), None)
+    if flagged is None:
+        skipped("unstable estimates", "no golden bundle flags any")
+        return
+    stratifier, levels = next(iter(unstable_levels(flagged).items()))
+    note = unstable_note(flagged, stratifier, Vocabulary(flagged.data))
+    expect("unstable estimates: the note names the levels",
+           note is not None and all(level in note for level in levels), str(note))
+
 
 def check_order_shift_thresholds() -> None:
     """Which differences count, which are noise, and which pair leads.
@@ -4042,7 +4091,7 @@ def check_deck(case: str, bundle: Bundle, directory: Path) -> list:
     from mlos_review.regression import (comparison as _comparison, pooled,
                                         stratified, hazard_ratio_panel,
                                         los_ratio_panel, panel_stratifiers,
-                                        HR_SERIES)
+                                        HR_SERIES, LOS_SERIES)
     cox = _comparison(pooled(bundle), stratified(bundle))
     hr_panel = hazard_ratio_panel(bundle)
     los_panel = los_ratio_panel(bundle)
@@ -4066,7 +4115,10 @@ def check_deck(case: str, bundle: Bundle, directory: Path) -> list:
                 recommendations=unestimable_levels(bundle, st, cox, vocab))
             if slide is not None:
                 section_slides.append(slide)
-        for st in wanted:
+        # The length-of-stay slide needs two readings of its own (assemble
+        # gates it on its own panel), which a run without Weibull lacks.
+        los_wanted = set(panel_stratifiers(los_panel, LOS_SERIES))
+        for st in [s for s in wanted if s in los_wanted]:
             slide = los_ratios_by_stratifier(bundle, st, los_panel, vocab,
                                              figures, deck_settings)
             if slide is not None:
@@ -5272,7 +5324,12 @@ def check_figures_are_drawn() -> None:
     empty: list[str] = []
     built = 0
 
-    goldens = sorted((REPO_ROOT / "tests" / "golden").glob("*/results.json"))
+    # Bundles with a Weibull fit first: only they draw los_ratios, the
+    # length-of-stay slide needing two readings that a Cox-only run lacks.
+    goldens = sorted((REPO_ROOT / "tests" / "golden").glob("*/results.json"),
+                     key=lambda path: (not json.loads(path.read_text())
+                                       .get("weibull", {}).get("has_analysis"),
+                                       path.parent.name))
     for path in goldens:
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "deck.pptx"
@@ -5350,6 +5407,7 @@ def main(argv: list[str]) -> int:
         check_order_shift_thresholds,
         check_workload_drift_floor,
         check_plot_level_narrowing,
+        check_regression_slide_readings,
         check_salience_statistic,
         check_single_stratifier_default,
         check_capital_widths,

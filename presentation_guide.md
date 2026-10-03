@@ -698,7 +698,7 @@ related by the fitted shape; they are the bridge between the two runs. And the
 reference level affects every interval on both figures: one with few stays
 widens every whisker at once, and one at an end of the stay distribution puts
 every other level on the same side of 1. The reference is a setting, and left
-unset it is the most frequent level, which handles the first and more
+unset it is the most frequent level with an outcome, which handles the first and more
 important of these. Among levels with enough stays behind them, a mid-range
 one keeps the comparison two-sided as well.
 
@@ -1198,6 +1198,18 @@ shown by default, since the run's plot selection defaults to the periods the
 regressions keep. Where a selection names one anyway, it appears on the ratio
 slides with blank model ratios, and the slide carries a note saying it is out
 of the regressions.
+
+A run that fits the regressions to some days of each stay
+(`regression_from_day`, `regression_to_day`) gets a note on every
+regression slide giving the days. With a start above 0 there is no Weibull
+fit, so the length-of-stay-ratio slide, which needs two readings, drops out.
+
+A level whose estimate mLOS flags as infinite or nearly so
+(`cox.unstable_terms`) gets a note on that predictor's ratio slides, naming it
+and saying to read it as undetermined. The hazard-ratio slide's title and notes
+follow the columns it has: "two ways" without a Weibull fit, and the
+length-of-stay-ratio slide is built only where at least two of its readings
+exist, so a run without Weibull has none.
 
 The rest of this section applies within the levels that remain.
 

@@ -68,6 +68,7 @@
     - [Regression options](#regression-options)
         - [`period_reference`](#period_reference)
         - [`regression_exclude_periods`](#regression_exclude_periods)
+        - [`regression_from_day`, `regression_to_day`](#regression_from_day-regression_to_day)
         - [`intake_type_reference`](#intake_type_reference)
         - [`animal_group_reference`](#animal_group_reference)
         - [`parametric_regression`](#parametric_regression)
@@ -635,7 +636,7 @@ See the per-predictor Weibull sheets below for the fuller report that lives on i
 
 The Cox regression tests whether LOS distributions differ significantly across periods, intake types, and animal groups when these stratifiers act simultaneously. It quantifies the differences as hazard ratios.
 
-The hazard-ratio table lists every level of every predictor. The reference level appears as a definitional row: hazard ratio exactly 1, with a blank confidence interval and p-value, because the reference is the denominator of the ratios rather than an estimate of its own. A note beside the table's title says that each hazard ratio is an average over tenure, constant only if hazards are proportional, and names `tools/cox_zph.R`, which tests that assumption (see [Limitations](#limitations)).
+The hazard-ratio table lists every level of every predictor. The reference level appears as a definitional row: hazard ratio exactly 1, with a blank confidence interval and p-value, because the reference is the denominator of the ratios rather than an estimate of its own. A level with too few outcomes to fix its ratio gives an estimate that is infinite or nearly so: R reports it as an enormous or vanishing number. Where any coefficient's hazard ratio lies beyond 1000 either way, or the standard error of its logarithm exceeds 5, the sheet's overview lists it under "Unstable estimates (infinite or nearly so)", `results.json` records it under `cox.unstable_terms` (and each stratified variant's own), and the deck's slides for that predictor carry a note. Read such a level as undetermined, not as a large effect. A note beside the table's title says that each hazard ratio is an average over tenure, constant only if hazards are proportional, and names `tools/cox_zph.R`, which tests that assumption (see [Limitations](#limitations)).
 
 Levels appear in the fixed canonical order described under [Strata (level) ordering](#plots) above: chronological for periods, character-code order for intake types and animal groups. The table's rows therefore line up with the `By_Period`, `By_Intake_Type`, and `By_Animal_Group` columns, and they stay in the same positions across repeated runs on the same shelter and across machines. The Weibull sheets follow the same convention.
 
@@ -1023,7 +1024,7 @@ Because a `pass`/`cut` selection is a plain subset, the order among the three fi
 
 **What happens to a filtered-out level.** Emptying an `intake_type` or `animal_group` value does not remove it from the analysis's list of levels — exactly as when a level's rows all fall outside the study window or past the stay cap. The stratified outputs (KM, AJ, the by-stratum worksheets) skip any level with no rows, so an emptied level simply does not appear there. The **Cox table keeps it as a phantom row** with a blank hazard ratio, so a filtered run and the unfiltered run produce the **same Cox layout** and line up row-for-row when you compare them. (A predictor filtered all the way down to a single remaining level is the exception: a one-level factor cannot be a Cox predictor at all, so it drops out of the model entirely rather than leaving phantom rows.)
 
-One caveat follows from levels being retained: if you cut the `animal_group` or `intake_type` value you set as an explicit Cox reference level, that level survives as an empty level and passes the reference check, but with no rows behind it the baseline is degenerate and every hazard ratio for that predictor comes out blank. Keep any reference level among the values you retain.
+One caveat follows from levels being retained: if you cut the `animal_group` or `intake_type` value you set as an explicit Cox reference level, that level survives as an empty level, with no outcomes behind it, and the run stops, since no ratio against it is defined. Keep any reference level among the values you retain.
 
 ### Data screening
 
@@ -1072,7 +1073,7 @@ The check runs after duplicate-stay removal and **before** the study window trim
 period_reference: OLDEST
 ```
 
-Which period serves as the reference in Cox regression. Choices: `OLDEST` (default) or `NEWEST`; any other value stops the run. This is a policy, not a period number: the reference is the oldest (or newest) period **that contains data**. Normally that is simply the first (or last) period, but if a boundary period turns out to be empty (the tool prints a warning when a defined period has no observations), the reference moves inward to the nearest period with data rather than failing. Other periods are reported as hazard ratios relative to the reference period. Does not change the underlying statistical model, only the parametrization.
+Which period serves as the reference in Cox regression. Choices: `OLDEST` (default) or `NEWEST`; any other value stops the run. This is a policy, not a period number: the reference is the oldest (or newest) period **with an outcome in the regressions**. Normally that is simply the first (or last) period, but if a boundary period turns out to be empty (the tool prints a warning when a defined period has no observations), or holds only stays that continue into the next period, the reference moves inward to the nearest period with outcomes rather than failing. A reference with no outcomes would leave every ratio against it undefined. Other periods are reported as hazard ratios relative to the reference period. Does not change the underlying statistical model, only the parametrization.
 
 With [`regression_exclude_periods`](#regression_exclude_periods) set, `OLDEST` and `NEWEST` resolve among the periods the regressions keep, so excluding a period never takes away the reference.
 
@@ -1097,13 +1098,34 @@ Rules:
 
 Intake types and animal groups have no counterpart setting. For them, a [value filter](#value-filters) already removes stays, and leaving a level out of the regressions alone would differ from that only in keeping it in the Kaplan-Meier and Aalen-Johansen results.
 
+#### `regression_from_day`, `regression_to_day`
+
+```yaml
+regression_from_day: 20
+regression_to_day: 90
+```
+
+The days of each stay the Cox and Weibull regressions fit, their variants included. Absent, they fit whole stays up to [`restricted_stay_cap`](#restricted_stay_cap-required). Either can be given alone: the start defaults to 0 and the end to the cap, which is also the end's upper limit, since no stay is followed past the cap.
+
+A start above 0 asks what drives the rest of a stay for animals still in care on that day. Each stay enters the regressions on the start day, as a stay already under way when a period begins enters it, and stays that ended before then do not enter at all. The hazard ratios then compare animals that have reached the start day. An end below the cap counts an outcome after the end day as still in care there, as the cap does.
+
+Kaplan-Meier, Aalen-Johansen, census, and flow results are unaffected, as is every CSV. `results.json` records the window under `settings.regression_window`, the workbook's General and regression sheets name it, and the deck's regression slides carry a note giving the days.
+
+Rules, each enforced by stopping the run:
+
+- Both are whole numbers of days, the start less than the end, and the end at most `restricted_stay_cap`.
+- A start above 0 cannot be combined with [`parametric_regression: WEIBULL`](#parametric_regression). A Weibull length-of-stay ratio describes whole stays from intake, which a fit starting later does not see. An end below the cap leaves the Weibull fit as it is, censoring earlier.
+- A window with no outcome in it stops the run.
+
+Fewer outcomes fall inside a narrow window, so expect wider intervals, and levels with few or no outcomes there can give extreme or blank hazard ratios; mLOS flags the extreme ones (see [The Cox_Regression sheet](#the-cox_regression-sheet)). With no reference named, the most frequent level is counted over the rows before the window, so a window does not change which level that is, as long as it has an outcome inside the window. A named reference with no outcome in the window stops the run.
+
 #### `animal_group_reference`
 
 ```yaml
 animal_group_reference: MED
 ```
 
-The value of `animal_group` used as the reference (baseline) level in Cox regression. Optional; defaults to the most frequent level if omitted. An `_UNKNOWN_` filled level counts like any other, because some datasets use blank to mean "normal". If the specified value is **not found in the data, the run stops with an error**: a misspelled reference would otherwise silently reparametrize the model around a different baseline. When `animal_group` is constructed via `animal_group_columns`, the reference must be a full composite value (e.g., `F_LARGE`, not `F`). Other groups are reported as hazard ratios relative to this reference. Does not affect KM curves or AJ analyses.
+The value of `animal_group` used as the reference (baseline) level in Cox regression. Optional; defaults to the most frequent level with an outcome in the regressions if omitted. An `_UNKNOWN_` filled level counts like any other, because some datasets use blank to mean "normal". If the specified value is **not found in the data, the run stops with an error**: a misspelled reference would otherwise silently reparametrize the model around a different baseline. So does a specified value with no outcome in the regressions, since every ratio against it would be undefined. When `animal_group` is constructed via `animal_group_columns`, the reference must be a full composite value (e.g., `F_LARGE`, not `F`). Other groups are reported as hazard ratios relative to this reference. Does not affect KM curves or AJ analyses.
 
 **Choosing the reference is a reporting decision.** It does not change the underlying model or its fit. The choice is purely a parametrization. Every hazard ratio in the output is a contrast against the reference, so a poor choice can make the whole table hard to read.
 
@@ -1119,7 +1141,7 @@ There is no easy rule of thumb that guarantees well-behaved output. Whether trou
 intake_type_reference: STRAY
 ```
 
-Same role as `animal_group_reference`, but for the `intake_type` column. Optional; defaults to the most frequent level, and a specified value not found in the data stops the run. The reference-choice guidance under `animal_group_reference` applies here unchanged.
+Same role as `animal_group_reference`, but for the `intake_type` column. Optional; defaults to the most frequent level with an outcome, and a specified value not found in the data, or with no outcome in the regressions, stops the run. The reference-choice guidance under `animal_group_reference` applies here unchanged.
 
 #### `parametric_regression`
 
