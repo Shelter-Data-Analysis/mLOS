@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20261004_001. Read it in any markdown reader,
+presentation guide, version 20261004_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -88,7 +88,8 @@ code. Nothing in the last one is needed to read a deck or to build one.
 The R analysis, upstream from this package, does length-of-stay (LOS)
 computations on shelter data and writes `results/results.json`, a complete
 record of every reported number, with plots and companion CSVs beside it. The
-presentation builder reads the JSON and the plots it names, and nothing else.
+presentation builder reads the JSON and the files its manifest names, and
+nothing else.
 It does not import R, it does not open the R-produced workbook, and it does
 not fit a model. The statistics are computed once by the analysis, cross-checked by
 the test suite, and written out; the builder does only simple arithmetic on
@@ -183,7 +184,8 @@ settle them.
 change, and what to check before a deck reaches anybody.*
 
 **This is not yet ready for routine use.** A handful of slide types exist, the
-settings file covers output, flag style, emphasis, and competing-risk coverage,
+settings file covers output, flag style, emphasis, competing-risk coverage,
+branding, type size, and curve readings,
 and the sequence they appear in is hardcoded rather than planned. What follows
 is enough to look at what it produces.
 
@@ -244,7 +246,7 @@ inputs, which would be renamed out of the way.
 | `output.directory`, `output.filename` | paths | yes |
 | `tables.high_low_flag` | `MARK`, `COLOR` | yes |
 | `emphasis.<stratifier>` | `AUTO`, `ALWAYS`, `NEVER`, or a list of levels | all four, for the one decision salience currently drives |
-| `aj_coverage` | `FULL`, `TEASER`, `NONE` | yes; `TEASER` carries the whole-sample slide and one stratifier's, `FULL` carries every stratifier's |
+| `aj_coverage` | `FULL`, `TEASER`, `NONE` | yes; `TEASER` carries the two whole-sample slides and one stratifier's, `FULL` carries every stratifier's |
 | `figures.ratio_log_scale` | yes, no | yes; the log x axis on the two ratio figures |
 | `figures.shrink_for_branding` | 0 to 1 | yes; how much of a figure's height may go so its slide can carry the template's artwork |
 | `bullets.size` | 14 to 28 | yes; the point size of bullets and of the standing lines above and below them |
@@ -442,7 +444,7 @@ figure here belongs to a run that actually produced it.
 saying "on either run" or "on the Orange County data". The wording matters
 because those two forms quantify over the set of Orange County runs, and that
 set can grow: an OC3 would silently inherit a claim nobody checked against it,
-where naming OC1 and OC2 stays true whatever arrives later. 
+where naming OC1 and OC2 stays true whatever arrives later.
 
 Both runs are reproducible from tracked inputs, which is what makes a marked
 number checkable rather than merely dated:
@@ -480,8 +482,8 @@ Detail level, figures-versus-bullets balance, mathematical sophistication, and
 the slide budget are designed and unimplemented. The deck's own slide sequence
 is fixed in code rather than planned against a budget; a variant deck's is
 written out by hand, which is a plan stated rather than solved. There is no
-text-centered report. The workbook is not an independent product; it just holds the tables
-the slide deck build made.
+text-centered report. The workbook is not an independent product; it holds the tables
+the slide deck build made, plus the curve readings when the settings ask for them.
 
 ---
 
@@ -1527,7 +1529,7 @@ to filter a column the analysis does not otherwise use, so setting it to the
 column animal group is composed from, with `other_filter_pass`, narrows the
 same rows and leaves `animal_group_columns` free to be pointed at another
 attribute of the same animals, an age band for instance. The mirror run is
-named too: the same column as `other_filter_cut` keeps everything EXCEPT the
+named too: the same column as `other_filter_cut` keeps everything *except* the
 carrier, and the levels it was swamping finally state their own behavior on
 the other splits and in both regressions. A stratifier the tool does not
 compose, `intake` being the case, has nothing to repoint and gets the plain
@@ -1573,7 +1575,7 @@ estimate is pooled across intake types. A level owing its shape to one
 reference cell does not survive two fits that condition differently, and the
 least extreme of them is the number quoted.
 
-**`falling hazard` reads the level's *own* shape, not its shape ratio.** A
+**`falling_hazard` reads the level's *own* shape, not its shape ratio.** A
 ratio is a comparison against whichever level the settings named as the
 reference. The recommendation is about a level's own shape parameter k being
 under 1. The two come apart whenever the reference cell's shape is high, so a
@@ -1606,7 +1608,7 @@ could both claim is refused rather than assigned to the first match.
 
 **Ties are named, not broken.** `extreme_levels` returns every level holding a
 column's extreme, so a sentence reads "LRG and XL have the longest average
-stay", with the verb agreeing. 
+stay", with the verb agreeing.
 
 Past `MAX_TIED_LEVELS`, which is two, the extreme is not named at all. Two
 levels read as a result; five lead to silence. The two ends abstain
@@ -1854,7 +1856,7 @@ build one.*
       +--> Regression frames  the two Cox fits      regression.py
       |                       side by side
       v
-  Content blocks    Table, Bullets, Figure, Note   blocks.py
+  Content blocks    Table                          blocks.py
       |
       v
   Slide rules       conditions -> slides           (deck.py, provisional)
@@ -2099,9 +2101,9 @@ The field-by-field contract is on the `Table` and `Format` dataclasses in
 is about content rather than rendering.
 
 **Tables carry numbers, never formatted strings**, and flags travel as a
-parallel overlay rather than being pasted into the number. The spreadsheet
-renderer is a named future consumer: pptx can draw "9 H" in one cell, while
-xlsx writes `9` as a number and expresses the flag as conditional formatting.
+parallel overlay rather than being pasted into the number. pptx draws a mark
+beside the number in one cell, while the workbook writes the number alone and
+leaves the flags out.
 A string cell cannot be sorted, charted, or read by whatever consumes this
 next. A column may still hold text where the value is genuinely textual, a
 date or a level name, which is not a number written into a string.
@@ -2126,19 +2128,20 @@ own. The footnote is there for the reader who needs it.
 hardcoded rules called in a fixed order, standing in for the registry:
 `title_slide`, `summary_slide`, `los_overall`, `resident_outlook`,
 `los_by_stratifier`, `resident_outlook_by_stratifier`, `workload_slide`,
-`aj_teaser`, `aj_by_stratifier`, `findings_section`, and
-`recommendations_section`. The order they are called in is `build`'s, not a
-property of the rules.
+`hazard_ratios_by_stratifier`, `los_ratios_by_stratifier`, `aj_teaser`,
+`resident_destination`, `aj_by_stratifier`, `findings_section`,
+`recommendations_section`, `reserve_section`, and `educational_section`. The
+order they are called in is `assemble`'s, not a property of the rules.
 
 `workload_slide` reads across every stratifier at once, which fixes its
 position: it can only follow all of them. It is called once per workload
 question, so the three slides are three calls rather than three rules.
 
 `resident_outlook_by_stratifier` is the first rule whose condition is the
-settings rather than the bundle: it declines unless the stratifier is salient,
-which today means `emphasis` said `ALWAYS` or pinned levels, or the dataset has
-a single stratifier and the default moved (see `Settings.for_dataset`). When
-`AUTO` is computed from the findings, this is the rule that will read it.
+settings as well as the bundle: it declines unless the stratifier is salient,
+which means `emphasis` said `ALWAYS` or pinned levels, the dataset has a single
+stratifier and the default moved (see `Settings.for_dataset`), or under `AUTO`
+`salience.earns_slides` found it so.
 
 `build` resolves the settings against the dataset once, before any rule is
 called, so two rules cannot disagree about the same stratifier on the same run.
@@ -2473,8 +2476,9 @@ rather than a bug fix.
    Kaplan-Meier curves, Aalen-Johansen cumulative incidence, conditional
    outcome mixes, and in-care tenure profiles are drawn beside the estimators
    that produced them and arrive here through the bundle's `outputs` manifest.
-   The line is the kind of picture, not the subject: the hazard-ratio figure is
-   a bar chart of Cox output and belongs here because it is a bar chart. A
+   The line is the kind of picture, not the subject: the reserve section's
+   hazard-ratio comparison is a bar chart of Cox output and belongs here
+   because it is a bar chart. A
    curve over a time grid would not, since reproducing one means reproducing
    the estimator's grid, risk sets, step conventions, and intervals.
 3. **Tables carry numbers.** Formatting happens at render time.
@@ -2624,4 +2628,4 @@ Ordered roughly by how much they block the next step.
   stages a copy of the fixture with a 3:2 placeholder at every path the
   manifest names. The images carry no data; the geometry computed around them
   is what is under test.
-- **The report and spreadsheet renderers do not exist.**
+- **The report renderer and the audience-tailored spreadsheets do not exist.**

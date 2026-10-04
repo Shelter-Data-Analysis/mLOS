@@ -60,7 +60,7 @@ emphasis:
   # ALWAYS buys a second slide today: what that stratifier's animals already in
   # care still owe, straight after its length-of-stay slide.
   #
-  # On a dataset with only ONE stratifier, a stratifier this file says nothing
+  # On a dataset with only one stratifier, a stratifier this file says nothing
   # about defaults to ALWAYS instead of AUTO. AUTO means "let the findings
   # decide", and deciding is a comparison between the analysis dimensions;
   # with one dimension there is nothing to compare it against. Writing AUTO or
@@ -83,9 +83,9 @@ emphasis:
 # How much of the competing-risks (Aalen-Johansen) analysis the deck carries.
 #   FULL    the whole-sample slide, then one slide per stratifier: a panel per
 #           outcome, and a table of the levels
-#   TEASER  the whole-sample slide, then ONE stratifier's slide, the one whose
-#           plots carry the fewest lines, for an audience that has not asked
-#           for the full breakdown
+#   TEASER  the two whole-sample slides, then one stratifier's slide, the
+#           one whose plots carry the fewest lines, for an audience that has
+#           not asked for the full breakdown
 #   NONE    leave it out entirely
 # A stratifier set to NEVER above is left out of the competing-risks section
 # too, and is not a candidate for the one TEASER shows.
