@@ -185,8 +185,9 @@ class Table:
     `row_formats` is for the other transposition: a table whose ROWS are the
     measures, where one column holds a share on one line and a day count on the
     next and no single column format can serve both. Keyed by the row label, or
-    by its last part where the index has several levels. Empty in the normal
-    case, where `formats` alone decides.
+    where the index has several levels by its part at `row_format_part`: the
+    last by default, the first where the measure is the outer level. Empty in
+    the normal case, where `formats` alone decides.
 
     `highlight` names the one column the slide is about, when it is about one:
     the competing-risk slides show a single outcome's figure beside a table of
@@ -201,6 +202,7 @@ class Table:
     footnotes: list[str] = field(default_factory=list)
     headers: dict[str, str] = field(default_factory=dict)
     row_formats: dict[str, Format] = field(default_factory=dict)
+    row_format_part: int = -1
     highlight: str = ""
 
 
@@ -240,7 +242,7 @@ def cell_format(table: Table, row, measure: str) -> Format:
     fills `row_formats` and it wins here.
     """
     if table.row_formats:
-        key = row[-1] if isinstance(row, tuple) else row
+        key = row[table.row_format_part] if isinstance(row, tuple) else row
         if key in table.row_formats:
             return table.row_formats[key]
     return table.formats.get(measure, Format())
@@ -1368,6 +1370,7 @@ def sub_table(table: Table, measures: Sequence[str], title: str = "") -> Table:
         footnotes=list(table.footnotes),
         headers={k: v for k, v in table.headers.items() if k in kept},
         row_formats=dict(table.row_formats),
+        row_format_part=table.row_format_part,
         highlight=table.highlight if table.highlight in kept else "",
     )
 
@@ -1445,6 +1448,7 @@ def _shown(source: Table, chosen: Sequence[str], title: str,
         footnotes=footnotes,
         headers=dict(source.headers),
         row_formats=dict(source.row_formats),
+        row_format_part=source.row_format_part,
         highlight=source.highlight,
     )
 

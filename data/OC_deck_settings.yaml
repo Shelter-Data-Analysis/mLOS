@@ -131,6 +131,27 @@ bullets:
   size: 18
 
 
+# A sheet in the table workbook reading the run's curves at chosen days: one
+# row per curve, by quantity, then factor, then level, and one column per day
+# already in care. Absent, there is no such sheet. `days` turns it on; the
+# other two default to everything the run has, and set the row order when
+# given.
+#
+#   quantities  km_survival, km_remaining_los, km_in_care_tenure,
+#               km_census_by_tenure, aj_cif, aj_conditional. The two aj_
+#               quantities take a list of outcome codes, Any included for
+#               aj_cif; without one, every outcome.
+#   factors     unified, period, intake_type, animal_group. Each but unified
+#               takes a list of levels; without one, every level.
+#
+# Anything named that the run does not have refuses the build.
+#
+#   curve_readings:
+#     days: [0, 7, 14, 30, 60]
+#     quantities: [km_survival, km_remaining_los, aj_cif: [L, Any]]
+#     factors: [unified, period, intake_type: [OWNER, STRAY]]
+
+
 # A one-slide .pptx whose artwork is copied onto the slides that have room for
 # it: a header band, a footer strip of logos, anything the slide carries. The
 # free band is measured from where the artwork sits, and a slide is decorated

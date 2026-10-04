@@ -86,6 +86,7 @@ from mlos_review.blocks import (
     window_gap_notes,
 )
 from mlos_review.bundle import Bundle
+from mlos_review.curve_readings import curve_readings_table
 from mlos_review.figures import FigureSet
 from mlos_review.names import Vocabulary, capitalize_first
 from mlos_review.narrow import (hidden_levels, narrowed, regression_excluded,
@@ -2309,6 +2310,9 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     bundle = results if isinstance(results, Bundle) else Bundle.load(results)
     settings = resolved_settings(bundle, settings)
     vocab = Vocabulary(bundle.data)
+    # Before any slide is drawn, so a reading the run cannot supply refuses
+    # the build at the start rather than after it.
+    readings = curve_readings_table(bundle, settings.curve_readings, vocab)
     out_path = Path(out_path) if out_path is not None else settings.output_path
     figures = FigureSet(directory=figure_directory(out_path))
 
@@ -2320,7 +2324,7 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     # deliverable in its own right; the manifest is not, because it describes
     # the figure files beside it, which are overwritten.
     figures.write_manifest()
-    sheets = workbook.sheets(bundle, vocab)
+    sheets = workbook.sheets(bundle, vocab, readings)
     if sheets:
         tables_path, _ = prepare_output(workbook_path(out_path))
         workbook.write(sheets, tables_path, vocab)
@@ -2452,7 +2456,11 @@ def main(argv: list[str]) -> int:
         print(f"warning: emphasis for {stratifier} names level(s) this dataset "
               f"does not have: {', '.join(absent)}")
 
-    path, archived = build(bundle, out, settings)
+    try:
+        path, archived = build(bundle, out, settings)
+    except SettingsError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
     if archived is not None:
         print(f"archived previous deck to {archived}")
     print(f"wrote {path}")

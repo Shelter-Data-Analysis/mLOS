@@ -111,7 +111,8 @@ def _stratifier_family(builder, bundle: Bundle, predicate) -> list[Table]:
             for stratifier in bundle.stratifiers() if predicate(bundle, stratifier)]
 
 
-def sheets(bundle: Bundle, vocab: Vocabulary) -> list[Sheet]:
+def sheets(bundle: Bundle, vocab: Vocabulary,
+           curve_readings: Table | None = None) -> list[Sheet]:
     """Which tables this run produces, and how they are grouped onto sheets.
 
     The content decision, kept apart from `write`, which knows only how to put
@@ -190,6 +191,10 @@ def sheets(bundle: Bundle, vocab: Vocabulary) -> list[Sheet]:
         if panel.empty or not panel.notna().any().any():
             continue
         out.append(Sheet(name, [ratio_panel_full_table(panel, series, title)]))
+
+    # Built by the caller, because what it holds is the settings' choice.
+    if curve_readings is not None:
+        out.append(Sheet("Curve_Readings", [curve_readings]))
 
     return out
 

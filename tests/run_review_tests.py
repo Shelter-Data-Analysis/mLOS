@@ -469,6 +469,22 @@ def check_settings() -> None:
         ({"bullets": {"size": "large"}}, "a word where a bullet size belongs"),
         ({"bullets": {"sise": 20}}, "a mistyped bullets key"),
         ({"bullets": 20}, "a bare value where the bullets mapping belongs"),
+        ({"curve_readings": {"factors": ["period"]}}, "curve readings without days"),
+        ({"curve_readings": {"days": []}}, "an empty day list"),
+        ({"curve_readings": {"days": [7.5]}}, "a fractional day"),
+        ({"curve_readings": {"days": [-1]}}, "a negative day"),
+        ({"curve_readings": {"days": [True]}}, "a flag where a day belongs"),
+        ({"curve_readings": {"days": [7], "quantities": ["km_survivl"]}},
+         "a mistyped quantity"),
+        ({"curve_readings": {"days": [7], "quantities": [{"km_survival": ["L"]}]}},
+         "outcomes on a quantity that has none"),
+        ({"curve_readings": {"days": [7], "factors": [{"unified": ["All"]}]}},
+         "levels on the whole sample"),
+        ({"curve_readings": {"days": [7], "factors": ["period", "period"]}},
+         "a factor listed twice"),
+        ({"curve_readings": {"days": [7], "factors": [{"period": []}]}},
+         "an empty level list for a factor"),
+        ({"curve_readings": {"day": [7]}}, "a mistyped curve_readings key"),
     ]
     for data, label in refusals:
         try:
@@ -479,6 +495,86 @@ def check_settings() -> None:
 
     expect("case and whitespace are forgiven",
            from_mapping({"tables": {"high_low_flag": " color "}}).high_low_flag == "COLOR")
+
+
+def check_curve_readings(case: str, bundle: Bundle) -> None:
+    """Every cell of the readings sheet is its CSV's value at that day.
+
+    The expected values are read with the csv module straight from the files
+    the manifest names, so a mistake in how curve_readings.py picks a file or
+    a column does not reappear in the answer it is checked against.
+    """
+    import csv as _csv
+
+    from mlos_review.curve_readings import UNIFIED_PREFIX, curve_readings_table
+    from mlos_review.settings import CURVE_KINDS, CurveReadings, SettingsError
+
+    vocab = Vocabulary(bundle.data)
+    cap = int(bundle.value("settings", "restricted_stay_cap"))
+    days = (0, 1, cap - 1)
+    table = curve_readings_table(bundle, CurveReadings(days=days), vocab)
+    if table is None:
+        skipped(f"{case}: curve readings", "the run wrote no curve CSVs")
+        return
+    found = {key: list(row) for key, row in zip(table.df.index, table.df.values)}
+
+    def number(text):
+        return float("nan") if text in ("", "NA") else float(text)
+
+    expected = {}
+    for entry in bundle.value("outputs", default=[]):
+        kind, stratifier = entry.get("kind"), entry.get("stratifier")
+        if (kind not in CURVE_KINDS or not entry.get("csv")
+                or entry.get("variant", "lines") != "lines"
+                or not (bundle.root / entry["csv"]).exists()):
+            continue
+        with open(bundle.root / entry["csv"], newline="") as handle:
+            rows = list(_csv.reader(handle))
+        header, grid = rows[0], {row[0]: row for row in rows[1:]}
+        factor = vocab.stratifier(stratifier).label
+        if stratifier == "all":
+            if CURVE_KINDS[kind]:
+                picks = [(o, f"{UNIFIED_PREFIX[kind]}_{o}", "All")
+                         for o in [h.split("_", 1)[1] for h in header
+                                   if h.startswith(UNIFIED_PREFIX[kind] + "_")]]
+            else:
+                picks = [(None, header[1], "All")]
+        else:
+            picks = [(entry.get("outcome"), level, level)
+                     for level in bundle.levels(stratifier)]
+        for outcome, column, level in picks:
+            label = vocab.kind(kind).label
+            if outcome is not None:
+                label = f"{label}, {vocab.outcome_labels.get(outcome, outcome)}"
+            at = header.index(column) if column in header else None
+            expected[(label, factor, level)] = [
+                number(grid[str(day)][at]) if at is not None and str(day) in grid
+                else float("nan") for day in days]
+
+    expect_equal(f"{case}: the readings hold exactly the curves the CSVs hold",
+                 sorted(found), sorted(expected))
+    wrong = [key for key in expected if key in found and not all(
+        (a != a and b != b) or a == b for a, b in zip(found[key], expected[key]))]
+    expect(f"{case}: every reading equals its CSV cell", not wrong,
+           f"{len(wrong)} rows differ, first {wrong[:1]}")
+
+    survival = vocab.kind("km_survival").label
+    starts = [row[0] for key, row in found.items() if key[0] == survival]
+    expect(f"{case}: every survival curve reads 1 at day 0",
+           bool(starts) and all(v == 1 for v in starts))
+
+    first = next(s for s in bundle.stratifiers() if s != "all") \
+        if len(bundle.stratifiers()) > 1 else None
+    refusals = [(CurveReadings(days=(cap,)), "a day past the grid")]
+    if first is not None:
+        refusals.append((CurveReadings(days=(0,), factors=((first, ("NO_SUCH",)),)),
+                         "a level the run does not have"))
+    for spec, label in refusals:
+        try:
+            curve_readings_table(bundle, spec, vocab)
+            expect(f"{case}: curve readings refuse {label}", False, "accepted it")
+        except SettingsError:
+            expect(f"{case}: curve readings refuse {label}", True)
 
 
 def check_bullet_pagination() -> None:
@@ -4752,6 +4848,7 @@ def run_fixture(case: str, directory: Path) -> None:
     run_check(check_cox_regression_frames, case, bundle)
     run_check(check_ratio_panel_sheets, case, bundle)
     run_check(check_workbook_and_manifest, case, bundle, directory)
+    run_check(check_curve_readings, case, bundle)
     run_check(check_vocabulary, case, bundle)
     run_check(check_bundle_access, case, bundle)
     run_check(check_opening, case, bundle)

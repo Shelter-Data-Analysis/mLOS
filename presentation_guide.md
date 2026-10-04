@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20260929_003. Read it in any markdown reader,
+presentation guide, version 20261004_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -249,6 +249,7 @@ inputs, which would be renamed out of the way.
 | `figures.shrink_for_branding` | 0 to 1 | yes; how much of a figure's height may go so its slide can carry the template's artwork |
 | `bullets.size` | 14 to 28 | yes; the point size of bullets and of the standing lines above and below them |
 | `template` | path to a one-slide `.pptx` | yes, on the slides that have room for it |
+| `curve_readings` | `days`, and optionally `quantities` and `factors` | yes; a workbook sheet of the curves read at those days |
 
 A template is branding, not a layout: its slide carries artwork and nothing
 else, and the renderer copies that artwork onto the slides it fits. The band
@@ -384,6 +385,17 @@ about cannot hide what the data says is remarkable. A pinned level this dataset
 lacks is warned about and skipped, not fatal: one settings file gets reused
 across runs, and a filtered dataset explains an absent level as readily as a
 typo does.
+
+`curve_readings` adds a `Curve_Readings` sheet to the workbook: the run's
+per-day CSVs read at the listed days, one column per day already in care and
+one row per curve, by quantity, then factor, then level. Each cell is the CSV's
+own value, and a blank is a curve that ends before that day. `days` is what
+turns it on. `quantities` and `factors` default to everything the run has, and
+when given they also set the row order; the example settings file lists their
+values. Like the rest of the workbook, the sheet ignores the plot selection
+and `emphasis`. Unlike `emphasis`, a level it names that the run lacks refuses
+the build, as does a quantity, outcome, or factor the run lacks, or a day past
+the grid.
 
 ### Checking a deck before it is shown
 
@@ -1859,8 +1871,9 @@ build one.*
 ```
 
 Files that exist today: `names.py`, `bundle.py`, `regression.py`, `blocks.py`,
-`figures.py`, `workbook.py`, `settings.py`, `output.py`, `render_pptx.py`,
-`deck.py`, `variant.py`, `extras.py`, `recommend.py`, `salience.py`.
+`figures.py`, `workbook.py`, `curve_readings.py`, `settings.py`, `output.py`,
+`render_pptx.py`, `deck.py`, `variant.py`, `extras.py`, `recommend.py`,
+`salience.py`, `narrow.py`.
 
 ### Reading the bundle
 

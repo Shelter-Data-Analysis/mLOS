@@ -48,8 +48,40 @@ STRATIFIER_KEYS = {
 }
 
 
+# The curves a curve-readings table can read, by their outputs-manifest kind,
+# in the order the table lists them when the file does not choose. The value
+# says whether the kind is one curve per outcome.
+CURVE_KINDS = {
+    "km_survival": False,
+    "km_remaining_los": False,
+    "km_in_care_tenure": False,
+    "km_census_by_tenure": False,
+    "aj_cif": True,
+    "aj_conditional": True,
+}
+
+# The whole sample, which has no levels to choose among.
+UNIFIED_FACTOR = "unified"
+
+
 class SettingsError(ValueError):
     """A settings file that cannot be honoured as written."""
+
+
+@dataclass(frozen=True)
+class CurveReadings:
+    """Which curves to read at which days, for the workbook's readings sheet.
+
+    `quantities` and `factors` are (name, choice) pairs in the order the table
+    lists them, where `choice` is the tuple of outcomes or levels the file
+    named, or None for all of them. Factor names are bundle stratifier ids. A
+    field left as None means the file did not choose: every quantity, or every
+    factor, the run has.
+    """
+
+    days: tuple[int, ...]
+    quantities: tuple[tuple[str, tuple[str, ...] | None], ...] | None = None
+    factors: tuple[tuple[str, tuple[str, ...] | None], ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -103,6 +135,8 @@ class Settings:
     # template, which is what a deck built before this setting existed used.
     template: Path | None = None
     emphasis: dict[str, Emphasis] = field(default_factory=dict)
+    # The workbook's curve-readings sheet, or None for no such sheet.
+    curve_readings: CurveReadings | None = None
     # What a stratifier the file says nothing about is entitled to. A field
     # rather than a constant because one dataset changes the answer: see
     # `for_dataset`.
@@ -175,6 +209,83 @@ def _parse_emphasis(key: str, value) -> Emphasis:
         f"emphasis.{key}: expected one of {', '.join(EMPHASIS_KEYWORDS)} or a "
         f"list of level names, got {type(value).__name__}."
     )
+
+
+def _parse_choices(name: str, value, known: dict[str, bool]
+                   ) -> tuple[tuple[str, tuple[str, ...] | None], ...]:
+    """A list whose entries are a bare name, or a name mapped to a list.
+
+    `known` maps each accepted name to whether it takes a list: a quantity
+    takes outcomes when it has one curve per outcome, a factor takes levels
+    unless it is the whole sample.
+    """
+    if not isinstance(value, list) or not value:
+        raise SettingsError(f"{name}: expected a non-empty list.")
+    out = []
+    for entry in value:
+        if isinstance(entry, dict) and len(entry) == 1:
+            key, chosen = next(iter(entry.items()))
+            if not isinstance(chosen, list) or not chosen:
+                raise SettingsError(
+                    f"{name}.{key}: expected a non-empty list, got {chosen!r}.")
+            chosen = tuple(str(v) for v in chosen)
+        elif isinstance(entry, str):
+            key, chosen = entry, None
+        else:
+            raise SettingsError(
+                f"{name}: {entry!r} is neither a name nor a name with a list.")
+        if key not in known:
+            raise SettingsError(
+                f"{name}: {key!r} is not one of {', '.join(known)}.")
+        if chosen is not None and not known[key]:
+            raise SettingsError(f"{name}.{key} takes no list.")
+        if key in (k for k, _ in out):
+            raise SettingsError(f"{name}: {key!r} is listed twice.")
+        out.append((key, chosen))
+    return tuple(out)
+
+
+def _parse_curve_readings(section) -> CurveReadings | None:
+    """The `curve_readings` section; None when it is absent.
+
+    `days` is what turns the sheet on, so a section without it is refused
+    rather than ignored. Whether each day falls on the run's grid is checked
+    when the table is built, because the grid's length is the run's setting.
+    """
+    if section is None:
+        return None
+    if not isinstance(section, dict):
+        raise SettingsError(
+            f"curve_readings: expected a mapping of keys to values, got "
+            f"{type(section).__name__}.")
+    unknown = sorted(set(section) - {"days", "quantities", "factors"})
+    if unknown:
+        raise SettingsError(
+            f"Unrecognized curve_readings setting(s): {', '.join(unknown)}.")
+    days = section.get("days")
+    if not isinstance(days, list) or not days:
+        raise SettingsError(
+            "curve_readings.days: expected a non-empty list of days, which is "
+            "what turns the sheet on.")
+    for day in days:
+        if isinstance(day, bool) or not isinstance(day, int) or day < 0:
+            raise SettingsError(
+                f"curve_readings.days: {day!r} is not a whole number of days "
+                f"from 0 up.")
+
+    quantities = section.get("quantities")
+    if quantities is not None:
+        quantities = _parse_choices("curve_readings.quantities", quantities,
+                                    CURVE_KINDS)
+    factors = section.get("factors")
+    if factors is not None:
+        known = {UNIFIED_FACTOR: False} | {key: True for key in STRATIFIER_KEYS}
+        factors = tuple(
+            ("all" if key == UNIFIED_FACTOR else STRATIFIER_KEYS[key], chosen)
+            for key, chosen in _parse_choices("curve_readings.factors",
+                                              factors, known))
+    return CurveReadings(days=tuple(sorted(set(days))),
+                         quantities=quantities, factors=factors)
 
 
 def _require_choice(name: str, value, allowed: tuple[str, ...]) -> str:
@@ -258,7 +369,7 @@ def from_mapping(data: dict) -> Settings:
         raise SettingsError("The settings file must be a mapping of keys to values.")
 
     known = {"output", "tables", "emphasis", "aj_coverage", "figures",
-             "bullets", "template"}
+             "bullets", "template", "curve_readings"}
     unknown = sorted(set(data) - known)
     if unknown:
         raise SettingsError(
@@ -329,6 +440,7 @@ def from_mapping(data: dict) -> Settings:
             BULLET_SIZE_RANGE),
         template=parse_template(data.get("template")),
         emphasis=emphasis,
+        curve_readings=_parse_curve_readings(data.get("curve_readings")),
     )
 
 
