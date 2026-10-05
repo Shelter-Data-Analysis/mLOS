@@ -119,12 +119,15 @@ carries period. Do not write "pooled" as a bare adjective for any of these; it
 names one fit and nothing else. "Pooled across all periods and all animals",
 with the object spelled out, is ordinary English and stays.
 
-**"So far" names the inclusive day count.** §2.7 of the math methods sets two
-clocks a day apart: "days in care so far" is inclusive and reads 1 on the
-intake day, "days already in care" is elapsed and reads 0. Every plot axis,
-every companion CSV grid and every reported tenure is elapsed, so prose about
-them says "days already in care" or "tenure". Keep "so far" for the inclusive
-count, which is what a stay's length would be if it ended today.
+**"So far" names the count that includes today.** §2.7 of the math methods
+counts days one way, as counted days completed, and reads the count at two
+moments a day apart. "Days already in care", the tenure, is read at the start
+of the day and is 0 on the intake day; "days in care so far" is read at the end
+of the day and is 1. Every plot axis, every companion CSV grid and every
+reported tenure is the tenure, so prose about them says "days already in care"
+or "tenure". Keep "so far" for the count that includes today, which is what a
+stay's length would be if it ended today. A remaining time read at a tenure
+includes the current day, so say "counting today" rather than "from tomorrow".
 
 **`predictor` is the regression term.** The paper draft uses `factor` for the
 same three axes, which is equally correct and reads better in prose aimed at
