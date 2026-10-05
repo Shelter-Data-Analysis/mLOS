@@ -520,17 +520,18 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 16 | mLOS 0.2.3 | `10.5281/zenodo.22971450` |
 | 17 | mLOS 0.2.4 | `10.5281/zenodo.22972448` |
 | 18 | mLOS 0.3.0 | `10.5281/zenodo.23047477` |
-| 19 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 20 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 21 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
-| 22 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
-| 23 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
-| 24 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 25 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 26 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
-| 27 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
-| 28 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
-| 29 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
+| 19 | mLOS 0.4.0 | `10.5281/zenodo.23170150` |
+| 20 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 21 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 22 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
+| 23 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
+| 24 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
+| 25 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 26 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 27 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 28 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
+| 29 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
+| 30 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
 
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
