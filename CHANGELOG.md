@@ -17,6 +17,13 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
+## Unreleased
+
+Documentation only; output is byte-identical to 0.4.0.
+
+- `PUBLISHING.md`'s identifier table gains mLOS 0.4.0,
+  `10.5281/zenodo.23170150`.
+
 ## 0.4.0 (2026-10-05)
 
 The DOIs the 0.3.0 release minted, and regression settings added since.
