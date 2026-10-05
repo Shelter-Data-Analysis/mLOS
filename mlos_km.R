@@ -76,11 +76,11 @@ km_unified_period <- function(period_data, references) {
   # the rows that reached the cap; the pair is observed beside fitted, exactly
   # as mean_census_inventory sits beside expected_census.
   #
-  # Read at elapsed day `cap`, NOT at cap - 1 where the reported day grids stop.
-  # Both reasons point the same way. On the merits, the elapsed clock and the
-  # inclusive LOS clock differ by one (math methods 2.7), so S(cap) = P(LOS > cap),
-  # which is exactly the event fraction_capped counts by tallying rows;
-  # S(cap - 1) is P(LOS > cap - 1) and sits above it.
+  # Read at tenure `cap`, NOT at cap - 1 where the reported day grids stop.
+  # Both reasons point the same way. On the merits, S(cap) = P(LOS > cap), the
+  # probability a stay is still present once it has completed cap counted days
+  # (math methods 2.7), which is exactly the event fraction_capped counts by
+  # tallying rows; S(cap - 1) is P(LOS > cap - 1) and sits above it.
   # On the arithmetic, the Aalen-Johansen grid runs 0..cap while the KM day grid
   # runs 0..cap - 1, so `cap` is the only point at which the two routes are
   # comparable at all.

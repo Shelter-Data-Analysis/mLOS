@@ -98,7 +98,8 @@ compute_aj_cif_results <- function(period_data,
   cif_df$cif_Any <- rowSums(cif_df[, cif_cols, drop = FALSE], na.rm = TRUE)
 
   # Conditional remaining outcome distribution up to cap/max_time:
-  # P(outcome = k occurs after day x and by day tau | still at risk at day x)
+  # P(outcome = k occurs at tenure x or later and by day tau | present at tenure x),
+  # the same conditioning as Remaining LOS (math methods 5.8 and 7.4)
   # Uses denominator 1 - cif_Any(x), so sums can stay below 1 if some remain undetermined at tau.
   # The epsilon treats a denominator that is zero up to floating-point error
   # as zero: an in-care probability below 1e-9 cannot arise from data (that
@@ -399,7 +400,7 @@ plot_aj_conditional_unified_stack <- function(aj_results, references, save_file 
     y = as.matrix(df[keep, cond_cols, drop = FALSE]),
     states = sub("^condrem_", "", cond_cols),
     references = references,
-    main = "Outcome Type Stack After Day x",
+    main = "Outcome Type Stack From Day x",
     ylab = "Conditional Probability by Outcome Type",
     save_file = save_file
   )
@@ -1100,7 +1101,7 @@ plot_aj_conditional_by_stratum_lines <- function(aj_stratum_results, references 
     value_col = "conditional_probability",
     ylab = "Conditional Probability",
     main_prefix = "P(",
-    main_suffix = paste0(" after day x | in care on day x) by ",
+    main_suffix = paste0(" from day x on | in care on day x) by ",
                          aj_stratum_results$stratifier$label),
     outcome_formatter = .outcome_label,
     emit_png = isTRUE(flag[["png"]]),
