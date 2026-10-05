@@ -895,7 +895,7 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
        x_note = .X_NOTE_COND,
        columns = "one per outcome",
        value_units = "probability",
-       value_meaning = "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end",
+       value_meaning = "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end",
        aggregate = NULL,
        description = "Conditional outcome mix by day, all outcomes on one grid."),
   # The two stack plots are PNG-only by design: each draws the same numbers as
@@ -920,7 +920,7 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
        x_note = .X_NOTE_COND,
        columns = "one band per outcome",
        value_units = "probability",
-       value_meaning = "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end",
+       value_meaning = "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end",
        aggregate = NULL,
        description = "Conditional outcome mix as a stack. Same data as aj_conditional_unified.csv."),
   # PNG-only for a different reason from the two stack families above: this one
@@ -961,7 +961,7 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
        x_note = .X_NOTE_COND,
        columns = "one per stratum",
        value_units = "probability",
-       value_meaning = "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end",
+       value_meaning = "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end",
        aggregate = NULL,
        description = "Conditional probability of one outcome by day, per stratum.")
 )
