@@ -1422,7 +1422,7 @@
       "values": {
         "columns": "a single All column, the whole dataset pooled",
         "units": "proportion",
-        "meaning": "share of the in-care population with tenure of at least d days"
+        "meaning": "share of the in-care population with tenure of more than d days"
       },
       "aggregate": {
         "row": "per_resident_past_days",
@@ -1447,7 +1447,7 @@
       "values": {
         "columns": "one per stratum",
         "units": "proportion",
-        "meaning": "share of the in-care population with tenure of at least d days"
+        "meaning": "share of the in-care population with tenure of more than d days"
       },
       "aggregate": {
         "row": "per_resident_past_days",
@@ -1472,7 +1472,7 @@
       "values": {
         "columns": "one per stratum",
         "units": "proportion",
-        "meaning": "share of the in-care population with tenure of at least d days"
+        "meaning": "share of the in-care population with tenure of more than d days"
       },
       "aggregate": {
         "row": "per_resident_past_days",
@@ -1522,7 +1522,7 @@
       "values": {
         "columns": "one per outcome",
         "units": "probability",
-        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+        "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },
       "aggregate": null
     },
@@ -1562,7 +1562,7 @@
       "values": {
         "columns": "one band per outcome",
         "units": "probability",
-        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+        "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },
       "aggregate": null
     },
@@ -1732,7 +1732,7 @@
       "values": {
         "columns": "one per stratum",
         "units": "probability",
-        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+        "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },
       "aggregate": null
     },
@@ -1752,7 +1752,7 @@
       "values": {
         "columns": "one per stratum",
         "units": "probability",
-        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+        "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },
       "aggregate": null
     },
@@ -1772,7 +1772,7 @@
       "values": {
         "columns": "one per stratum",
         "units": "probability",
-        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+        "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },
       "aggregate": null
     },
@@ -1792,7 +1792,7 @@
       "values": {
         "columns": "one per stratum",
         "units": "probability",
-        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+        "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },
       "aggregate": null
     },
@@ -1812,7 +1812,7 @@
       "values": {
         "columns": "one per stratum",
         "units": "probability",
-        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+        "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },
       "aggregate": null
     },
@@ -1832,7 +1832,7 @@
       "values": {
         "columns": "one per stratum",
         "units": "probability",
-        "meaning": "probability that a stay still in care at the end of day d ends with this outcome by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
+        "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },
       "aggregate": null
     }
