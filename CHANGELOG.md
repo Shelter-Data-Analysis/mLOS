@@ -110,6 +110,12 @@ only in two manifest descriptions (see the last two entries).
   proportional hazards outside a run; `digest` is optional. "Pooled" is kept
   for the fully adjusted regression, with unified, crude, marginal and
   all-cause for the other senses it had taken on.
+- The guides say what a walk through the kennels sees of the in-care tenure
+  curve: the overnight census, whose profile is the curve divided by its
+  starting value, the same for a morning walk labeled by tenure and an evening
+  walk labeled by days in care so far. Under a constant hazard it matches the
+  KM curve exactly, and math methods 5.7 says the curve's one-day offset is
+  the strict "exceeds X" in its definition.
 
 ## 0.3.0 (2026-09-29)
 
