@@ -21,9 +21,10 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 The DOIs the 0.3.0 release minted, and regression settings added since.
 **Numbers move only where a regression reference had no outcomes**, a case
-whose ratios were undefined before (see below). Otherwise every CSV and every
-plot is byte-identical to 0.3.0 for a settings file that sets none of the new
-options.
+whose ratios were undefined before (see below). Otherwise every CSV is
+byte-identical to 0.3.0 for a settings file that sets none of the new options,
+and so is every plot but the conditional-outcome titles; `results.json` differs
+only in two manifest descriptions (see the last two entries).
 
 - A regression reference must have an outcome. `period_reference` resolves
   `OLDEST`/`NEWEST` among the periods with an outcome in the regressions, and a
@@ -91,6 +92,24 @@ options.
   refuses the variant build instead of warning and leaving the slide out, so
   a rehearsal is not where the gap is found. `--no-check` builds anyway and
   puts a `TO WRITE` stub in its place.
+- The `results.json` manifest described the conditional-outcome columns as
+  for a stay "still in care at the end of day d". The column divides by
+  S(d) = P(LOS > d), so it is for a stay present at tenure d, a departure that
+  day included, and it now says so. The in-care tenure column is described as
+  the share with tenure of more than d days, which is what it holds, rather
+  than at least d. The conditional-outcome plot titles read "from day x on"
+  rather than "after day x". No value changes; the goldens carry the new text.
+- The guides state day-indexed quantities at the start of the day. The tenure,
+  "days already in care", counts the days completed before the day began, and
+  Remaining LOS and the conditional outcome count that day. The guides had
+  read both at the end of the day, one day off from what the code computes.
+  `documentation_rules.md`'s "so far" rule follows.
+- Corrected in the guides: a filtered-away Cox reference stops the run; censor
+  departures with `outcome_type_censored`; only `PNG` and `CSV` are
+  case-sensitive among the stratified-output flags; `tools/cox_zph.R` tests
+  proportional hazards outside a run; `digest` is optional. "Pooled" is kept
+  for the fully adjusted regression, with unified, crude, marginal and
+  all-cause for the other senses it had taken on.
 
 ## 0.3.0 (2026-09-29)
 
