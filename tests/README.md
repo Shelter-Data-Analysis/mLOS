@@ -488,6 +488,17 @@ Current simulation cases:
   carries a third qualifying predictor, which is what makes a shape
   variant's crossed and additive formulas differ at all; the two
   variants with no true interaction serve as the null calibration.
+- **`sim_holding_period`** — a 5-day hold (no outcome during a stay's
+  first 5 counted days), then a constant 10% daily outcome probability,
+  with two identical periods at steady state. Every tenure-based output
+  has two regimes in closed form: remaining LOS 15 − x through the hold
+  and 10 after it, in-care tenure (14 − x)/15 then (2/3)·0.9^(x−4), mean
+  tenure 10, days owed per resident 11, census 150. Its `expected_tenure`
+  object pins the in-care tenure profile, its quantiles and mean, the
+  remaining-LOS curve and its readings at those tenures, and the KM curve
+  they are built from, for the whole sample and each period. The suite's
+  identities (column sums, Remaining LOS(0) = RMST) hold for any curve;
+  this checks that the curves are the right ones.
 
 House conventions, learned the hard way and documented in the existing
 fixtures: derive values by hand first, then verify against the code before

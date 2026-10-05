@@ -12,8 +12,9 @@
 # expected.R defines -- there is no separate "which parts to test" flag.
 # Defining expected_km runs and checks the unified KM analysis; adding
 # expected_stratified_km, expected_census, expected_cox, expected_aj,
-# expected_aj_period, expected_period_stats, expected_preparation, and/or
-# expected_stratum_stats turns on the corresponding checks too. A case can define any subset. See the
+# expected_aj_period, expected_period_stats, expected_preparation,
+# expected_stratum_stats, and/or expected_tenure turns on the corresponding
+# checks too. A case can define any subset. See the
 # flatten_*() functions below for the exact field names each analysis
 # exposes for comparison.
 #
@@ -497,6 +498,50 @@ flatten_census <- function(stratified_results, references) {
       flat[[paste0(key_prefix, ".predicted_census")]] <- sum(census[[stratum]], na.rm = TRUE)
       for (i in seq_len(nrow(census))) {
         flat[[paste0(key_prefix, ".day", census$days[i])]] <- census[[stratum]][i]
+      }
+    }
+  }
+  flat
+}
+
+# In-care tenure, remaining LOS, and the KM curve both are built from, read
+# off the production functions the results use: stratum_km_summary for the
+# KM and resident-view rows, stratum_census_aggregates for the per-resident
+# ratios (at an intake rate of 1, which cancels in every ratio read here), and
+# the companion-grid builders for the day grids. The groups are the whole
+# sample ("All") and each period. Entries are named "<group>.<row>" for the
+# summary rows and "<group>.<curve>_day<d>" for grid cells, where <curve> is
+# km, in_care, or remaining, e.g. "All.in_care_day5", "Period_2.remaining_day0".
+flatten_tenure <- function(period_data, references) {
+  tau  <- references$restricted_stay_cap
+  days <- 0:(tau - 1)
+  period_data$tenure_group_all <- "All"
+  groups <- list(
+    list(col = "tenure_group_all", labels = "All"),
+    list(col = "period_label", labels = as.character(references$periods$period_label)))
+  flat <- list()
+  for (group in groups) {
+    n_col <- length(group$labels)
+    km  <- stratum_km_summary(period_data, group$col, group$labels, tau)
+    cen <- stratum_census_aggregates(km, mean_daily_intakes = rep(1, n_col),
+                                     mean_census_inventory = rep(NA_real_, n_col),
+                                     daily_in_care_days = rep(NA_real_, n_col),
+                                     labels = group$labels)
+    for (label in group$labels) {
+      for (row in c("km_median_los", "km_p90_los", "km_restricted_mean"))
+        flat[[paste0(label, ".", row)]] <- km[row, label]
+      for (row in c("per_resident_past_days", "per_resident_future_days", RESIDENT_VIEW_ROWS))
+        flat[[paste0(label, ".", row)]] <- cen[row, label]
+      rows <- period_data[as.character(period_data[[group$col]]) == label, , drop = FALSE]
+      if (nrow(rows) == 0) next
+      fit <- survival::survfit(.make_surv_obj(rows) ~ 1, data = rows)
+      km_grid   <- .extract_km_survival(fit, days)
+      in_care   <- .compute_in_care_tenure(fit, tau)[[2L]]
+      remaining <- .compute_remaining_los(fit, tau)[[2L]]
+      for (d in days) {
+        flat[[paste0(label, ".km_day", d)]]        <- km_grid[d + 1L]
+        flat[[paste0(label, ".in_care_day", d)]]   <- in_care[d + 1L]
+        flat[[paste0(label, ".remaining_day", d)]] <- remaining[d + 1L]
       }
     }
   }
@@ -2056,6 +2101,15 @@ run_fixture_case <- function(case_dir) {
                      rlos[[series_name]][rlos$days == 0], rmst_map[[series_name]])
       }
     }
+  }
+
+  # In-care tenure, remaining LOS, and the KM curve they come from, for the whole
+  # sample and each period, against a generating truth (sim_holding_period).
+  # The identities checked above hold for any curve, so they cannot catch a
+  # quantity that is computed consistently but is the wrong quantity; this can.
+  if (!is.null(expected_env$expected_tenure)) {
+    check_fields(paste0(case_name, ": tenure"), flatten_tenure(period_data, references),
+                 expected_env$expected_tenure, tol = case_tol)
   }
 
   if (need_aj) {
