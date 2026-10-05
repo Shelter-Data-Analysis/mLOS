@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20261004_002. Read it in any markdown reader,
+presentation guide, version 20261004_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -14,9 +14,8 @@ mLOS project, whose code is released under the MIT License.*
 How the `mlos_review/` package turns a finished analysis into audience-facing
 documents, and how to extend it.
 
-This is a tentative document for a package that is part built. The design is
-settled; roughly half of it exists. Sections describing code that does not
-exist yet say so explicitly.
+The package is work in progress with no fixed final extent, and so is this
+document. Sections describing code that does not exist say so explicitly.
 
 The package is experimental and may remain experimental. Read [What a deck is
 worth](#what-a-deck-is-worth) before showing anyone one.
@@ -95,7 +94,7 @@ not fit a model. The statistics are computed once by the analysis, cross-checked
 the test suite, and written out; the builder does only simple arithmetic on
 them, as the [invariants](#invariants) say.
 
-The intended outputs, in the order they are being built:
+The outputs, and where each stands:
 
 | Output | Status |
 |---|---|
@@ -107,7 +106,7 @@ The intended outputs, in the order they are being built:
 All of them read the same content blocks. That is the reason for the
 architecture: a table built once can be drawn on a slide, written into a
 report, or written into a worksheet, and only the last step differs. The
-workbook is the first proof of it, containing the same blocks the deck uses
+workbook shows it working, containing the same blocks the deck uses
 with a different last step and needing no additional information.
 
 Throughout this document, **workbook** means the one generated here, not
@@ -183,11 +182,8 @@ settle them.
 *For whoever runs the builder. What a build writes, what the settings
 change, and what to check before a deck reaches anybody.*
 
-**This is not yet ready for routine use.** A handful of slide types exist, the
-settings file covers output, flag style, emphasis, competing-risk coverage,
-branding, type size, and curve readings,
-and the sequence they appear in is hardcoded rather than planned. What follows
-is enough to look at what it produces.
+**This is not yet ready for routine use.** The slide sequence is hardcoded
+rather than planned. What follows is enough to look at what it produces.
 
 ### Running it, and what it writes
 
@@ -409,7 +405,7 @@ worth](#what-a-deck-is-worth) says why. Four checks, in order:
    before the deck is shown rather than after.
 2. **Read the speaker notes.** Every data-conditional caveat is there and
    nowhere else: the observation-gap scan, whether the stay cap is shaping the
-   tenure figures, whether the three marks rank the levels alike, and each
+   tenure figures, whether the three measures rank the levels alike, and each
    stratifier's salience number against the threshold.
 3. **Look for what is missing.** A deck is a selection, and a selection leaves
    no trace of what it dropped. `mlos_deck_tables.xlsx` holds the rows the
@@ -532,7 +528,7 @@ single row of numbers, being the baseline every later slide splits. Which
 levels the table carries is under [Which levels a table
 shows](#which-levels-a-table-shows).
 
-**Where the three marks rank two levels differently**, one ahead on the median
+**Where the three measures rank two levels differently**, one ahead on the median
 and behind on the P90, say, the speaker notes name the pairs and work one of
 them through with its numbers. It is the caution against saying "this group
 stays longer" without specifying the metric. A level with the higher median
@@ -557,7 +553,7 @@ what multiplies the one beside it. The census figure also starts at the daily
 intake rate and encloses the expected census, neither of which a probability
 axis can show.
 
-**The stratified version carries no marks**, and its notes say so: each level
+**The stratified version carries no quantile marks**, and its notes say so: each level
 has its own three tenure statistics, and a full set per curve would be
 unreadable on one panel. The numbers are read off the table instead, a row per
 level listing that level's median, mean, and P90 tenure with what its own
@@ -595,7 +591,8 @@ stays are related at steady state; longer-staying categories dominate the
 animal-days shelter residents are committed to.
 
 **The animal-days tables footnote the level holding most of the days owed**,
-since there is no room for a share column: "LARGE holds 93% of the days owed".
+since there is no room for a share column: "LARGE holds 93% of the days owed"
+(**OC2**).
 A period table says instead that each period's figure is its own commitment,
 since periods do not coexist to share a population.
 
@@ -642,7 +639,7 @@ animal-days elapsed is the census, which is the same fact multiplied out.
 **The first slide's own reading is between the levels**, not between the
 columns. A level's share of the residents over its share of the arrivals is
 its mean stay over the shelter's, so a level that is 38% of the arrivals and
-70% of the residents has stays about twice the shelter's average. That is
+70% of the residents, as LARGE is on **OC2**, has stays about twice the shelter's average. That is
 heterogeneity *between* levels. The whole-sample slide sees this from the other
 side: two groups each perfectly memoryless but at different rates pool into a
 heavy-tailed distribution, because early on the fast group is leaving and what
@@ -798,8 +795,7 @@ recommendation the run's own numbers triggered, each naming the setting to
 change or the data to fix. They are separate because they are different speech
 acts, and an audience reading a single list cannot tell a finding from a
 suggestion without a tag on every line. Most recommendation rules stay silent
-on a healthy dataset, which is the point: on the twenty-nine test fixtures,
-ten produce none at all. What each rule looks for is under
+on a healthy dataset, which is the point. What each rule looks for is under
 [Findings](#findings) and [Recommendations](#recommendations).
 
 ### Educational
@@ -1160,8 +1156,8 @@ Little's-law figure the fitted curve implies, not `mean_census_inventory`.
 With both in place the table is a single consistent view: everything on it
 comes off the KM curve except the daily intakes, which are a count over the
 observation window, and that is what the speaker note is able to say without
-exceptions. Expected elapsed animal-days was dropped from this table; it is a
-total-tenure quantity and belongs on a slide built around that.
+exceptions. Expected elapsed animal-days is left out: it is a total-tenure
+quantity and belongs on a slide built around that.
 
 The measures come from four different bundle matrices, so the block declares
 which matrix each is drawn from and joins them. Flags are suppressed when there
@@ -1247,8 +1243,7 @@ superlatives collide, because a group that fills the kennels is usually also
 the one that stays longest. The highlights table is bait to send the reader to
 the full table, not a complete picture. Fewer rows are not backfilled.
 
-**Which superlative won a row is deliberately not shown.** It was proposed and
-rejected as clutter.
+**Which superlative won a row is not shown**, as clutter.
 
 **Rows appear in the stratifier's canonical level order**, never in the order
 the selectors fired. The reader is comparing rows against each other and
@@ -1332,9 +1327,9 @@ judge across every level rather than the rows the highlights table chose, and
 name the worst offender first.
 
 `order_shift_notes` follows the pattern exactly. It
-compares every pair of levels on the three marks one figure carries, the
+compares every pair of levels on the three measures one figure marks, the
 median, the mean, and the P90, and speaks only about the pairs whose ranks
-vary by mark, suggesting a change in shape. A note per figure, if any are
+vary by measure, suggesting a change in shape. A note per figure, if any are
 found.
 
 **A difference under a day is no difference.** `ORDER_SHIFT_TOLERANCE` is 1.0
@@ -1345,21 +1340,15 @@ already a tie. The restricted mean is an integral over that grid and is not a
 whole number, so the same threshold treats a fraction of a day as no
 difference.
 
-**A mark one level has no value for is dropped from that pair**, not the pair
+**A measure one level has no value for is dropped from that pair**, not the pair
 from the comparison. An unreached P90 is common and leaves the median and the
 mean perfectly comparable; what it cannot do is produce a shift on its own,
-since a shift needs two marks pointing opposite ways.
+since a shift needs two measures pointing opposite ways.
 
 **The leading pair is the deepest reversal, measured by its smaller side.** A
-pair three days ahead on one mark and forty behind on another is treated as
+pair three days ahead on one measure and forty behind on another is treated as
 crossing by three. The leading pair is the one the note spells out with
 numbers, so it should be the one where the crossing is starkest.
-
-The observation-gap notes are the deliberate exception to the silence rule. A
-cap caveat qualifies a number the audience can still read; a gap means there
-is no number to read past that day, so the scan reports either way and a
-presenter never has to wonder whether it ran. It only stays silent for a scan
-that did not happen: see [Observation gaps](#observation-gaps).
 
 ### When the deck says nothing
 
@@ -1422,7 +1411,7 @@ Which slide contributes what, in the order they reach the closing section:
 | Title | a curve the deck plots is not estimable, where an observation gap starts inside the plot cap |
 | Whole-sample LOS | the arrival and resident medians read against each other, then which stratifier separates stays furthest |
 | Whole-sample outlook | how long the middle resident has been here and how much longer it expects |
-| LOS by stratifier | the longest average stay and the largest census share, then whether the three marks rank the levels alike |
+| LOS by stratifier | the longest average stay and the largest census share, then whether the three measures rank the levels alike |
 | Outlook by stratifier | which levels' residents are furthest from leaving and which nearest |
 | Workload | the shelter's committed animal-days, and the level carrying them where one does |
 | Hazard ratios by stratifier | whether the Weibull column tracks the Cox one, and whether the hazard ratios survive a freer baseline |
@@ -1477,6 +1466,53 @@ shelter, that reads as nonsense. The
 animal-years clause goes the same way on its own account: it exists to make a
 large number graspable and is dropped rather than printing "some 0
 animal-years".
+
+**Ties are named, not broken.** `extreme_levels` returns every level holding a
+column's extreme, so a sentence reads "LRG and XL have the longest average
+stay", with the verb agreeing.
+
+Past `MAX_TIED_LEVELS`, which is two, the extreme is not named at all. Two
+levels read as a result; five lead to silence. The two ends abstain
+**independently**, so a column with a clear fastest level and a four-way tie
+for slowest reports the fastest and stops.
+
+> **`selected_levels` may break ties arbitrarily**, because it only decides
+> which rows fit: the loser keeps its row in the workbook. The selectors abstain
+> instead, since naming one of two tied levels in a sentence would be false.
+
+The competing-risks slides draw conclusions about **time**, one clause per
+outcome gathered into a single bullet: "Time to outcome by animal group: for
+community live outcomes, LARGE is slowest (20.7 days) and PUPPY fastest (5.7).
+For other live outcomes, LARGE is slowest (65.7 days) and PUPPY fastest (4.8).
+..." (**OC2**.) One bullet rather than three because the closing slide takes a
+bullet per contribution and three about one stratifier would be too many. The
+levels it names are the same ones the table flags H and L on those columns,
+judged across every level and not only the rows the highlights table showed.
+
+Ahead of it comes the **sweep**: "By animal group, PUPPY is
+the fastest in every outcome type." It leads because it is the finding no
+single panel shows. The section puts one outcome in front of the audience at a
+time, on purpose, and a reader stepping through those panels cannot see that
+one level consistently sits at the same end. Either clause can appear
+without the other. On **OC1** the
+animal group extremes split across LRG, XL, TOY, PUPPY, and
+`_UNKNOWN_`, while on **OC2** the fastest clause fires alone.
+
+**The test for it is the strict one**: every outcome must have a *sole* holder
+of the extreme, and it must be the same level throughout. This differs from
+the per-outcome sentences which name every level that shares an extreme and
+print the number beside them. The sweep has no numbers anywhere in it, and is
+entirely blocked by an outcome tie (separately at each end). A stratifier with
+one outcome gets no sweep.
+
+> **A share of residents is only meaningful when the levels partition the
+> population at a moment in time.** Animal group and intake type do: every
+> resident has exactly one size and one intake type. **Periods do not.** They
+> partition the calendar, so their mean censuses are averages over disjoint
+> stretches. On **OC2** they sum to 571 against a true census of 191, and a
+> "share of residents by period" is not meaningful. Rather than hardcode which
+> stratifiers are safe, the block checks whether the level censuses actually
+> add up to the unified census, and stays silent when they do not.
 
 ### Recommendations
 
@@ -1606,55 +1642,8 @@ Since the bundle publishes levels but not model-term column names, the level is
 recovered from a term like `animal_groupLARGE` as a suffix. A term two levels
 could both claim is refused rather than assigned to the first match.
 
-**Ties are named, not broken.** `extreme_levels` returns every level holding a
-column's extreme, so a sentence reads "LRG and XL have the longest average
-stay", with the verb agreeing.
-
-Past `MAX_TIED_LEVELS`, which is two, the extreme is not named at all. Two
-levels read as a result; five lead to silence. The two ends abstain
-**independently**, so a column with a clear fastest level and a four-way tie
-for slowest reports the fastest and stops.
-
-> **`selected_levels` may break ties arbitrarily**, because it only decides
-> which rows fit: the loser keeps its row in the workbook. The selectors abstain
-> instead, since naming one of two tied levels in a sentence would be false.
-
-The competing-risks slides draw conclusions about **time**, one clause per
-outcome gathered into a single bullet: "Time to outcome by animal group: for
-community live outcomes, LARGE is slowest (20.7 days) and PUPPY fastest (5.7).
-For other live outcomes, LARGE is slowest (65.7 days) and PUPPY fastest (4.8).
-..." (**OC2**.) One bullet rather than three because the closing slide takes a
-bullet per contribution and three about one stratifier would be too many. The
-levels it names are the same ones the table flags H and L on those columns,
-judged across every level and not only the rows the highlights table showed.
-
-Ahead of it comes the **sweep**: "By animal group, PUPPY is
-the fastest in every outcome type." It leads because it is the finding no
-single panel shows. The section puts one outcome in front of the audience at a
-time, on purpose, and a reader stepping through those panels cannot see that
-one level consistently sits at the same end. Either clause can appear
-without the other. On **OC1** the
-animal group extremes split across LRG, XL, TOY, PUPPY, and
-`_UNKNOWN_`, while on **OC2** the fastest clause fires alone.
-
-**The test for it is the strict one**: every outcome must have a *sole* holder
-of the extreme, and it must be the same level throughout. This differs from
-the per-outcome sentences which name every level that shares an extreme and
-print the number beside them. The sweep has no numbers anywhere in it, and is
-entirely blocked by an outcome tie (separately at each end). A stratifier with
-one outcome gets no sweep.
-
-> **A share of residents is only meaningful when the levels partition the
-> population at a moment in time.** Animal group and intake type do: every
-> resident has exactly one size and one intake type. **Periods do not.** They
-> partition the calendar, so their mean censuses are averages over disjoint
-> stretches. On **OC2** they sum to 571 against a true census of 191, and a
-> "share of residents by period" is not meaningful. Rather than hardcode which
-> stratifiers are safe, the block checks whether the level censuses actually
-> add up to the unified census, and stays silent when they do not.
-
-The recommendations are plain strings today. They will want structure once the
-planner has to rank or drop them.
+The recommendations are plain strings. They will want structure if a planner
+has to rank or drop them.
 
 ### Salience
 
@@ -1700,7 +1689,8 @@ DerSimonian and Laird's, the standard way meta-analysis separates real
 heterogeneity between studies from the imprecision of each study.
 
 It is a size-aware effect estimate: no p-value and no
-distributional claim. At sixteen thousand stays a test rejects everything, and
+distributional claim. At sixteen thousand stays, the size of OC1 and OC2, a
+test rejects everything, and
 the question a deck asks is whether levels differ enough to be worth a slide.
 
 The `(1 - w_i / W)` factor corrects for each level helping to set the mean it
@@ -1787,8 +1777,8 @@ levels of a stratifier, ask whether the levels partition the thing being
 measured. Periods partition the calendar; they do not partition the standing
 population, and they do not share a denominator with each other.
 
-The Cox test is a gate, not a ranker. At sixteen thousand stays everything is
-significant, so p-values cannot order slides.
+The Cox test is a gate, not a ranker. At the sixteen thousand stays of OC1 and
+OC2 everything is significant, so p-values cannot order slides.
 
 **Salience is computed here, never in R.** It is a presentation heuristic, not
 a finding; in `results.json` it would sit beside estimates that survived a test
@@ -1814,7 +1804,7 @@ as the tool meets more shelters.
 | `MAX_LISTED_LEVELS` | 10 levels | how many levels the summary slide enumerates, where the run's own `max_plot_strata` is absent |
 | `WORKLOAD_MAX_ROWS` | 10 levels | how many rows a workload table keeps, largest by its counted column |
 | `MAX_TIED_LEVELS` | 2 levels | how many levels may share an extreme before a finding names none of them |
-| `ORDER_SHIFT_TOLERANCE` | 1 day | the difference below which two levels tie on a mark, so no order shift is read |
+| `ORDER_SHIFT_TOLERANCE` | 1 day | the difference below which two levels tie on a measure, so no order shift is read |
 | `CAP_SENSITIVITY_THRESHOLD` | 0.5% still in care at the cap | when a slide starts saying the cap shapes its tenure figures |
 | `CAP_RECOMMENDATION_THRESHOLD` | 5% still in care at the cap | when changing `restricted_stay_cap` is worth recommending |
 | `OUTCOME_SPREAD_MULTIPLE` | 2.0x | how far apart two outcome timings have to be before the gap is a finding |
@@ -2089,10 +2079,9 @@ outcome-code segments, which are user configuration and uppercase-initial.
 
 A block is a pure function of the bundle that selects and arranges values. If a
 block finds itself deriving a statistic, that is a signal the value belongs in
-the R bundle instead. That is how the resident-tenure quantiles got there: the
-median resident tenure was initially reachable only by reading the
-`km_in_care_tenure` CSV grid and finding where the profile crosses 0.5, so it
-was added to the bundle rather than recomputed here.
+the R bundle instead. The resident-tenure quantiles are the case: finding the
+median resident tenure here would mean searching the `km_in_care_tenure` CSV
+grid for where the profile crosses 0.5, so the bundle carries it.
 
 #### `Table`
 
@@ -2124,7 +2113,7 @@ own. The footnote is there for the reader who needs it.
 
 ### Slide rules
 
-**Designed, provisionally implemented.** `deck.py` contains a handful of
+**Designed, provisionally implemented.** `deck.py` contains
 hardcoded rules called in a fixed order, standing in for the registry:
 `title_slide`, `summary_slide`, `los_overall`, `resident_outlook`,
 `los_by_stratifier`, `resident_outlook_by_stratifier`, `workload_slide`,
@@ -2301,8 +2290,7 @@ of the page rather than one of its components; the title slide's provenance
 line is the case. It is set like a table footnote.
 
 Figures are never stretched: each is drawn at its own aspect ratio, read from
-the PNG header, since the ratio is R's decision and R has
-changed it once already.
+the PNG header, since the ratio is R's decision.
 
 A table is sized to its content and **centered when it does not need the full
 width**. Each column is sized to **its own** longest cell, capped at
@@ -2563,8 +2551,7 @@ against its original.
 ## Design decisions and why
 
 **Markdown is not the intermediate.** Generating markdown and running pandoc
-to produce both slides and reports was the first proposal, and it was rejected
-for two reasons. It cannot reach the spreadsheet: once a table is a pipe table
+to produce both slides and reports fails on two counts. It cannot reach the spreadsheet: once a table is a pipe table
 its numbers are strings, so the xlsx path would have to bypass markdown and
 re-derive from JSON. And pandoc's pptx writer cannot lay out the slide that
 matters most here, two figures side by side above a table, because the fenced
@@ -2580,8 +2567,7 @@ layout limits, and since the slide count is computed rather than authored,
 using it would mean generating `.qmd` from Python anyway: it would buy the
 rendering and not the logic.
 
-**The Block IR is the intermediate**, which is what the original three-part
-proposal already described. Tables and bullet lists with titles and footnotes
+**The Block IR is the intermediate.** Tables and bullet lists with titles and footnotes
 attached *are* a document model. Keeping them and putting thin renderers behind
 them makes the renderer choice swappable rather than foundational.
 
@@ -2589,10 +2575,10 @@ them makes the renderer choice swappable rather than foundational.
 
 ## Known gaps
 
-Ordered roughly by how much they block the next step.
+Roughly in order of how much each limits a deck.
 
-- **No planner, no profiles, no budget.** Parts 2 and 3 of the design. Salience
-  now exists (`salience.py`) and decides one thing, whether a stratifier earns
+- **No planner, no profiles, no budget.** The [deck plan](#the-deck-plan) is
+  designed and not built. Salience (`salience.py`) decides one thing, whether a stratifier earns
   its resident-outlook slide, but nothing ranks stratifiers against each other
   or trades slides off against a budget, and there is still no notion of detail
   level. The threshold is calibrated against one shelter; see

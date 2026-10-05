@@ -37,10 +37,10 @@ tables:
   # faster on a screen. Either way the marks are judged against every level,
   # including levels a short table does not show.
   #
-  # The marks were H, L and F until the competing-risk tables started heading
-  # their columns with outcome codes: on this data those are L, T and N, so an
-  # "L" beside a number meant lowest while the "L" above it meant community
-  # live. Arrows cannot collide with a code, whatever the codes turn out to be.
+  # Arrows rather than letters, because outcome codes head the competing-risk
+  # columns: on this data they are L, T and N, so an "L" beside a number would
+  # read as lowest under an "L" meaning community live. Arrows cannot collide
+  # with a code, whatever the codes turn out to be.
   high_low_flag: MARK
 
 

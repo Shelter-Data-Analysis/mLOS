@@ -5374,7 +5374,7 @@ def check_fixture_inventory() -> None:
     guide = " ".join((REPO_ROOT / "presentation_guide.md").read_text().split())
     claims = SILENCE_CLAIM.findall(guide)
     expect_equal("the guide states the silence count where it is documented",
-                 len(claims), 2)
+                 len(claims), 1)
     for total, none in claims:
         expect_equal("the guide counts the fixtures", _spelled(total), len(goldens))
         expect_equal("the guide counts the silent fixtures", _spelled(none), silent)
