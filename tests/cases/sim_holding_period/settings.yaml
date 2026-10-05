@@ -1,0 +1,59 @@
+# Test fixture: sim_holding_period (statistical / simulation case)
+# -----------------------------------------------------------------------
+# A HOLDING PERIOD followed by a memoryless stay: no animal leaves during
+# its first 5 counted days (a stray hold), and from its 6th day on it
+# leaves with probability q = 0.1 on each day, whatever its tenure (see
+# generator.R). Intakes are Poisson(10) per day from 2023-10-01, three
+# months before the first period, so the population is at steady state
+# throughout and the residents on 2024-01-01 enter left-truncated. The two
+# periods are identical by construction; animals still in care on
+# 2025-01-01 are right-censored.
+#
+# What it checks that no other fixture does: the in-care tenure profile,
+# its median, 90th percentile and mean, the per-resident past and future
+# days, and the remaining-LOS curve, each against a closed-form truth.
+# The suite's invariants (column sums, Remaining LOS(0) = RMST) hold for
+# any curve; these pins check that the curves are the right ones. The
+# hold makes every curve two-regime, so an error confined to one regime,
+# or an off-by-one at the hold's end, shows.
+#
+# Generating truth (H = 5 hold days, Q = 1 - q = 0.9):
+#   - KM: S(x) = P(LOS > x) = 1 for x <= 5, 0.9^(x - 5) for x >= 5.
+#     Median 12 (S(11) = 0.531, S(12) = 0.478); 90th percentile 27
+#     (S(26) = 0.109, S(27) = 0.098).
+#   - Restricted mean = sum_x S(x) = (H + 1) + Q/q = 6 + 9 = 15.
+#   - Remaining LOS(x) = 1 + sum_{t > x} S(t) / S(x):
+#       x < 5: S(x) = 1 and the rest of the hold remains, so
+#              1 + (5 - x) + 9 = 15 - x (15 at x = 0, the RMST);
+#       x >= 5: memoryless, 1 + Q/q = 1/q = 10, flat.
+#   - In-care tenure G(x) = sum_{d > x} S(d) / 15 (math methods 5.7):
+#       x < 5: (14 - x)/15, falling linearly through the hold
+#              (G(0) = 1 - 1/15 = 0.9333);
+#       x >= 5: (2/3) 0.9^(x - 4) (G(5) = 0.6, G(10) = 0.3543).
+#     Median 7 (G(6) = 0.540, G(7) = 0.486); 90th percentile 23
+#     (G(22) = 0.10006, a hair above 0.1, so samples land on 22 or 23).
+#   - Mean tenure = sum_d d S(d) / 15, with sum_d d S(d) =
+#     H(H+1)/2 + H Q/q + Q/q^2 = 15 + 45 + 90 = 150: 10 days, and
+#     residents' remaining days per head 11 (math methods 5.6). Every
+#     tenure statistic lies past the hold, so the remaining-LOS readings
+#     at the mean, median and 90th-percentile tenure are all 10.
+#   - Census (Little's law): 10 intakes/day x 15 = 150 animals, of which
+#     N(0) = 10 at tenure 0; accumulated in-care days of the nights held
+#     (math methods 4) = 10 x 150 = 1500.
+#
+# The cap is 120 days, where S(120) = 5.5e-6: the finite-cap truths differ
+# from the forms above by less than 1e-4. A cap far beyond the data (365)
+# was tried first and is unsuitable here: when a period's last long stay
+# is censored, the curve is held flat out to the cap, and the mean tenure,
+# which weights far days most, then strays by several standard deviations
+# on some seeds. That is the cap sensitivity the guides describe, not an
+# estimator fault, and the shorter cap keeps this fixture about the curves.
+
+period_dates:
+  - 2024-01-01
+  - 2024-07-01
+  - 2025-01-01
+
+restricted_stay_cap: 120
+
+plot_stay_cap: 60
