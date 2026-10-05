@@ -23,6 +23,8 @@ Documentation only; output is byte-identical to 0.4.0.
 
 - `PUBLISHING.md`'s identifier table gains mLOS 0.4.0,
   `10.5281/zenodo.23170150`.
+- `PUBLISHING.md` says that recording a minted DOI is a markdown-only edit,
+  committed straight to `main`, and a new `CLAUDE.md` points sessions there.
 
 ## 0.4.0 (2026-10-05)
 

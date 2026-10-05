@@ -533,6 +533,11 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 29 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
 | 30 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
 
+**Recording a newly minted DOI is a short step.** Adding a row to this table,
+or naming the DOI in the changelog, is a markdown-only edit: commit it straight
+to `main`, without a pull request and without a local test run. The CI run that
+the push to `main` starts is the check.
+
 A paper cites five of these: the raw extracts by version DOI if the preparation
 is part of what is reported, the prepared data by version DOI, ShelterDataPrep
 by concept DOI with its version, mLOS by concept DOI with its version, and the
