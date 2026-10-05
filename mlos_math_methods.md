@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261005_005. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261005_006. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -839,6 +839,7 @@ The test suite checks the estimators against exact hand-derived values on small 
 | `sim_intake_mix_shift` | 2,909 | 152 | 159 | Every dog leaves 50% faster while the SMALL/LARGE intake mix flips, a Simpson's paradox: adjusted Cox period hazard ratio 1.5 and size hazard ratio 0.238 |
 | `sim_size_mixture` | 2,007 | 142 | 156 | A static mixture of two constant-hazard sizes: a declining marginal hazard, an adjusted Weibull shape near 1 (§6.6), and a true-null period hazard ratio of 1 |
 | `sim_crossed_shape` | 2,429 | 237 | 266 | A Weibull shape set by the pairing of intake type and animal group: the crossed shape variant of §6.7, with two periods that do not differ |
+| `sim_holding_period` | 3,851 | 127 | 133 | A 5-day hold, then a constant daily outcome probability of 0.1: the KM curve, the in-care tenure profile with its quantiles and mean (§5.7), remaining LOS (§5.8), days owed per resident (§5.6), and the census, each in closed form on both sides of the hold |
 
 The README of each fixture in `tests/cases/` gives its model, the derivation of its truth, and what to look for in its output.
 

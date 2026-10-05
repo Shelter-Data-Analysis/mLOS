@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20261004_003. Read it in any markdown reader,
+presentation guide, version 20261005_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -1372,7 +1372,7 @@ Where that lands:
   below what it can carry, since a fitted census of 0.4 animals owing 1.2 days
   reads as nonsense.
 - **Recommendations.** Silent by default: one that fires on every deck stops
-  being read. On the twenty-nine test fixtures, ten produce none at all.
+  being read. On the thirty test fixtures, ten produce none at all.
 - **Shape.** One crossed Weibull variant silences the shape recommendation for
   the whole run, rather than leaving it resting on whichever variants stayed
   additive. See [Recommendations](#recommendations).

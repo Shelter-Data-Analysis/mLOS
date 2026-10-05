@@ -116,6 +116,12 @@ only in two manifest descriptions (see the last two entries).
   walk labeled by days in care so far. Under a constant hazard it matches the
   KM curve exactly, and math methods 5.7 says the curve's one-day offset is
   the strict "exceeds X" in its definition.
+- A simulation fixture, `sim_holding_period`, checks the in-care tenure
+  profile, its quantiles and mean, the days owed per resident, and the
+  remaining-LOS curve against closed-form truths: a 5-day hold, then a
+  constant 10% daily outcome probability. Until now those outputs were
+  checked only for internal consistency. The test runner gains an
+  `expected_tenure` check for them. No output of a run changes.
 
 ## 0.3.0 (2026-09-29)
 
