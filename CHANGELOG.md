@@ -34,6 +34,11 @@ part of a run, adds rows to its table.
   `10.5281/zenodo.23170150`.
 - `PUBLISHING.md` says that recording a minted DOI is a markdown-only edit,
   committed straight to `main`, and a new `CLAUDE.md` points sessions there.
+- Math methods §7.7 compares the KM restricted mean with the AJ days in the
+  exit state (`Any`): the cap minus those days is the KM estimate, with the
+  exit state's standard error, clustered by animal. A table gives the three
+  rows on OC2, and `tests/show_guide_examples.py` recomputes them. No numbers
+  move.
 
 ## 0.4.0 (2026-10-05)
 

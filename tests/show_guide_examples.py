@@ -165,6 +165,26 @@ def _at_cap(bundle: Bundle) -> str:
     return f"{worst} at {at_cap[worst]:.1%}"
 
 
+def _exit_state_against_km(bundle: Bundle) -> str:
+    """Math methods 7.7's table: KM, days in the exit state, and cap minus them.
+
+    The standard errors are read back from the 95% bounds, which is what the
+    bundle stores, so each is half the interval width over Z_95.
+    """
+    ci = bundle.stratum("all", "ci").iloc[0]
+    cap = float(bundle.value("unified", "restricted_stay_cap"))
+
+    def row(est, lo, hi):
+        return f"{est:.3f} | {(hi - lo) / (2 * Z_95):.3f} | {lo:.3f}–{hi:.3f}"
+
+    km, ex = "km_restricted_mean", "aj_rmtl_Any"
+    return "; ".join([
+        row(ci[km], ci[f"{km}_ci_lower"], ci[f"{km}_ci_upper"]),
+        row(ci[ex], ci[f"{ex}_ci_lower"], ci[f"{ex}_ci_upper"]),
+        row(cap - ci[ex], cap - ci[f"{ex}_ci_upper"], cap - ci[f"{ex}_ci_lower"]),
+    ])
+
+
 def _sheets(bundle: Bundle, vocab: Vocabulary) -> str:
     return f"{len(workbook.sheets(bundle, vocab))} sheets"
 
@@ -392,6 +412,14 @@ CLAIMS: list[tuple[str, str, str, object]] = [
     ("OC2", "math 6.8: baseline strata per variant",
      "20, 15 and 12 baseline strata, all holding events, over 15,521 events",
      lambda b, v: _strata_counts(b)),
+
+    # -- Math methods, section 7.7: the exit state against KM ---------------
+    # One string per table row, estimate | standard error | 95% CI: KM, days
+    # in the exit state, and the cap minus those days.
+    ("OC2", "math 7.7: KM restricted mean against days in the exit state",
+     "16.731 | 0.312 | 16.119–17.343; 348.269 | 0.324 | 347.634–348.904; "
+     "16.731 | 0.324 | 16.096–17.366",
+     lambda b, v: _exit_state_against_km(b)),
 ]
 
 
