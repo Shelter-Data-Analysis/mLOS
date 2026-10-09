@@ -53,9 +53,14 @@ __pycache__/
 # `template:` in a deck settings file or with --template on the command line;
 # the outlines that describe a variant deck are yours and live in data/.
 
-# tools/ is already covered by the */ rule above, and stays that way. It holds
-# make_deposit.py, which stages the Zenodo deposits described in
-# PUBLISHING.md: a local packaging step run between a release and an upload,
-# not part of what an analysis run needs.
-tests/**/.DS_Store
-tests/**/.Rhistory
+# tools/ is let back in by the rules above. It holds the scripts run outside
+# an analysis run: cox_zph.R, histlos_by_period.R, and make_deposit.py, which
+# stages the Zenodo deposits described in PUBLISHING.md.
+
+# A later rule wins, so the folders let back in above would track the editor
+# and system files ignored at the top. These lines ignore them again
+# everywhere.
+.DS_Store
+.Rhistory
+.RData
+.Ruserdata
