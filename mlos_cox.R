@@ -395,8 +395,8 @@ cox_regression_analysis <- function(period_data, references) {
   # Per-predictor stratified variants (see .cox_stratified_variants)
   # -------------------------------------------------------------------------
 
-  stratified_variants <- .cox_stratified_variants(period_data, surv_obj, predictors[-1],
-                                                  cox_model$xlevels, canonical_levels)
+  stratified <- .cox_stratified_variants(period_data, surv_obj, predictors[-1],
+                                         cox_model$xlevels, canonical_levels)
 
   # -------------------------------------------------------------------------
   # Optional parametric companion fit (parametric_regression: WEIBULL)
@@ -442,7 +442,11 @@ cox_regression_analysis <- function(period_data, references) {
     has_analysis        = TRUE,
     cox_model           = cox_model,
     hr_table            = hr_table,
-    stratified_variants = stratified_variants,
+    stratified_variants = stratified$variants,
+    # The variants' coxph objects, keyed as stratified_variants and absent for
+    # a variant whose fit failed. Kept apart because the variants go into the
+    # bundle whole; these are for tools/cox_zph.R (see cox_zph_table).
+    stratified_fits     = stratified$fits,
     weibull             = weibull_results
   )
   # Present only when some coefficient is unstable (see .unstable_terms), so a
@@ -475,8 +479,9 @@ cox_regression_analysis <- function(period_data, references) {
 # still ties every covariate pattern to the single baseline h0(t), so the pooled
 # and stratified estimates of X agree when that assumption holds for the OTHER
 # predictors and diverge when it does not. That comparison is the closest thing
-# mLOS has to a proportional-hazards diagnostic (it has no Schoenfeld test),
-# which is why the variants are fit unconditionally rather than behind a setting.
+# a run has to a proportional-hazards diagnostic (the Schoenfeld test is in
+# tools/cox_zph.R, outside the run), which is why the variants are fit
+# unconditionally rather than behind a setting.
 #
 # Needs at least two qualifying predictors: with one there is no other predictor
 # to stratify on and the variant would simply be the pooled model refit.
@@ -490,16 +495,20 @@ cox_regression_analysis <- function(period_data, references) {
 #   - the stratified predictors get no coefficients at all, so a variant
 #     stratified on period is silent about period by construction.
 #
+# Returns list(variants, fits): the plain per-variant lists that go into the
+# bundle, and the coxph objects that do not, both keyed by stratifier id.
+#
 # surv_obj is passed rather than rebuilt because coxph resolves it from the
 # formula's environment, which as.formula takes from here.
 .cox_stratified_variants <- function(period_data, surv_obj, main_terms,
                                      xlevels, canonical_levels) {
-  if (length(main_terms) < 2) return(list())
+  if (length(main_terms) < 2) return(list(variants = list(), fits = list()))
 
   cat("\n=== Stratified Cox variants (one per stratifier) ===\n")
 
   term_to_stratifier_id <- .stratifier_ids_by_model_term()
   variants <- list()
+  fits     <- list()
 
   for (term in main_terms) {
     other_terms <- setdiff(main_terms, term)
@@ -567,9 +576,41 @@ cox_regression_analysis <- function(period_data, references) {
     )
     unstable <- .unstable_terms(s$coefficients)
     if (length(unstable) > 0) variants[[sid]]$unstable_terms <- I(unstable)
+    fits[[sid]] <- fit
   }
 
-  variants
+  list(variants = variants, fits = fits)
+}
+
+# Proportional-hazards tests for tools/cox_zph.R, which a run does not call:
+# survival::cox.zph with the Kaplan-Meier time transform on the pooled fit and
+# on each stratified variant's fit, one row per coefficient (terms = FALSE),
+# per factor (terms = TRUE), and the global test. The `model` column is
+# "pooled" or "stratified:<stratifier id>". A variant has one factor, so its
+# factor and global rows carry the same test. For a variant, the Schoenfeld
+# residuals are taken within each baseline stratum, so the test asks whether
+# the focal predictor's hazard ratio is constant over tenure without assuming
+# proportional hazards for the predictors in strata().
+cox_zph_table <- function(cox_results) {
+  fits <- c(list(pooled = cox_results$cox_model),
+            setNames(cox_results$stratified_fits,
+                     paste0("stratified:", names(cox_results$stratified_fits))))
+  rows <- function(fit, terms) {
+    z <- survival::cox.zph(fit, transform = "km", terms = terms)$table
+    data.frame(term  = rownames(z),
+               chisq = unname(z[, "chisq"]),
+               df    = unname(z[, "df"]),
+               p     = unname(z[, "p"]))
+  }
+  do.call(rbind, lapply(names(fits), function(model) {
+    by_coef   <- rows(fits[[model]], terms = FALSE)
+    by_factor <- rows(fits[[model]], terms = TRUE)
+    global    <- by_coef$term == "GLOBAL"
+    tab <- rbind(cbind(test = "coefficient", by_coef[!global, ]),
+                 cbind(test = "factor", by_factor[by_factor$term != "GLOBAL", ]),
+                 cbind(test = "global", by_coef[global, ]))
+    cbind(model = model, tab)
+  }))
 }
 
 # One exponentiated-coefficient table: exp(beta) with a Wald 95% CI and the

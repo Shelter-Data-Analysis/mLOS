@@ -19,8 +19,17 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-Documentation only; output is byte-identical to 0.4.0.
+A run's output is byte-identical to 0.4.0. `tools/cox_zph.R`, which is not
+part of a run, adds rows to its table.
 
+- `tools/cox_zph.R` tests the per-predictor stratified Cox fits as well as the
+  pooled one. A new `model` column names the fit: `pooled`, or
+  `stratified:<stratifier>`. The pooled rows are unchanged. The test on a
+  stratified fit covers the predictor being estimated without assuming
+  proportional hazards for the others, which the pooled test of the same factor
+  assumes. The table is built by `cox_zph_table` in `mlos_cox.R`, and the Cox
+  analysis keeps the stratified fits for it in `stratified_fits`, which is not
+  written to `results.json`.
 - `PUBLISHING.md`'s identifier table gains mLOS 0.4.0,
   `10.5281/zenodo.23170150`.
 - `PUBLISHING.md` says that recording a minted DOI is a markdown-only edit,

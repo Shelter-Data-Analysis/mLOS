@@ -3433,6 +3433,47 @@ run_suite_checks <- function() {
   expect_equal("regression window: the fit counts the outcomes past the start",
                rw_win$cox$cox_model$nevent, sum(rw_hand$event))
 
+  cat("\n=== proportional-hazards tests (tools/cox_zph.R) ===\n")
+
+  # Two simulated shelters with intake type and animal group. In the first,
+  # every effect is a constant hazard multiplier; in the second, OWNER stays
+  # have a falling hazard (Weibull shape 0.5) and STRAY stays a rising one
+  # (shape 2), so the intake-type hazard ratio changes with tenure. The
+  # stratified intake-type variant must reject the second and not the first.
+  ph_fit <- function(los_of) {
+    set.seed(20261008)
+    n      <- 800
+    intake <- sample(c("OWNER", "STRAY"), n, replace = TRUE)
+    group  <- sample(c("G1", "G2"), n, replace = TRUE)
+    start  <- as.Date("2024-01-01") + sample(0:90, n, replace = TRUE)
+    los    <- los_of(intake, group)
+    csv <- write_temp_csv(c("intake_date,outcome_date,outcome_type,intake_type,animal_group",
+                            paste(start, start + los, "L", intake, group, sep = ",")))
+    refs <- refs_for(list(period_dates = c("2024-01-01", "2025-01-01"),
+                          restricted_stay_cap = 100,
+                          intake_type_reference = "OWNER", animal_group_reference = "G1"))
+    d    <- fi_quiet(read_and_prepare_data(csv, refs))
+    refs <- detect_optional_columns(d, refs)
+    fi_quiet(cox_regression_analysis(fi_quiet(break_down_by_period(d, refs)), refs))
+  }
+  ph_p <- function(tab, model) tab$p[tab$model == model & tab$test == "factor"]
+  ph_tab <- cox_zph_table(ph_fit(function(intake, group)
+    ceiling(rexp(length(intake), 0.05 * ifelse(intake == "STRAY", 2, 1) *
+                                        ifelse(group == "G2", 1.5, 1)))))
+  nph_tab <- cox_zph_table(ph_fit(function(intake, group)
+    ceiling(rweibull(length(intake), ifelse(intake == "STRAY", 2, 0.5), 20) /
+            ifelse(group == "G2", 1.5, 1))))
+  expect_equal("cox_zph: one model per fit, pooled first",
+               as.numeric(identical(unique(ph_tab$model),
+                                    c("pooled", "stratified:intake", "stratified:group"))), 1)
+  expect_equal("cox_zph: a variant's factor test is its global test",
+               ph_tab$chisq[ph_tab$model == "stratified:intake" & ph_tab$test == "global"],
+               ph_tab$chisq[ph_tab$model == "stratified:intake" & ph_tab$test == "factor"])
+  expect_equal("cox_zph: proportional intake effect is not rejected",
+               as.numeric(ph_p(ph_tab, "stratified:intake") > 0.01), 1)
+  expect_equal("cox_zph: crossing intake hazards are rejected",
+               as.numeric(ph_p(nph_tab, "stratified:intake") < 1e-6), 1)
+
   # References with no outcomes, and estimates that are infinite or nearly so.
   cat("\n=== reference outcomes and unstable estimates ===\n")
   ro_csv <- write_temp_csv(c(
