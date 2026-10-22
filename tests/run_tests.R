@@ -619,7 +619,7 @@ flatten_stratum_stats <- function(period_data, references) {
     unified <- calculate_unified_stay_counts(period_data, labels, stratifier$col)
     for (i in seq_len(nrow(unified))) {
       for (col in c("total_stays", "left_truncated_stays", "right_censored_stays")) {
-        flat[[paste0(stratifier$id, ".", unified$period_label[i], ".", col)]] <- unified[[col]][i]
+        flat[[paste0(stratifier$id, ".", unified$level[i], ".", col)]] <- unified[[col]][i]
       }
     }
   }
@@ -1288,7 +1288,7 @@ check_excel_workbook <- function(case_name, excel_file, bundle) {
       for (i in seq_len(nrow(unified))) {
         actual <- if (!is.na(row_idx) && ncol(ss) >= i + 1) ss[row_idx, i + 1][[1]] else NA
         expect_equal(paste0(case_name, ": excel: ", stratifier$sheet_name, " ", row_name, " ",
-                            unified$period_label[i]),
+                            unified$level[i]),
                      actual, unified[[unified_fields[j]]][i])
       }
     }

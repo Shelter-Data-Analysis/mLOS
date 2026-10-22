@@ -393,14 +393,12 @@ def max_listed_levels(bundle: Bundle) -> int:
 def _unified_stays(bundle: Bundle, stratifier: str) -> pd.Series:
     """Stays per level of one stratifier, each stay counted once.
 
-    The column is called `period_label` whatever the stratifier is, because R
-    builds these counts for every field through the helper it wrote for
-    periods. The rows arrive in the stratifier's own level order, from the same
-    labels vector `bundle.levels` reads, so they are taken as they come.
+    The rows arrive in the stratifier's own level order, from the same labels
+    vector `bundle.levels` reads, so they are taken as they come.
     """
     counts = bundle.table("strata", stratifier, "unified_stay_counts")
     return pd.Series(list(counts["total_stays"]),
-                     index=[str(v) for v in counts["period_label"]])
+                     index=[str(v) for v in counts["level"]])
 
 
 def requires_study_window(bundle: Bundle) -> bool:

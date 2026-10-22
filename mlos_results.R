@@ -468,7 +468,9 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
 #    new fields. Alongside them, and merely added: every published Weibull fit
 #    carries `fit_unstable`, .fit_weibull's verdict on whether its confidence
 #    intervals are exact or approximations.
-MLOS_RESULTS_SCHEMA_VERSION <- 5L
+# 6: strata[[id]]$unified_stay_counts keys its rows by a `level` column, which
+#    was period_label for every stratifier, intake and animal group included.
+MLOS_RESULTS_SCHEMA_VERSION <- 6L
 
 # Cox fit -> the plain values a report shows. summary() is called once here
 # rather than by each consumer.

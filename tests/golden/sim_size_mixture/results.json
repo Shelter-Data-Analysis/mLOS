@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -1155,7 +1155,7 @@
       "unified_stay_counts": {
         "type": "table",
         "columns": {
-          "period_label": ["All"],
+          "level": ["All"],
           "total_stays": [2007],
           "left_truncated_stays": [142],
           "right_censored_stays": [156]
@@ -1404,7 +1404,7 @@
       "unified_stay_counts": {
         "type": "table",
         "columns": {
-          "period_label": ["LARGE", "SMALL"],
+          "level": ["LARGE", "SMALL"],
           "total_stays": [651, 1356],
           "left_truncated_stays": [86, 56],
           "right_censored_stays": [102, 54]

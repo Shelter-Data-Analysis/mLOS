@@ -280,7 +280,7 @@ METRICS: dict[str, Name] = {
     "state": Name("outcome"),
     "rmean": Name("restricted mean", "mean", "days"),
     # -- unified stay counts ------------------------------------------------
-    "period_label": Name("period"),
+    "level": Name("level"),
     "total_stays": Name("stays"),
     "left_truncated_stays": Name("left-truncated stays", "left-truncated"),
     "right_censored_stays": Name("right-censored stays", "right-censored"),

@@ -78,13 +78,12 @@ def _narrow_matrix(node: dict, labels: set[str], shown: list[str]) -> None:
 
 
 def _narrow_table(node: dict, labels: set[str], shown: list[str]) -> None:
-    """Keep the rows of a table keyed by level in its `period_label` column.
+    """Keep the rows of a table keyed by its `level` column.
 
-    The column is called `period_label` whatever the stratifier is (see
-    `blocks._unified_stays`). A table keyed any other way is left whole.
+    A table keyed any other way is left whole.
     """
     columns = node["columns"]
-    key = columns.get("period_label")
+    key = columns.get("level")
     if key is None:
         return
     key = key if isinstance(key, list) else [key]

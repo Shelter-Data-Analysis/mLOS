@@ -1504,14 +1504,15 @@ calculate_period_observation_stats <- function(period_data, period_labels = NULL
 #' @param labels stratum labels to compute rows for (a label with no rows
 #'   yields zero counts)
 #' @param col Column of period_data to group by
-#' @return Data frame with one row per label; the label column is named
-#'   period_label, matching the other shared metric functions
+#' @return Data frame with one row per label, keyed by a `level` column.
+#'   It is written to results.json as it stands, so the key names the level
+#'   rather than the period_label the other shared metric functions use
 calculate_unified_stay_counts <- function(period_data, labels, col) {
   values <- as.character(period_data[[col]])
   rows <- lapply(labels, function(lbl) {
     subset_df <- period_data[!is.na(values) & values == lbl, , drop = FALSE]
     if (nrow(subset_df) == 0) {
-      return(data.frame(period_label = lbl, total_stays = 0L,
+      return(data.frame(level = lbl, total_stays = 0L,
                         left_truncated_stays = 0L, right_censored_stays = 0L,
                         stringsAsFactors = FALSE))
     }
@@ -1523,7 +1524,7 @@ calculate_unified_stay_counts <- function(period_data, labels, col) {
     first_rows <- row_order[!duplicated(stay_key[row_order])]
     stay_has_event <- tapply(subset_df$event, stay_key, function(v) any(v == 1))
     data.frame(
-      period_label         = lbl,
+      level                = lbl,
       total_stays          = length(first_rows),
       left_truncated_stays = sum(subset_df$left_truncated[first_rows], na.rm = TRUE),
       right_censored_stays = sum(!unlist(stay_has_event)),

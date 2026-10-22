@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "run": {
     "mlos_version": "(version)",
     "generated_at": "(run time)",
@@ -766,7 +766,7 @@
       "unified_stay_counts": {
         "type": "table",
         "columns": {
-          "period_label": ["All"],
+          "level": ["All"],
           "total_stays": [1024],
           "left_truncated_stays": [0],
           "right_censored_stays": [34]
@@ -973,7 +973,7 @@
       "unified_stay_counts": {
         "type": "table",
         "columns": {
-          "period_label": ["OWNER", "STRAY"],
+          "level": ["OWNER", "STRAY"],
           "total_stays": [512, 512],
           "left_truncated_stays": [0, 0],
           "right_censored_stays": [17, 17]
@@ -1219,7 +1219,7 @@
       "unified_stay_counts": {
         "type": "table",
         "columns": {
-          "period_label": ["LARGE", "SMALL"],
+          "level": ["LARGE", "SMALL"],
           "total_stays": [512, 512],
           "left_truncated_stays": [0, 0],
           "right_censored_stays": [32, 2]

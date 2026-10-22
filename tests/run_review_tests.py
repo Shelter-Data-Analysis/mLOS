@@ -3691,7 +3691,7 @@ def check_falling_hazard_gates() -> None:
                     "labels": ["MED", "LARGE"],
                     "unified_stay_counts": {
                         "type": "table",
-                        "columns": {"period_label": ["MED", "LARGE"],
+                        "columns": {"level": ["MED", "LARGE"],
                                     "total_stays": stays},
                     },
                 },
@@ -4080,7 +4080,7 @@ def check_opening(case: str, bundle: Bundle) -> None:
     def stays_by_level(stratifier: str) -> dict:
         counts = bundle.table("strata", stratifier, "unified_stay_counts")
         return {str(level): count for level, count
-                in zip(counts["period_label"], counts["total_stays"])}
+                in zip(counts["level"], counts["total_stays"])}
 
     # Levels are tallied only for fields few enough to plot. A field past the
     # limit is left off rather than listed, which is the only thing the slide

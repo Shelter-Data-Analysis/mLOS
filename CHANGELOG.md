@@ -19,9 +19,15 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-A run's output is byte-identical to 0.4.0. `tools/cox_zph.R`, which is not
-part of a run, adds rows to its table.
+No numbers move. `results.json` renames one column and moves to schema
+version 6; every other output of a run is byte-identical to 0.4.0.
+`tools/cox_zph.R`, which is not part of a run, adds rows to its table.
 
+- `results.json` schema version 6: each stratifier's `unified_stay_counts`
+  table keys its rows by a `level` column, which held intake types, animal
+  groups, and `All` under the name `period_label`. `mlos_review` reads the new
+  name and warns on a version 5 bundle; its stay counts from such a bundle fail
+  to load.
 - `tools/cox_zph.R` tests the per-predictor stratified Cox fits as well as the
   pooled one. A new `model` column names the fit: `pooled`, or
   `stratified:<stratifier>`. The pooled rows are unchanged. The test on a
