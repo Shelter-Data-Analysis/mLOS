@@ -809,7 +809,7 @@ Two blocks close the sheet, **Hazard ratios** and then **LOS ratios**. Each row 
 | | `cox_stratified_hazard_ratio` | per-predictor stratified Cox (§6.8) |
 | | `weibull_pooled_hazard_ratio` | pooled Weibull, its LOS ratio raised to $-k$ (§6.6) |
 | LOS ratios | `km_restricted_mean_ratio` | stratified KM (§5.4), unadjusted |
-| | `weibull_freed_shape_los_ratio` | per-predictor shape variant (§6.7) |
+| | `weibull_stratified_los_ratio` | per-predictor shape variant (§6.7) |
 | | `weibull_pooled_los_ratio` | pooled Weibull (§6.6) |
 
 Two blocks and not one because within each of them the values are rigorously comparable with one another, and the fits that produce comparable values are not the same on the two sides. The shape variant has an implied hazard ratio too, and it is deliberately absent from the first block, because its $k$ is the reference shape cell's and the number therefore describes one covariate combination rather than the data.

@@ -616,7 +616,7 @@ A compact companion to the regressions described below. Each block puts this col
 **LOS ratios:**
 
 - `km_restricted_mean_ratio`, each level's restricted mean stay as a multiple of the reference level's, straight from the KM curves;
-- `weibull_freed_shape_los_ratio`, from the per-predictor Weibull regression, which lets the other predictors' combinations each carry their own curve shape;
+- `weibull_stratified_los_ratio`, from the per-predictor Weibull regression, which lets the other predictors' combinations each carry their own curve shape;
 - `weibull_pooled_los_ratio`, the same predictor from the pooled Weibull regression.
 
 Two blocks and not one because within each block the values are comparable with one another, and the fits that produce comparable values differ between the two. The per-predictor Weibull regression has a hazard ratio too, and it is left out of the first block because it belongs to one covariate combination rather than to the data. `pooled` means the fully adjusted fit, and is not the crude Weibull on the **Weibull_Regression** sheet, which drops the intake-type and animal-group terms altogether.

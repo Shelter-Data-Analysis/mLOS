@@ -136,8 +136,8 @@ practitioners. The documents keep `predictor`, because about 150 code sites and 
 with it. If it is ever switched, switch the bare word in the same pass or the
 sentences stop making sense.
 
-Terminology worth changing later, and names in the results JSON that are
-inconsistent with a sibling, are listed under "Decisions, deferred" in
+Terminology worth changing later, and names in the results JSON worth
+tidying, are listed under "Decisions, deferred" in
 `PUBLISHING.md`. They are kept there rather than here because this file says
 what to write now, and a term listed here as changeable is one an editor will
 hedge around.

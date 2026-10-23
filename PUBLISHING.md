@@ -462,17 +462,7 @@ real change has already forced.
 
 ### Names in the results JSON
 
-Grouped by whether the change is a real inconsistency or only a tidier word.
-The first group is worth carrying on any schema break. The second is not worth
-one by itself.
-
-**Inconsistent with a sibling, so a reader has to learn an exception:**
-
-| Key | Against | Note |
-|---|---|---|
-| `weibull_pooled_los_ratio` beside `weibull_freed_shape_los_ratio` | each other | The qualifiers are not parallel: one names the model, the other names what was relaxed. These are workbook row labels, not `results.json` keys, so a schema bump does not open them. |
-
-**Only a tidier word, and not worth a break on its own:**
+Each of these is only a tidier word, and not worth a schema break on its own.
 
 | Key | Note |
 |---|---|

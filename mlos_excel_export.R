@@ -927,7 +927,7 @@ write_data_preparation_sheet <- function(wb, bundle, title_style,
 #                  weibull_pooled_hazard_ratio    pooled Weibull's implied HR (6.6)
 #
 #   LOS ratios     km_restricted_mean_ratio       stratified KM (5.4), unadjusted
-#                  weibull_freed_shape_los_ratio  per-predictor shape variant (6.7)
+#                  weibull_stratified_los_ratio   per-predictor shape variant (6.7)
 #                  weibull_pooled_los_ratio       pooled Weibull (6.6)
 #
 # Two blocks and not one because within each of them the values are rigorously
@@ -1002,12 +1002,12 @@ write_data_preparation_sheet <- function(wb, bundle, title_style,
     weibull_los <- own(if (isTRUE(weibull_bundle$has_analysis)) weibull_bundle$los_table else NULL)
     m <- rbind(
       m,
-      weibull_freed_shape_los_ratio          = variant_los$value,
-      weibull_freed_shape_los_ratio_ci_lower = variant_los$ci_lower,
-      weibull_freed_shape_los_ratio_ci_upper = variant_los$ci_upper,
-      weibull_pooled_los_ratio               = weibull_los$value,
-      weibull_pooled_los_ratio_ci_lower      = weibull_los$ci_lower,
-      weibull_pooled_los_ratio_ci_upper      = weibull_los$ci_upper
+      weibull_stratified_los_ratio          = variant_los$value,
+      weibull_stratified_los_ratio_ci_lower = variant_los$ci_lower,
+      weibull_stratified_los_ratio_ci_upper = variant_los$ci_upper,
+      weibull_pooled_los_ratio              = weibull_los$value,
+      weibull_pooled_los_ratio_ci_lower     = weibull_los$ci_lower,
+      weibull_pooled_los_ratio_ci_upper     = weibull_los$ci_upper
     )
   }
 

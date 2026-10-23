@@ -1567,8 +1567,8 @@ check_excel_workbook <- function(case_name, excel_file, bundle) {
           NA_real_
         }
         expect_equal(paste0(case_name, ": excel: ", sheet_name,
-                            " weibull_freed_shape_los_ratio (", labels[i], ")"),
-                     sheet_cell(ss, "weibull_freed_shape_los_ratio", i), los_v)
+                            " weibull_stratified_los_ratio (", labels[i], ")"),
+                     sheet_cell(ss, "weibull_stratified_los_ratio", i), los_v)
       }
     }
 

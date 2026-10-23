@@ -20,7 +20,7 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 ## Unreleased
 
 No numbers move. `results.json` renames keys and moves to schema version 6,
-and the workbook renames two row labels; every CSV and plot is byte-identical
+and the workbook renames three row labels; every CSV and plot is byte-identical
 to 0.4.0. `tools/cox_zph.R`, which is not part of a run, adds rows to its
 table, and the console log's header line changes.
 
@@ -42,6 +42,9 @@ table, and the console log's header line changes.
   - Each stratifier's `unified_stay_counts` keys its rows by a `level` column,
     which held intake types, animal groups, and `All` under the name
     `period_label`.
+- The workbook row `weibull_freed_shape_los_ratio` becomes
+  `weibull_stratified_los_ratio`, with its two interval rows, in step with
+  `cox_stratified_hazard_ratio` beside it. The row is not in `results.json`.
 - `tools/cox_zph.R` tests the per-predictor stratified Cox fits as well as the
   pooled one. A new `model` column names the fit: `pooled`, or
   `stratified:<stratifier>`. The pooled rows are unchanged. The test on a
