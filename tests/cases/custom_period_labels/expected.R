@@ -82,7 +82,7 @@ expected_period_stats[["Old policy.mean_days_at_risk"]]             <- 3
 expected_period_stats[["Old policy.total_animal_days"]]             <- 12
 expected_period_stats[["Old policy.mean_census_inventory"]]                   <- 12 / 14
 expected_period_stats[["Old policy.total_in_care_days_sum"]]        <- 20
-expected_period_stats[["Old policy.daily_mean_total_in_care_days"]] <- 20 / 14
+expected_period_stats[["Old policy.mean_daily_total_in_care_days"]] <- 20 / 14
 expected_period_stats[["Old policy.total_intakes"]]                 <- 4
 expected_period_stats[["Old policy.total_outcomes"]]                <- 2
 expected_period_stats[["Old policy.mean_daily_intakes"]]            <- 4 / 14
@@ -99,7 +99,7 @@ expected_period_stats[["New policy.mean_days_at_risk"]]             <- 11 / 3
 expected_period_stats[["New policy.total_animal_days"]]             <- 11
 expected_period_stats[["New policy.mean_census_inventory"]]                   <- 11 / 17
 expected_period_stats[["New policy.total_in_care_days_sum"]]        <- 32
-expected_period_stats[["New policy.daily_mean_total_in_care_days"]] <- 32 / 17
+expected_period_stats[["New policy.mean_daily_total_in_care_days"]] <- 32 / 17
 expected_period_stats[["New policy.total_intakes"]]                 <- 1
 expected_period_stats[["New policy.total_outcomes"]]                <- 3
 expected_period_stats[["New policy.mean_daily_intakes"]]            <- 1 / 17

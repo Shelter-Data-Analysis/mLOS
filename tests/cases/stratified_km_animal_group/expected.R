@@ -45,18 +45,18 @@ expected_km <- list(
 # the factor levels set at data construction and read back through
 # .stratum_levels_present.
 expected_stratified_km <- list(
-  group.SMALL.n          = 3,
-  group.SMALL.events     = 3,
-  group.SMALL.median     = 2,
-  group.LARGE.n          = 5,
-  group.LARGE.events     = 5,
-  group.LARGE.median     = 6,
-  group._UNKNOWN_.n      = 2,
-  group._UNKNOWN_.events = 2,
-  group._UNKNOWN_.median = 9.5,
-  group.LARGE.pos        = 1,
-  group.SMALL.pos        = 2,
-  group._UNKNOWN_.pos    = 3
+  animal_group.SMALL.n          = 3,
+  animal_group.SMALL.events     = 3,
+  animal_group.SMALL.median     = 2,
+  animal_group.LARGE.n          = 5,
+  animal_group.LARGE.events     = 5,
+  animal_group.LARGE.median     = 6,
+  animal_group._UNKNOWN_.n      = 2,
+  animal_group._UNKNOWN_.events = 2,
+  animal_group._UNKNOWN_.median = 9.5,
+  animal_group.LARGE.pos        = 1,
+  animal_group.SMALL.pos        = 2,
+  animal_group._UNKNOWN_.pos    = 3
 )
 
 # AJ within each animal_group. Every animal here has outcome L and none is
@@ -77,7 +77,7 @@ expected_stratified_km <- list(
 # days to outcome among those who reach it by tau) is 2 for SMALL, 6 for
 # LARGE, and 9.5 for _UNKNOWN_, which with no censoring is just the plain
 # mean of each stratum's LOS: (1+2+3)/3, (4+..+8)/5, (9+10)/2.
-expected_aj_group <- list(
+expected_aj_animal_group <- list(
   has_analysis    = 1,
   n_animal_groups = 3,
 
@@ -129,7 +129,7 @@ expected_aj_period <- list(
 
 # No intake_type column at all, which is a different case: nothing to compute,
 # not merely nothing to compare. This one still declines.
-expected_aj_intake <- list(has_analysis = 0)
+expected_aj_intake_type <- list(has_analysis = 0)
 
 # Per-stratum observation/census/flow stats, as the Excel By_Animal_Group
 # sheet computes them: the shared metric functions grouped by animal_group
@@ -154,44 +154,44 @@ expected_aj_intake <- list(has_analysis = 0)
 # intake_type column exists, so the intake absence assertion closes the
 # block.
 expected_stratum_stats <- list(
-  group.SMALL.total_observations = 3,
-  group.SMALL.events             = 3,
-  group.SMALL.left_truncated     = 0,
-  group.SMALL.right_censored     = 0,
-  group.SMALL.capped_at_restricted_stay_cap    = 0,
-  group.SMALL.duration_days        = 31,
-  group.SMALL.mean_days_at_risk  = 2,
-  group.SMALL.total_animal_days  = 6,
-  group.SMALL.mean_census_inventory        = 6 / 31,
-  group.SMALL.total_in_care_days_sum        = 4,
-  group.SMALL.daily_mean_total_in_care_days = 4 / 31,
-  group.SMALL.total_intakes      = 3,
-  group.SMALL.total_outcomes     = 3,
-  group.SMALL.mean_daily_intakes = 3 / 31,
+  animal_group.SMALL.total_observations = 3,
+  animal_group.SMALL.events             = 3,
+  animal_group.SMALL.left_truncated     = 0,
+  animal_group.SMALL.right_censored     = 0,
+  animal_group.SMALL.capped_at_restricted_stay_cap    = 0,
+  animal_group.SMALL.duration_days        = 31,
+  animal_group.SMALL.mean_days_at_risk  = 2,
+  animal_group.SMALL.total_animal_days  = 6,
+  animal_group.SMALL.mean_census_inventory        = 6 / 31,
+  animal_group.SMALL.total_in_care_days_sum        = 4,
+  animal_group.SMALL.mean_daily_total_in_care_days = 4 / 31,
+  animal_group.SMALL.total_intakes      = 3,
+  animal_group.SMALL.total_outcomes     = 3,
+  animal_group.SMALL.mean_daily_intakes = 3 / 31,
 
-  group.LARGE.total_observations = 5,
-  group.LARGE.events             = 5,
-  group.LARGE.left_truncated     = 0,
-  group.LARGE.right_censored     = 0,
-  group.LARGE.mean_days_at_risk  = 6,
-  group.LARGE.total_animal_days  = 30,
-  group.LARGE.mean_census_inventory        = 30 / 31,
-  group.LARGE.total_in_care_days_sum        = 80,
-  group.LARGE.daily_mean_total_in_care_days = 80 / 31,
-  group.LARGE.total_intakes      = 5,
-  group.LARGE.total_outcomes     = 5,
+  animal_group.LARGE.total_observations = 5,
+  animal_group.LARGE.events             = 5,
+  animal_group.LARGE.left_truncated     = 0,
+  animal_group.LARGE.right_censored     = 0,
+  animal_group.LARGE.mean_days_at_risk  = 6,
+  animal_group.LARGE.total_animal_days  = 30,
+  animal_group.LARGE.mean_census_inventory        = 30 / 31,
+  animal_group.LARGE.total_in_care_days_sum        = 80,
+  animal_group.LARGE.mean_daily_total_in_care_days = 80 / 31,
+  animal_group.LARGE.total_intakes      = 5,
+  animal_group.LARGE.total_outcomes     = 5,
 
-  `group._UNKNOWN_.total_observations` = 2,
-  `group._UNKNOWN_.events`             = 2,
-  `group._UNKNOWN_.left_truncated`     = 0,
-  `group._UNKNOWN_.right_censored`     = 0,
-  `group._UNKNOWN_.mean_days_at_risk`  = 9.5,
-  `group._UNKNOWN_.total_animal_days`  = 19,
-  `group._UNKNOWN_.mean_census_inventory`        = 19 / 31,
-  `group._UNKNOWN_.total_in_care_days_sum`        = 81,
-  `group._UNKNOWN_.daily_mean_total_in_care_days` = 81 / 31,
-  `group._UNKNOWN_.total_intakes`      = 2,
-  `group._UNKNOWN_.mean_daily_outcomes` = 2 / 31,
+  `animal_group._UNKNOWN_.total_observations` = 2,
+  `animal_group._UNKNOWN_.events`             = 2,
+  `animal_group._UNKNOWN_.left_truncated`     = 0,
+  `animal_group._UNKNOWN_.right_censored`     = 0,
+  `animal_group._UNKNOWN_.mean_days_at_risk`  = 9.5,
+  `animal_group._UNKNOWN_.total_animal_days`  = 19,
+  `animal_group._UNKNOWN_.mean_census_inventory`        = 19 / 31,
+  `animal_group._UNKNOWN_.total_in_care_days_sum`        = 81,
+  `animal_group._UNKNOWN_.mean_daily_total_in_care_days` = 81 / 31,
+  `animal_group._UNKNOWN_.total_intakes`      = 2,
+  `animal_group._UNKNOWN_.mean_daily_outcomes` = 2 / 31,
 
   # Unified-across-periods stay counts (calculate_unified_stay_counts).
   # One period, one stay per animal, no truncation or censoring anywhere,
@@ -199,18 +199,18 @@ expected_stratum_stats <- list(
   # truncation/censoring counts are zero -- which is exactly the pin: with
   # nothing to unify, the stay-level counts must collapse to the row-level
   # ones above.
-  group.SMALL.total_stays          = 3,
-  group.SMALL.left_truncated_stays = 0,
-  group.SMALL.right_censored_stays = 0,
-  group.LARGE.total_stays          = 5,
-  group.LARGE.left_truncated_stays = 0,
-  group.LARGE.right_censored_stays = 0,
-  `group._UNKNOWN_.total_stays`          = 2,
-  `group._UNKNOWN_.left_truncated_stays` = 0,
-  `group._UNKNOWN_.right_censored_stays` = 0,
+  animal_group.SMALL.total_stays          = 3,
+  animal_group.SMALL.left_truncated_stays = 0,
+  animal_group.SMALL.right_censored_stays = 0,
+  animal_group.LARGE.total_stays          = 5,
+  animal_group.LARGE.left_truncated_stays = 0,
+  animal_group.LARGE.right_censored_stays = 0,
+  `animal_group._UNKNOWN_.total_stays`          = 2,
+  `animal_group._UNKNOWN_.left_truncated_stays` = 0,
+  `animal_group._UNKNOWN_.right_censored_stays` = 0,
 
-  # No intake_type column in this fixture: no intake.* entries may exist.
-  intake.STRAY.total_observations = NA
+  # No intake_type column in this fixture: no intake_type.* entries may exist.
+  intake_type.STRAY.total_observations = NA
 )
 
 # SMALL (days 1-3), LARGE (days 4-8), and _UNKNOWN_ (days 9-10) never

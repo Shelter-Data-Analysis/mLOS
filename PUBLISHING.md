@@ -470,10 +470,7 @@ one by itself.
 
 | Key | Against | Note |
 |---|---|---|
-| `strata.intake`, `strata.group` | `strata.period`, and the columns `intake_type` and `animal_group` | Two of the three stratifier keys are abbreviated and one is not, so joining the JSON to a CSV column needs a lookup nobody documented. Same keys appear under `cox.stratified_variants` and `weibull.shape_variants`. |
-| `incidence_overall_per_100_animal_days` | `aj_final_cif_Any`, `aj_rmtl_Any` | `Any` is the established code for all outcome types. `overall` is used here and nowhere else. |
-| `daily_mean_total_in_care_days` | `mean_daily_intakes`, `mean_daily_outcomes` | "daily mean" against "mean daily" for the same construction. |
-| `weibull_pooled_los_ratio` beside `weibull_freed_shape_los_ratio` | each other | The qualifiers are not parallel: one names the model, the other names what was relaxed. |
+| `weibull_pooled_los_ratio` beside `weibull_freed_shape_los_ratio` | each other | The qualifiers are not parallel: one names the model, the other names what was relaxed. These are workbook row labels, not `results.json` keys, so a schema bump does not open them. |
 
 **Only a tidier word, and not worth a break on its own:**
 

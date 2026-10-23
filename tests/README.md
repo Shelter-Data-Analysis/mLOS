@@ -358,16 +358,16 @@ Which analyses run is driven entirely by which `expected_*` objects
 | Object | Checks | Example field names |
 |---|---|---|
 | `expected_km` | Unified KM (`km_unified_period`) | `median_los`, `restricted_mean`, `n_capped`, `fraction_capped`, `max_time` |
-| `expected_stratified_km` | Stratified KM fits + per-stratum gaps | `period.Period_1.median`, `period.Period_1.rmean`, `group.BIG.n`, `n_strata_gaps`, `gap.Animal Group.SLOW.start` |
-| `expected_census` | Census-by-tenure companion of the stratified KM (math methods §5.6): per-stratum intake rate, Little's-law predicted census, and the daily census profile | `period.Period_1.lambda`, `period.Period_1.predicted_census`, `group.SMALL.day5` |
+| `expected_stratified_km` | Stratified KM fits + per-stratum gaps | `period.Period_1.median`, `period.Period_1.rmean`, `animal_group.BIG.n`, `n_strata_gaps`, `gap.Animal Group.SLOW.start` |
+| `expected_census` | Census-by-tenure companion of the stratified KM (math methods §5.6): per-stratum intake rate, Little's-law predicted census, and the daily census profile | `period.Period_1.lambda`, `period.Period_1.predicted_census`, `animal_group.SMALL.day5` |
 | `expected_cox` | Cox regression | `has_analysis`, `n`, `n_events`, `HR_animal_groupBIG` |
 | `expected_weibull` | Weibull regression (needs `parametric_regression: WEIBULL` in the case's settings) | `shape`, `TR_intake_typeOWNER` (LOS ratio), `HRw_intake_typeOWNER` (implied HR), `shape_unified` |
 | `expected_aj` | Unified AJ competing-risk CIFs | `CIF_L_day10`, `CIF_Any_day3`, `CondRem_N_day5`, `n_outcome_states` |
 | `expected_aj_period` | AJ within each period | `Period_1.CIF_L_day10`, `n_periods` |
-| `expected_aj_intake` | AJ within each `intake_type` | `STRAY.CIF_L_day10`, `n_intake_types` |
-| `expected_aj_group` | AJ within each `animal_group` | `LARGE.CIF_L_day10`, `n_animal_groups` |
-| `expected_period_stats` | Per-period counts/census/flow metrics | `Period_1.total_animal_days`, `Period_2.daily_mean_total_in_care_days` |
-| `expected_stratum_stats` | Per-stratum counts/census/flow metrics, as the Excel `By_Intake_Type`/`By_Animal_Group` sheets compute them (grouped by the stratifier column, whole-window day denominator) | `group.SMALL.total_animal_days`, `intake.STRAY.total_intakes` |
+| `expected_aj_intake_type` | AJ within each `intake_type` | `STRAY.CIF_L_day10`, `n_intake_types` |
+| `expected_aj_animal_group` | AJ within each `animal_group` | `LARGE.CIF_L_day10`, `n_animal_groups` |
+| `expected_period_stats` | Per-period counts/census/flow metrics | `Period_1.total_animal_days`, `Period_2.mean_daily_total_in_care_days` |
+| `expected_stratum_stats` | Per-stratum counts/census/flow metrics, as the Excel `By_Intake_Type`/`By_Animal_Group` sheets compute them (grouped by the stratifier column, whole-window day denominator) | `animal_group.SMALL.total_animal_days`, `intake_type.STRAY.total_intakes` |
 
 See the `flatten_*()` functions in `run_tests.R` for the full field lists. The
 per-period and per-stratum ones read the same observation matrix the results

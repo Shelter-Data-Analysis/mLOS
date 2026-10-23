@@ -46,21 +46,21 @@ expected_weibull <- list(
 )
 
 expected_stratified_km <- list(
-  intake.STRAY.n      = 582,
-  intake.STRAY.events = 553,
-  intake.STRAY.median = c(8, 1),        # smallest m with exp(-(m/10)^1.3) <= 0.5
-  intake.STRAY.rmean  = c(9.7380, 1.3), # sum of S_STRAY(m), m = 0..89
-  intake.OWNER.n      = 598,
-  intake.OWNER.events = 533,
-  intake.OWNER.median = c(16, 1.5),     # S_OWNER(15) = 0.503 is borderline, so 15 also passes
-  intake.OWNER.rmean  = c(18.9639, 2.5),
+  intake_type.STRAY.n      = 582,
+  intake_type.STRAY.events = 553,
+  intake_type.STRAY.median = c(8, 1),        # smallest m with exp(-(m/10)^1.3) <= 0.5
+  intake_type.STRAY.rmean  = c(9.7380, 1.3), # sum of S_STRAY(m), m = 0..89
+  intake_type.OWNER.n      = 598,
+  intake_type.OWNER.events = 533,
+  intake_type.OWNER.median = c(16, 1.5),     # S_OWNER(15) = 0.503 is borderline, so 15 also passes
+  intake_type.OWNER.rmean  = c(18.9639, 2.5),
   # .pos pins the KM output order (legend/CSV column order): intake_type is
   # canonically ALPHABETICAL, so OWNER before STRAY. These positions are the
   # deterministic factor-level order and carry no statistical tolerance, unlike
   # the sampled counts above. Counterpart to the chronological period order
   # pinned in custom_period_labels.
-  intake.OWNER.pos    = 1,
-  intake.STRAY.pos    = 2,
+  intake_type.OWNER.pos    = 1,
+  intake_type.STRAY.pos    = 2,
   n_strata_gaps       = 0
 )
 

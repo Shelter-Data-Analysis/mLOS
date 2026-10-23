@@ -895,7 +895,7 @@ def sample_gap_notes(bundle: Bundle, vocab) -> list[str]:
 # multiply to in animal-days.
 #
 # The multiplication is exact and is the spine of the run. Counted,
-# daily_mean_total_in_care_days = mean_census_inventory x
+# mean_daily_total_in_care_days = mean_census_inventory x
 # per_resident_in_care_days; fitted, expected_past_animal_days =
 # expected_census x per_resident_past_days, both by construction (see
 # .census_aggregate_matrix in mlos_km.R). So the third table is the first two
@@ -919,7 +919,7 @@ WORKLOAD_RESIDENTS_FITTED = "expected_census"
 WORKLOAD_TENURE = "per_resident_in_care_days"
 WORKLOAD_TENURE_FITTED = "per_resident_past_days"
 WORKLOAD_REMAINING_FITTED = "per_resident_future_days"
-WORKLOAD_DAYS = "daily_mean_total_in_care_days"
+WORKLOAD_DAYS = "mean_daily_total_in_care_days"
 WORKLOAD_DAYS_FITTED = "expected_past_animal_days"
 WORKLOAD_DAYS_OWED = "expected_future_animal_days"
 CARE_DAYS_DELIVERED = "total_animal_days"

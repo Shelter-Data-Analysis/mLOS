@@ -39,12 +39,12 @@ EMPHASIS_KEYWORDS = ("AUTO", "ALWAYS", "NEVER")
 # ceiling is the slide title's.
 BULLET_SIZE_RANGE = (14, 28)
 
-# Settings-file stratifier names, which are the words a reader knows, mapped to
-# the bundle's internal ids.
+# Settings-file stratifier names mapped to the bundle's stratifier ids, which
+# are the same words.
 STRATIFIER_KEYS = {
     "period": "period",
-    "intake_type": "intake",
-    "animal_group": "group",
+    "intake_type": "intake_type",
+    "animal_group": "animal_group",
 }
 
 

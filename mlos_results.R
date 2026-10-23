@@ -37,7 +37,7 @@
 #
 # Uses .stratum_levels_present, .total_window_days, .poisson_rate_ci,
 # .binom_prop_ci, .cif_normalized_rmean, emitted_outputs (mlos_common.R);
-# calculate_period_observation_stats, calculate_daily_mean_total_in_care_days,
+# calculate_period_observation_stats, calculate_mean_daily_total_in_care_days,
 # calculate_period_flow_metrics, calculate_unified_stay_counts,
 # .stratum_outcome_matrices (mlos_data.R); stratum_km_summary,
 # stratum_census_aggregates (mlos_km.R).
@@ -80,7 +80,7 @@
   rownames(obs_matrix) <- names(stat_cols)
   colnames(obs_matrix) <- labels
 
-  daily_mean_df <- calculate_daily_mean_total_in_care_days(period_data, col = col,
+  daily_mean_df <- calculate_mean_daily_total_in_care_days(period_data, col = col,
                                                            window_days = window_days)
   flow_df <- calculate_period_flow_metrics(period_data, col = col, window_days = window_days)
 
@@ -89,7 +89,7 @@
     obs_matrix,
     total_in_care_days_sum        = .period_lookup(daily_mean_df$total_in_care_days_sum,
                                                    daily_mean_df$period_label, labels),
-    daily_mean_total_in_care_days = .period_lookup(daily_mean_df$daily_mean_total_in_care_days,
+    mean_daily_total_in_care_days = .period_lookup(daily_mean_df$mean_daily_total_in_care_days,
                                                    daily_mean_df$period_label, labels),
     total_intakes       = .period_lookup(flow_df$total_intakes,       flow_df$period_label, labels),
     total_outcomes      = .period_lookup(flow_df$total_outcomes,      flow_df$period_label, labels),
@@ -141,7 +141,7 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
     km_summary            = km_matrix,
     mean_daily_intakes    = mean_daily_intakes,
     mean_census_inventory = as.numeric(obs_matrix["mean_census_inventory", ]),
-    daily_in_care_days    = as.numeric(obs_matrix["daily_mean_total_in_care_days", ]),
+    daily_in_care_days    = as.numeric(obs_matrix["mean_daily_total_in_care_days", ]),
     labels                = labels
   )
 
@@ -220,8 +220,8 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
                      outcomes$mix[paste0("outcome_mix_", outcome), ],
                      per_label(function(i) .binom_prop_ci(ejk[i], outcomes$totals[i])))
     }
-    add_ci_triplet("incidence_overall_per_100_animal_days",
-                   outcomes$incidence["incidence_overall_per_100_animal_days", ],
+    add_ci_triplet("incidence_Any_per_100_animal_days",
+                   outcomes$incidence["incidence_Any_per_100_animal_days", ],
                    per_label(function(i) .poisson_rate_ci(events_overall[i], total_animal_days[i])) * 100)
     for (outcome in outcomes$outcome_levels) {
       idx <- which(outcomes$outcome_levels == outcome)
@@ -468,8 +468,14 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
 #    new fields. Alongside them, and merely added: every published Weibull fit
 #    carries `fit_unstable`, .fit_weibull's verdict on whether its confidence
 #    intervals are exact or approximations.
-# 6: strata[[id]]$unified_stay_counts keys its rows by a `level` column, which
-#    was period_label for every stratifier, intake and animal group included.
+# 6: names made consistent with their siblings. The stratifier ids `intake`
+#    and `group` become `intake_type` and `animal_group`, the column names
+#    and model terms, wherever an id keys or fills the bundle (strata,
+#    cox$stratified_variants, weibull$shape_variants, settings$coverage,
+#    the outputs manifest). incidence_overall_per_100_animal_days becomes
+#    incidence_Any_per_100_animal_days and daily_mean_total_in_care_days
+#    becomes mean_daily_total_in_care_days. unified_stay_counts keys its rows
+#    by a `level` column, which was period_label for every stratifier.
 MLOS_RESULTS_SCHEMA_VERSION <- 6L
 
 # Cox fit -> the plain values a report shows. summary() is called once here
@@ -1207,8 +1213,8 @@ KM_RATIO_ROWS <- c("km_restricted_mean_ratio",
 # period_reference OLDEST/NEWEST are covered too.
 check_plot_level_references <- function(cox_results, references) {
   setting_for_reference <- c(period = "period_reference",
-                             intake = "intake_type_reference",
-                             group  = "animal_group_reference")
+                             intake_type  = "intake_type_reference",
+                             animal_group = "animal_group_reference")
   for (stratifier in stratifiers) {
     named <- references$plot_levels[[stratifier$id]]
     if (is.null(named)) next
@@ -1423,10 +1429,10 @@ build_results_bundle <- function(cox_results,
       coverage = list(
         period = list(label = "Period",       included = references$has_period,
                       n = references$n_periods),
-        intake = list(label = "Intake type",  included = references$has_intake_type,
-                      n = references$n_intake_types),
-        group  = list(label = "Animal group", included = references$has_animal_group,
-                      n = references$n_animal_groups)
+        intake_type  = list(label = "Intake type",  included = references$has_intake_type,
+                            n = references$n_intake_types),
+        animal_group = list(label = "Animal group", included = references$has_animal_group,
+                            n = references$n_animal_groups)
       ),
       # How this run drew and emitted things. None of it changes a result, and
       # the workbook shows none of it, which is exactly why it is here: a

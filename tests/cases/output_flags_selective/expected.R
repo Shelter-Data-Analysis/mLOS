@@ -20,14 +20,14 @@ expected_km <- list(
 
 # Unchanged by the emission flags: the KM fits still run on every stratum.
 expected_stratified_km <- list(
-  group.SMALL.n      = 3,
-  group.SMALL.median = 2,
-  group.LARGE.n      = 5,
-  group.LARGE.median = 6
+  animal_group.SMALL.n      = 3,
+  animal_group.SMALL.median = 2,
+  animal_group.LARGE.n      = 5,
+  animal_group.LARGE.median = 6
 )
 
 # Unchanged by the emission flags: AJ still fits every stratum.
-expected_aj_group <- list(
+expected_aj_animal_group <- list(
   has_analysis      = 1,
   n_animal_groups   = 2,
   SMALL.cif_L_day1  = 1 / 3,

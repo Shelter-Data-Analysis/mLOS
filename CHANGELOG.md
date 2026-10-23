@@ -19,15 +19,29 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-No numbers move. `results.json` renames one column and moves to schema
-version 6; every other output of a run is byte-identical to 0.4.0.
-`tools/cox_zph.R`, which is not part of a run, adds rows to its table.
+No numbers move. `results.json` renames keys and moves to schema version 6,
+and the workbook renames two row labels; every CSV and plot is byte-identical
+to 0.4.0. `tools/cox_zph.R`, which is not part of a run, adds rows to its
+table.
 
-- `results.json` schema version 6: each stratifier's `unified_stay_counts`
-  table keys its rows by a `level` column, which held intake types, animal
-  groups, and `All` under the name `period_label`. `mlos_review` reads the new
-  name and warns on a version 5 bundle; its stay counts from such a bundle fail
-  to load.
+- `results.json` schema version 6 makes four names consistent with their
+  siblings. `mlos_review` reads the new names and warns on a version 5 bundle,
+  from which it cannot build a deck.
+  - The stratifier ids `intake` and `group` become `intake_type` and
+    `animal_group`, matching the data columns and the model terms. The ids key
+    `strata`, `cox.stratified_variants`, `weibull.shape_variants`, and
+    `settings.coverage`, and fill the `stratifier` fields of the outputs
+    manifest and the variants. The `model` column of `tools/cox_zph.R` reads
+    `stratified:intake_type` and `stratified:animal_group`.
+  - `incidence_overall_per_100_animal_days` becomes
+    `incidence_Any_per_100_animal_days`, since `Any` is the code for all
+    outcome types everywhere else.
+  - `daily_mean_total_in_care_days` becomes `mean_daily_total_in_care_days`,
+    matching `mean_daily_intakes` and `mean_daily_outcomes`. This and the
+    incidence name are also workbook row labels, which change with them.
+  - Each stratifier's `unified_stay_counts` keys its rows by a `level` column,
+    which held intake types, animal groups, and `All` under the name
+    `period_label`.
 - `tools/cox_zph.R` tests the per-predictor stratified Cox fits as well as the
   pooled one. A new `model` column names the fit: `pooled`, or
   `stratified:<stratifier>`. The pooled rows are unchanged. The test on a

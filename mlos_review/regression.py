@@ -90,14 +90,13 @@ def _se_from_ci(lower: float | None, upper: float | None) -> float | None:
 
 
 def _term_to_stratifier(bundle: Bundle) -> dict[str, str]:
-    """R model term (`animal_group`) to stratifier id (`group`).
+    """R model term to stratifier id.
 
     The bundle states this outright wherever a stratified variant exists: each
     variant knows its own `effect_stratifier` and carries `xlevels` for exactly
-    the one term it estimates. Preferring that to any string manipulation
-    matters because the two vocabularies genuinely differ (`intake_type` is
-    `intake`, `animal_group` is `group`) and the mapping lives in the R
-    stratifier registry, which this package cannot see.
+    the one term it estimates. The two names coincide for every stratifier
+    today, but the mapping lives in the R stratifier registry, which this
+    package cannot see, so it is read rather than assumed.
 
     Without variants there is nothing to compare and only `pooled()` can be
     built, so the fallback matches a term's level set against each stratifier's

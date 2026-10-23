@@ -64,7 +64,7 @@ expected_stratifier_weibull_period <- list(
 # The two variants whose crossed term is not in the generating model.
 # Crossing is still attempted and still reported, and the statistic is
 # what a null looks like on one degree of freedom.
-expected_stratifier_weibull_intake <- list(
+expected_stratifier_weibull_intake_type <- list(
   has_analysis     = 1,
   shape            = c(0.92, 0.08),
   crossed          = 1,
@@ -72,7 +72,7 @@ expected_stratifier_weibull_intake <- list(
   crossing_lr_df   = 1
 )
 
-expected_stratifier_weibull_group <- list(
+expected_stratifier_weibull_animal_group <- list(
   has_analysis     = 1,
   shape            = c(0.91, 0.08),
   crossed          = 1,

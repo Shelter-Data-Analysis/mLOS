@@ -251,7 +251,7 @@ def check_selector_abstains() -> None:
 
     # highlights_table takes its levels from the table it is handed, so the
     # bundle is genuinely unused on this path.
-    chosen = list(highlights_table(None, "group", table).df.index)
+    chosen = list(highlights_table(None, "animal_group", table).df.index)
 
     expect("an all-tied selector contributes no row",
            "G01" not in chosen, f"chosen={chosen}")
@@ -264,7 +264,7 @@ def check_selector_abstains() -> None:
     # a superlative picks usually are the extremes, so recomputing agrees by
     # accident. It only shows up when a shown row is mid-range, which is
     # exactly the case that would mislead a reader.
-    highlights = highlights_table(None, "group", table)
+    highlights = highlights_table(None, "animal_group", table)
     filler = [m for m, _ in FULL_TABLE_MEASURES
               if m not in ("mean_daily_intakes", "expected_census",
                            "km_restricted_mean")][0]
@@ -367,7 +367,7 @@ def check_tied_extremes() -> None:
 
     def found(frame):
         return findings_for_stratifier(
-            _Pooled(100.0), "group", blocks.Table(df=frame, title="synthetic"),
+            _Pooled(100.0), "animal_group", blocks.Table(df=frame, title="synthetic"),
             "animal group")
 
     both = pd.DataFrame(
@@ -421,7 +421,7 @@ def check_settings() -> None:
     d = from_mapping({})
     expect_equal("default flag style", d.high_low_flag, "MARK")
     expect_equal("default output path", str(d.output_path), "reports/mlos_deck.pptx")
-    expect_equal("default emphasis is AUTO", d.emphasis_for("group"), Emphasis())
+    expect_equal("default emphasis is AUTO", d.emphasis_for("animal_group"), Emphasis())
 
     expect_equal("bullets are set at 18 point by default", d.bullet_size, 18.0)
     expect_equal("and at the size the file names",
@@ -434,11 +434,11 @@ def check_settings() -> None:
 
     picked = from_mapping({"emphasis": {"animal_group": ["LRG", "XL"]}})
     expect_equal("naming levels pins them",
-                 picked.emphasis_for("group").levels, ("LRG", "XL"))
+                 picked.emphasis_for("animal_group").levels, ("LRG", "XL"))
     expect("naming levels also forces the stratifier in",
-           picked.emphasis_for("group").forced)
+           picked.emphasis_for("animal_group").forced)
     expect("settings keys map to bundle stratifier ids",
-           picked.emphasis_for("intake") == Emphasis())
+           picked.emphasis_for("intake_type") == Emphasis())
 
     expect("NEVER suppresses",
            from_mapping({"emphasis": {"period": "NEVER"}}).emphasis_for("period").suppressed)
@@ -2424,19 +2424,19 @@ def check_stratifier_order(case: str, bundle: Bundle) -> None:
     # dimension no vocabulary entry covers. Reading order from the JSON is what
     # makes both of these work, so a regression to a hardcoded list fails here
     # rather than silently dropping a stratifier from a future deck.
-    invented = Bundle(data={"strata": {"group": {}, "all": {}, "intake": {},
+    invented = Bundle(data={"strata": {"animal_group": {}, "all": {}, "intake_type": {},
                                        "facility": {}, "period": {}}},
                       root=Path("."))
     expect_equal(f"{case}: a reordered registry reaches the deck unaided",
                  invented.stratifiers(),
-                 ["all", "group", "intake", "facility", "period"])
+                 ["all", "animal_group", "intake_type", "facility", "period"])
 
 
 def check_bundle_access(case: str, bundle: Bundle) -> None:
     expect(f"{case}: has() rejects a path that is not there",
            not bundle.has("strata", "no_such_stratifier"))
     expect(f"{case}: figure() returns None for an unknown kind",
-           bundle.figure("no_such_kind", "group") is None)
+           bundle.figure("no_such_kind", "animal_group") is None)
     check_stratifier_order(case, bundle)
 
     for stratifier in bundle.stratifiers():
@@ -2681,7 +2681,7 @@ def check_salience_statistic() -> None:
                           "km_restricted_mean_se": errors}),
             "observations": matrix({"total_intakes": intakes}),
         }
-        strata = {"group": node}
+        strata = {"animal_group": node}
         if pooled is not None:
             strata["all"] = {"km": {
                 "type": "matrix", "rows": ["km_restricted_mean"],
@@ -2690,7 +2690,7 @@ def check_salience_statistic() -> None:
 
     # Two levels, equal weights, ten days apart: the spread is half the gap,
     # which is what a standard deviation of two points is.
-    plain = salience.spread(bundle_with([10.0, 20.0], [0.0, 0.0], [100, 100]), "group")
+    plain = salience.spread(bundle_with([10.0, 20.0], [0.0, 0.0], [100, 100]), "animal_group")
     expect_equal("two levels spread by half their gap", round(plain.observed, 6), 5.0)
     expect_equal("with no standard errors there is no floor", plain.noise, 0.0)
     expect_equal("so the deviation is the observed spread",
@@ -2710,7 +2710,7 @@ def check_salience_statistic() -> None:
     # boundary is tested rather than a number that happens to sit near it.
     on_the_line = (5.0 - salience.STAY_DAYS_DEVIATION_FLOOR) / salience.STAY_DAYS_DEVIATION_SHARE
     scaled = salience.spread(
-        bundle_with([10.0, 20.0], [0.0, 0.0], [100, 100], pooled=on_the_line), "group")
+        bundle_with([10.0, 20.0], [0.0, 0.0], [100, 100], pooled=on_the_line), "animal_group")
     expect_equal("the threshold is a day plus a share of the unified mean",
                  round(scaled.threshold, 6), 5.0)
     expect_equal("and the share is taken on the unified figure",
@@ -2721,7 +2721,7 @@ def check_salience_statistic() -> None:
     # average of the two variances: each level helps set the mean it is then
     # measured against, which is the (1 - w/W) factor. Getting that wrong
     # overstates the floor by a factor of two exactly here.
-    noisy = salience.spread(bundle_with([10.0, 20.0], [4.0, 4.0], [100, 100]), "group")
+    noisy = salience.spread(bundle_with([10.0, 20.0], [4.0, 4.0], [100, 100]), "animal_group")
     expect_equal("the floor accounts for levels setting their own mean",
                  round(noisy.noise, 6), round(math.sqrt((16 + 16) / 4), 6))
     expect_equal("and comes out of the spread in quadrature",
@@ -2729,37 +2729,37 @@ def check_salience_statistic() -> None:
 
     # A spread no bigger than the floor is reported as no spread, rather than
     # as the square root of a negative number.
-    swamped = salience.spread(bundle_with([10.0, 11.0], [9.0, 9.0], [100, 100]), "group")
+    swamped = salience.spread(bundle_with([10.0, 11.0], [9.0, 9.0], [100, 100]), "animal_group")
     expect_equal("a spread inside the noise floors at zero", swamped.deviation, 0.0)
     expect("and is not salient", not swamped.salient)
 
     # Weighting is by intake COUNTS. A tiny level far from the rest moves the
     # spread by its share of arrivals, not by being one level of two.
     lopsided = salience.spread(
-        bundle_with([10.0, 40.0], [0.0, 0.0], [9900, 100]), "group")
+        bundle_with([10.0, 40.0], [0.0, 0.0], [9900, 100]), "animal_group")
     expect(f"a rare level pulls the spread by its share of arrivals",
            2.9 < lopsided.observed < 3.0, f"{lopsided.observed}")
 
     # Nothing to compare: one level, or levels with no arrivals behind them.
     expect("one level has no spread",
-           salience.spread(bundle_with([10.0], [0.0], [100]), "group") is None)
+           salience.spread(bundle_with([10.0], [0.0], [100]), "animal_group") is None)
     expect("nor do levels nobody arrived into",
            salience.spread(bundle_with([10.0, 20.0], [0.0, 0.0], [0, 0]),
-                           "group") is None)
+                           "animal_group") is None)
     expect("and an uncomputable spread is not salient",
-           not salience.is_salient(bundle_with([10.0], [0.0], [100]), "group"))
+           not salience.is_salient(bundle_with([10.0], [0.0], [100]), "animal_group"))
 
     # The settings answer first where they answer at all.
     from mlos_review.settings import Emphasis
     wide = bundle_with([10.0, 40.0], [0.0, 0.0], [100, 100])
     expect("NEVER outranks a wide spread",
-           not salience.earns_slides(wide, "group", Emphasis(mode="NEVER")))
+           not salience.earns_slides(wide, "animal_group", Emphasis(mode="NEVER")))
     narrow = bundle_with([10.0, 10.2], [0.0, 0.0], [100, 100])
     expect("ALWAYS outranks a narrow one",
-           salience.earns_slides(narrow, "group", Emphasis(mode="ALWAYS")))
+           salience.earns_slides(narrow, "animal_group", Emphasis(mode="ALWAYS")))
     expect("and AUTO takes the data's answer",
-           salience.earns_slides(wide, "group", Emphasis())
-           and not salience.earns_slides(narrow, "group", Emphasis()))
+           salience.earns_slides(wide, "animal_group", Emphasis())
+           and not salience.earns_slides(narrow, "animal_group", Emphasis()))
 
 
 def check_single_stratifier_default() -> None:
@@ -2767,26 +2767,26 @@ def check_single_stratifier_default() -> None:
     section("emphasis default against the dataset (synthetic)")
     from mlos_review.settings import Emphasis, Settings, from_mapping
 
-    alone = Settings().for_dataset(["group"])
+    alone = Settings().for_dataset(["animal_group"])
     expect("one stratifier makes the default ALWAYS",
-           alone.emphasis_for("group").forced, alone.emphasis_for("group"))
-    several = Settings().for_dataset(["period", "intake", "group"])
+           alone.emphasis_for("animal_group").forced, alone.emphasis_for("animal_group"))
+    several = Settings().for_dataset(["period", "intake_type", "animal_group"])
     expect_equal("more than one leaves it AUTO",
-                 several.emphasis_for("group").mode, "AUTO")
+                 several.emphasis_for("animal_group").mode, "AUTO")
     expect_equal("and no stratifier at all leaves it alone",
-                 Settings().for_dataset([]).emphasis_for("group").mode, "AUTO")
+                 Settings().for_dataset([]).emphasis_for("animal_group").mode, "AUTO")
 
     # Only the default moves. A file that names the stratifier has said what it
     # wants, including when what it wants is the comparison AUTO stands for.
     stated = from_mapping({"emphasis": {"animal_group": "AUTO"}})
     expect_equal("an explicit AUTO survives a single-stratifier dataset",
-                 stated.for_dataset(["group"]).emphasis_for("group").mode, "AUTO")
+                 stated.for_dataset(["animal_group"]).emphasis_for("animal_group").mode, "AUTO")
     refused = from_mapping({"emphasis": {"animal_group": "NEVER"}})
     expect("an explicit NEVER survives it too",
-           refused.for_dataset(["group"]).emphasis_for("group").suppressed)
+           refused.for_dataset(["animal_group"]).emphasis_for("animal_group").suppressed)
     pinned = from_mapping({"emphasis": {"animal_group": ["LRG"]}})
     expect_equal("and pinned levels are not disturbed",
-                 pinned.for_dataset(["group"]).emphasis_for("group"),
+                 pinned.for_dataset(["animal_group"]).emphasis_for("animal_group"),
                  Emphasis(mode="ALWAYS", levels=("LRG",)))
     # A stratifier the file does not name still takes the moved default, which
     # is the whole point: the file need not mention it at all.
@@ -3307,7 +3307,7 @@ def check_workload_drift_floor() -> None:
         return Bundle(root=Path("."), data={"strata": {
             "all": {"observations": matrix({blocks.WORKLOAD_DAYS: [sum(days)]},
                                            ["All"])},
-            "group": {
+            "animal_group": {
                 "observations": matrix({blocks.WORKLOAD_RESIDENTS: census,
                                         blocks.WORKLOAD_DAYS: days}),
                 "census": matrix({
@@ -3687,7 +3687,7 @@ def check_falling_hazard_gates() -> None:
         stays = [9000, 1000] if big_share else [9900, 100]
         return Bundle(root=Path("."), data={
             "strata": {
-                "group": {
+                "animal_group": {
                     "labels": ["MED", "LARGE"],
                     "unified_stay_counts": {
                         "type": "table",
@@ -3716,7 +3716,7 @@ def check_falling_hazard_gates() -> None:
 
     vocab = names.Vocabulary()
     fired = recommend.falling_hazard(
-        bundle_with(crossed=False, upper=0.70, big_share=True), "group", vocab)
+        bundle_with(crossed=False, upper=0.70, big_share=True), "animal_group", vocab)
     expect("falling_hazard: fires on an uncrossed variant clear of the ceiling",
            bool(fired) and "LARGE" in fired[0], fired)
 
@@ -3724,7 +3724,7 @@ def check_falling_hazard_gates() -> None:
     # ratio is then a contrast inside the reference cell of the other one, and
     # the sentence could not say so.
     silent = recommend.falling_hazard(
-        bundle_with(crossed=True, upper=0.70, big_share=True), "group", vocab)
+        bundle_with(crossed=True, upper=0.70, big_share=True), "animal_group", vocab)
     expect("falling_hazard: silent when the variant's shape was crossed",
            not silent, silent)
 
@@ -3732,7 +3732,7 @@ def check_falling_hazard_gates() -> None:
     # crossing available and switched off:
     fired = recommend.falling_hazard(
         bundle_with(crossed=False, upper=0.70, big_share=True,
-                    applicable=True, enabled=False), "group", vocab)
+                    applicable=True, enabled=False), "animal_group", vocab)
     expect("falling_hazard: fires on the additive fit the default produces",
            bool(fired) and "LARGE" in fired[0], fired)
 
@@ -3743,7 +3743,7 @@ def check_falling_hazard_gates() -> None:
         bundle_with(crossed=False, upper=0.70, big_share=True,
                     applicable=True, enabled=True,
                     fallback="1 of 4 combinations hold fewer than 5 outcomes"),
-        "group", vocab)
+        "animal_group", vocab)
     expect("falling_hazard: fires on an additive fit reached by fallback",
            bool(fired) and "LARGE" in fired[0], fired)
 
@@ -3752,7 +3752,7 @@ def check_falling_hazard_gates() -> None:
     # the fit that would have checked it.
     mixed = bundle_with(crossed=False, upper=0.70, big_share=True,
                         applicable=True, enabled=True)
-    mixed.data["weibull"]["shape_variants"]["intake"] = {
+    mixed.data["weibull"]["shape_variants"]["intake_type"] = {
         "shape_crossing": {"crossed": True, "applicable": True, "enabled": True,
                            "fallback_reason": None},
         "shape_table": {"type": "table", "columns": {
@@ -3761,13 +3761,13 @@ def check_falling_hazard_gates() -> None:
             "shape_own": [0.90, 0.60], "shape_own_upper": [0.95, 0.70],
         }},
     }
-    silent = recommend.falling_hazard(mixed, "group", vocab)
+    silent = recommend.falling_hazard(mixed, "animal_group", vocab)
     expect("falling_hazard: silent when any variant in the run crossed",
            not silent, silent)
 
     # Estimate 0.60, well under the ceiling, but the interval reaches past it.
     silent = recommend.falling_hazard(
-        bundle_with(crossed=False, upper=0.90, big_share=True), "group", vocab)
+        bundle_with(crossed=False, upper=0.90, big_share=True), "animal_group", vocab)
     expect("falling_hazard: silent when the interval reaches the ceiling",
            not silent, silent)
 
@@ -3775,7 +3775,7 @@ def check_falling_hazard_gates() -> None:
     # small to send anyone to, which is what keeps the _UNKNOWN_ fill out
     # without naming it.
     silent = recommend.falling_hazard(
-        bundle_with(crossed=False, upper=0.70, big_share=False), "group", vocab)
+        bundle_with(crossed=False, upper=0.70, big_share=False), "animal_group", vocab)
     expect("falling_hazard: silent for a level under the minimum share",
            not silent, silent)
 
@@ -3785,13 +3785,13 @@ def check_falling_hazard_gates() -> None:
     # becomes 0.60 x 0.95 = 0.57 and the interval does not clear it.
     silent = recommend.falling_hazard(
         bundle_with(crossed=False, upper=0.70, big_share=True, pooled=0.60),
-        "group", vocab)
+        "animal_group", vocab)
     expect("falling_hazard: silent when the level does not stand out from the "
            "shelter's own shape", not silent, silent)
     # The mirror: the same level on a shelter that mostly does not fall.
     fired = recommend.falling_hazard(
         bundle_with(crossed=False, upper=0.70, big_share=True, pooled=1.10),
-        "group", vocab)
+        "animal_group", vocab)
     expect("falling_hazard: fires where the shelter's shape leaves room",
            bool(fired) and "LARGE" in fired[0], fired)
 
@@ -3815,12 +3815,12 @@ def check_gaps_past_the_plot_cap() -> None:
                 "restricted_stay_cap": 365,
                 "presentation": {"plot_stay_cap": 60},
                 "coverage": {"period": {"label": "Period", "included": True},
-                             "group": {"label": "Animal Group", "included": True}},
+                             "animal_group": {"label": "Animal Group", "included": True}},
             },
             # Presence is all these decide: which stratifiers exist, and which
             # of them the opening summary tallies (see summary_fields).
             "strata": {"period": {}, "all": {"unified_stay_counts": {}},
-                       "group": {"unified_stay_counts": {}}},
+                       "animal_group": {"unified_stay_counts": {}}},
             "unified": {"gaps": {
                 "type": "table",
                 "columns": {name: [row[i] for row in rows]
@@ -4563,7 +4563,7 @@ def check_margin_takes_the_further_bound() -> None:
     from mlos_review import regression as reg
 
     def frame(hr, se):
-        index = pd.MultiIndex.from_tuples([("group", "A")], names=reg.INDEX_NAMES)
+        index = pd.MultiIndex.from_tuples([("animal_group", "A")], names=reg.INDEX_NAMES)
         return pd.DataFrame({"hr": [hr],
                              "hr_ci_lower": [hr * math.exp(-reg.Z_95 * se)],
                              "hr_ci_upper": [hr * math.exp(reg.Z_95 * se)],
@@ -4597,7 +4597,7 @@ def check_comparison_declines_without_both_fits() -> None:
     from mlos_review.blocks import requires_cox_comparison
     from mlos_review import regression as reg
 
-    index = pd.MultiIndex.from_tuples([("group", "A"), ("group", "B")],
+    index = pd.MultiIndex.from_tuples([("animal_group", "A"), ("animal_group", "B")],
                                       names=reg.INDEX_NAMES)
     pooled = pd.DataFrame({"hr": [1.0, 1.4], "hr_ci_lower": [None, 1.2],
                            "hr_ci_upper": [None, 1.6], "p_value": [None, 0.01]},
@@ -4614,7 +4614,7 @@ def check_comparison_declines_without_both_fits() -> None:
     expect("no margin is invented for it",
            comparison["agreement_margin"].isna().all())
     expect("and no slide is built",
-           not requires_cox_comparison(comparison, "group"))
+           not requires_cox_comparison(comparison, "animal_group"))
 
 
 def check_workbook_and_manifest(case: str, bundle: Bundle, directory: Path) -> None:

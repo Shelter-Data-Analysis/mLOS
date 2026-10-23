@@ -226,8 +226,8 @@ write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style
     cox$concordance_se,
     cox$uses_clustered_se,
     coverage$period$n,
-    coverage$intake$n,
-    coverage$group$n
+    coverage$intake_type$n,
+    coverage$animal_group$n
   )
   # An excluded level's rows in the coefficient table are blank: the fit has
   # no estimate.
@@ -336,8 +336,8 @@ write_weibull_regression_sheet <- function(wb, wres, cox_has_analysis, coverage,
     NA_real_,
     FALSE,      # SEs are model-based (Hessian), not clustered -- see math doc 6.6
     coverage$period$n,
-    coverage$intake$n,
-    coverage$group$n
+    coverage$intake_type$n,
+    coverage$animal_group$n
   )
   overview_metrics <- c(overview_metrics, scope$metrics)
   overview_values  <- c(overview_values, scope$values)
@@ -1343,7 +1343,7 @@ write_weibull_by_stratifier_sheet <- function(wb, sheet, wres,
   }
 
   # The rows to show, in sheet order. The measures matrix carries more than
-  # this: mean_census_inventory and daily_mean_total_in_care_days appear in the
+  # this: mean_census_inventory and mean_daily_total_in_care_days appear in the
   # census-aggregates section instead (beside the expected census), and
   # censored and total_in_care_days_sum are components better read through the
   # rows below that summarize them. Naming the display rows explicitly keeps
@@ -1395,7 +1395,7 @@ write_weibull_by_stratifier_sheet <- function(wb, sheet, wres,
 
   # Census aggregates, observed beside expected. Observed: the mean census
   # (mean_census_inventory) and the mean nightly total accumulated in-care days
-  # (daily_mean_total_in_care_days), both moved down from the observations
+  # (mean_daily_total_in_care_days), both moved down from the observations
   # section above. Expected (math methods 5.6): the steady-state census (the
   # km_census_by_* CSV's expected_census, inventory convention via Little's law,
   # mean daily intakes x KM restricted mean; directly comparable to

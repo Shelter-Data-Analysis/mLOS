@@ -1568,7 +1568,7 @@ attribute of the same animals, an age band for instance. The mirror run is
 named too: the same column as `other_filter_cut` keeps everything *except* the
 carrier, and the levels it was swamping finally state their own behavior on
 the other splits and in both regressions. A stratifier the tool does not
-compose, `intake` being the case, has nothing to repoint and gets the plain
+compose, `intake_type` being the case, has nothing to repoint and gets the plain
 filter.
 
 **`tail_spread` is relative to the shelter, not absolute.** A level is flagged
@@ -2036,7 +2036,7 @@ two different medians "Median".
 |---|---|---|
 | `METRICS` | measure names from stratum matrices, unified scalars, regression table columns | a phrase |
 | `KINDS` | the `kind` field of the outputs manifest | a figure title, and the filename stem |
-| `STRATIFIERS` | `period`, `intake`, `group`, `all` | a phrase used inside titles |
+| `STRATIFIERS` | `period`, `intake_type`, `animal_group`, `all` | a phrase used inside titles |
 
 #### Three structural rules
 

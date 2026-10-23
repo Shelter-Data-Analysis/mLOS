@@ -20,9 +20,9 @@ expected_stratified_km <- local({
   flat <- list()
   for (k in 1:11) {
     g <- sprintf("G%02d", k)
-    flat[[paste0("group.", g, ".n")]]      <- 1
-    flat[[paste0("group.", g, ".events")]] <- 1
-    flat[[paste0("group.", g, ".median")]] <- k
+    flat[[paste0("animal_group.", g, ".n")]]      <- 1
+    flat[[paste0("animal_group.", g, ".events")]] <- 1
+    flat[[paste0("animal_group.", g, ".median")]] <- k
   }
   flat
 })

@@ -145,15 +145,16 @@ def narrowing(bundle: Bundle, vocab) -> list[str]:
 # rather than leaving them to find it; the SOURCE settings are what let it
 # recommend the better of the two ways to change it.
 FILTER_SETTINGS = {
-    "intake": "intake_filter",
-    "group": "animal_group_filter",
+    "intake_type": "intake_filter",
+    "animal_group": "animal_group_filter",
 }
 
-# `group` is composed by the tool from `animal_group_columns`, so it can be
-# repointed at any attribute of the same animals; `intake` is a column of the
-# data and cannot, which is why it is absent here rather than mapped to itself.
+# `animal_group` is composed by the tool from `animal_group_columns`, so it can
+# be repointed at any attribute of the same animals; `intake_type` is a column
+# of the data and cannot, which is why it is absent here rather than mapped to
+# itself.
 SOURCE_COLUMN_SETTINGS = {
-    "group": "animal_group_columns",
+    "animal_group": "animal_group_columns",
 }
 
 

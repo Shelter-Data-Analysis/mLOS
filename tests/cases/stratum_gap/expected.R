@@ -23,12 +23,12 @@ expected_km <- list(
 # convention). SLOW's curve zeroes at day 15 -- before its own gap -- so
 # animal 4's 30-day stay contributes nothing, and the gap fields flag it.
 expected_stratified_km <- list(
-  group.FAST.n      = 2,
-  group.FAST.events = 2,
-  group.FAST.median = 15,
-  group.SLOW.n      = 2,
-  group.SLOW.events = 2,
-  group.SLOW.median = 15,
+  animal_group.FAST.n      = 2,
+  animal_group.FAST.events = 2,
+  animal_group.FAST.median = 15,
+  animal_group.SLOW.n      = 2,
+  animal_group.SLOW.events = 2,
+  animal_group.SLOW.median = 15,
 
   n_strata_gaps = 1
 )

@@ -679,7 +679,7 @@ stratum_km_summary <- function(period_data, col, labels, cap) {
                                  expected_future_animal_days / expected_census, NA_real_)
   m <- rbind(
     mean_census_inventory         = mean_census_inventory,
-    daily_mean_total_in_care_days = daily_in_care_days,
+    mean_daily_total_in_care_days = daily_in_care_days,
     expected_census               = expected_census,
     expected_past_animal_days     = expected_past_animal_days,
     expected_future_animal_days   = expected_future_animal_days,

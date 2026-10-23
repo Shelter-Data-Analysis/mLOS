@@ -89,8 +89,8 @@ expected_period_stats <- list(
   Period_2.mean_daily_intakes            = c(10, 1.2),
   Period_1.mean_census_inventory         = c(150, 21),
   Period_2.mean_census_inventory         = c(150, 21),
-  Period_1.daily_mean_total_in_care_days = c(1500, 310),
-  Period_2.daily_mean_total_in_care_days = c(1500, 310)
+  Period_1.mean_daily_total_in_care_days = c(1500, 310),
+  Period_2.mean_daily_total_in_care_days = c(1500, 310)
 )
 
 # Census by tenure (math methods 5.6): N(d) = 10 S(d), so N(0) = 10 (the

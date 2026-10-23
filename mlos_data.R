@@ -1323,7 +1323,7 @@ break_down_by_period <- function(data, references) {
 #' @return Data frame with one row per group and the daily mean metric;
 #'   period_label holds the group label and period_num is NA for
 #'   non-period groupings
-calculate_daily_mean_total_in_care_days <- function(period_data, col = "period_label",
+calculate_mean_daily_total_in_care_days <- function(period_data, col = "period_label",
                                                     window_days = NULL) {
   by_period <- identical(col, "period_label")
   rows <- .map_period_subsets(period_data, function(period_subset, lbl) {
@@ -1335,14 +1335,14 @@ calculate_daily_mean_total_in_care_days <- function(period_data, col = "period_l
 
     total_in_care_days_sum <- sum(per_animal_value, na.rm = TRUE)
     period_days <- .period_length_days(period_subset, window_days)
-    daily_mean_total_in_care_days <- .per_day(total_in_care_days_sum, period_days)
+    mean_daily_total_in_care_days <- .per_day(total_in_care_days_sum, period_days)
 
     data.frame(
       period_num = if (by_period) unique(period_subset$period_num) else NA_integer_,
       period_label = lbl,
       period_days = period_days,
       total_in_care_days_sum = total_in_care_days_sum,
-      daily_mean_total_in_care_days = daily_mean_total_in_care_days,
+      mean_daily_total_in_care_days = mean_daily_total_in_care_days,
       stringsAsFactors = FALSE
     )
   }, col = col)
@@ -1364,7 +1364,7 @@ calculate_daily_mean_total_in_care_days <- function(period_data, col = "period_l
 #' @param col Column of period_data to group by (default "period_label";
 #'   the Excel stratum sheets pass "intake_type" or "animal_group")
 #' @param window_days Denominator override in days; required for non-period
-#'   cols, same as in calculate_daily_mean_total_in_care_days
+#'   cols, same as in calculate_mean_daily_total_in_care_days
 #' @return Data frame with one row per group and flow metrics; period_label
 #'   holds the group label and period_num is NA for non-period groupings
 calculate_period_flow_metrics <- function(period_data, col = "period_label",
@@ -1598,7 +1598,7 @@ calculate_unified_stay_counts <- function(period_data, labels, col) {
     })
   )
   incidence <- do.call(rbind, rate_rows)
-  rownames(incidence) <- c("incidence_overall_per_100_animal_days",
+  rownames(incidence) <- c("incidence_Any_per_100_animal_days",
                            paste0("incidence_", outcome_levels, "_per_100_animal_days"))
   colnames(incidence) <- labels
 

@@ -101,9 +101,9 @@ def _cox_margins(bundle: Bundle) -> str:
 def _puppy_interval(bundle: Bundle, level: str) -> str:
     """The off-center interval the margin's "further bound" rule turns on."""
     frame = comparison(pooled(bundle), stratified(bundle))
-    if ("group", level) not in frame.index:
+    if ("animal_group", level) not in frame.index:
         return f"(no {level} row)"
-    row = frame.loc[("group", level)]
+    row = frame.loc[("animal_group", level)]
     if row[["hr_ratio_ci_lower", "hr_ratio_ci_upper"]].isna().any():
         return f"({level} is the reference)"
     return (f"[{row['hr_ratio_ci_lower']:.3f}, {row['hr_ratio_ci_upper']:.3f}], "
@@ -147,7 +147,7 @@ def _burden(bundle: Bundle, stratifier: str) -> str:
 
 
 def _aj_windows(bundle: Bundle) -> str:
-    windows = bundle.stratum("group", "aj_window")["aj_analysis_window_days"].dropna()
+    windows = bundle.stratum("animal_group", "aj_window")["aj_analysis_window_days"].dropna()
     shortest, longest = windows.idxmin(), windows.idxmax()
     return (f"{shortest} ends at day {int(windows[shortest])}, "
             f"{longest} runs to {int(windows[longest])}")
@@ -160,7 +160,7 @@ def _highlights(bundle: Bundle, stratifier: str) -> str:
 
 
 def _at_cap(bundle: Bundle) -> str:
-    at_cap = bundle.stratum("group", "km")["km_still_in_care_at_cap"].dropna()
+    at_cap = bundle.stratum("animal_group", "km")["km_still_in_care_at_cap"].dropna()
     worst = at_cap.idxmax()
     return f"{worst} at {at_cap[worst]:.1%}"
 
@@ -271,7 +271,7 @@ def _guard_summary(bundle: Bundle) -> str:
     if not enabled:
         return "crossing off: all three additive"
     refused, crossed = [], []
-    for name in ("period", "intake", "group"):
+    for name in ("period", "intake_type", "animal_group"):
         crossing = _shape_variant(bundle, name).get("shape_crossing") or {}
         if crossing.get("crossed"):
             crossed.append(name)
@@ -283,7 +283,7 @@ def _guard_summary(bundle: Bundle) -> str:
 def _strata_counts(bundle: Bundle) -> str:
     variants = bundle.value("cox", "stratified_variants", default={}) or {}
     counts, with_events, events = [], [], 0
-    for name in ("period", "intake", "group"):
+    for name in ("period", "intake_type", "animal_group"):
         found = variants.get(name) or {}
         counts.append(found.get("n_strata"))
         with_events.append(found.get("n_strata_with_events"))
@@ -299,13 +299,13 @@ CLAIMS: list[tuple[str, str, str, object]] = [
     ("OC1", "salience, period", "3 levels, 3.46 / 0.44 / 3.43, threshold 3.53, not salient",
      lambda b, v: _salience_row(b, "period")),
     ("OC1", "salience, intake type", "3 levels, 4.49 / 0.55 / 4.46, threshold 3.53, salient",
-     lambda b, v: _salience_row(b, "intake")),
+     lambda b, v: _salience_row(b, "intake_type")),
     ("OC1", "salience, animal group", "7 levels, 11.09 / 0.64 / 11.07, threshold 3.53, salient",
-     lambda b, v: _salience_row(b, "group")),
+     lambda b, v: _salience_row(b, "animal_group")),
     ("OC2", "salience, intake type", "4 levels, 4.56 / 0.64 / 4.51, threshold 3.51, salient",
-     lambda b, v: _salience_row(b, "intake")),
+     lambda b, v: _salience_row(b, "intake_type")),
     ("OC2", "salience, animal group", "5 levels, 11.04 / 0.44 / 11.03, threshold 3.51, salient",
-     lambda b, v: _salience_row(b, "group")),
+     lambda b, v: _salience_row(b, "animal_group")),
     ("OC2", "arrivals behind the noise floor", "15,597",
      lambda b, v: f"{int(b.stratum('all', 'observations')['total_intakes'].iloc[0]):,}"),
 
@@ -325,31 +325,31 @@ CLAIMS: list[tuple[str, str, str, object]] = [
     ("OC2", "period censuses against the true one", "571 against 191",
      lambda b, v: _period_census(b)),
     ("OC2", "burden carrier, animal group", "LARGE at 93% owed against 70% of residents",
-     lambda b, v: _burden(b, "group")),
-    ("OC1", "burden carrier, intake type", "no carrier", lambda b, v: _burden(b, "intake")),
-    ("OC2", "burden carrier, intake type", "no carrier", lambda b, v: _burden(b, "intake")),
+     lambda b, v: _burden(b, "animal_group")),
+    ("OC1", "burden carrier, intake type", "no carrier", lambda b, v: _burden(b, "intake_type")),
+    ("OC2", "burden carrier, intake type", "no carrier", lambda b, v: _burden(b, "intake_type")),
     ("OC2", "AJ windows by animal group", "MED ends at day 132, LARGE runs to 365",
      lambda b, v: _aj_windows(b)),
     ("OC2", "cap binding hardest", "LARGE at 0.9%", lambda b, v: _at_cap(b)),
 
     # -- Selection and sheets ----------------------------------------------
     ("OC1", "highlights collapse, animal group", "2 rows of 7",
-     lambda b, v: _highlights(b, "group")),
+     lambda b, v: _highlights(b, "animal_group")),
     ("OC2", "highlights collapse, animal group", "2 rows of 5",
-     lambda b, v: _highlights(b, "group")),
+     lambda b, v: _highlights(b, "animal_group")),
     ("OC1", "workbook sheets", "11 sheets", _sheets),
     ("OC2", "workbook sheets", "11 sheets", _sheets),
 
     # -- Findings and recommendations --------------------------------------
     ("OC1", "outcome sweep, animal group", "(silent)",
      lambda b, v: _first(blocks._outcome_sweep(
-         {code: blocks.aj_levels_table(b, "group", v).df[f"aj_restricted_mean_{code}"].dropna()
-          for code in blocks.aj_outcome_codes(b, "group")}, "animal group") or [])),
+         {code: blocks.aj_levels_table(b, "animal_group", v).df[f"aj_restricted_mean_{code}"].dropna()
+          for code in blocks.aj_outcome_codes(b, "animal_group")}, "animal group") or [])),
     ("OC2", "outcome sweep, animal group",
      "By animal group, PUPPY is the fastest in every outcome type.",
      lambda b, v: blocks._outcome_sweep(
-         {code: blocks.aj_levels_table(b, "group", v).df[f"aj_restricted_mean_{code}"].dropna()
-          for code in blocks.aj_outcome_codes(b, "group")}, "animal group") or "(silent)"),
+         {code: blocks.aj_levels_table(b, "animal_group", v).df[f"aj_restricted_mean_{code}"].dropna()
+          for code in blocks.aj_outcome_codes(b, "animal_group")}, "animal group") or "(silent)"),
     # The guide quotes the opening of this sentence and trails off; the
     # expected value is the part it quotes, matched inside the whole.
     ("OC2", "time to outcome, animal group",
@@ -357,18 +357,18 @@ CLAIMS: list[tuple[str, str, str, object]] = [
      "fastest (5.7 days). For other live outcomes, LARGE is slowest (65.7 days) "
      "and PUPPY is fastest (4.8 days)",
      lambda b, v: _first(blocks.findings_for_aj(
-         blocks.aj_levels_table(b, "group", v), "animal group", v)[-1:])),
+         blocks.aj_levels_table(b, "animal_group", v), "animal group", v)[-1:])),
     ("OC2", "outcome spread, animal group",
      "LARGE at 39 days against PUPPY at 2, a 19.9-fold gap",
-     lambda b, v: _first(blocks.findings_for_outcome_spread(b, "group", "animal group", v))),
+     lambda b, v: _first(blocks.findings_for_outcome_spread(b, "animal_group", "animal group", v))),
     ("OC2", "outcome contrast, intake type",
      "for OTH: its other live outcomes take 56 days against 12 for its "
      "community live ones, 4.5 times as long",
-     lambda b, v: _first(blocks.findings_for_outcome_contrast(b, "intake", "intake type", v))),
+     lambda b, v: _first(blocks.findings_for_outcome_contrast(b, "intake_type", "intake type", v))),
     ("OC2", "tail spread, intake type",
      "90th percentile stay is 37 days against a median of 3, a spread 2.1 "
      "times the shelter's own",
-     lambda b, v: _tail_spread(b, v, "intake")),
+     lambda b, v: _tail_spread(b, v, "intake_type")),
     # The rule reads an additive shape formula, which is what a default run
     # fits, and refuses a crossed one. A run made with weibull_shape_crossing
     # enabled therefore has less to read and can fall silent here, which is one
@@ -381,7 +381,7 @@ CLAIMS: list[tuple[str, str, str, object]] = [
      "come more strongly there than elsewhere, so an intervention aimed at "
      "animals past a tenure threshold has the most to bite on in LARGE. The "
      "census-by-tenure curves say where to set it.",
-     lambda b, v: _first(recommend.falling_hazard(b, "group", v))),
+     lambda b, v: _first(recommend.falling_hazard(b, "animal_group", v))),
 
     # -- Math methods, section 6.7: shapes and the count guard ---------------
     # The section reads the baseline and the ratio column together, so both

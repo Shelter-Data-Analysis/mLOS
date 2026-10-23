@@ -60,7 +60,7 @@ expected_cox <- list(
 # disagreeing about the rule. The two pins stand 224,000 tolerances
 # apart, which is what makes them a pair rather than one value written
 # twice.
-expected_cox_stratified_group <- list(
+expected_cox_stratified_animal_group <- list(
   has_analysis         = 1,
   n                    = 1024,
   n_events             = 990,
@@ -72,7 +72,7 @@ expected_cox_stratified_group <- list(
 
 # strata(animal_group): the null factor under a free baseline per size,
 # still exactly 1.
-expected_cox_stratified_intake <- list(
+expected_cox_stratified_intake_type <- list(
   has_analysis         = 1,
   n                    = 1024,
   n_events             = 990,
@@ -87,21 +87,21 @@ expected_cox_stratified_intake <- list(
 # whole animals, leaving 32 LARGE and 2 SMALL censored there. The two
 # intake_type strata are identical, so both reproduce the pooled curve.
 expected_stratified_km <- list(
-  group.LARGE.n      = 512,
-  group.LARGE.events = 480,
+  animal_group.LARGE.n      = 512,
+  animal_group.LARGE.events = 480,
   # S(1) = 0.5 EXACTLY, so the median is the midpoint of the flat
   # stretch [1, 2) under the documented exact-tie convention.
-  group.LARGE.median = 1.5,
-  group.SMALL.n      = 512,
-  group.SMALL.events = 510,
-  group.SMALL.median = 1,   # S(1) = 0.25, under half on the first day
+  animal_group.LARGE.median = 1.5,
+  animal_group.SMALL.n      = 512,
+  animal_group.SMALL.events = 510,
+  animal_group.SMALL.median = 1,   # S(1) = 0.25, under half on the first day
 
-  intake.OWNER.n      = 512,
-  intake.OWNER.events = 495,
-  intake.OWNER.median = 1,  # the pooled curve, S(1) = 0.375
-  intake.STRAY.n      = 512,
-  intake.STRAY.events = 495,
-  intake.STRAY.median = 1,
+  intake_type.OWNER.n      = 512,
+  intake_type.OWNER.events = 495,
+  intake_type.OWNER.median = 1,  # the pooled curve, S(1) = 0.375
+  intake_type.STRAY.n      = 512,
+  intake_type.STRAY.events = 495,
+  intake_type.STRAY.median = 1,
 
   # Every stratum is at risk from day 0 without a break.
   n_strata_gaps = 0

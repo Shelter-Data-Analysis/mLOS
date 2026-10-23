@@ -129,7 +129,7 @@ METRICS: dict[str, Name] = {
     "fraction_capped": Name("fraction that exceeded the cap", "at cap", "fraction"),
     # -- outcome counts and mix --------------------------------------------
     "completed_outcomes_total": Name("completed outcomes", "outcomes"),
-    "incidence_overall_per_100_animal_days": Name(
+    "incidence_Any_per_100_animal_days": Name(
         "overall exit rate", "exit rate", "per 100 animal-days"
     ),
     # -- Kaplan-Meier, the intake-cohort view -------------------------------
@@ -159,7 +159,7 @@ METRICS: dict[str, Name] = {
     # -- census aggregates, the resident view -------------------------------
     "mean_census_inventory": Name("mean census", "census", "animals"),
     "total_in_care_days_sum": Name("total in-care days accrued", "in-care days", "days"),
-    "daily_mean_total_in_care_days": Name(
+    "mean_daily_total_in_care_days": Name(
         "mean in-care days accrued per night", "in-care days/night", "days"
     ),
     "expected_census": Name("expected census", "expected census", "animals"),
@@ -326,8 +326,8 @@ KINDS: dict[str, Name] = {
 # than standing alone, so they stay lowercase even by title conventions.
 STRATIFIERS: dict[str, Name] = {
     "period": Name("period"),
-    "intake": Name("intake type"),
-    "group": Name("animal group"),
+    "intake_type": Name("intake type"),
+    "animal_group": Name("animal group"),
     "all": Name("whole sample", "all"),
 }
 

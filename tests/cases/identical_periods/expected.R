@@ -55,7 +55,7 @@ expected_period_stats <- list(
   Period_1.total_animal_days             = 15,
   Period_1.mean_census_inventory                   = 15 / 31,
   Period_1.total_in_care_days_sum        = 43,      # 1 + 6 + 36
-  Period_1.daily_mean_total_in_care_days = 43 / 31,
+  Period_1.mean_daily_total_in_care_days = 43 / 31,
   Period_1.total_intakes                 = 3,
   Period_1.total_outcomes                = 3,
   Period_1.mean_daily_intakes            = 3 / 31,
@@ -72,7 +72,7 @@ expected_period_stats <- list(
   Period_2.total_animal_days             = 15,
   Period_2.mean_census_inventory                   = 15 / 28,
   Period_2.total_in_care_days_sum        = 43,
-  Period_2.daily_mean_total_in_care_days = 43 / 28,
+  Period_2.mean_daily_total_in_care_days = 43 / 28,
   Period_2.total_intakes                 = 3,
   Period_2.total_outcomes                = 3,
   Period_2.mean_daily_intakes            = 3 / 28,

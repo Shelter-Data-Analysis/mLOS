@@ -102,7 +102,7 @@ expected_stratifier_weibull_period <- list(
   SHAPE_animal_groupLARGE = c(1.0, 0.2)
 )
 
-expected_stratifier_weibull_group <- list(
+expected_stratifier_weibull_animal_group <- list(
   has_analysis = 1,
   n            = 2166,
   n_events     = 1851,
@@ -139,7 +139,7 @@ expected_cox_stratified_period <- list(
   HR_periodPeriod_2 = c(1.0, 0.2)
 )
 
-expected_cox_stratified_group <- list(
+expected_cox_stratified_animal_group <- list(
   has_analysis = 1,
   n            = 2166,
   n_events     = 1851,
@@ -154,14 +154,14 @@ expected_cox_stratified_group <- list(
 
 expected_stratified_km <- list(
   # The sighted view: within each size the curve is exactly geometric.
-  group.LARGE.n      = 753,
-  group.LARGE.events = 549,
-  group.LARGE.median = c(23, 5.5),      # 0.97^22=0.5117, ^23=0.4963 borderline
-  group.LARGE.rmean  = c(32.4709, 5.5), # (1-0.97^120)/0.03
-  group.SMALL.n      = 1413,
-  group.SMALL.events = 1302,
-  group.SMALL.median = c(6, 1.6),       # 0.88^5=0.5277, ^6=0.4644
-  group.SMALL.rmean  = c(8.3333, 1.1),  # (1-0.88^120)/0.12
+  animal_group.LARGE.n      = 753,
+  animal_group.LARGE.events = 549,
+  animal_group.LARGE.median = c(23, 5.5),      # 0.97^22=0.5117, ^23=0.4963 borderline
+  animal_group.LARGE.rmean  = c(32.4709, 5.5), # (1-0.97^120)/0.03
+  animal_group.SMALL.n      = 1413,
+  animal_group.SMALL.events = 1302,
+  animal_group.SMALL.median = c(6, 1.6),       # 0.88^5=0.5277, ^6=0.4644
+  animal_group.SMALL.rmean  = c(8.3333, 1.1),  # (1-0.88^120)/0.12
   # Both periods sample the SAME mixture truths (the null, seen at the
   # KM level): identical medians and restricted means.
   period.Period_1.n      = 1078,
@@ -203,13 +203,13 @@ expected_period_stats <- list(
 # dogs hold 97.4 / 155.7 = 63% of the census from 30% of intakes.
 # Tolerances combine the intake-rate and rmean pins in quadrature.
 expected_census <- list(
-  group.LARGE.lambda = c(3, 0.7),
-  group.SMALL.lambda = c(7, 1.0),
-  group.LARGE.predicted_census = c(97.413, 28),   # 3 x 32.4709
-  group.SMALL.predicted_census = c(58.333, 12),   # 7 x 8.3333
+  animal_group.LARGE.lambda = c(3, 0.7),
+  animal_group.SMALL.lambda = c(7, 1.0),
+  animal_group.LARGE.predicted_census = c(97.413, 28),   # 3 x 32.4709
+  animal_group.SMALL.predicted_census = c(58.333, 12),   # 7 x 8.3333
   # One day-grid pin: N(5) for SMALL = 7 x 0.88^5 = 3.694 -- the census
   # profile is the intake rate times the geometric survival curve.
-  group.SMALL.day5 = c(3.694, 0.8),
+  animal_group.SMALL.day5 = c(3.694, 0.8),
   period.Period_1.predicted_census = c(155.746, 33),
   period.Period_2.predicted_census = c(155.746, 33)
 )

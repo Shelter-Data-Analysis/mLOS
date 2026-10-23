@@ -408,7 +408,7 @@ flatten_aj <- function(aj_results, references) {
 
 # stratified_km_analysis() -> one entry per (stratifier, stratum) for n,
 # events, median, rmean, and pos, named "<stratifier>.<stratum>.<field>", e.g.
-# "group.BIG.median", "period.Period_1.rmean" (stratifier ids: period, intake,
+# "animal_group.BIG.median", "period.Period_1.rmean" (stratifier ids: period, intake,
 # group; stratum names have the "column=" prefix stripped, matching plots/CSVs).
 # rmean is the restricted mean at restricted_stay_cap, the same
 # summary(fit, rmean = cap) statistic km_unified_period reports for the
@@ -580,7 +580,7 @@ flatten_observation_matrix <- function(m, prefix = "") {
 
 # Per-period counts/census/flow metrics -> one entry per (period, field),
 # named "<period_label>.<field>", e.g. "Period_1.total_animal_days",
-# "Period_2.daily_mean_total_in_care_days". Built through
+# "Period_2.mean_daily_total_in_care_days". Built through
 # .build_stratum_observation_matrix, so this is the same matrix the results
 # bundle carries and the workbook displays, not a parallel derivation of it.
 flatten_period_stats <- function(period_data, references) {
@@ -595,8 +595,8 @@ flatten_period_stats <- function(period_data, references) {
 # Per-stratum counterpart of flatten_period_stats, grouped by each stratifier
 # column with the whole-window day denominator (total days across all periods),
 # exactly as the bundle's intake/group nodes are built. Keys are
-# "<id>.<stratum>.<field>", e.g. "group.SMALL.total_animal_days",
-# "intake.STRAY.total_intakes", "group.SMALL.total_stays". A missing stratifier
+# "<id>.<stratum>.<field>", e.g. "animal_group.SMALL.total_animal_days",
+# "intake_type.STRAY.total_intakes", "animal_group.SMALL.total_stays". A missing stratifier
 # column contributes no entries, so expecting NA for one of its fields works as
 # an absence assertion.
 flatten_stratum_stats <- function(period_data, references) {
@@ -763,7 +763,7 @@ check_bundle_invariants <- function(case_name, bundle) {
       expect_equal(paste0(lbl, ": future - past = census (", col, ")"), futr - past, pred)
       expect_equal(paste0(lbl, ": per-resident in-care days = in-care days / census (", col, ")"),
                    row_of(cen, "per_resident_in_care_days", i),
-                   ratio(row_of(cen, "daily_mean_total_in_care_days", i),
+                   ratio(row_of(cen, "mean_daily_total_in_care_days", i),
                          row_of(cen, "mean_census_inventory", i)))
       expect_equal(paste0(lbl, ": per-resident past days = past days / expected census (", col, ")"),
                    row_of(cen, "per_resident_past_days", i), ratio(past, pred))
@@ -867,10 +867,10 @@ check_bundle_invariants <- function(case_name, bundle) {
       events_overall    <- row_of(obs, "events", i)
       if (!is.na(events_overall) && !is.na(total_animal_days)) {
         expect_equal(paste0(lbl, ": Incidence_overall CI lower (", col, ")"),
-                     row_of(ci, "incidence_overall_per_100_animal_days_ci_lower", i),
+                     row_of(ci, "incidence_Any_per_100_animal_days_ci_lower", i),
                      .poisson_rate_ci(events_overall, total_animal_days)[1] * 100)
         expect_equal(paste0(lbl, ": Incidence_overall CI upper (", col, ")"),
-                     row_of(ci, "incidence_overall_per_100_animal_days_ci_upper", i),
+                     row_of(ci, "incidence_Any_per_100_animal_days_ci_upper", i),
                      .poisson_rate_ci(events_overall, total_animal_days)[2] * 100)
       }
       rmtl_sum <- 0
@@ -1265,7 +1265,7 @@ check_excel_workbook <- function(case_name, excel_file, bundle) {
     anchors <- c("total_observations", "total_animal_days", "outcome_L_events",
                  "km_median_los", "expected_census",
                  "completed_outcomes_total",
-                 "incidence_overall_per_100_animal_days",
+                 "incidence_Any_per_100_animal_days",
                  "aj_final_cif_Any", "aj_restricted_mean_Any")
     for (anchor in anchors) {
       expect_equal(paste0(case_name, ": excel: ", stratifier$sheet_name, " aligned with By_All (", anchor, ")"),
@@ -2147,8 +2147,8 @@ run_fixture_case <- function(case_dir) {
   }
 
   # One AJ run per stratifier in the registry, each turned on by its own
-  # expected_aj_<id> object (expected_aj_period, expected_aj_intake,
-  # expected_aj_group) or by --generate-outputs. A stratifier whose column is
+  # expected_aj_<id> object (expected_aj_period, expected_aj_intake_type,
+  # expected_aj_animal_group) or by --generate-outputs. A stratifier whose column is
   # absent or single-level returns has_analysis = FALSE from its own gate.
   aj_strat_results <- list()
   for (stratifier in stratifiers) {
@@ -3039,7 +3039,7 @@ run_suite_checks <- function() {
   # again with TRANSFER cut; STRAY and OWNER must match bit-for-bit.
   cat("\n=== filter invariance (stratified results) ===\n")
 
-  fi_intake <- Filter(function(s) identical(s$id, "intake"), stratifiers)[[1]]
+  fi_intake <- Filter(function(s) identical(s$id, "intake_type"), stratifiers)[[1]]
   fi_csv <- write_temp_csv(c(
     "intake_date,outcome_date,outcome_type,intake_type",
     "2021-01-01,2021-01-05,L,STRAY",
@@ -3246,7 +3246,7 @@ run_suite_checks <- function() {
                pl_ok(check_plot_level_references(pl_ref$cox, pl_ref$refs)), 1)
   pl_default <- pl_setup(plot_intake_types = list("STRAY", "TRANSFER"))
   pl_default_cox <- fi_quiet(cox_regression_analysis(pl_default$pd, pl_default$refs))
-  pl_default_ref <- .model_reference_level(pl_default_cox, "intake")
+  pl_default_ref <- .model_reference_level(pl_default_cox, "intake_type")
   expect_error("plot_intake_types: a default reference counts too",
                check_plot_level_references(pl_default_cox, pl_default$refs),
                paste0("must include the reference level, ", pl_default_ref))
@@ -3270,7 +3270,7 @@ run_suite_checks <- function() {
   # selection, drawn with one, and the CSVs the same bytes either way.
   pl_render <- function(selection) {
     x <- pl_setup(max_plot_strata = 2)
-    x$refs$plot_levels$intake <- selection
+    x$refs$plot_levels$intake_type <- selection
     dir <- tempfile("plot_levels")
     dir.create(dir)
     strat <- fi_quiet(stratified_km_analysis(x$pd, x$refs))
@@ -3300,10 +3300,10 @@ run_suite_checks <- function() {
   # The bundle: echoed only for a stratifier given a selection, and recorded on
   # the manifest entries of the plots it governs; absent, neither key exists.
   expect_equal("plot selection echo: absent with no selection",
-               as.numeric(is.null(.level_lists_echo(list(period = NULL, intake = NULL)))), 1)
-  pl_echo <- .level_lists_echo(list(period = NULL, intake = "STRAY"))
+               as.numeric(is.null(.level_lists_echo(list(period = NULL, intake_type = NULL)))), 1)
+  pl_echo <- .level_lists_echo(list(period = NULL, intake_type = "STRAY"))
   expect_equal("plot selection echo: only the stratifier with one",
-               as.numeric(identical(names(pl_echo), "intake")), 1)
+               as.numeric(identical(names(pl_echo), "intake_type")), 1)
   pl_manifest <- .build_output_manifest(c(pl_km_png, sub("png$", "csv", pl_km_png)),
                                         .OUTCOME_STATE_LEVELS, pl_echo)
   expect_equal("plot selection manifest: the plot records its levels",
@@ -3368,11 +3368,11 @@ run_suite_checks <- function() {
   # The mechanism is written for any stratifier; only period offers it. An
   # intake-type exclusion, set by hand, takes the same checks and default.
   re_intake <- pl_setup(intake_type_reference = "STRAY")
-  re_intake$refs$regression_exclude$intake <- "TRANSFER"
+  re_intake$refs$regression_exclude$intake_type <- "TRANSFER"
   re_applied <- apply_regression_exclusions(re_intake$data, re_intake$refs)
   expect_equal("regression exclusion, any stratifier: the plots default to the levels kept",
-               as.numeric(identical(re_applied$plot_levels$intake, c("OWNER", "STRAY"))), 1)
-  re_intake$refs$regression_exclude$intake <- "STRAY"
+               as.numeric(identical(re_applied$plot_levels$intake_type, c("OWNER", "STRAY"))), 1)
+  re_intake$refs$regression_exclude$intake_type <- "STRAY"
   expect_error("regression exclusion, any stratifier: a named reference cannot be excluded",
                apply_regression_exclusions(re_intake$data, re_intake$refs),
                "excludes the reference level, STRAY")
@@ -3465,14 +3465,14 @@ run_suite_checks <- function() {
             ifelse(group == "G2", 1.5, 1))))
   expect_equal("cox_zph: one model per fit, pooled first",
                as.numeric(identical(unique(ph_tab$model),
-                                    c("pooled", "stratified:intake", "stratified:group"))), 1)
+                                    c("pooled", "stratified:intake_type", "stratified:animal_group"))), 1)
   expect_equal("cox_zph: a variant's factor test is its global test",
-               ph_tab$chisq[ph_tab$model == "stratified:intake" & ph_tab$test == "global"],
-               ph_tab$chisq[ph_tab$model == "stratified:intake" & ph_tab$test == "factor"])
+               ph_tab$chisq[ph_tab$model == "stratified:intake_type" & ph_tab$test == "global"],
+               ph_tab$chisq[ph_tab$model == "stratified:intake_type" & ph_tab$test == "factor"])
   expect_equal("cox_zph: proportional intake effect is not rejected",
-               as.numeric(ph_p(ph_tab, "stratified:intake") > 0.01), 1)
+               as.numeric(ph_p(ph_tab, "stratified:intake_type") > 0.01), 1)
   expect_equal("cox_zph: crossing intake hazards are rejected",
-               as.numeric(ph_p(nph_tab, "stratified:intake") < 1e-6), 1)
+               as.numeric(ph_p(nph_tab, "stratified:intake_type") < 1e-6), 1)
 
   # References with no outcomes, and estimates that are infinite or nearly so.
   cat("\n=== reference outcomes and unstable estimates ===\n")
@@ -3494,7 +3494,7 @@ run_suite_checks <- function() {
                ro_fit(intake_type_reference = "HELD"),
                "The intake_type reference level, HELD, has no outcomes")
   expect_equal("reference outcomes: the default skips a frequent level with none",
-               as.numeric(.model_reference_level(ro_fit(), "intake") != "HELD"), 1)
+               as.numeric(.model_reference_level(ro_fit(), "intake_type") != "HELD"), 1)
 
   ut <- cbind(coef = c(0.3, 25, NA, 1), "se(coef)" = c(0.2, 3, NA, 9),
               "robust se" = c(0.2, 3, NA, 9))

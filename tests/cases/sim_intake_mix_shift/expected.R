@@ -83,7 +83,7 @@ expected_cox_stratified_period <- list(
   HR_periodPeriod_3 = c(1.5, 0.38)
 )
 
-expected_cox_stratified_group <- list(
+expected_cox_stratified_animal_group <- list(
   has_analysis = 1,
   n            = 3229,
   n_events     = 2750,
@@ -123,10 +123,10 @@ expected_stratified_km <- list(
   # curves are pre/post hazard mixtures with no clean closed form --
   # the very pooling trap this case is about, one level down. Counts
   # only; see settings.yaml.
-  group.LARGE.n      = 1910,
-  group.LARGE.events = 1509,
-  group.SMALL.n      = 1319,
-  group.SMALL.events = 1241,
+  animal_group.LARGE.n      = 1910,
+  animal_group.LARGE.events = 1509,
+  animal_group.SMALL.n      = 1319,
+  animal_group.SMALL.events = 1241,
   n_strata_gaps      = 0
 )
 

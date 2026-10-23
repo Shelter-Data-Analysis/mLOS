@@ -75,36 +75,36 @@ expected_km <- list(
 # get a say in it -- the order follows the mapped labels, not the raw ones,
 # which under the raw spelling would have run TOY before XL.
 expected_stratified_km <- list(
-  group.SML.n      = 5,
-  group.SML.events = 5,
-  group.SML.median = 5,
-  group.SML.rmean  = 5,
-  group.LRG.n      = 5,
-  group.LRG.events = 5,
-  group.LRG.median = 6,
-  group.LRG.rmean  = 6,
-  group.LRG.pos    = 1,
-  group.SML.pos    = 2,
+  animal_group.SML.n      = 5,
+  animal_group.SML.events = 5,
+  animal_group.SML.median = 5,
+  animal_group.SML.rmean  = 5,
+  animal_group.LRG.n      = 5,
+  animal_group.LRG.events = 5,
+  animal_group.LRG.median = 6,
+  animal_group.LRG.rmean  = 6,
+  animal_group.LRG.pos    = 1,
+  animal_group.SML.pos    = 2,
 
-  intake.STRAY.n          = 4,
-  intake.STRAY.events     = 4,
-  intake.STRAY.median     = 4.5,
-  intake.STRAY.rmean      = 4.75,
-  intake.SURRENDER.n      = 6,
-  intake.SURRENDER.events = 6,
-  intake.SURRENDER.median = 6.5,
-  intake.SURRENDER.rmean  = 6,
-  intake.STRAY.pos        = 1,
-  intake.SURRENDER.pos    = 2,
+  intake_type.STRAY.n          = 4,
+  intake_type.STRAY.events     = 4,
+  intake_type.STRAY.median     = 4.5,
+  intake_type.STRAY.rmean      = 4.75,
+  intake_type.SURRENDER.n      = 6,
+  intake_type.SURRENDER.events = 6,
+  intake_type.SURRENDER.median = 6.5,
+  intake_type.SURRENDER.rmean  = 6,
+  intake_type.STRAY.pos        = 1,
+  intake_type.SURRENDER.pos    = 2,
 
   # No raw label may survive as a stratum. This is the difference between a
   # map and a filter: a filter empties a level but keeps it (see
   # value_filters), a map leaves nothing behind at all.
-  group.XL.n           = NA,
-  group.TOY.n          = NA,
-  group.GIANT.n        = NA,
-  `intake.OWNER SUR.n` = NA,
-  intake.SEIZED.n      = NA
+  animal_group.XL.n           = NA,
+  animal_group.TOY.n          = NA,
+  animal_group.GIANT.n        = NA,
+  `intake_type.OWNER SUR.n` = NA,
+  intake_type.SEIZED.n      = NA
 )
 
 # Per-stratum observation/census/flow stats, as the Excel By_* sheets compute
@@ -114,26 +114,26 @@ expected_stratified_km <- list(
 # LRG 30, STRAY 19, SURRENDER 36 (the last two summing to 55, as do the first
 # two -- the same ten stays cut two ways).
 expected_stratum_stats <- list(
-  group.SML.total_observations = 5,
-  group.SML.events             = 5,
-  group.SML.right_censored     = 0,
-  group.SML.mean_days_at_risk  = 5,
-  group.SML.total_animal_days  = 25,
-  group.SML.total_intakes      = 5,
-  group.LRG.total_observations = 5,
-  group.LRG.mean_days_at_risk  = 6,
-  group.LRG.total_animal_days  = 30,
+  animal_group.SML.total_observations = 5,
+  animal_group.SML.events             = 5,
+  animal_group.SML.right_censored     = 0,
+  animal_group.SML.mean_days_at_risk  = 5,
+  animal_group.SML.total_animal_days  = 25,
+  animal_group.SML.total_intakes      = 5,
+  animal_group.LRG.total_observations = 5,
+  animal_group.LRG.mean_days_at_risk  = 6,
+  animal_group.LRG.total_animal_days  = 30,
 
-  intake.STRAY.total_observations     = 4,
-  intake.STRAY.mean_days_at_risk      = 4.75,
-  intake.STRAY.total_animal_days      = 19,
-  intake.SURRENDER.total_observations = 6,
-  intake.SURRENDER.mean_days_at_risk  = 6,
-  intake.SURRENDER.total_animal_days  = 36,
+  intake_type.STRAY.total_observations     = 4,
+  intake_type.STRAY.mean_days_at_risk      = 4.75,
+  intake_type.STRAY.total_animal_days      = 19,
+  intake_type.SURRENDER.total_observations = 6,
+  intake_type.SURRENDER.mean_days_at_risk  = 6,
+  intake_type.SURRENDER.total_animal_days  = 36,
 
   # Absence again, on the stats path this time.
-  group.XL.total_observations           = NA,
-  `intake.OWNER SUR.total_observations` = NA
+  animal_group.XL.total_observations           = NA,
+  `intake_type.OWNER SUR.total_observations` = NA
 )
 
 # AJ by animal group. Every animal leaves with outcome L and none is censored,
@@ -141,7 +141,7 @@ expected_stratum_stats <- list(
 # 1/5 at each stratum's own event days (SML at 1,3,5,7,9; LRG at 2,4,6,8,10).
 # Read as incidence, this is the same (n-k)/n reasoning as the stratified KM
 # above; what it adds here is that the AJ path sees the mapped strata too.
-expected_aj_group <- list(
+expected_aj_animal_group <- list(
   has_analysis    = 1,
   n_animal_groups = 2,
 
