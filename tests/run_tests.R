@@ -3738,7 +3738,7 @@ run_suite_checks <- function() {
 
   # The console log is where a reader of a saved run meets the version, so the
   # header has to carry it rather than merely the constant existing.
-  header_line <- grep("MLOS Length of Stay Tool",
+  header_line <- grep("mLOS Length of Stay Tool",
                       readLines(file.path(project_root, "mlos_run_complete.R"),
                                 warn = FALSE), value = TRUE)[1]
   expect_equal("release: log header prints the version",
@@ -3770,7 +3770,7 @@ run_suite_checks <- function() {
   expect_equal("CLI: --help names the version",
                as.numeric(any(grepl(paste0("mLOS ", MLOS_VERSION), help_out, fixed = TRUE))), 1)
   expect_equal("CLI: --help does not run the analysis",
-               as.numeric(any(grepl("MLOS Length of Stay Tool", help_out, fixed = TRUE))), 0)
+               as.numeric(any(grepl("mLOS Length of Stay Tool", help_out, fixed = TRUE))), 0)
   expect_equal("CLI: -h is accepted too",
                as.numeric(any(grepl("Usage: Rscript mlos_run_complete.R",
                                     run_entry_point("-h"), fixed = TRUE))), 1)

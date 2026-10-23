@@ -22,7 +22,7 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 No numbers move. `results.json` renames keys and moves to schema version 6,
 and the workbook renames two row labels; every CSV and plot is byte-identical
 to 0.4.0. `tools/cox_zph.R`, which is not part of a run, adds rows to its
-table.
+table, and the console log's header line changes.
 
 - `results.json` schema version 6 makes four names consistent with their
   siblings. `mlos_review` reads the new names and warns on a version 5 bundle,
@@ -59,6 +59,9 @@ table.
   exit state's standard error, clustered by animal. A table gives the three
   rows on OC2, and `tests/show_guide_examples.py` recomputes them. No numbers
   move.
+- The console log's header reads `mLOS Length of Stay Tool <version>`. It read
+  `MLOS Length of Stay Tool <version> - Demonstration`. The two checks in
+  `tests/run_tests.R` that find the header by its text follow it.
 
 ## 0.4.0 (2026-10-05)
 

@@ -122,7 +122,7 @@ sink(log_con, type = "message")
 tryCatch({
 
 cat("=======================================================================\n")
-cat("MLOS Length of Stay Tool ", MLOS_VERSION, " - Demonstration\n", sep = "")
+cat("mLOS Length of Stay Tool ", MLOS_VERSION, "\n", sep = "")
 cat("=======================================================================\n")
 # Provenance in the log for the same reason results.json carries it: the tool
 # version alone does not say what the numbers below were computed with.
