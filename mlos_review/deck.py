@@ -102,9 +102,10 @@ from mlos_review.recommend import (cap_binding, dimension_not_separating,
                                    tail_spread, unestimable_levels)
 from mlos_review.salience import (earns_slides, findings_for_salience,
                                   salience_notes)
-from mlos_review.render_pptx import (BULLET_PT, Bullet, Slide, bullet_pages,
-                                     lead_height, render, table_title_fits,
-                                     template_band, text_budget)
+from mlos_review.render_pptx import (BULLET_PT, Bullet, Decoration, Slide,
+                                     bullet_pages, fits_page, lead_height,
+                                     render, table_title_fits, template_band,
+                                     text_budget)
 from mlos_review.settings import (DEFAULT_SETTINGS_FILE, Settings,
                                   load as load_settings,
                                   parse_template)
@@ -191,6 +192,21 @@ AUTOMATION_CAVEAT = (
 # weaker than either alone. What an audience needs is what the thing in front
 # of them can and cannot be trusted to do; "incomplete" instead promises that
 # it will be finished.
+PERIODS_TITLE = "Study periods"
+
+# Two, because two period tables fit side by side at their natural width, about
+# five inches each with labels like "2024-25 Oct-Jan", and a third is squeezed.
+PERIOD_TABLES_PER_SLIDE = 2
+
+# Said wherever the periods are listed: on the title slide, or on the slide
+# they move to when the title slide cannot hold them.
+PERIODS_NOTE = (
+    "The periods are a setting, not something the data decided. They "
+    "partition the window, each one taking its start date and leaving "
+    "its end date to the next, so a stay open across a boundary is "
+    "counted in both periods by the per-period analysis and once by "
+    "everything on the slide that follows.")
+
 OPENING_BULLETS = [
     "Underlying statistical analysis by the mLOS tool, extensively tested",
     AUTOMATION_CAVEAT,
@@ -318,12 +334,7 @@ def title_slide(bundle: Bundle, vocab: Vocabulary,
         "window, in the table on this slide.",
     ]
     if tables:
-        notes.append(
-            "The periods are a setting, not something the data decided. They "
-            "partition the window, each one taking its start date and leaving "
-            "its end date to the next, so a stay open across a boundary is "
-            "counted in both periods by the per-period analysis and once by "
-            "everything on the slide that follows.")
+        notes.append(PERIODS_NOTE)
     notes.extend(window_gap_notes(bundle, vocab))
     return Slide(
         title=DECK_TITLE,
@@ -400,15 +411,81 @@ def summary_slide(bundle: Bundle, vocab: Vocabulary) -> Slide | None:
     )
 
 
+def periods_slides(bundle: Bundle, title: Slide, vocab: Vocabulary,
+                   size: Pt = BULLET_PT,
+                   band: Decoration | None = None) -> list[Slide]:
+    """The title slide, then the periods on slides of their own if they need it.
+
+    The title slide keeps the whole window, which qualifies the deck's title,
+    and hands its periods on when the bullets, the diagram's half of the slide,
+    and one row per period do not fit the page together. The periods then go
+    in tables side by side, as long as one table can run, and onto a
+    continuation slide past `PERIOD_TABLES_PER_SLIDE` of them. A window that
+    fits is returned as it was built.
+    """
+    if not title.tables or fits_page(title, vocab, size):
+        return [title]
+    whole = study_window_table(bundle, periods=False)
+    listed = study_window_table(bundle, whole=False)
+    if whole.df.empty or listed.df.empty:
+        return [title]
+
+    def page(heading: str, chunks: list) -> Slide:
+        tables = [replace(listed, df=chunk, title="", footnotes=[])
+                  for chunk in chunks]
+        tables[-1] = replace(tables[-1], footnotes=list(listed.footnotes))
+        return Slide(title=heading, tables=tables, notes=[PERIODS_NOTE],
+                     layout="TABLES")
+
+    # The longest table that fits, found by measuring rather than by counting
+    # rows, so a header that wraps or a template band is charged for.
+    count = len(listed.df)
+    rows = count
+    while rows > 1 and not fits_page(page(PERIODS_TITLE, [listed.df.iloc[:rows]]),
+                                     vocab, size, band=band):
+        rows -= 1
+
+    # Spread evenly rather than filled in order, so eight periods that need
+    # two tables arrive as four and four, not seven and one.
+    slides = []
+    for chunk in _even_split(list(range(count)),
+                             -(-count // (rows * PERIOD_TABLES_PER_SLIDE))):
+        heading = PERIODS_TITLE if not slides else f"{PERIODS_TITLE}, continued"
+        slides.append(page(heading, [
+            listed.df.iloc[part]
+            for part in _even_split(chunk, -(-len(chunk) // rows))]))
+
+    later = "next slide" if len(slides) == 1 else "slides that follow"
+    whole = replace(whole, footnotes=whole.footnotes + [
+        f"The {count} periods are listed on the {later}."])
+    title = replace(title, tables=[whole],
+                    notes=[note for note in title.notes if note != PERIODS_NOTE])
+    return [title] + slides
+
+
+def _even_split(items: list, parts: int) -> list[list]:
+    """`items` in `parts` runs, in order, differing in length by at most one."""
+    size, extra = divmod(len(items), parts)
+    runs, start = [], 0
+    for index in range(parts):
+        end = start + size + (index < extra)
+        runs.append(items[start:end])
+        start = end
+    return runs
+
+
 def opening_slides(bundle: Bundle, vocab: Vocabulary,
-                   now: datetime | None = None) -> list[Slide]:
+                   now: datetime | None = None, size: Pt = BULLET_PT,
+                   band: Decoration | None = None) -> list[Slide]:
     """The title slide and the descriptive summary, in that order.
 
     Gathered into one function so that `build` and anything counting slides
     agree on what the opening is, rather than each assembling its own idea of
-    it.
+    it. A window too long for the title slide puts its periods between the two
+    (see `periods_slides`).
     """
-    slides = [title_slide(bundle, vocab, now)]
+    slides = periods_slides(bundle, title_slide(bundle, vocab, now), vocab,
+                            size, band)
     summary = summary_slide(bundle, vocab)
     return slides if summary is None else slides + [summary]
 
@@ -2116,7 +2193,9 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
     # The opening leads and is not negotiable: what the deck is, then what it
     # was computed over. Everything after it is a finding, and a finding read
     # without knowing the sample it came from is worth less than nothing.
-    slides = opening_slides(full, vocab)
+    band = template_band(settings.template)
+    size = Pt(settings.bullet_size)
+    slides = opening_slides(full, vocab, size=size, band=band)
     for stratifier in bundle.stratifiers():
         # `all` leads, and takes its own rule: the whole sample is the baseline
         # every later slide is read against, so it comes first rather than
@@ -2241,8 +2320,7 @@ def assemble(bundle: Bundle, vocab: Vocabulary, figures: FigureSet,
     # A closing slide carries no figure, so it is one a template decorates and
     # its pages have to break against the band the artwork leaves rather than
     # against the whole slide.
-    budget = text_budget(template_band(settings.template))
-    size = Pt(settings.bullet_size)
+    budget = text_budget(band)
     closing = (findings_section(slides, budget, size)
                + recommendations_section(slides, budget, size))
     slides.extend(closing)

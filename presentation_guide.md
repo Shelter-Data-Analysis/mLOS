@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20261005_001. Read it in any markdown reader,
+presentation guide, version 20261027_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -505,7 +505,10 @@ timestamps: when the statistics were computed, and when the deck was built
 from them. The diagram is the four cases the analysis has to handle: a stay
 observed whole, one already in care when the window opened (left-truncated),
 one still in care when it closed (right-censored), and one that is both. It is
-the methodology every later number relies on. A slide of
+the methodology every later number relies on. When the periods do not fit
+under the bullets beside the diagram, the title slide keeps the whole window
+and a **Study periods** slide follows it with the periods, in up to two tables
+side by side and on continuation slides past that. A slide of
 **descriptive summary** follows: the size of the sample, how its stays were
 recorded as ending, and how they fall across the fields the analysis splits
 by, in up to three small tables side by side.
@@ -1039,7 +1042,7 @@ preparation).  Also indicates whether a gap existed in the risk set.
 
 | Block | What it holds | Where it lands |
 |---|---|---|
-| `study_window_table` | the window and its periods, with dates and day counts | the title slide |
+| `study_window_table` | the window and its periods, with dates and day counts | the title slide, and the Study periods slide when the periods do not fit there |
 | `sample_table` | stays, distinct animals, intakes, the cap, and the stays that ran past it, then the outcome tallies | the summary slide |
 | `level_counts_table` | one field's levels, with their stays | the summary slide |
 | `field_summary_table` | one row per field: level count, and the levels with the fewest and most stays | nowhere yet |
@@ -1089,8 +1092,8 @@ the finding reach anybody. `observation_gaps` reads that table;
 
 **The scan is reported on the slides that describe the data**, not with the
 findings: a gap is a property of the window's coverage rather than of any
-statistic computed inside it. The periods go on the title slide, which lists
-them, and the unified data and each field on the summary slide. The split is
+statistic computed inside it. The periods go on the title slide, which
+introduces them, and the unified data and each field on the summary slide. The split is
 taken as a complement, the periods being what the summary does not tally (see
 `summary_fields`), so the two account for every analysis R scanned whatever
 stratifiers a future bundle carries.

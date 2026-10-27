@@ -75,6 +75,11 @@ table, and the console log's header line changes.
   tenure in terms of the restricted mean and the spread of stays.
   `tests/show_guide_examples.py` recomputes the three new OC2 figures. No
   numbers move.
+- A deck whose periods do not fit the title slide puts them on a "Study
+  periods" slide after it, in up to two tables side by side and on
+  continuation slides past that. The title slide keeps the whole window. A run
+  with eight periods ran its window table off the foot of the title slide. The
+  OC1 and OC2 decks, with three periods, are unchanged. No numbers move.
 
 ## 0.4.0 (2026-10-05)
 

@@ -1775,12 +1775,27 @@ def _fitting_size(spec: Slide, vocab: Vocabulary, flag_style: str,
     """
     for step in BULLET_STEPS:
         size = Pt(bullet_pt.pt - step)
-        spent = (int(TITLE_HEIGHT) + _body_depth(spec, vocab, flag_style, size)
-                 + lead_height(spec.lead, size) + lead_height(spec.close, size)
-                 + (int(FOOTNOTE_HEIGHT) if spec.footnote else 0))
-        if spent <= room:
+        if _spent(spec, vocab, flag_style, size) <= room:
             return size
     return None
+
+
+def _spent(spec: Slide, vocab: Vocabulary, flag_style: str, size: Pt) -> int:
+    """How much height the whole slide takes at `size`, title to footnote."""
+    return (int(TITLE_HEIGHT) + _body_depth(spec, vocab, flag_style, size)
+            + lead_height(spec.lead, size) + lead_height(spec.close, size)
+            + (int(FOOTNOTE_HEIGHT) if spec.footnote else 0))
+
+
+def fits_page(spec: Slide, vocab: Vocabulary, bullet_pt: Pt = BULLET_PT,
+              flag_style: str = "MARK", band: Decoration | None = None) -> bool:
+    """Whether a slide fits the page, or a template's band, at `bullet_pt`.
+
+    Offered for a caller deciding what goes on a slide, since a table that
+    does not fit runs off the foot of the page rather than shrinking.
+    """
+    band = band or Decoration()
+    return _spent(spec, vocab, flag_style, bullet_pt) <= band.bottom - band.top
 
 
 def _compose(slide, spec: Slide, vocab: Vocabulary, flag_style: str,

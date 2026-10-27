@@ -405,7 +405,8 @@ def requires_study_window(bundle: Bundle) -> bool:
     return bundle.has("unified", "study_start") or bundle.has("settings", "periods")
 
 
-def study_window_table(bundle: Bundle) -> Table:
+def study_window_table(bundle: Bundle, whole: bool = True,
+                       periods: bool = True) -> Table:
     """The stretch of calendar the analysis was cut to, and its periods.
 
     The whole window leads, then the periods inside it, which is the order
@@ -420,8 +421,11 @@ def study_window_table(bundle: Bundle) -> Table:
     With exactly one period the unified row is dropped instead, because it would
     be the period row again under a different name. What is kept is the period,
     since its label is what the reader meets on every other slide.
+
+    `whole` and `periods` keep one part each, for a deck that puts the periods
+    on a slide of their own when they do not fit under the title.
     """
-    periods: dict[str, dict] = {}
+    listed: dict[str, dict] = {}
     if bundle.has("settings", "periods"):
         strata = bundle.data.get("strata", {})
         present = set(bundle.levels("period")) if "period" in strata else None
@@ -429,7 +433,7 @@ def study_window_table(bundle: Bundle) -> Table:
             label = str(period["period_label"])
             if present is not None and label not in present:
                 continue
-            periods[label] = {
+            listed[label] = {
                 "start_date": str(period["start_date"]),
                 "end_date": str(period["end_date"]),
                 "duration_days": period["duration_days"],
@@ -438,14 +442,15 @@ def study_window_table(bundle: Bundle) -> Table:
     rows: dict[str, dict] = {}
     start = bundle.value("unified", "study_start")
     end = bundle.value("unified", "study_end")
-    if start and end and len(periods) != 1:
-        whole = bundle.levels("all")[0] if bundle.has("strata", "all") else "All"
-        rows[str(whole)] = {
+    if whole and start and end and len(listed) != 1:
+        label = bundle.levels("all")[0] if bundle.has("strata", "all") else "All"
+        rows[str(label)] = {
             "start_date": str(start),
             "end_date": str(end),
             "duration_days": bundle.value("settings", "window_days"),
         }
-    rows.update(periods)
+    if periods:
+        rows.update(listed)
 
     df = pd.DataFrame.from_dict(
         rows, orient="index",

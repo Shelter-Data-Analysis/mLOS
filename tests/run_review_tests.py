@@ -4392,6 +4392,74 @@ def check_slide_titles_addressable(case: str, slides: list) -> None:
                  sum(len(run) for run in grouped.values()), len(slides))
 
 
+def check_long_study_window() -> None:
+    """A window with more periods than the title slide holds.
+
+    No golden run has more than three periods, which the title slide holds
+    beside its diagram. Here one fixture's periods are replaced by N of them,
+    and the opening is rendered: every period appears once, in order, and no
+    shape leaves the page. Eight is a single table on a slide of its own,
+    twenty is two side by side, and thirty and sixty run onto continuation
+    slides, split evenly.
+    """
+    from datetime import date
+
+    from mlos_review.deck import PERIODS_TITLE, opening_slides
+    from mlos_review.render_pptx import render
+
+    section("long study window (synthetic)")
+    base = Bundle.load(REPO_ROOT / "tests" / "golden" / "sim_geometric_period_effect")
+
+    def months(n: int) -> list[date]:
+        return [date(2020 + (i // 12), i % 12 + 1, 1) for i in range(n + 1)]
+
+    for count, pages, tables in ((3, 0, []), (8, 1, [1]), (20, 1, [2]),
+                                 (30, 2, [2, 2]), (60, 3, [2, 2, 2])):
+        data = json.loads(json.dumps(base.data))
+        bounds = months(count)
+        labels = [f"P{i + 1:02d} {bounds[i]:%Y %b}" for i in range(count)]
+        data["settings"]["periods"]["columns"] = {
+            "period_num": list(range(1, count + 1)),
+            "start_date": [str(d) for d in bounds[:-1]],
+            "end_date": [str(d) for d in bounds[1:]],
+            "period_label": labels,
+            "duration_days": [(b - a).days for a, b in zip(bounds, bounds[1:])],
+        }
+        data["strata"]["period"]["labels"] = labels
+        bundle = Bundle(data=data, root=base.root)
+        vocab = Vocabulary(bundle.data)
+        opening = opening_slides(bundle, vocab)
+
+        moved = [s for s in opening if s.title.startswith(PERIODS_TITLE)]
+        expect_equal(f"{count} periods: slides of their own", len(moved), pages)
+        expect_equal(f"{count} periods: tables per slide",
+                     [len(s.tables) for s in moved], tables)
+        sizes = [len(t.df) for s in moved for t in s.tables]
+        expect(f"{count} periods: tables differ by at most one row",
+               not sizes or max(sizes) - min(sizes) <= 1, f"{sizes}")
+        listed = ([label for s in moved for t in s.tables for label in t.df.index]
+                  if moved else list(opening[0].tables[0].df.index)[1:])
+        expect_equal(f"{count} periods: each listed once, in order",
+                     listed, labels)
+        if moved:
+            expect_equal(f"{count} periods: the title slide keeps the window",
+                         len(opening[0].tables[0].df), 1)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "opening.pptx"
+            render(opening, path, vocab)
+            deck = Presentation(str(path))
+            for index, slide in enumerate(deck.slides):
+                for shape in slide.shapes:
+                    expect(f"{count} periods: slide {index + 1} keeps every "
+                           f"shape on the page",
+                           shape.left >= 0 and shape.top >= 0
+                           and shape.left + shape.width <= deck.slide_width
+                           and shape.top + shape.height <= deck.slide_height,
+                           f"{shape.name} at {shape.top}, {shape.height} high")
+                _expect_no_table_overlap(f"{count} periods", index + 1, slide)
+
+
 def check_extra_histlos() -> None:
     """`@extra HistLOS` builds its slide from matching files, and skips otherwise.
 
@@ -5512,6 +5580,7 @@ def main(argv: list[str]) -> int:
         check_figures_are_drawn,
         check_educational_section,
         check_slide_citations,
+        check_long_study_window,
         check_extra_histlos,
     ):
         run_check(check)
