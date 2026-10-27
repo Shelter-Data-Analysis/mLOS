@@ -17,9 +17,32 @@ The `.md` files are the documentation of record. Read them in any markdown reade
 
 Before editing the documentation, read [`documentation_rules.md`](documentation_rules.md). It is the house style, and it covers the several ways a markdown file can render correctly on GitHub and wrongly in Word.
 
+## Installing
+
+These steps cover the common case. They have been tested on macOS.
+
+1. **Install R** from CRAN, https://cran.r-project.org/, using the installer for your system.
+2. **Install the R packages.** Start R and enter:
+
+   ```r
+   install.packages(c("survival", "yaml", "jsonlite", "openxlsx", "digest"),
+                    repos = "https://cloud.r-project.org")
+   ```
+
+   The `parametric_regression` setting also needs `flexsurv`: `install.packages("flexsurv", repos = "https://cloud.r-project.org")`.
+3. **Install the Python packages**, needed only for the slide deck. Python 3.9 or newer is required. From the repository directory, run:
+
+   ```bash
+   python3 -m pip install -e .
+   ```
+
+   This installs the packages listed in `pyproject.toml`.
+
+To check the installation, run `Rscript mlos_run_complete.R` from the repository directory, which analyzes the OC2 example data and writes to `results/`; then `python3 -m mlos_review.deck`, which builds a deck from those results and writes to `reports/`.
+
 ## Running the tool
 
-**Option A — locally in R.** You need to have R installed on your computer, along with the required R packages (listed below). Information on installing R and its packages: https://cran.r-project.org/. From the repository directory, run:
+**Option A — locally in R.** Install R and its packages as described in [Installing](#installing). From the repository directory, run:
 
 ```
 Rscript mlos_run_complete.R [--settings FILE] [--data FILE] [--results DIR]
@@ -27,7 +50,7 @@ Rscript mlos_run_complete.R [--settings FILE] [--data FILE] [--results DIR]
 
 `Rscript mlos_run_complete.R --help` prints the options, the environment variables, and the defaults each one falls back to.
 
-Defaults: settings `data/OC2_settings.yaml`, data `data/OC2_data.csv`, output directory `results/` (created if missing). Defaults can also be set via the `MLOS_SETTINGS_FILE`, `MLOS_DATA_FILE`, `MLOS_OUTPUT_DIR` environment variables (plus `MLOS_LOG_FILE` / `MLOS_EXCEL_FILE` / `MLOS_JSON_FILE` for the output filenames inside the results directory). Requires the `survival` and `yaml` R packages, plus `jsonlite` for the results JSON and `openxlsx` for the Excel export. Optional: `digest`, for recording file digests, and `flexsurv`, needed only if the `parametric_regression` setting is enabled.
+Defaults: settings `data/OC2_settings.yaml`, data `data/OC2_data.csv`, output directory `results/` (created if missing). Defaults can also be set via the `MLOS_SETTINGS_FILE`, `MLOS_DATA_FILE`, `MLOS_OUTPUT_DIR` environment variables (plus `MLOS_LOG_FILE` / `MLOS_EXCEL_FILE` / `MLOS_JSON_FILE` for the output filenames inside the results directory).
 
 **Option B — no local R install.** Use **[`colab_mlos.ipynb`](colab_mlos.ipynb)** in Google Colab: it installs the required packages and sets up folders for you; upload the `mlos_*.R` source files plus your data and settings files. (The notebook's instructions show the exact layout.)
 
@@ -49,7 +72,7 @@ Rscript mlos_render.R [JSON_FILE] [EXCEL_FILE]
 python3 -m mlos_review.deck
 ```
 
-It runs on Python 3.9 or newer and needs the packages `pyproject.toml` declares; `pip install -e .` from the repository root installs them. Installing the package itself is optional, since running from the repository root already finds `mlos_review`, but its dependencies have to be present either way. The deck builder takes its settings from `data/OC_deck_settings.yaml` and writes into `reports/`, which is created if needed and is not tracked in the repository. The statistics are computed, cross-checked and written out by the R side. The deck builder does no new statistical analysis but may do simple computations on statistical metrics for display purposes. The deck builder is documented in `presentation_guide.md`.
+[Installing](#installing) covers the Python packages it needs. The deck builder takes its settings from `data/OC_deck_settings.yaml` and writes into `reports/`, which is created if needed and is not tracked in the repository. The statistics are computed, cross-checked and written out by the R side. The deck builder does no new statistical analysis but may do simple computations on statistical metrics for display purposes. The deck builder is documented in `presentation_guide.md`.
 
 **Treat the deck as experimental, and expect that it may stay experimental.** Three separate caveats, and only the first is anywhere near settled:
 

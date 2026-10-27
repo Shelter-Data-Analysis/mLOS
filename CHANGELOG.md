@@ -65,6 +65,9 @@ table, and the console log's header line changes.
 - The console log's header reads `mLOS Length of Stay Tool <version>`. It read
   `MLOS Length of Stay Tool <version> - Demonstration`. The two checks in
   `tests/run_tests.R` that find the header by its text follow it.
+- The README gains an "Installing" section: R from CRAN, the R packages, and
+  the Python packages for the deck, with two commands that check the result.
+  No numbers move.
 
 ## 0.4.0 (2026-10-05)
 
