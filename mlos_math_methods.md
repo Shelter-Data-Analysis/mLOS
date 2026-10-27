@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261005_006. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261027_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -361,6 +361,12 @@ The intake rate $\bar{I}$ cancels, so $G$ is a pure normalized transform of the 
 $$\sum_{x}G(x) = \frac{\sum_{d}d\,\widehat{S}(d)}{\sum_{d}\widehat{S}(d)},$$
 
 the `per_resident_past_days` of §5.6, the same name the CSV header row uses.
+
+**The animal-day reading.** $G$ can be read without steady state. A stay of length $T$ contributes one animal-day at each tenure $0,\ldots,T - 1$, so a cohort's expected number of animal-days at tenure $d$, per intake, is $P(T > d) = \widehat{S}(d)$. So $p(d)$ is the distribution of tenure over the animal-days the intake cohort receives within the cap, and $G(x)$ is the share of those animal-days at tenure above $x$, where $\widehat{S}(x)$ is the share of the animals. Steady state enters only to identify this pool with the animals present on a given day. The same count gives the mean. With $T$ read as the capped stay $\min(T,\tau)$, $\sum_{d}\widehat{S}(d) = E[T] = \widetilde{\text{RMST}}$ and $\sum_{d}d\,\widehat{S}(d) = E[T(T - 1)]/2$, so
+
+$$\sum_{x}G(x)\; = \;\frac{1}{2}\left(\frac{E[T^{2}]}{E[T]} - 1\right)\; = \;\frac{1}{2}\left(\widetilde{\text{RMST}}\,(1 + c^{2}) - 1\right),$$
+
+where $c$ is the coefficient of variation of the capped stay. The mean tenure grows with the spread of stays as well as with their mean. On **OC2**, a mean tenure of 52.7 days against $\widetilde{\text{RMST}} = 16.7$ days gives $c^{2} = 5.4$.
 
 mLOS plots $G$ for the unified fit and once per stratifier on the same day axis as the KM curve (§8.2), so the intake cohort and the standing population can be read side by side. The unified plot is marked at its median and 90th percentile, the two quantile rows of §8.4, where the marks cross $G$ at $0.5$ and $0.1$ by the reading convention those rows use. It is also marked at its mean, $\sum_{x}G(x)$. The same three values are where the unified Remaining LOS curve is marked (§5.8). Unlike the Kaplan-Meier median and 90th percentile marked on the survival plot, these are always reached and always restricted, as explained at the end of this section.
 

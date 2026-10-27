@@ -42,6 +42,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pandas as pd
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
@@ -163,6 +165,37 @@ def _at_cap(bundle: Bundle) -> str:
     at_cap = bundle.stratum("animal_group", "km")["km_still_in_care_at_cap"].dropna()
     worst = at_cap.idxmax()
     return f"{worst} at {at_cap[worst]:.1%}"
+
+
+def _unified_grid(bundle: Bundle, kind: str) -> pd.Series:
+    """One unified plot's companion CSV, the summary row dropped, keyed by day."""
+    entry = next(e for e in bundle.data["outputs"]
+                 if e.get("kind") == kind and e.get("stratifier") == "all")
+    frame = pd.read_csv(bundle.root / entry["csv"])
+    aggregate = entry["aggregate"]["row"]
+    frame = frame[frame["days"] != aggregate]
+    return pd.Series(frame.iloc[:, 1].astype(float).values,
+                     index=frame["days"].astype(int))
+
+
+def _tenure_quantiles(bundle: Bundle) -> str:
+    census = bundle.stratum("all", "census")
+    return (f"{census['per_resident_past_days_restricted_median'].iloc[0]:.0f} / "
+            f"{census['per_resident_past_days_restricted_p90'].iloc[0]:.0f}")
+
+
+def _animals_against_care(bundle: Bundle, day: int) -> str:
+    """Share of intakes in care at a tenure beside the share of animal-days past it."""
+    survival = _unified_grid(bundle, "km_survival")
+    tenure = _unified_grid(bundle, "km_in_care_tenure")
+    return f"{survival[day]:.0%} of intakes, {tenure[day]:.0%} of animal-days"
+
+
+def _tenure_spread(bundle: Bundle) -> str:
+    """The squared coefficient of variation behind the mean tenure, math methods 5.7."""
+    mean_tenure = bundle.stratum("all", "census")["per_resident_past_days"].iloc[0]
+    rmst = _unified_grid(bundle, "km_survival").sum()
+    return f"{mean_tenure:.1f} against {rmst:.1f}, c^2 {(2 * mean_tenure + 1) / rmst - 1:.1f}"
 
 
 def _exit_state_against_km(bundle: Bundle) -> str:
@@ -331,6 +364,11 @@ CLAIMS: list[tuple[str, str, str, object]] = [
     ("OC2", "AJ windows by animal group", "MED ends at day 132, LARGE runs to 365",
      lambda b, v: _aj_windows(b)),
     ("OC2", "cap binding hardest", "LARGE at 0.9%", lambda b, v: _at_cap(b)),
+    ("OC2", "in-care tenure median / P90", "21 / 156", lambda b, v: _tenure_quantiles(b)),
+    ("OC2", "past tenure 30, animals against care",
+     "12% of intakes, 43% of animal-days", lambda b, v: _animals_against_care(b, 30)),
+    ("OC2", "mean tenure against restricted mean",
+     "52.7 against 16.7, c^2 5.4", lambda b, v: _tenure_spread(b)),
 
     # -- Selection and sheets ----------------------------------------------
     ("OC1", "highlights collapse, animal group", "2 rows of 7",

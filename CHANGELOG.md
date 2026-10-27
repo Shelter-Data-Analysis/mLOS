@@ -68,6 +68,13 @@ table, and the console log's header line changes.
 - The README gains an "Installing" section: R from CRAN, the R packages, and
   the Python packages for the deck, with two commands that check the result.
   No numbers move.
+- The in-care tenure curve gains a second reading, as days of care: the share
+  of all animal-days, pooled over every stay, at a tenure above X. It needs no
+  steady state. The User Guide's "In-care tenure plots" gives it with OC2
+  examples. Math methods §5.7 gives the counting argument, and writes the mean
+  tenure in terms of the restricted mean and the spread of stays.
+  `tests/show_guide_examples.py` recomputes the three new OC2 figures. No
+  numbers move.
 
 ## 0.4.0 (2026-10-05)
 
