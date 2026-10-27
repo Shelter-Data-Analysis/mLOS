@@ -21,7 +21,10 @@ Before editing the documentation, read [`documentation_rules.md`](documentation_
 
 These steps cover the common case. They have been tested on macOS.
 
-1. **Install R** from CRAN, https://cran.r-project.org/, using the installer for your system.
+1. **Install R** using the installer for your system from CRAN:
+
+   https://cran.r-project.org/
+
 2. **Install the R packages.** Start R and enter:
 
    ```r
@@ -29,7 +32,12 @@ These steps cover the common case. They have been tested on macOS.
                     repos = "https://cloud.r-project.org")
    ```
 
-   The `parametric_regression` setting also needs `flexsurv`: `install.packages("flexsurv", repos = "https://cloud.r-project.org")`.
+   The `parametric_regression` setting also needs `flexsurv`:
+
+   ```r
+   install.packages("flexsurv", repos = "https://cloud.r-project.org")
+   ```
+
 3. **Install the Python packages**, needed only for the slide deck. Python 3.9 or newer is required. From the repository directory, run:
 
    ```bash
@@ -38,7 +46,17 @@ These steps cover the common case. They have been tested on macOS.
 
    This installs the packages listed in `pyproject.toml`.
 
-To check the installation, run `Rscript mlos_run_complete.R` from the repository directory, which analyzes the OC2 example data and writes to `results/`; then `python3 -m mlos_review.deck`, which builds a deck from those results and writes to `reports/`.
+To check the installation, run the analysis on the OC2 example data from the repository directory. It writes to the `results/` directory:
+
+```bash
+Rscript mlos_run_complete.R
+```
+
+Then build a deck from those results. It writes to the `reports/` directory:
+
+```bash
+python3 -m mlos_review.deck
+```
 
 ## Running the tool
 
