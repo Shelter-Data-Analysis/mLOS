@@ -53,6 +53,12 @@ table, and the console log's header line changes.
   assumes. The table is built by `cox_zph_table` in `mlos_cox.R`, and the Cox
   analysis keeps the stratified fits for it in `stratified_fits`, which is not
   written to `results.json`.
+- `tools/cox_zph.R` no longer stops when a value filter empties a level. The
+  filter keeps the level, so the fit carries an NA coefficient, and
+  `survival::cox.zph` stopped on it when testing a factor with two or more
+  coefficients left. The test now refits on the same rows without the empty
+  levels, which leaves every other coefficient unchanged; the emptied level
+  has no row in the table.
 - `PUBLISHING.md`'s identifier table gains mLOS 0.4.0,
   `10.5281/zenodo.23170150`.
 - `PUBLISHING.md` says that recording a minted DOI is a markdown-only edit,

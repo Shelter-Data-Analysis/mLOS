@@ -595,6 +595,7 @@ cox_zph_table <- function(cox_results) {
   fits <- c(list(pooled = cox_results$cox_model),
             setNames(cox_results$stratified_fits,
                      paste0("stratified:", names(cox_results$stratified_fits))))
+  fits <- lapply(fits, .zph_fit)
   rows <- function(fit, terms) {
     z <- survival::cox.zph(fit, transform = "km", terms = terms)$table
     data.frame(term  = rownames(z),
@@ -611,6 +612,22 @@ cox_zph_table <- function(cox_results) {
                  cbind(test = "global", by_coef[global, ]))
     cbind(model = model, tab)
   }))
+}
+
+# The fit cox_zph_table tests. A value filter keeps the level it empties (user
+# guide, "Value maps"), so a fit can carry an NA coefficient, and cox.zph stops
+# on one when it tests a factor whole (terms = TRUE) that keeps two or more
+# coefficients. The fit is redone on the same rows with the empty levels
+# dropped: the level has no rows, so every other coefficient, and so the test,
+# is unchanged. The formula is taken from the fit, not from its call, whose
+# formula names a variable the variant loop overwrites.
+.zph_fit <- function(fit) {
+  if (!anyNA(stats::coef(fit))) return(fit)
+  env  <- environment(fit$formula)
+  call <- fit$call
+  call$formula <- fit$formula
+  call$data    <- droplevels(eval(call$data, env))
+  eval(call, env)
 }
 
 # One exponentiated-coefficient table: exp(beta) with a Wald 95% CI and the

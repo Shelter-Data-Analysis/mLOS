@@ -3474,6 +3474,48 @@ run_suite_checks <- function() {
   expect_equal("cox_zph: crossing intake hazards are rejected",
                as.numeric(ph_p(nph_tab, "stratified:intake_type") < 1e-6), 1)
 
+  # A value filter keeps the level it empties (see "Value maps" in the user
+  # guide), so the fits carry a coefficient that is NA. cox.zph cannot take
+  # one when the table asks for a test per factor (terms = TRUE) and the factor
+  # keeps two or more coefficients, as in the stratified animal-group fit
+  # here; the table must still come out, and the fit it reports must not
+  # change.
+  set.seed(20261028)
+  ef_n      <- 600
+  ef_intake <- sample(c("OWNER", "STRAY"), ef_n, replace = TRUE)
+  ef_group  <- sample(c("G1", "G2", "G3", "G4"), ef_n, replace = TRUE)
+  ef_start  <- as.Date("2024-01-01") + sample(0:90, ef_n, replace = TRUE)
+  ef_los    <- ceiling(rexp(ef_n, 0.05 * ifelse(ef_intake == "STRAY", 2, 1)))
+  ef_csv <- write_temp_csv(c("intake_date,outcome_date,outcome_type,intake_type,animal_group",
+                             paste(ef_start, ef_start + ef_los, "L", ef_intake, ef_group,
+                                   sep = ",")))
+  ef_refs <- refs_for(list(period_dates = c("2024-01-01", "2025-01-01"),
+                           restricted_stay_cap = 100, intake_type_reference = "OWNER",
+                           animal_group_reference = "G1", animal_group_filter_cut = "G4"))
+  ef_d    <- fi_quiet(read_and_prepare_data(ef_csv, ef_refs))
+  ef_refs <- detect_optional_columns(ef_d, ef_refs)
+  ef_cox  <- fi_quiet(cox_regression_analysis(fi_quiet(break_down_by_period(ef_d, ef_refs)),
+                                              ef_refs))
+  expect_equal("cox_zph: the filtered group leaves an NA coefficient",
+               as.numeric(anyNA(stats::coef(ef_cox$cox_model))), 1)
+  ef_tab <- tryCatch(cox_zph_table(ef_cox), error = function(e) NULL)
+  expect_equal("cox_zph: a level emptied by a filter does not stop the table",
+               as.numeric(!is.null(ef_tab)), 1)
+  if (!is.null(ef_tab)) {
+    expect_equal("cox_zph: no row for the emptied level",
+                 as.numeric(any(grepl("G4", ef_tab$term))), 0)
+    expect_equal("cox_zph: the remaining group's test is there",
+                 as.numeric(sum(ef_tab$model == "pooled" & ef_tab$term == "animal_groupG3")), 1)
+  }
+  expect_equal("cox_zph: the fit it reports is left as it was",
+               as.numeric(anyNA(stats::coef(ef_cox$cox_model))), 1)
+  ef_fits <- c(list(ef_cox$cox_model), ef_cox$stratified_fits)
+  expect_equal("cox_zph: the refit for the test has the same coefficients",
+               as.numeric(max(sapply(ef_fits, function(f) {
+                 kept <- stats::coef(f)[!is.na(stats::coef(f))]
+                 max(abs(stats::coef(.zph_fit(f))[names(kept)] - kept))
+               })) < 1e-8), 1)
+
   # References with no outcomes, and estimates that are infinite or nearly so.
   cat("\n=== reference outcomes and unstable estimates ===\n")
   ro_csv <- write_temp_csv(c(
