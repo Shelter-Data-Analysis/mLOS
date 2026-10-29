@@ -20,7 +20,8 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 ## Unreleased
 
 No existing number moves. `results.json` renames keys, stops storing
-whole-sample values twice, and moves to schema version 6, and the workbook renames three row labels. The remaining LOS CSVs
+whole-sample values twice, and moves to schema version 6. The workbook
+renames six row labels. The remaining LOS CSVs
 gain confidence-bound columns to the right of their unchanged estimates, their
 plots gain confidence ribbons, and `results.json` and the workbook gain
 interval rows for the remaining LOS at the three tenure statistics. With
@@ -82,6 +83,11 @@ of a run, adds rows to its table, and the console log's header line changes.
 - The workbook row `weibull_freed_shape_los_ratio` becomes
   `weibull_stratified_los_ratio`, with its two interval rows, in step with
   `cox_stratified_hazard_ratio` beside it. The row is not in `results.json`.
+- The top block of each stratum sheet names its rows `total_stays`,
+  `left_truncated_stays`, and `right_censored_stays`, the column names of
+  `unified_stay_counts` in `results.json`, in place of `unified_total_stays`,
+  `unified_left_truncated`, and `unified_right_censored`. The block's title
+  still says the counts are unified across periods.
 - `tools/cox_zph.R` tests the per-predictor stratified Cox fits as well as the
   pooled one. A new `model` column names the fit: `pooled`, or
   `stratified:<stratifier>`. The pooled rows are unchanged. The test on a

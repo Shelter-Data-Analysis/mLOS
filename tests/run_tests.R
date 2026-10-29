@@ -1291,11 +1291,10 @@ check_excel_workbook <- function(case_name, excel_file, bundle) {
     # Unified-across-periods counts occupy the sheet's top section (rows 3-5,
     # the slot the period-metadata table has on By_Period).
     unified <- measures$unified_stay_counts
-    unified_fields <- c(unified_total_stays    = "total_stays",
-                        unified_left_truncated = "left_truncated_stays",
-                        unified_right_censored = "right_censored_stays")
+    # The rows carry the JSON table's own column names.
+    unified_fields <- c("total_stays", "left_truncated_stays", "right_censored_stays")
     for (j in seq_along(unified_fields)) {
-      row_name <- names(unified_fields)[j]
+      row_name <- unified_fields[j]
       row_idx <- which(ss[[1]] == row_name)[1]
       expect_equal(paste0(case_name, ": excel: ", stratifier$sheet_name, " ", row_name, " on row ", j + 2),
                    as.numeric(identical(row_idx, as.integer(j + 2))), 1)

@@ -185,6 +185,13 @@ def _tenure_quantiles(bundle: Bundle) -> str:
             f"{census['per_resident_past_days_restricted_p90'].iloc[0]:.0f}")
 
 
+def _reading_against_resident_mean(bundle: Bundle) -> str:
+    """Remaining LOS read at the mean tenure, against its average over residents."""
+    census = bundle.stratum("all", "census")
+    return (f"{census['remaining_days_at_mean_tenure'].iloc[0]:.1f} against "
+            f"{census['per_resident_future_days'].iloc[0]:.1f}")
+
+
 def _animals_against_care(bundle: Bundle, day: int) -> str:
     """Share of intakes in care at a tenure beside the share of animal-days past it."""
     survival = _unified_grid(bundle, "km_survival")
@@ -206,7 +213,7 @@ def _exit_state_against_km(bundle: Bundle) -> str:
     bundle stores, so each is half the interval width over Z_95.
     """
     ci = bundle.stratum("all", "ci").iloc[0]
-    cap = float(bundle.value("unified", "restricted_stay_cap"))
+    cap = float(bundle.value("settings", "restricted_stay_cap"))
 
     def row(est, lo, hi):
         return f"{est:.3f} | {(hi - lo) / (2 * Z_95):.3f} | {lo:.3f}–{hi:.3f}"
@@ -385,6 +392,10 @@ CLAIMS: list[tuple[str, str, str, object]] = [
      "12% of intakes, 43% of animal-days", lambda b, v: _animals_against_care(b, 30)),
     ("OC2", "mean tenure against restricted mean",
      "52.7 against 16.7, c^2 5.4", lambda b, v: _tenure_spread(b)),
+    ("OC1", "math 5.8 and 8.4: remaining LOS at mean tenure against resident mean",
+     "74.9 against 53.7", lambda b, v: _reading_against_resident_mean(b)),
+    ("OC2", "math 5.8 and 8.4: remaining LOS at mean tenure against resident mean",
+     "74.9 against 53.7", lambda b, v: _reading_against_resident_mean(b)),
 
     # -- Selection and sheets ----------------------------------------------
     ("OC1", "highlights collapse, animal group", "2 rows of 7",

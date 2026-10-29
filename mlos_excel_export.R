@@ -1504,9 +1504,9 @@ write_by_stratum_sheet <- function(wb, sheet, measures, window_days, n_periods_p
   unified <- measures$unified_stay_counts
   unified_rows <- .excel_period_rows(
     list(
-      unified_total_stays    = as.numeric(unified$total_stays),
-      unified_left_truncated = as.numeric(unified$left_truncated_stays),
-      unified_right_censored = as.numeric(unified$right_censored_stays)
+      total_stays          = as.numeric(unified$total_stays),
+      left_truncated_stays = as.numeric(unified$left_truncated_stays),
+      right_censored_stays = as.numeric(unified$right_censored_stays)
     ),
     labels
   )
