@@ -1041,20 +1041,20 @@ def check_educational_section() -> None:
 
 
 def check_slide_citations() -> None:
-    """The two DOIs the opener prints, against the files that own them.
+    """The DOI the opener prints, against the files that own it.
 
     A slide is the one place a citation is read aloud and the one place nothing
-    resolves it, so both are held against their source: the software DOI
-    against CITATION.cff, which is what Zenodo and GitHub read, and the paper
-    against the user guide's reference list. A DOI that drifts here names
-    something that does not exist and nothing else in the suite would notice.
+    resolves it, so the paper's DOI is held against its two sources: the
+    references of CITATION.cff, which is what Zenodo and GitHub read, and the
+    user guide's reference list. A DOI that drifts here names something that
+    does not exist and nothing else in the suite would notice.
     """
-    from mlos_review.deck import PAPER_DOI, SOFTWARE_DOI
+    from mlos_review.deck import PAPER_DOI
 
     section("slide citations (synthetic)")
     citation = (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8")
-    expect(f"the software DOI is the one in CITATION.cff",
-           f'doi: "{SOFTWARE_DOI}"' in citation, SOFTWARE_DOI)
+    expect("the paper DOI is in CITATION.cff's references",
+           f'doi: "{PAPER_DOI}"' in citation, PAPER_DOI)
 
     guide = (REPO_ROOT / "mlos_user_guide.md").read_text(encoding="utf-8")
     expect("the paper DOI is in the user guide's references",

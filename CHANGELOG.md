@@ -40,6 +40,11 @@ of a run, adds rows to its table, and the console log's header line changes.
   fixtures cite the outcome-window paper with its DOI,
   10.3390/ani16081158. Two fixtures' settings comments change with it, so
   their goldens record new settings digests. No numbers move.
+- The deck's educational opening slide cites the mLOS paper,
+  doi:10.3390/ani16203207, in place of the method paper and software DOIs; the
+  paper cites both in turn. `PUBLISHING.md` adds the paper to each Zenodo
+  software record, under References and as an *is described by* relation.
+  No numbers move.
 - The stratified conditional-outcome plot titles read
   "P(<outcome> | in care on day x) by <stratifier>". The words "from day x on"
   are dropped, since being in care on day x already places the outcome on day

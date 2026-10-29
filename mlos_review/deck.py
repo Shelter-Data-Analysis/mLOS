@@ -1734,13 +1734,12 @@ def reserve_section(bundle: Bundle, comparison, vocab: Vocabulary,
     return [divider] + built
 
 
-# The two DOIs the educational opener carries. Written here and checked
-# against their sources by the test suite rather than trusted to review:
-# CITATION.cff holds the software DOI, and the user guide's reference list
-# holds the paper, so a slide naming a DOI neither of them names is a citation
-# to something that does not exist.
-PAPER_DOI = "10.1371/journal.pone.0342102"
-SOFTWARE_DOI = "10.5281/zenodo.22083814"
+# The DOI the educational opener carries: the mLOS paper, which describes the
+# software and cites the method paper in turn. Written here and checked
+# against its sources by the test suite rather than trusted to review: the
+# user guide's reference list and CITATION.cff both hold it, so a slide naming
+# a DOI neither of them names is a citation to something that does not exist.
+PAPER_DOI = "10.3390/ani16203207"
 
 
 def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
@@ -1765,7 +1764,6 @@ def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
         Bullet("But also animals straddling the start or end.", 1),
         Bullet("Method & software"),
         Bullet(f"doi.org/{PAPER_DOI}", 1),
-        Bullet(f"doi.org/{SOFTWARE_DOI}", 1),
         Bullet("Also, what are good ways to look at"),
         Bullet("LOS metrics", 1),
         Bullet("LOS distribution", 1),
@@ -1782,14 +1780,12 @@ def los_overview_slide(bundle: Bundle, vocab: Vocabulary) -> Slide:
         "stays, stays already running when it began, and stays still running "
         "when it ended, and survival analysis is what lets all three "
         "contribute what they know without pretending to know the rest.",
-        "The citations are for a room that asks where the method comes from. "
-        "The paper is the definition and the worked examples: Mavrovouniotis "
-        "ML. Use of Kaplan-Meier and Cox regressions in the distribution of "
-        "length of stay in animal shelters for pre-specified calendar "
-        "periods: Definition, computation, and examples of dog length of stay "
-        "in Orange County California. PLOS ONE. 2026;21(1):e0342102. The "
-        "software DOI resolves to its latest release; the version that "
-        "produced these numbers is on the opening slide.",
+        "The citation is for a room that asks where the method and the "
+        "software come from: Mavrovouniotis ML. The mLOS Open-Source Software "
+        "for Analyzing Length of Stay in Animal Shelters. Animals. "
+        "2026;16(20):3207. It describes the tool and cites the paper that "
+        "defines the method. The version that produced these numbers is on "
+        "the opening slide.",
         "The three readings at the foot are what the rest of this section, "
         "and the deck itself, go on to show: summary numbers for how long "
         "stays last, the whole distribution rather than a summary of it, and "
