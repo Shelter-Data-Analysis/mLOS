@@ -115,9 +115,8 @@ line above and GitHub does not, a list, a heading, and a `---` rule.
 That last one is why this exists. A `---` directly under a line of text is a
 setext underline to pandoc and a thematic break to CommonMark, so the line
 above becomes a heading, takes the anchor the real section wanted, and pushes
-the real one to `<slug>-1`. The presentation guide's contents list shipped
-that way in August 2026: perfect on GitHub, and every link to the last section
-landing on the contents list in Word.
+the real one to `<slug>-1`. A guide in that state looks perfect on GitHub,
+while in Word every link to its last section lands on the contents list.
 
 `make_docx.sh` decides which documents this covers. Its `DOCS` list is the
 declaration and the check compares its own against it, so adding a fourth
@@ -157,10 +156,9 @@ settled.
 
 What this catches is a citation of a section that is not there, which is what a
 renumbering leaves behind everywhere below the insertion. What it does not
-catch is a citation of the wrong real section. This file cited math methods
-§5.7 for `expected_census` from the initial public release until August 2026;
-§5.6 was meant, §5.7 is a real section about the in-care tenure profile, and no
-check can tell those apart.
+catch is a citation of the wrong real section. A citation of §5.7 for
+`expected_census`, where §5.6 is meant, passes: §5.7 is a real section, about
+the in-care tenure profile, and no check can tell the two apart.
 
 ### The numbers the documents quote
 
@@ -367,6 +365,10 @@ Which analyses run is driven entirely by which `expected_*` objects
 | `expected_aj_intake_type` | AJ within each `intake_type` | `STRAY.CIF_L_day10`, `n_intake_types` |
 | `expected_aj_animal_group` | AJ within each `animal_group` | `LARGE.CIF_L_day10`, `n_animal_groups` |
 | `expected_period_stats` | Per-period counts/census/flow metrics | `Period_1.total_animal_days`, `Period_2.mean_daily_total_in_care_days` |
+| `expected_preparation` | The data-preparation record: rows read and prepared, recodes, value-map counts | `rows_read`, `rows_prepared`, `recoded_in_care`, `mapped_animal_group.n_pairs` |
+| `expected_tenure` | The in-care tenure profile, its quantiles and mean, the remaining-LOS curve and its readings, and the KM curve they come from | see `sim_holding_period` |
+| `expected_cox_stratified_<stratifier>` | One per-predictor stratified Cox fit | `n`, `n_events`, `n_strata`, `n_strata_with_events`, `lr_df` |
+| `expected_stratifier_weibull_<stratifier>` | One per-predictor Weibull shape variant | `n`, `n_events`, `shape`, `crossed`, `crossing_lr_stat` |
 | `expected_stratum_stats` | Per-stratum counts/census/flow metrics, as the Excel `By_Intake_Type`/`By_Animal_Group` sheets compute them (grouped by the stratifier column, whole-window day denominator) | `animal_group.SMALL.total_animal_days`, `intake_type.STRAY.total_intakes` |
 
 See the `flatten_*()` functions in `run_tests.R` for the full field lists. The

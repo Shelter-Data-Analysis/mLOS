@@ -50,8 +50,7 @@ committed seed (76) is the scan's most typical draw.
 ## A design note: the cap
 
 The cap is 120 days, where the true curve is effectively zero. A cap far
-past the data (365) was tried first and made the mean tenure unstable on
-some seeds: when a period's last long stay is censored, the curve is held
+past the data, 365 days, makes the mean tenure unstable on some seeds: when a period's last long stay is censored, the curve is held
 flat out to the cap, and the mean tenure weights those far days most. The
 guides describe this sensitivity under "Choosing your
 `restricted_stay_cap`"; this fixture keeps the cap short so that it tests
