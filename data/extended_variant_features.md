@@ -10,7 +10,7 @@
 
 - Each slide from here on names the feature it is showing
 
-> A divider takes the TITLE layout, which centres its block and sets the
+> A divider takes the TITLE layout, which centers its block and sets the
 > heading large. `{divider}` is the only property today.
 
 # A written slide

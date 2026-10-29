@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261029_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261029_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -677,7 +677,7 @@ Beside the LOS ratios, which mean exactly what they do on the `Weibull_Regressio
 
 A sheet's LOS ratio tells you how much longer or shorter stays run for the corresponding predictor's levels, once the other predictors' shapes are allowed to differ. That is the same practical reading as the pooled Weibull's, but with a narrower assumption.
 
-**Model tests.** This block carries a likelihood ratio against a Weibull with no predictors at all, which on any reasonably-sized dataset is statistically significant but not very useful.
+**Model tests.** This block carries a likelihood ratio against a Weibull with no predictors at all, which on any reasonably sized dataset is statistically significant but not very useful.
 
 A "Shape crossing" row in the overview says which shape formula produced the numbers and why it was that one, and the model formula at the top names the fit itself. On a default run it reports the by-dimension shape described here.
 
@@ -847,7 +847,7 @@ Each period is **left-closed, right-open**: the first date of a period is includ
 restricted_stay_cap: 365
 ```
 
-Positive integer. Stays exceeding this number of days are capped: their time in the analysis ends at the cap and they are treated as right-censored there. The cap is the analysis horizon for **every** method, not just the restricted mean: the KM curve ends at the cap (so the median or 90th percentile is reported as "not reached" if it would fall beyond it), outcomes occurring past the cap are censored in the Cox regression. The AJ analysis uses no information beyond the cap. Below the cap, the curves are unaffected. The fraction of stays capped is reported as "Fraction capped" on the General sheet and as `fraction_capped` on `By_All` and the other stratum sheets. To shorten the plots without shortening the analysis, set [`plot_stay_cap`](#plot_stay_cap) instead; it truncates the x-axis and changes no computed value.
+Positive integer. Stays exceeding this number of days are capped: their time in the analysis ends at the cap and they are treated as right-censored there. The cap is the analysis horizon for **every** method, not just the restricted mean: the KM curve ends at the cap (so the median or 90th percentile is reported as "not reached" if it would fall beyond it), and outcomes occurring past the cap are censored in the Cox regression. The AJ analysis uses no information beyond the cap. Below the cap, the curves are unaffected. The fraction of stays capped is reported as "Fraction capped" on the General sheet and as `fraction_capped` on `By_All` and the other stratum sheets. To shorten the plots without shortening the analysis, set [`plot_stay_cap`](#plot_stay_cap) instead; it truncates the x-axis and changes no computed value.
 
 **This is one of the most consequential settings in the tool.** It effectively defines (crucially, for the KM restricted mean) the boundary between a "long but real" stay and one that should be treated as an outlier or a potential data discrepancy. Choose it deliberately by inspecting your actual stay-length distribution rather than reusing a default from another dataset. Be more conservative the sparser your data: with few observations, a single implausible or erroneous stay recorded near or beyond the cap can dominate the restricted mean.
 
@@ -897,7 +897,7 @@ outcome_type_delete:
   - "DataError"
 ```
 
-Raw CSV labels in the `outcome_type` field whose rows should be **dropped entirely** before analysis. Applied before any outcome type mapping. Useful because some shelters use the `outcome_type` field to mark duplicate or cancelled rows.
+Raw CSV labels in the `outcome_type` field whose rows should be **dropped entirely** before analysis. Applied before any outcome type mapping. Useful because some shelters use the `outcome_type` field to mark duplicate or canceled rows.
 
 #### `outcome_type_in_care`
 
@@ -1156,7 +1156,7 @@ Same role as `animal_group_reference`, but for the `intake_type` column. Optiona
 parametric_regression: WEIBULL
 ```
 
-Adds a **Weibull regression** alongside the Cox regression, with the same predictors and reference levels, reported on its own `Weibull_Regression` worksheet laid out like the Cox sheet. Accepted values: `false` (default, no parametric fit) or `WEIBULL`; any other value stops the run. Requires the `flexsurv` package (`install.packages("flexsurv")`); if the package is missing, or the fit fails to converge (e.g. every stay has nearly the same length), the parametric step is skipped with a note and the rest of the run is unaffected.
+Adds a **Weibull regression** alongside the Cox regression, with the same predictors and reference levels, reported on its own `Weibull_Regression` worksheet laid out like the Cox sheet. Accepted values: `false` (default, no parametric fit) or `WEIBULL`; any other value stops the run. Requires the `flexsurv` package (`install.packages("flexsurv")`); if the package is missing, or the fit fails to converge (e.g., every stay has nearly the same length), the parametric step is skipped with a note and the rest of the run is unaffected.
 
 Why turn it on: the Weibull fit reports **LOS ratios** directly ("stays run 30% longer than the reference group"), with confidence intervals, rather than leaving readers to interpret hazard ratios, and it estimates the shape `k` as a number in its own right. The trade-off is that it assumes stay lengths follow a Weibull distribution; the worksheet's implied-hazard-ratio column (compare against the Cox sheet) is the built-in check on that assumption. It is not a way to get more out of a small dataset: the Cox fit copes with sparse data more comfortably, since it estimates its baseline out of the way rather than alongside the coefficients. The Weibull fit is the one that struggles when a cell is thin.
 

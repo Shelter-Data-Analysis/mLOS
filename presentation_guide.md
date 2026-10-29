@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20261027_001. Read it in any markdown reader,
+presentation guide, version 20261029_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -279,7 +279,7 @@ than it would be on a plain page.
 A slide that does not fit at the deck's bullet size, 18 point unless
 `bullets.size` says otherwise, is measured again two and four points smaller,
 standing lines included, and takes the artwork at the largest size that fits.
-The alternative is a slide that loses the branding its neighbours have over a
+The alternative is a slide that loses the branding its neighbors have over a
 quarter of an inch. On OC2 one slide steps down. Larger type breaks the closing
 sections onto more pages: on OC2, 22 point takes the deck from 48 slides to 53.
 
@@ -374,7 +374,7 @@ separate the data. With a single dimension there is nothing to rank it against,
 so it is treated as salient rather than left waiting for a comparison it cannot
 lose. What moves is the default. A file that writes `AUTO`
 against that stratifier has said what it wants, and `NEVER` means it whatever
-else the dataset holds; both are honoured exactly as written.
+else the dataset holds; both are honored exactly as written.
 
 Naming levels implies `ALWAYS`, since asking for particular levels and then
 leaving their appearance to chance is not a coherent request. Pinned levels
@@ -777,7 +777,7 @@ which emulates animation with three ordinary slides that behave identically in
 PowerPoint, Keynote, Slides, and PDF.
 
 The same finding about the stratifier rides on each slide in the animation.
-The closing section de-dupes findings. If no AJ figures are emitted, the
+The closing section de-duplicates findings. If no AJ figures are emitted, the
 section degrades to a single stacked slide carrying just the table, in the
 same spirit as an LOS slide with its figures switched off.
 
@@ -2190,7 +2190,7 @@ survivor runs full width; with both missing the table still carries the slide.
 
 Two passes. Rules *propose*, each reporting an id, a priority tier, a salience,
 and a cost at each detail level. A planner then solves a small knapsack against
-`max_slides`, honouring fixed tiers (title, methods, caveats are not
+`max_slides`, honoring fixed tiers (title, methods, caveats are not
 negotiable) and spending the remainder in salience order.
 
 Two passes rather than sequential rule application, because sequential
