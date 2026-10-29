@@ -192,7 +192,8 @@ stratified_results <- stratified_km_analysis(period_data, references)
 # AJ competing-risk CIF
 cat("\n\n>>> AJ competing-risk CIF...\n")
 aj_results <- aj_competing_risk_analysis(period_data, max_time = km_results$max_time,
-                                         rmean_cap = references$restricted_stay_cap)
+                                         rmean_cap = references$restricted_stay_cap,
+                                         conditional_ci = isTRUE(references$aj_conditional_ci))
 
 # AJ conditional outcomes within each stratifier (period, intake type, animal
 # group; see the `stratifiers` registry in mlos_common.R). A stratifier whose

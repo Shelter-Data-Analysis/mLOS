@@ -25,6 +25,7 @@
     "animal_group_columns": null,
     "parametric_regression": false,
     "weibull_shape_crossing": false,
+    "aj_conditional_ci": false,
     "discard_bad_rows": false,
     "discard_overlapping_rows": false,
     "intake_filter": null,
@@ -832,7 +833,7 @@
         "note": "integer tenure; only the days within the AJ analysis window where the conditional probabilities are defined"
       },
       "values": {
-        "columns": "one per outcome",
+        "columns": "one per outcome, then, when aj_conditional_ci is true, their pointwise 95% CI bounds as a block to the right of the estimate grid, paired per column in the same order (ci_lower_<outcome>, ci_upper_<outcome>)",
         "units": "probability",
         "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },

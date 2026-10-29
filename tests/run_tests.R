@@ -2128,7 +2128,8 @@ run_fixture_case <- function(case_dir) {
 
   if (need_aj) {
     aj_results <- aj_competing_risk_analysis(period_data, max_time = km_results$max_time,
-                                             rmean_cap = references$restricted_stay_cap)
+                                             rmean_cap = references$restricted_stay_cap,
+                                             conditional_ci = isTRUE(references$aj_conditional_ci))
     if (!is.null(expected_env$expected_aj)) {
       check_fields(paste0(case_name, ": aj"), flatten_aj(aj_results, references), expected_env$expected_aj,
                    tol = case_tol)
@@ -3241,6 +3242,68 @@ run_suite_checks <- function() {
     b <- .remaining_los_bounds(est, se)
     expect_equal(paste0("remaining LOS bounds: 0 < lower <= estimate <= upper (", rb_strata[idx], ")"),
                  as.numeric(all(b$lower[ok] > 0 & b$lower[ok] <= est[ok] & est[ok] <= b$upper[ok])), 1)
+  }
+
+  # Conditional outcome bounds (aj_conditional_ci, math methods 7.4). Each
+  # animal has two stays, and stays cross a period boundary, so the refits
+  # carry clustering and left truncation. Checked against what the bounds must
+  # satisfy without repeating their construction: at x = 0 the refit is the
+  # main fit, so the bounds are the CIF's bounds at the horizon; the log-scale
+  # interval is centered on the refit's estimate, so lower * upper equals the
+  # shipped conditional probability squared on every day; giving each stay its
+  # own animal changes the bounds; and the estimates do not move.
+  cat("\n=== Conditional outcome bounds ===\n")
+  set.seed(20261029)
+  cb_animals <- 150
+  cb_first   <- as.Date("2021-01-01") + sample(0:60, cb_animals, replace = TRUE)
+  cb_los1    <- pmax(1L, ceiling(stats::rweibull(cb_animals, 0.8, 12)))
+  cb_second  <- cb_first + cb_los1 + sample(5:40, cb_animals, replace = TRUE)
+  cb_los2    <- pmax(1L, ceiling(stats::rweibull(cb_animals, 0.8, 12)))
+  cb_lines <- function(id_second) c(
+    "animal_id,intake_date,outcome_date,outcome_type",
+    paste(sprintf("A%03d", seq_len(cb_animals)), cb_first, cb_first + cb_los1,
+          sample(c("L", "T", "N"), cb_animals, TRUE, prob = c(0.6, 0.3, 0.1)), sep = ","),
+    paste(id_second, cb_second, cb_second + cb_los2,
+          sample(c("L", "T", "N"), cb_animals, TRUE, prob = c(0.6, 0.3, 0.1)), sep = ","))
+  cb_refs <- refs_for(list(period_dates = c("2021-01-01", "2021-03-01", "2021-12-31"),
+                           restricted_stay_cap = 60))
+  cb_fit <- function(lines, conditional_ci) {
+    capture.output({
+      d  <- read_and_prepare_data(write_temp_csv(lines), cb_refs)
+      pd <- break_down_by_period(d, cb_refs)
+      res <- compute_aj_cif_results(pd, print_summary = FALSE, rmean_cap = 60,
+                                    conditional_ci = conditional_ci)
+    })
+    list(pd = pd, res = res)
+  }
+  set.seed(1); cb_rep <- cb_fit(cb_lines(sprintf("A%03d", seq_len(cb_animals))), TRUE)
+  set.seed(1); cb_sep <- cb_fit(cb_lines(sprintf("B%03d", seq_len(cb_animals))), TRUE)
+  set.seed(1); cb_off <- cb_fit(cb_lines(sprintf("A%03d", seq_len(cb_animals))), FALSE)
+  expect_equal("conditional bounds: some rows are left-truncated",
+               as.numeric(any(cb_rep$pd$time_start > 0)), 1)
+  expect_equal("conditional bounds: off adds no columns",
+               sum(startsWith(names(cb_off$res$cif_df), "condrem_ci_")), 0)
+  cb_df  <- cb_rep$res$cif_df
+  cb_tau <- nrow(cb_df)
+  for (s in cb_rep$res$outcome_states) {
+    est <- cb_df[[paste0("condrem_", s)]]
+    lo  <- cb_df[[paste0("condrem_ci_lower_", s)]]
+    hi  <- cb_df[[paste0("condrem_ci_upper_", s)]]
+    expect_equal(paste0("conditional bounds: estimates unchanged by the setting (", s, ")"),
+                 as.numeric(identical(est, cb_off$res$cif_df[[paste0("condrem_", s)]])), 1)
+    expect_equal(paste0("conditional bounds: at x = 0, the CIF's bounds at the horizon (", s, ")"),
+                 max(abs(c(lo[1], hi[1]) - c(cb_df[[paste0("ci_lower_", s)]][cb_tau],
+                                             cb_df[[paste0("ci_upper_", s)]][cb_tau]))), 0, tol = 1e-12)
+    ok <- is.finite(est) & est > 0 & hi < 1
+    expect_equal(paste0("conditional bounds: log-symmetric about the estimate on most days (", s, ")"),
+                 as.numeric(sum(ok) > 20), 1)
+    expect_equal(paste0("conditional bounds: lower * upper = estimate^2 (", s, ")"),
+                 max(abs(lo[ok] * hi[ok] - est[ok]^2)), 0, tol = 1e-10)
+    expect_equal(paste0("conditional bounds: undefined exactly where the estimate is (", s, ")"),
+                 as.numeric(identical(is.na(lo), is.na(est))), 1)
+    expect_equal(paste0("conditional bounds: repeat animals change the bounds (", s, ")"),
+                 as.numeric(max(abs(lo - cb_sep$res$cif_df[[paste0("condrem_ci_lower_", s)]]),
+                                na.rm = TRUE) > 1e-6), 1)
   }
 
   # aj_cif_any adds an all-cause plot and CSV per stratifier, and the manifest

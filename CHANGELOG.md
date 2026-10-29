@@ -23,10 +23,20 @@ No existing number moves. `results.json` renames keys and moves to schema
 version 6, and the workbook renames three row labels. The remaining LOS CSVs
 gain confidence-bound columns to the right of their unchanged estimates, their
 plots gain confidence ribbons, and `results.json` and the workbook gain
-interval rows for the remaining LOS at the three tenure statistics; every other
-CSV and plot is byte-identical to 0.4.0. `tools/cox_zph.R`, which is not part
+interval rows for the remaining LOS at the three tenure statistics. With
+`aj_conditional_ci` on, as in `data/OC2_settings.yaml`, the conditional outcome
+CSVs, plots, and readings gain bounds the same way. Every other CSV and plot is
+byte-identical to 0.4.0. `tools/cox_zph.R`, which is not part
 of a run, adds rows to its table, and the console log's header line changes.
 
+- A new setting, `aj_conditional_ci`, gives the conditional outcome
+  probabilities pointwise 95% confidence intervals, clustered on `animal_id`
+  like the other AJ intervals: one Aalen-Johansen refit per tenure on the
+  stays present there (math methods §7.4). The bounds go to the
+  `aj_conditional_*` CSVs, ribbons on their line plots, and `results.json`
+  beside the readings at the three tenure statistics. Absent or `false`, every
+  output is as before. `data/OC2_settings.yaml` turns it on. No existing
+  number moves.
 - Remaining LOS carries a pointwise 95% confidence interval, on the log scale
   (math methods §5.8): bound columns in the `km_remaining_los_*` CSVs,
   ribbons on their plots, and interval rows for the readings at the three

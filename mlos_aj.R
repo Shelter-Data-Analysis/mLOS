@@ -18,11 +18,15 @@
 #' @param rmean_cap Horizon (in days) for the restricted-mean-days-by-state
 #'   table (RMST/RMTL); callers pass references$restricted_stay_cap. NULL
 #'   (the default) skips that table.
+#' @param conditional_ci Whether to add pointwise bounds for the conditional
+#'   remaining outcome probabilities (references$aj_conditional_ci; see
+#'   .aj_conditional_bounds). FALSE adds no columns.
 #' @return List containing AJ fit and CIF results by day
 compute_aj_cif_results <- function(period_data,
                                    max_time = NULL,
                                    print_summary = TRUE,
-                                   rmean_cap = NULL) {
+                                   rmean_cap = NULL,
+                                   conditional_ci = FALSE) {
   # Event coding for the multistate model: first level must be censoring state.
   event_state <- as.character(period_data$outcome_type)
   event_state[is.na(event_state) | period_data$event == 0] <- "Censor"
@@ -118,10 +122,14 @@ compute_aj_cif_results <- function(period_data,
     cif_df[[paste0("condrem_", s)]] <- ifelse(at_risk_x > 1e-9, num / at_risk_x, NA_real_)
   }
 
+  cond_bounds <- if (isTRUE(conditional_ci))
+    .aj_conditional_bounds(period_data, event_state, cif_df, cif_states, tau) else NULL
+
   # Append CI columns after all probability calculations are complete.
   cif_df <- data.frame(cif_df, lower_matrix, upper_matrix,
                        ci_lower_Any = any_lower, ci_upper_Any = any_upper,
                        check.names = FALSE)
+  if (!is.null(cond_bounds)) cif_df <- data.frame(cif_df, cond_bounds, check.names = FALSE)
 
   # Restricted mean days in each state within the cap, ready-made from the
   # same fit: summary(aj_fit, rmean = cap)$table reports, per state, the
@@ -175,14 +183,75 @@ compute_aj_cif_results <- function(period_data,
 }
 
 
+# Pointwise 95% bounds of the conditional remaining outcome probabilities
+# (math methods 7.4), as columns condrem_ci_lower_<state> and
+# condrem_ci_upper_<state> on cif_df's day grid.
+#
+# The probability at tenure x is the CIF at tau of an AJ fit on the stays
+# present at x, with the clock restarted at x. Each tenure is refitted that
+# way, with the main fit's id and cluster, so its bounds are that fit's own:
+# log scale, infinitesimal-jackknife variance clustered by animal, as on the
+# CIF. A refit's estimate equals the conditional probability already in
+# cif_df; the suite checks it. Days where the probability is undefined stay
+# NA. Where no outcome follows x, every probability is 0 and so are its
+# bounds, as before a CIF's first event.
+.aj_conditional_bounds <- function(period_data, event_state, cif_df, cif_states, tau) {
+  lower <- matrix(NA_real_, nrow(cif_df), length(cif_states),
+                  dimnames = list(NULL, cif_states))
+  upper <- lower
+  defined <- is.finite(cif_df[[paste0("condrem_", cif_states[1])]])
+
+  for (i in which(defined)) {
+    x <- cif_df$days[i]
+    at_risk <- period_data$time_end > x
+    lower[i, ] <- 0
+    upper[i, ] <- 0
+    present <- intersect(cif_states, event_state[at_risk])
+    if (length(present) == 0) next
+
+    rows <- period_data[at_risk, , drop = FALSE]
+    fit  <- .without_twoclust_warning(survival::survfit(
+      survival::Surv(pmax(rows$time_start, x) - x, rows$time_end - x,
+                     factor(event_state[at_risk], levels = c("Censor", present))) ~ 1,
+      id = rows$stay_id, cluster = rows$animal_id))
+    j <- findInterval(tau - x, fit$time)
+    if (j == 0) next
+    cols <- match(present, colnames(fit$pstate))
+    lower[i, present] <- fit$lower[j, cols]
+    upper[i, present] <- fit$upper[j, cols]
+  }
+
+  colnames(lower) <- paste0("condrem_ci_lower_", cif_states)
+  colnames(upper) <- paste0("condrem_ci_upper_", cif_states)
+  data.frame(lower, upper, check.names = FALSE)
+}
+
+# Evaluate a multistate survfit call with one warning removed: "an id value
+# appears on more than one cluster". survival 3.8.9 raises it at random on
+# data whose ids are nested in their clusters, because survfitAJ passes a
+# 1-based order to a C check that indexes it as 0-based (reported upstream,
+# therneau/survival). The check's result feeds only that warning, so no
+# estimate is affected, and an mLOS stay belongs to one animal by
+# construction. Every other warning passes through.
+.without_twoclust_warning <- function(expr) {
+  withCallingHandlers(expr, warning = function(w) {
+    if (grepl("an id value appears on more than one cluster", conditionMessage(w), fixed = TRUE))
+      invokeRestart("muffleWarning")
+  })
+}
+
+
 #' Run Aalen-Johansen competing-risk analysis and compute CIF curves
 #'
 #' @param period_data Data frame from break_down_by_period
 #' @param max_time Maximum day to report/plot (default: max observed AJ time)
 #' @param rmean_cap Horizon for the restricted-mean-days-by-state table
 #'   (RMST/RMTL); callers pass references$restricted_stay_cap. NULL skips it.
+#' @param conditional_ci Whether to bound the conditional probabilities; see
+#'   compute_aj_cif_results.
 #' @return List containing AJ fit and CIF results by day
-aj_competing_risk_analysis <- function(period_data, max_time = NULL, rmean_cap = NULL) {
+aj_competing_risk_analysis <- function(period_data, max_time = NULL, rmean_cap = NULL,
+                                       conditional_ci = FALSE) {
   cat("\n=======================================================================\n")
   cat("AALEN-JOHANSEN COMPETING-RISK CIF\n")
   cat("=======================================================================\n")
@@ -191,7 +260,8 @@ aj_competing_risk_analysis <- function(period_data, max_time = NULL, rmean_cap =
     period_data = period_data,
     max_time = max_time,
     print_summary = TRUE,
-    rmean_cap = rmean_cap
+    rmean_cap = rmean_cap,
+    conditional_ci = conditional_ci
   )
 
   # Restricted mean days by state (see compute_aj_cif_results for the
@@ -207,7 +277,9 @@ aj_competing_risk_analysis <- function(period_data, max_time = NULL, rmean_cap =
 }
 
 .export_aj_cif_csv <- function(aj_results, filename) {
-  export_df <- aj_results$cif_df
+  # The conditional bounds have their own file, aj_conditional_unified.csv.
+  export_df <- aj_results$cif_df[, !startsWith(names(aj_results$cif_df), "condrem_ci_"),
+                                 drop = FALSE]
   export_df$days <- as.character(export_df$days)
 
   cif_cols <- grep("^cif_", names(export_df), value = TRUE)
@@ -223,7 +295,12 @@ aj_competing_risk_analysis <- function(period_data, max_time = NULL, rmean_cap =
   cond_cols <- aj_results$cond_cols
   keep <- stats::complete.cases(df[, cond_cols, drop = FALSE])
 
-  export_df <- df[keep, c("days", cond_cols), drop = FALSE]
+  # The bounds, when aj_conditional_ci added them, as a block to the right,
+  # named as in aj_cif_unified.csv.
+  bound_cols <- intersect(c(sub("^condrem_", "condrem_ci_lower_", cond_cols),
+                            sub("^condrem_", "condrem_ci_upper_", cond_cols)), names(df))
+  export_df <- df[keep, c("days", cond_cols, bound_cols), drop = FALSE]
+  names(export_df) <- sub("^condrem_ci_", "ci_", names(export_df))
   names(export_df) <- sub("^condrem_", "conditional_", names(export_df))
 
   .write_plot_csv(export_df, filename)
@@ -736,6 +813,16 @@ plot_aj_conditional_unified <- function(aj_results, references, save_file = NULL
          main = "Conditional Remaining Outcome Probability")
     .plot_grid()
     in_plot <- x <= x_limit
+    # Ribbons where aj_conditional_ci added bounds, always drawn on this
+    # unified plot as on the unified CIF plot.
+    for (j in seq_len(ncol(y))) {
+      lo <- paste0("condrem_ci_lower_", states[j])
+      hi <- paste0("condrem_ci_upper_", states[j])
+      if (!all(c(lo, hi) %in% names(df))) next
+      poly <- .ci_ribbon_stair_xy(x, df[[lo]][keep], df[[hi]][keep], min(x_limit, max(x)), y0 = 0)
+      graphics::polygon(poly$x, poly$y, col = grDevices::adjustcolor(cols[j], alpha.f = 0.15),
+                        border = NA)
+    }
     for (j in seq_len(ncol(y))) {
       lines(x[in_plot], y[in_plot, j], lwd = lwd, col = cols[j], type = "s")
     }
@@ -820,7 +907,8 @@ aj_by_stratifier <- function(period_data,
       period_data = subset_df,
       max_time = max_time,
       print_summary = FALSE,
-      rmean_cap = references$restricted_stay_cap
+      rmean_cap = references$restricted_stay_cap,
+      conditional_ci = isTRUE(references$aj_conditional_ci)
     )
     if (!isTRUE(res$has_analysis)) {
       cat("  skipped: no analyzable outcomes\n")
@@ -837,7 +925,7 @@ aj_by_stratifier <- function(period_data,
     all_outcomes <- union(all_outcomes, res$outcome_states)
     for (outcome in res$outcome_states) {
       cond_col <- paste0("condrem_", outcome)
-      cond_long_list[[length(cond_long_list) + 1]] <- data.frame(
+      rows <- data.frame(
         stratum = stratum_name,
         days = res$cif_df$days,
         Outcome = outcome,
@@ -845,6 +933,13 @@ aj_by_stratifier <- function(period_data,
         cif_Any = res$cif_df$cif_Any,
         stringsAsFactors = FALSE
       )
+      # The conditional bounds, when aj_conditional_ci asked for them.
+      lo_col <- paste0("condrem_ci_lower_", outcome)
+      if (lo_col %in% names(res$cif_df)) {
+        rows$conditional_ci_lower <- res$cif_df[[lo_col]]
+        rows$conditional_ci_upper <- res$cif_df[[paste0("condrem_ci_upper_", outcome)]]
+      }
+      cond_long_list[[length(cond_long_list) + 1]] <- rows
     }
   }
 
@@ -878,9 +973,8 @@ aj_by_stratifier <- function(period_data,
 # ci_lower_col/ci_upper_col name the columns of `plot_df` holding the pointwise
 # bounds, and add a block of paired bound columns to the right of the whole
 # estimate grid (see .ci_bound_names). NULL, or a metric whose `plot_df` carries
-# no such columns, writes the estimates alone: the conditional probabilities are
-# a ratio of CIF differences and the fit gives them no interval, so that family
-# has no bounds to write and its plots draw no ribbons.
+# no such columns, writes the estimates alone: the conditional probabilities
+# carry bounds only when aj_conditional_ci adds them.
 .export_aj_metric_by_stratum_plot_csv <- function(plot_df, strata, value_col, filename,
                                                   include_restricted_mean = FALSE,
                                                   ci_lower_col = NULL, ci_upper_col = NULL) {
@@ -1085,7 +1179,9 @@ aj_by_stratifier <- function(period_data,
 #'
 #' @param aj_stratum_results Results from aj_by_stratifier
 #' @param references References list; uses references$output_flags to toggle
-#'   the PNG/CSV outputs (aj_conditional_by_stratifier). NULL emits both.
+#'   the PNG/CSV outputs (aj_conditional_by_stratifier), and
+#'   references$show_aj_cif_ci_ribbons for the ribbons of the bounds that
+#'   aj_conditional_ci adds. NULL emits both outputs, without ribbons.
 #' @param save_prefix Optional filename prefix for PNG outputs
 plot_aj_conditional_by_stratum_lines <- function(aj_stratum_results, references = NULL, save_prefix = NULL) {
   if (!isTRUE(aj_stratum_results$has_analysis)) {
@@ -1104,6 +1200,9 @@ plot_aj_conditional_by_stratum_lines <- function(aj_stratum_results, references 
     main_suffix = paste0(" from day x on | in care on day x) by ",
                          aj_stratum_results$stratifier$label),
     outcome_formatter = .outcome_label,
+    show_ci_ribbons = isTRUE(references$show_aj_cif_ci_ribbons),
+    ci_lower_col = "conditional_ci_lower",
+    ci_upper_col = "conditional_ci_upper",
     emit_png = isTRUE(flag[["png"]]),
     emit_csv = isTRUE(flag[["csv"]]),
     selection = references$plot_levels[[aj_stratum_results$stratifier$id]]
@@ -1123,6 +1222,8 @@ plot_aj_cif_by_stratum_lines <- function(aj_stratum_results, references = NULL, 
   }
 
   cif_long <- aj_stratum_results$cond_long
+  cif_long$conditional_ci_lower <- NULL
+  cif_long$conditional_ci_upper <- NULL
   cif_long$CIF <- NA_real_
   cif_long$ci_lower <- NA_real_
   cif_long$ci_upper <- NA_real_

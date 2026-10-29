@@ -166,6 +166,12 @@ show_aj_cif_ci_ribbons: true
 # with KM. Off by default.
 aj_cif_any: true
 
+# If true, the conditional outcome probabilities get pointwise confidence
+# intervals, clustered by animal, from one AJ refit per day of tenure. On for
+# OC2 so that its results carry them. Off by default, since the refits
+# lengthen a run.
+aj_conditional_ci: true
+
 # If true, the stratified Kaplan-Meier plots also draw shaded confidence interval
 # ribbons per stratum, drawn as true step/stair shapes matching the KM curves
 # themselves. Off by default since ribbons can clutter a plot with many overlapping strata.

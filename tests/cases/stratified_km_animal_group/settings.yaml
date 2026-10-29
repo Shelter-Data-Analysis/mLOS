@@ -51,3 +51,7 @@ animal_group_reference: SMALL
 # The blank animal_group cells must be filled, NOT treated as bad rows:
 # this stays false to pin that distinction.
 discard_bad_rows: false
+
+# Bounds on the conditional outcome probabilities, so the goldens carry the
+# bound columns of the unified and stratified conditional CSVs.
+aj_conditional_ci: true

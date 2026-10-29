@@ -398,20 +398,32 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
     tenure_rows <- c(median_tenure = "per_resident_past_days_restricted_median",
                      mean_tenure   = "per_resident_past_days",
                      p90_tenure    = "per_resident_past_days_restricted_p90")
-    condrem_at <- function(lbl, outcome, tenure_row) {
+    condrem_at <- function(lbl, outcome, tenure_row, prefix = "condrem_") {
       res <- aj_per_stratum[[lbl]]
       if (is.null(res) || !isTRUE(res$has_analysis)) return(NA_real_)
-      column <- paste0("condrem_", outcome)
+      column <- paste0(prefix, outcome)
       if (!column %in% names(res$cif_df)) return(NA_real_)
       if (!tenure_row %in% rownames(census_matrix)) return(NA_real_)
       .grid_value_at(res$cif_df[[column]], census_matrix[tenure_row, lbl])
     }
+    # With aj_conditional_ci, each reading is followed by its bounds, the
+    # curve's pointwise bounds read at the same tenure.
+    has_bounds <- any(vapply(aj_per_stratum, function(res)
+      any(startsWith(names(res$cif_df), "condrem_ci_lower_")), logical(1)))
     condrem_rows <- list()
     for (point in names(tenure_rows)) {
       for (outcome in outcome_levels) {
-        condrem_rows[[paste0("aj_condrem_", outcome, "_at_", point)]] <-
+        name <- paste0("aj_condrem_", outcome, "_at_", point)
+        condrem_rows[[name]] <-
           metric_row(as.list(sapply(labels, condrem_at, outcome,
                                     tenure_rows[[point]])))
+        if (has_bounds) {
+          for (side in c("lower", "upper")) {
+            condrem_rows[[paste0(name, "_ci_", side)]] <-
+              metric_row(as.list(sapply(labels, condrem_at, outcome, tenure_rows[[point]],
+                                        prefix = paste0("condrem_ci_", side, "_"))))
+          }
+        }
       }
     }
     if (length(condrem_rows) > 0) {
@@ -815,8 +827,8 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
 # than a pair beside each column they bound, so a consumer that wants the curves
 # alone reads the first 1 + n columns and stops. Of the KM-derived companions,
 # remaining LOS carries bounds (described with its family below); census and
-# tenure are transforms with no interval of their own, and the conditional
-# probabilities are a ratio of CIF differences the fit gives no interval for.
+# tenure are transforms with no interval of their own. The conditional
+# probabilities carry bounds when aj_conditional_ci is true.
 .COLUMNS_STRATIFIED_CI <- paste(
   "one per stratum, then their pointwise 95% CI bounds as a block to the right",
   "of the estimate grid, <stratum>_ci_lower and <stratum>_ci_upper paired per",
@@ -831,6 +843,11 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
   "of the estimate grid, <column>_ci_lower and <column>_ci_upper paired per",
   "column in the same order. The summary row leaves the bound columns empty;",
   "results.json carries the bounds of the reading at each tenure statistic")
+
+# The conditional families' bound block, present only with aj_conditional_ci.
+.COLUMNS_CONDITIONAL_CI <- paste(
+  "then, when aj_conditional_ci is true, their pointwise 95% CI bounds as a",
+  "block to the right of the estimate grid, paired per column in the same order")
 
 .AGGREGATE_AT_MEAN_TENURE <- paste(
   "the curve read at the mean in-care tenure (per_resident_past_days) of the",
@@ -922,7 +939,8 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
        description = "Unified Aalen-Johansen competing-risk cumulative incidence."),
   list(kind = "aj_conditional", scope = "unified", stem = "aj_conditional_unified",
        x_note = .X_NOTE_COND,
-       columns = "one per outcome",
+       columns = paste("one per outcome,", .COLUMNS_CONDITIONAL_CI,
+                       "(ci_lower_<outcome>, ci_upper_<outcome>)"),
        value_units = "probability",
        value_meaning = "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end",
        aggregate = NULL,
@@ -988,7 +1006,8 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
        description = "Aalen-Johansen cumulative incidence for one outcome, per stratum."),
   list(kind = "aj_conditional", scope = "stratified_outcome", stem = "aj_conditional",
        x_note = .X_NOTE_COND,
-       columns = "one per stratum",
+       columns = paste("one per stratum,", .COLUMNS_CONDITIONAL_CI,
+                       "(<stratum>_ci_lower, <stratum>_ci_upper)"),
        value_units = "probability",
        value_meaning = "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end",
        aggregate = NULL,
@@ -1432,6 +1451,7 @@ build_results_bundle <- function(cox_results,
       animal_group_columns     = references$animal_group_columns,
       parametric_regression    = references$parametric_regression,
       weibull_shape_crossing   = references$weibull_shape_crossing,
+      aj_conditional_ci        = references$aj_conditional_ci,
       discard_bad_rows         = references$discard_bad_rows,
       discard_overlapping_rows = references$discard_overlapping_rows,
       intake_filter            = references$intake_filter,

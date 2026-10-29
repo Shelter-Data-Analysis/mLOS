@@ -12,7 +12,7 @@
     "data_file": "(project root)/tests/cases/stratified_km_animal_group/data.csv",
     "data_sha256": "3bf2b3fb84c5e1085b68de5a30c0fe0744e357695f68e0936f2124fd77c12538",
     "settings_file": "(project root)/tests/cases/stratified_km_animal_group/settings.yaml",
-    "settings_sha256": "7aae98133f0ebf07abfb5208ea34ffdac2c0a2f2f3aed0b6148b1a925d207d17",
+    "settings_sha256": "6c193fe2dff838154ae3e261889732371b720baeba0849a7fd35aea304fdeacf",
     "output_dir": "(project root)/tests/results/stratified_km_animal_group",
     "log_file": "(none: test-suite run)"
   },
@@ -25,6 +25,7 @@
     "animal_group_columns": null,
     "parametric_regression": false,
     "weibull_shape_crossing": false,
+    "aj_conditional_ci": true,
     "discard_bad_rows": false,
     "discard_overlapping_rows": false,
     "intake_filter": null,
@@ -426,12 +427,18 @@
       },
       "aj_condrem_at_tenure": {
         "type": "matrix",
-        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_median_tenure_ci_lower", "aj_condrem_L_at_median_tenure_ci_upper", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_mean_tenure_ci_lower", "aj_condrem_L_at_mean_tenure_ci_upper", "aj_condrem_L_at_p90_tenure", "aj_condrem_L_at_p90_tenure_ci_lower", "aj_condrem_L_at_p90_tenure_ci_upper"],
         "columns": ["Period_1"],
         "values": [
           [0.99999999999999989],
+          [0.99999999999999978],
+          [0.99999999999999978],
           [0.99999999999999989],
-          [0.99999999999999967]
+          [0.99999999999999978],
+          [0.99999999999999978],
+          [0.99999999999999967],
+          [1],
+          [1]
         ]
       },
       "ci": {
@@ -638,12 +645,18 @@
       },
       "aj_condrem_at_tenure": {
         "type": "matrix",
-        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_median_tenure_ci_lower", "aj_condrem_L_at_median_tenure_ci_upper", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_mean_tenure_ci_lower", "aj_condrem_L_at_mean_tenure_ci_upper", "aj_condrem_L_at_p90_tenure", "aj_condrem_L_at_p90_tenure_ci_lower", "aj_condrem_L_at_p90_tenure_ci_upper"],
         "columns": ["All"],
         "values": [
           [0.99999999999999989],
+          [0.99999999999999978],
+          [0.99999999999999978],
           [0.99999999999999989],
-          [0.99999999999999967]
+          [0.99999999999999978],
+          [0.99999999999999978],
+          [0.99999999999999967],
+          [1],
+          [1]
         ]
       },
       "ci": {
@@ -854,12 +867,18 @@
       },
       "aj_condrem_at_tenure": {
         "type": "matrix",
-        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_p90_tenure"],
+        "rows": ["aj_condrem_L_at_median_tenure", "aj_condrem_L_at_median_tenure_ci_lower", "aj_condrem_L_at_median_tenure_ci_upper", "aj_condrem_L_at_mean_tenure", "aj_condrem_L_at_mean_tenure_ci_lower", "aj_condrem_L_at_mean_tenure_ci_upper", "aj_condrem_L_at_p90_tenure", "aj_condrem_L_at_p90_tenure_ci_lower", "aj_condrem_L_at_p90_tenure_ci_upper"],
         "columns": ["LARGE", "SMALL", "_UNKNOWN_"],
         "values": [
           [1.0000000000000002, 1, 1],
           [1.0000000000000002, 1, 1],
-          [1.0000000000000007, 1, 1]
+          [1, 1, 1],
+          [1.0000000000000002, 1, 1],
+          [1.0000000000000002, 1, 1],
+          [1, 1, 1],
+          [1.0000000000000007, 1, 1],
+          [1, 1, 1],
+          [1, 1, 1]
         ]
       },
       "ci": {
@@ -1185,7 +1204,7 @@
         "note": "integer tenure; only the days within the AJ analysis window where the conditional probabilities are defined"
       },
       "values": {
-        "columns": "one per outcome",
+        "columns": "one per outcome, then, when aj_conditional_ci is true, their pointwise 95% CI bounds as a block to the right of the estimate grid, paired per column in the same order (ci_lower_<outcome>, ci_upper_<outcome>)",
         "units": "probability",
         "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },
@@ -1270,7 +1289,7 @@
         "note": "integer tenure; only the days within the AJ analysis window where the conditional probabilities are defined"
       },
       "values": {
-        "columns": "one per stratum",
+        "columns": "one per stratum, then, when aj_conditional_ci is true, their pointwise 95% CI bounds as a block to the right of the estimate grid, paired per column in the same order (<stratum>_ci_lower, <stratum>_ci_upper)",
         "units": "probability",
         "meaning": "probability that a stay present at tenure d ends with this outcome, on that day or later, by the end of the AJ analysis window; the columns can sum to less than 1, the shortfall being stays still unresolved at the window's end"
       },

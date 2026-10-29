@@ -278,7 +278,7 @@ extract_references <- function(settings, periods) {
     "outcome_type_delete", "outcome_type_in_care", "outcome_type_censored",
     "animal_group_columns", "animal_group_reference", "intake_type_reference",
     "period_reference", "discard_bad_rows", "discard_overlapping_rows",
-    "show_km_ci_ribbons", "show_aj_cif_ci_ribbons", "aj_cif_any",
+    "show_km_ci_ribbons", "show_aj_cif_ci_ribbons", "aj_cif_any", "aj_conditional_ci",
     "png_pointsize_factor", "png_line_width_factor",
     "max_plot_strata", "plot_periods", "plot_intake_types", "plot_animal_groups",
     "regression_exclude_periods", "regression_from_day", "regression_to_day",
@@ -510,6 +510,7 @@ extract_references <- function(settings, periods) {
   show_aj_cif_ci_ribbons <- parse_logical_flag("show_aj_cif_ci_ribbons")
   show_km_ci_ribbons     <- parse_logical_flag("show_km_ci_ribbons")
   aj_cif_any             <- parse_logical_flag("aj_cif_any")
+  aj_conditional_ci      <- parse_logical_flag("aj_conditional_ci")
 
   # Optional value filter for one column: at most one of a pass-list (keep only
   # these values) or a cut-list (drop these values). Returns list(mode, values)
@@ -675,6 +676,9 @@ extract_references <- function(settings, periods) {
     # Adds the all-cause ("Any") CIF to the AJ CIF plots, unified and by
     # stratifier. Off by default; the numbers are computed either way.
     aj_cif_any             = aj_cif_any,
+    # Adds pointwise bounds to the conditional remaining outcome probabilities,
+    # one AJ refit per tenure (math methods 7.4). Off by default.
+    aj_conditional_ci      = aj_conditional_ci,
     parametric_regression  = parametric_regression,
     weibull_shape_crossing = weibull_shape_crossing,
     # Per-stratified-output emission flags, keyed by setting name; each is a

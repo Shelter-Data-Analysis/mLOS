@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261028_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261028_003. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -81,6 +81,7 @@
         - [`show_km_ci_ribbons`](#show_km_ci_ribbons)
         - [`show_aj_cif_ci_ribbons`](#show_aj_cif_ci_ribbons)
         - [`aj_cif_any`](#aj_cif_any)
+        - [`aj_conditional_ci`](#aj_conditional_ci)
         - [`png_pointsize_factor`](#png_pointsize_factor)
         - [`png_line_width_factor`](#png_line_width_factor)
         - [Stratified-output selection](#stratified-output-selection)
@@ -267,7 +268,7 @@ The CSVs are a supported output on the same footing as the plots themselves, and
 
 **Confidence-interval columns.** Where a curve has a pointwise confidence interval, the file carries its bounds as a block of extra columns to the right of the whole grid of estimates, rather than a pair beside each column they bound. Most readers want the curves and nothing else, and this layout lets them read the left of the file and stop. In the stratified files the bound columns are named for the column they bound, `<stratum>_ci_lower` and `<stratum>_ci_upper`, paired per stratum and in the same order as the estimates; `km_remaining_los_unified.csv` follows the same rule for its one column (`All_ci_lower`, `All_ci_upper`), and the other two unified files name theirs for the single curve or for the outcome instead (`lower_ci` and `upper_ci` in `km_survival_unified.csv`, `ci_lower_L` and its counterparts in `aj_cif_unified.csv`). The summary row above the day grid leaves the bound columns empty, because aggregating a pointwise bound down its column would not give the bound of the aggregate; the intervals around the summary statistics themselves are in the workbook and in `results.json`. Bound cells can also be empty in the tail of a stratum whose curve has already reached zero, where every remaining animal has left and the estimator reports no interval; the ribbon on the matching plot stops at the same day for the same reason.
 
-Six families carry bounds: the unified `km_survival_unified`, `km_remaining_los_unified`, and `aj_cif_unified`, and the stratified `km_survival_by_*`, `km_remaining_los_by_*`, and `aj_cif_by_*_outcome_*`. They are written whether or not the plot draws its ribbon, since [`show_km_ci_ribbons`](#show_km_ci_ribbons) and [`show_aj_cif_ci_ribbons`](#show_aj_cif_ci_ribbons) decide whether overlapping bands stay legible on a panel, which has nothing to do with whether you want the numbers. The other files have no bounds to carry: the census and in-care tenure curves are transforms of a KM curve rather than estimates with intervals of their own, and the conditional outcome probabilities are a ratio of cumulative-incidence differences that the fit gives no interval for.
+Six families carry bounds: the unified `km_survival_unified`, `km_remaining_los_unified`, and `aj_cif_unified`, and the stratified `km_survival_by_*`, `km_remaining_los_by_*`, and `aj_cif_by_*_outcome_*`. With [`aj_conditional_ci`](#aj_conditional_ci) set, the unified `aj_conditional_unified` and the stratified `aj_conditional_by_*_outcome_*` carry them too. They are written whether or not the plot draws its ribbon, since [`show_km_ci_ribbons`](#show_km_ci_ribbons) and [`show_aj_cif_ci_ribbons`](#show_aj_cif_ci_ribbons) decide whether overlapping bands stay legible on a panel, which has nothing to do with whether you want the numbers. The other files have no bounds to carry: the census and in-care tenure curves are transforms of a KM curve rather than estimates with intervals of their own.
 
 **Strata (level) ordering**. Everywhere strata appear (plot legends, CSV columns, worksheet columns, and the regression tables) they follow one fixed canonical order: chronological for periods, character-code order for intake types and animal groups. For the plain upper-case labels most shelters use, character-code order reads as alphabetical. Periods are intervals of dates, so any other order would read as wrong. Intake types and animal groups have no natural order, so the sort is used purely as a stable convention: on a fixed set of categories it never changes from run to run, or from one machine to another, because the tool fixes its own sorting rule rather than inheriting the one the operating system is configured for. Ordering by frequency was rejected because, when two categories have similar counts, a slight change to the data (for example, a small shift of the study period) can swap the categories' positions, which makes runs hard to compare side by side.
 
@@ -374,7 +375,7 @@ Both quantities are computed on the unified data, and again separately within ea
 | `aj_cif_<stratifier>_outcome_T` | CIF for other live outcomes (T), with one line per stratum. |
 | `aj_cif_<stratifier>_outcome_N` | CIF for non-live outcomes (N), with one line per stratum. |
 
-The `aj_cif_<stratifier>_outcome_*` plots can optionally show the same style of confidence-interval ribbon, one per stratum. Off by default (unlike the unified plot above, where it is always on); enable with `show_aj_cif_ci_ribbons: true` in the settings file. The setting governs the picture only: the bounds are in `aj_cif_<stratifier>_outcome_*.csv` either way. Not available on the conditional outcome-probability plots below, for which the fit does not produce an interval. With [`aj_cif_any`](#aj_cif_any) set, the unified plot adds the all-cause curve and each stratifier gets an `aj_cif_<stratifier>_outcome_Any` plot.
+The `aj_cif_<stratifier>_outcome_*` plots can optionally show the same style of confidence-interval ribbon, one per stratum. Off by default (unlike the unified plot above, where it is always on); enable with `show_aj_cif_ci_ribbons: true` in the settings file. The setting governs the picture only: the bounds are in `aj_cif_<stratifier>_outcome_*.csv` either way. The same setting draws ribbons on the stratified conditional outcome-probability plots below when [`aj_conditional_ci`](#aj_conditional_ci) is set. With [`aj_cif_any`](#aj_cif_any) set, the unified plot adds the all-cause curve and each stratifier gets an `aj_cif_<stratifier>_outcome_Any` plot.
 
 | File | Description |
 |---|---|
@@ -1241,7 +1242,7 @@ show_km_ci_ribbons: true
 show_aj_cif_ci_ribbons: true
 ```
 
-`true` or `false`. When `true`, the stratified AJ CIF plots (`aj_cif_by_period_outcome_*`, and likewise for intake type and animal group) show a shaded confidence-interval ribbon per stratum. Default is `false`. The unified `aj_cif_unified` plot always shows its ribbons regardless of this setting, and the conditional outcome-probability (`aj_conditional_by_*`) plots never do. The setting affects the plots only: the companion CSVs carry the bounds at either setting, in their own columns to the right of the estimates. See the [Aalen-Johansen plots section](#aalen-johansen-aj-plots) above.
+`true` or `false`. When `true`, the stratified AJ CIF plots (`aj_cif_by_period_outcome_*`, and likewise for intake type and animal group) show a shaded confidence-interval ribbon per stratum. Default is `false`. With [`aj_conditional_ci`](#aj_conditional_ci) set, it does the same on the conditional outcome-probability plots (`aj_conditional_by_*`). The unified `aj_cif_unified` and `aj_conditional_unified` plots always show their ribbons regardless of this setting. The setting affects the plots only: the companion CSVs carry the bounds at either setting, in their own columns to the right of the estimates. See the [Aalen-Johansen plots section](#aalen-johansen-aj-plots) above.
 
 #### `aj_cif_any`
 
@@ -1252,6 +1253,14 @@ aj_cif_any: true
 `true` or `false`. When `true`, the AJ CIF plots also show the all-cause cumulative incidence (`Any`), the probability of having left care by each day for any reason. The unified `aj_cif_unified` plot adds it as a black curve with its ribbon, and each stratifier gets one more plot, `aj_cif_<stratifier>_outcome_Any`, drawn when `aj_cif_by_stratifier` draws the others. Default is `false`. The numbers are computed either way: the companion CSV of the unified plot carries `cif_Any` and its bounds at either setting.
 
 The all-cause CIF is one minus the Kaplan-Meier curve, and its interval comes from the AJ fit, which clusters on `animal_id`. It therefore shows the KM information with an interval that allows for the repeat stays of one animal, where the KM plots treat stays as independent. With no `animal_id` column the two intervals nearly coincide.
+
+#### `aj_conditional_ci`
+
+```yaml
+aj_conditional_ci: true
+```
+
+`true` or `false`. When `true`, the conditional outcome probabilities get pointwise 95% confidence intervals, clustered on `animal_id` like the other AJ intervals. The bounds go to the `aj_conditional_*` CSVs, to ribbons on their line plots, and to `results.json` beside the readings at the three tenure statistics. Default is `false`, because each interval needs one AJ fit per day of tenure, which lengthens a run.
 
 #### `png_pointsize_factor`
 
