@@ -852,7 +852,7 @@
       },
       "ci": {
         "type": "matrix",
-        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_Any_per_100_animal_days", "incidence_Any_per_100_animal_days_ci_lower", "incidence_Any_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
+        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_Any_per_100_animal_days", "incidence_Any_per_100_animal_days_ci_lower", "incidence_Any_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "remaining_days_at_mean_tenure", "remaining_days_at_mean_tenure_ci_lower", "remaining_days_at_mean_tenure_ci_upper", "remaining_days_at_median_tenure", "remaining_days_at_median_tenure_ci_lower", "remaining_days_at_median_tenure_ci_upper", "remaining_days_at_p90_tenure", "remaining_days_at_p90_tenure_ci_lower", "remaining_days_at_p90_tenure_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
         "columns": ["Period_1", "Period_2"],
         "values": [
           [0.007385524372230428, 0.017450682852807285],
@@ -900,6 +900,15 @@
           [258.74054799706079, 259.39052341125455],
           [236.93556544584473, 237.13232432215375],
           [282.55222491332142, 283.73796709451278],
+          [25.235836986621702, 27.083391828432461],
+          [22.514740559098939, 24.170249999602358],
+          [28.285800884255497, 30.347642781703527],
+          [22.997162344544829, 24.44591605121273],
+          [20.885449350178646, 22.211861134966622],
+          [25.322389144422548, 26.904670795108419],
+          [32.543798777461113, 32.997768849685649],
+          [28.029764837760123, 28.180651281671096],
+          [37.784792166401658, 38.638310313483863],
           [0.98424836995421028, 0.97932278132270245],
           [0.97396835951957583, 0.96841116680182882],
           [0.99046875861373362, 0.9864652369542557],
@@ -1197,7 +1206,7 @@
       },
       "ci": {
         "type": "matrix",
-        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_Any_per_100_animal_days", "incidence_Any_per_100_animal_days_ci_lower", "incidence_Any_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
+        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_Any_per_100_animal_days", "incidence_Any_per_100_animal_days_ci_lower", "incidence_Any_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "remaining_days_at_mean_tenure", "remaining_days_at_mean_tenure_ci_lower", "remaining_days_at_mean_tenure_ci_upper", "remaining_days_at_median_tenure", "remaining_days_at_median_tenure_ci_lower", "remaining_days_at_median_tenure_ci_upper", "remaining_days_at_p90_tenure", "remaining_days_at_p90_tenure_ci_lower", "remaining_days_at_p90_tenure_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
         "columns": ["All"],
         "values": [
           [0.012350299401197605],
@@ -1245,6 +1254,15 @@
           [258.83180743548161],
           [243.07329412443829],
           [275.61194980976211],
+          [25.782505269571111],
+          [23.796883689848947],
+          [27.933807915320429],
+          [23.674259122846987],
+          [22.12004532954824],
+          [25.337676151459782],
+          [32.480053518741336],
+          [29.103835534332774],
+          [36.247932865611801],
           [0.98175374021111761],
           [0.97481609630677235],
           [0.98678020689965895],
@@ -1446,7 +1464,7 @@
       },
       "ci": {
         "type": "matrix",
-        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_Any_per_100_animal_days", "incidence_Any_per_100_animal_days_ci_lower", "incidence_Any_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
+        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_Any_per_100_animal_days", "incidence_Any_per_100_animal_days_ci_lower", "incidence_Any_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "remaining_days_at_mean_tenure", "remaining_days_at_mean_tenure_ci_lower", "remaining_days_at_mean_tenure_ci_upper", "remaining_days_at_median_tenure", "remaining_days_at_median_tenure_ci_lower", "remaining_days_at_median_tenure_ci_upper", "remaining_days_at_p90_tenure", "remaining_days_at_p90_tenure_ci_lower", "remaining_days_at_p90_tenure_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
         "columns": ["OWNER", "STRAY"],
         "values": [
           [0.010638297872340425, 0.014011799410029498],
@@ -1494,6 +1512,15 @@
           [128.93513881760876, 129.92643270124233],
           [117.90340410638713, 118.94809398332011],
           [140.99906739686293, 141.91801944163672],
+          [26.272289365278542, 25.765135340463473],
+          [23.390089771719467, 23.024026888051772],
+          [29.509642555005346, 28.832584427570236],
+          [23.668749528789633, 23.689790844972396],
+          [21.492857698277358, 21.526114349253024],
+          [26.064924084128652, 26.07094718411232],
+          [31.77319821075077, 33.161040915592011],
+          [26.927642104653035, 28.667604115511292],
+          [37.490698985679494, 38.358790995393051],
           [0.98223100632590055, 0.98138839959897195],
           [0.97103168865688472, 0.97132734257157993],
           [0.98910060263953803, 0.98791909433744307],
@@ -1803,7 +1830,7 @@
       },
       "ci": {
         "type": "matrix",
-        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_Any_per_100_animal_days", "incidence_Any_per_100_animal_days_ci_lower", "incidence_Any_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
+        "rows": ["fraction_capped", "fraction_capped_ci_lower", "fraction_capped_ci_upper", "mean_daily_intakes", "mean_daily_intakes_ci_lower", "mean_daily_intakes_ci_upper", "mean_daily_outcomes", "mean_daily_outcomes_ci_lower", "mean_daily_outcomes_ci_upper", "outcome_mix_L", "outcome_mix_L_ci_lower", "outcome_mix_L_ci_upper", "outcome_mix_T", "outcome_mix_T_ci_lower", "outcome_mix_T_ci_upper", "outcome_mix_N", "outcome_mix_N_ci_lower", "outcome_mix_N_ci_upper", "incidence_Any_per_100_animal_days", "incidence_Any_per_100_animal_days_ci_lower", "incidence_Any_per_100_animal_days_ci_upper", "incidence_L_per_100_animal_days", "incidence_L_per_100_animal_days_ci_lower", "incidence_L_per_100_animal_days_ci_upper", "incidence_T_per_100_animal_days", "incidence_T_per_100_animal_days_ci_lower", "incidence_T_per_100_animal_days_ci_upper", "incidence_N_per_100_animal_days", "incidence_N_per_100_animal_days_ci_lower", "incidence_N_per_100_animal_days_ci_upper", "km_median_los", "km_median_los_ci_lower", "km_median_los_ci_upper", "km_p90_los", "km_p90_los_ci_lower", "km_p90_los_ci_upper", "km_restricted_mean", "km_restricted_mean_ci_lower", "km_restricted_mean_ci_upper", "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower", "km_still_in_care_at_cap_ci_upper", "expected_census", "expected_census_ci_lower", "expected_census_ci_upper", "remaining_days_at_mean_tenure", "remaining_days_at_mean_tenure_ci_lower", "remaining_days_at_mean_tenure_ci_upper", "remaining_days_at_median_tenure", "remaining_days_at_median_tenure_ci_lower", "remaining_days_at_median_tenure_ci_upper", "remaining_days_at_p90_tenure", "remaining_days_at_p90_tenure_ci_lower", "remaining_days_at_p90_tenure_ci_upper", "aj_final_cif_Any", "aj_final_cif_Any_ci_lower", "aj_final_cif_Any_ci_upper", "aj_final_cif_L", "aj_final_cif_L_ci_lower", "aj_final_cif_L_ci_upper", "aj_final_cif_T", "aj_final_cif_T_ci_lower", "aj_final_cif_T_ci_upper", "aj_final_cif_N", "aj_final_cif_N_ci_lower", "aj_final_cif_N_ci_upper", "aj_rmst_stay", "aj_rmst_stay_ci_lower", "aj_rmst_stay_ci_upper", "aj_rmtl_Any", "aj_rmtl_Any_ci_lower", "aj_rmtl_Any_ci_upper", "aj_rmtl_L", "aj_rmtl_L_ci_lower", "aj_rmtl_L_ci_upper", "aj_rmtl_T", "aj_rmtl_T_ci_lower", "aj_rmtl_T_ci_upper", "aj_rmtl_N", "aj_rmtl_N_ci_lower", "aj_rmtl_N_ci_upper"],
         "columns": ["G1", "G2"],
         "values": [
           [0.0099160945842868033, 0.014695077149155033],
@@ -1851,6 +1878,15 @@
           [127.59249549329326, 131.32045287577853],
           [116.62230632318202, 120.27710696729872],
           [139.59460603610083, 143.37775307638725],
+          [26.112027129024074, 25.511029847990045],
+          [23.262490945402991, 22.825771136381018],
+          [29.310616923491178, 28.512186511312933],
+          [24.001780866497732, 23.390591351700458],
+          [21.764578000527376, 21.284694214769903],
+          [26.468948065495113, 25.704844911635433],
+          [31.907695840601548, 33.103209525467975],
+          [27.044178318722828, 28.621915665959609],
+          [37.645849019990543, 38.286133383808007],
           [0.98311720189158569, 0.98059440470678771],
           [0.97205532458236943, 0.97037629972151151],
           [0.98980024395668498, 0.98728797803300072],
@@ -2114,7 +2150,7 @@
         "note": "integer tenure; the grid runs 0..restricted_stay_cap - 1"
       },
       "values": {
-        "columns": "a single All column, the whole dataset pooled",
+        "columns": "a single All column, the whole dataset pooled, then their pointwise 95% CI bounds, on the log scale, as a block to the right of the estimate grid, <column>_ci_lower and <column>_ci_upper paired per column in the same order. The summary row leaves the bound columns empty; results.json carries the bounds of the reading at each tenure statistic",
         "units": "days",
         "meaning": "expected remaining stay for an animal that has already been in care d days"
       },
@@ -2139,7 +2175,7 @@
         "note": "integer tenure; the grid runs 0..restricted_stay_cap - 1"
       },
       "values": {
-        "columns": "one per stratum",
+        "columns": "one per stratum, then their pointwise 95% CI bounds, on the log scale, as a block to the right of the estimate grid, <column>_ci_lower and <column>_ci_upper paired per column in the same order. The summary row leaves the bound columns empty; results.json carries the bounds of the reading at each tenure statistic",
         "units": "days",
         "meaning": "expected remaining stay for an animal that has already been in care d days"
       },
@@ -2164,7 +2200,7 @@
         "note": "integer tenure; the grid runs 0..restricted_stay_cap - 1"
       },
       "values": {
-        "columns": "one per stratum",
+        "columns": "one per stratum, then their pointwise 95% CI bounds, on the log scale, as a block to the right of the estimate grid, <column>_ci_lower and <column>_ci_upper paired per column in the same order. The summary row leaves the bound columns empty; results.json carries the bounds of the reading at each tenure statistic",
         "units": "days",
         "meaning": "expected remaining stay for an animal that has already been in care d days"
       },
@@ -2189,7 +2225,7 @@
         "note": "integer tenure; the grid runs 0..restricted_stay_cap - 1"
       },
       "values": {
-        "columns": "one per stratum",
+        "columns": "one per stratum, then their pointwise 95% CI bounds, on the log scale, as a block to the right of the estimate grid, <column>_ci_lower and <column>_ci_upper paired per column in the same order. The summary row leaves the bound columns empty; results.json carries the bounds of the reading at each tenure statistic",
         "units": "days",
         "meaning": "expected remaining stay for an animal that has already been in care d days"
       },

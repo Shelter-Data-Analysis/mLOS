@@ -152,7 +152,10 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
   # animal, the median tenure of one currently in care, and the further stay
   # that one expects are three different quantities, and on skewed strata they
   # differ by a lot.
-  km_matrix <- km_matrix[setdiff(rownames(km_matrix), RESIDENT_VIEW_ROWS), ,
+  # Their bounds leave with them and are held for the CI block below.
+  remaining_at_tenure_ci <- km_matrix[REMAINING_AT_TENURE_CI_ROWS, , drop = FALSE]
+  km_matrix <- km_matrix[setdiff(rownames(km_matrix),
+                                 c(RESIDENT_VIEW_ROWS, REMAINING_AT_TENURE_CI_ROWS)), ,
                          drop = FALSE]
 
   # The stratified AJ analysis computes for every dimension that has any level
@@ -176,9 +179,10 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
   # Estimate/lower/upper triplets, gathered rather than sitting beside their
   # estimates: consumers that show them all in one block keep the estimate
   # sections narrow. Order mirrors the measure sections above (observation-block
-  # rates, outcome mix, incidence rates, KM block, expected census, then the AJ
-  # blocks appended below). KM and AJ bounds are the ready-made intervals of the
-  # fits; the count-based bounds are exact Poisson (rates) and exact binomial
+  # rates, outcome mix, incidence rates, KM block, expected census, remaining
+  # LOS at the tenure statistics, then the AJ blocks appended below). KM and AJ
+  # bounds are the ready-made intervals of the fits, except the remaining-LOS
+  # bounds, which mLOS derives from the KM fit's risk sets; the count-based bounds are exact Poisson (rates) and exact binomial
   # (proportions) intervals; the expected-census bounds are an INDICATIVE
   # delta-method interval (see below). The added assumptions of all three are
   # stated in math methods 8.4. The normalized AJ restricted means (mean days to
@@ -259,6 +263,15 @@ compute_stratum_measures <- function(period_data, col, labels, km_results,
                  predicted_census,
                  rbind(predicted_census * exp(-census_half),
                        predicted_census * exp(census_half)))
+
+  # The remaining-LOS curve read at the three resident-tenure statistics, with
+  # the curve's own pointwise bounds read at the same tenures (log scale, math
+  # methods 5.8).
+  for (row in REMAINING_AT_TENURE_ROWS) {
+    add_ci_triplet(row, as.numeric(census_matrix[row, ]),
+                   rbind(as.numeric(remaining_at_tenure_ci[paste0(row, "_ci_lower"), ]),
+                         as.numeric(remaining_at_tenure_ci[paste0(row, "_ci_upper"), ])))
+  }
 
   aj_ci_rows <- list()
   aj_final_cif <- NULL
@@ -800,16 +813,24 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
 # What the two stratified families that have pointwise bounds say about their
 # columns. The bounds are a block to the right of the whole estimate grid rather
 # than a pair beside each column they bound, so a consumer that wants the curves
-# alone reads the first 1 + n columns and stops. Only these two families have
-# bounds: the KM-derived companions (remaining LOS, census, tenure) are
-# transforms with no interval of their own, and the conditional probabilities are
-# a ratio of CIF differences the fit gives no interval for.
+# alone reads the first 1 + n columns and stops. Of the KM-derived companions,
+# remaining LOS carries bounds (described with its family below); census and
+# tenure are transforms with no interval of their own, and the conditional
+# probabilities are a ratio of CIF differences the fit gives no interval for.
 .COLUMNS_STRATIFIED_CI <- paste(
   "one per stratum, then their pointwise 95% CI bounds as a block to the right",
   "of the estimate grid, <stratum>_ci_lower and <stratum>_ci_upper paired per",
   "stratum in the same order. The summary row above the grid leaves the bound",
   "columns empty: it aggregates the estimates, and aggregating a pointwise",
   "bound would not give the bound of the aggregate")
+
+# The remaining-LOS bound block, said once for both scopes. Same layout as
+# .COLUMNS_STRATIFIED_CI; the interval is on the log scale (math methods 5.8).
+.COLUMNS_REMAINING_LOS_CI <- paste(
+  "then their pointwise 95% CI bounds, on the log scale, as a block to the right",
+  "of the estimate grid, <column>_ci_lower and <column>_ci_upper paired per",
+  "column in the same order. The summary row leaves the bound columns empty;",
+  "results.json carries the bounds of the reading at each tenure statistic")
 
 .AGGREGATE_AT_MEAN_TENURE <- paste(
   "the curve read at the mean in-care tenure (per_resident_past_days) of the",
@@ -838,7 +859,7 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
        description = "Kaplan-Meier survival curve per stratum."),
   list(kind = "km_remaining_los", scope = "unified", stem = "km_remaining_los_unified",
        x_note = .X_NOTE_KM,
-       columns = "a single All column, the whole dataset pooled",
+       columns = paste("a single All column, the whole dataset pooled,", .COLUMNS_REMAINING_LOS_CI),
        value_units = "days",
        value_meaning = "expected remaining stay for an animal that has already been in care d days",
        aggregate = "remaining_days_at_mean_tenure", aggregate_units = "days",
@@ -847,7 +868,7 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
        description = "Remaining length of stay by tenure, over all data."),
   list(kind = "km_remaining_los", scope = "stratified", stem = "km_remaining_los",
        x_note = .X_NOTE_KM,
-       columns = "one per stratum",
+       columns = paste("one per stratum,", .COLUMNS_REMAINING_LOS_CI),
        value_units = "days",
        value_meaning = "expected remaining stay for an animal that has already been in care d days",
        aggregate = "remaining_days_at_mean_tenure", aggregate_units = "days",

@@ -844,6 +844,20 @@ check_bundle_invariants <- function(case_name, bundle) {
                      lo * hi, est^2)
       }
 
+      # Remaining LOS at the tenure statistics: the triplet restates the census
+      # row, and its log-scale interval has the same identity (math methods 5.8).
+      for (row in REMAINING_AT_TENURE_ROWS) {
+        est <- row_of(ci, row, i)
+        lo  <- row_of(ci, paste0(row, "_ci_lower"), i)
+        hi  <- row_of(ci, paste0(row, "_ci_upper"), i)
+        expect_equal(paste0(lbl, ": ", row, " CI estimate is the census row (", col, ")"),
+                     est, row_of(cen, row, i))
+        if (!is.na(est) && !is.na(lo) && !is.na(hi)) {
+          expect_equal(paste0(lbl, ": ", row, " CI is log-symmetric (", col, ")"),
+                       lo * hi, est^2, tol = 1e-6 * max(1, est^2))
+        }
+      }
+
       # AJ restricted mean days by state (math methods 7.7): the in-care row
       # equals the KM restricted mean, and in-care + Any equals the cap.
       rmst     <- row_of(m$aj_rmtl, "aj_rmst_stay", i)
@@ -3172,6 +3186,62 @@ run_suite_checks <- function() {
                max(abs(cl_fit_se - cl_direct_se)), 0, tol = 1e-12)
   expect_equal("AJ clustering: a repeat animal changes the standard errors",
                as.numeric(max(abs(cl_rep$res$rmtl$se - cl_sep$res$rmtl$se)) > 1e-8), 1)
+
+  # Remaining LOS bounds (math methods 5.8): the closed-form standard error
+  # read off a stratified fit's risk sets must equal survfit's se(rmean) on a
+  # refit of the stays present at each tenure x, clock restarted at x. Stays
+  # cross a period boundary, so the risk sets carry left truncation. A fit with
+  # perturbed risk sets must fail the same comparison, which shows that the
+  # comparison can fail.
+  cat("\n=== Remaining LOS bounds ===\n")
+  set.seed(20261028)
+  rb_n      <- 400
+  rb_intake <- as.Date("2021-01-01") + sample(0:100, rb_n, replace = TRUE)
+  rb_los    <- pmax(1L, ceiling(stats::rweibull(rb_n, 0.8, 15)))
+  rb_csv <- write_temp_csv(c(
+    "intake_date,outcome_date,outcome_type,intake_type",
+    paste(rb_intake, rb_intake + rb_los, "L",
+          sample(c("STRAY", "OWNER"), rb_n, replace = TRUE), sep = ",")))
+  rb_tau  <- 60
+  rb_refs <- refs_for(list(period_dates = c("2021-01-01", "2021-03-01", "2021-12-31"),
+                           restricted_stay_cap = rb_tau))
+  capture.output({
+    rb_data <- read_and_prepare_data(rb_csv, rb_refs)
+    rb_refs <- detect_optional_columns(rb_data, rb_refs)
+    rb_pd   <- break_down_by_period(rb_data, rb_refs)
+    rb_fit  <- stratified_km_analysis(rb_pd, rb_refs)[[fi_intake$km_result_key]]
+  })
+  expect_equal("remaining LOS bounds: some rows are left-truncated",
+               as.numeric(any(rb_pd$time_start > 0)), 1)
+  rb_refit <- function(rows, x) {
+    r <- rows[rows$time_end > x, , drop = FALSE]
+    if (sum(r$event) == 0) return(c(NA_real_, NA_real_))
+    f  <- survival::survfit(survival::Surv(pmax(r$time_start, x) - x, r$time_end - x,
+                                           r$event, type = "counting") ~ 1)
+    tb <- summary(f, rmean = rb_tau - x)$table
+    c(tb[["rmean"]], tb[["se(rmean)"]])
+  }
+  rb_strata <- .strip_stratum_prefix(names(rb_fit$strata))
+  rb_bad    <- rb_fit
+  rb_bad$n.risk <- rb_bad$n.risk + 1
+  for (idx in seq_along(rb_strata)) {
+    rows <- rb_pd[as.character(rb_pd$intake_type) == rb_strata[idx], ]
+    ref  <- t(vapply(0:(rb_tau - 1), function(x) rb_refit(rows, x), numeric(2)))
+    est  <- .remaining_los_from_survival(.extract_stratum_survival(rb_fit, idx, 0:(rb_tau - 1)))
+    se   <- .remaining_los_se(rb_fit, idx, rb_tau)
+    ok   <- is.finite(ref[, 2])
+    expect_equal(paste0("remaining LOS bounds: refit compared on most days (", rb_strata[idx], ")"),
+                 as.numeric(sum(ok) > rb_tau / 2), 1)
+    expect_equal(paste0("remaining LOS bounds: refit restricted mean = curve (", rb_strata[idx], ")"),
+                 max(abs(ref[ok, 1] - est[ok])), 0, tol = 1e-9)
+    expect_equal(paste0("remaining LOS bounds: closed-form se = refit se (", rb_strata[idx], ")"),
+                 max(abs(ref[ok, 2] - se[ok])), 0, tol = 1e-9)
+    expect_equal(paste0("remaining LOS bounds: perturbed risk sets fail (", rb_strata[idx], ")"),
+                 as.numeric(max(abs(ref[ok, 2] - .remaining_los_se(rb_bad, idx, rb_tau)[ok])) > 1e-6), 1)
+    b <- .remaining_los_bounds(est, se)
+    expect_equal(paste0("remaining LOS bounds: 0 < lower <= estimate <= upper (", rb_strata[idx], ")"),
+                 as.numeric(all(b$lower[ok] > 0 & b$lower[ok] <= est[ok] & est[ok] <= b$upper[ok])), 1)
+  }
 
   # aj_cif_any adds an all-cause plot and CSV per stratifier, and the manifest
   # describes them; absent, neither is written.

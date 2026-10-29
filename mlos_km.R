@@ -456,6 +456,64 @@ stratified_km_analysis <- function(period_data, references) {
   1 + tail_sum / s_x
 }
 
+# Standard error of Remaining LOS(x), x = 0..tau-1, for one stratum of a KM fit.
+#
+# Remaining LOS(x) is the restricted mean, over [x, tau], of the curve
+# S(t)/S(x), and that curve is the product of the fit's hazard factors after
+# day x alone. Its variance is therefore the usual restricted-mean variance
+# summed over the exits after x (math methods 5.8):
+#
+#   Var = sum_{x < t_j < tau} A_j^2 d_j / (n_j (n_j - d_j)),
+#   A_j = integral from t_j to tau of S(u)/S(x) du.
+#
+# This is the formula behind survfit's se(rmean), read off the fit's own risk
+# sets, which already carry the left truncation, so nothing is refitted. A
+# step where every animal at risk leaves (n_j = d_j) adds nothing, as in
+# survfit; beyond it S(x) = 0 and the estimate itself is missing.
+.remaining_los_se <- function(km_fit, stratum_idx, tau) {
+  rng  <- .stratum_range(km_fit, stratum_idx)
+  idx  <- rng$start:rng$end
+  keep <- km_fit$n.event[idx] > 0 & km_fit$time[idx] < tau
+  tt <- km_fit$time[idx][keep]
+  d  <- km_fit$n.event[idx][keep]
+  n  <- km_fit$n.risk[idx][keep]
+  g  <- ifelse(n > d, d / (n * (n - d)), 0)
+
+  vapply(0:(tau - 1), function(x) {
+    after <- tt > x
+    if (!any(after)) return(0)
+    s_cond    <- cumprod(1 - d[after] / n[after])   # S(t)/S(x) from each t_j on
+    area      <- c(1, s_cond) * diff(c(x, tt[after], tau))
+    tail_area <- rev(cumsum(rev(area)))[-1]         # A_j
+    sqrt(sum(tail_area^2 * g[after]))
+  }, numeric(1))
+}
+
+# Pointwise 95% bounds of a remaining-LOS curve, formed on the log scale,
+# m * exp(+/- 1.96 se / m). The log scale keeps the interval positive where few
+# animals remain at risk, as a curve that is at least 1 requires; the KM
+# restricted mean keeps its linear-scale interval (math methods 8.4).
+.remaining_los_bounds <- function(remaining, se) {
+  half <- 1.96 * se / remaining
+  list(lower = remaining * exp(-half), upper = remaining * exp(half))
+}
+
+# The bounds of every stratum's curve in a .compute_remaining_los table, as the
+# block of <stratum>_ci_lower / <stratum>_ci_upper columns that companion CSVs
+# carry to the right of their estimates (see .ci_bound_names).
+.compute_remaining_los_bounds <- function(km_fit, tau, rlos_table) {
+  strata_names <- .km_series_names(km_fit)
+  bounds <- list()
+  for (stratum_idx in seq_along(strata_names)) {
+    nm <- strata_names[stratum_idx]
+    b  <- .remaining_los_bounds(rlos_table[[nm]], .remaining_los_se(km_fit, stratum_idx, tau))
+    ci <- .ci_bound_names(nm)
+    bounds[[ci[["lower"]]]] <- b$lower
+    bounds[[ci[["upper"]]]] <- b$upper
+  }
+  as.data.frame(bounds, check.names = FALSE)
+}
+
 # The part of a KM survival plot's own filename that says which curve it is, and
 # so the part a companion substitutes its own stem for: "survival" in both
 # km_survival_unified and km_survival_by_period. ONE spelling across both scopes
@@ -506,6 +564,13 @@ REMAINING_AT_TENURE_ROWS <- c("remaining_days_at_mean_tenure",
 # one function that hands them over and the one that drops them from the KM
 # block name the same set.
 RESIDENT_VIEW_ROWS <- c(RESIDENT_TENURE_QUANTILE_ROWS, REMAINING_AT_TENURE_ROWS)
+
+# The pointwise 95% bounds of those three readings, lower then upper for each,
+# in the same order. stratum_km_summary computes them beside the estimates;
+# their reporting home is the confidence-interval block, which pairs each
+# estimate with its bounds (compute_stratum_measures).
+REMAINING_AT_TENURE_CI_ROWS <- as.vector(rbind(paste0(REMAINING_AT_TENURE_ROWS, "_ci_lower"),
+                                               paste0(REMAINING_AT_TENURE_ROWS, "_ci_upper")))
 
 # One value off a tabulated remaining-LOS curve, at a tenure that need not be a
 # whole day: the mean tenure lands between two days. The convention is
@@ -583,7 +648,8 @@ stratum_km_summary <- function(period_data, col, labels, cap) {
                  "km_restricted_mean_se",
                  "km_still_in_care_at_cap", "km_still_in_care_at_cap_ci_lower",
                  "km_still_in_care_at_cap_ci_upper",
-                 RESIDENT_TENURE_QUANTILE_ROWS, REMAINING_AT_TENURE_ROWS)
+                 RESIDENT_TENURE_QUANTILE_ROWS, REMAINING_AT_TENURE_ROWS,
+                 REMAINING_AT_TENURE_CI_ROWS)
 
   as.matrix(sapply(labels, function(lbl) {
     subset_data <- period_data[!is.na(col_values) & col_values == lbl, , drop = FALSE]
@@ -636,6 +702,15 @@ stratum_km_summary <- function(period_data, col, labels, cap) {
         .remaining_los_at(remaining, resident_quantiles[[1L]]),
         .remaining_los_at(remaining, resident_quantiles[[2L]])),
       REMAINING_AT_TENURE_ROWS)
+    # Their bounds: the curve's pointwise bounds read at the same three
+    # tenures, so each is the interval at that tenure, taking the tenure as
+    # given.
+    remaining_bounds <- .remaining_los_bounds(remaining, .remaining_los_se(fit, 1L, cap))
+    tenures <- c(mean_tenure, resident_quantiles[[1L]], resident_quantiles[[2L]])
+    remaining_at_tenure_ci <- setNames(
+      as.vector(rbind(vapply(tenures, function(x) .remaining_los_at(remaining_bounds$lower, x), numeric(1)),
+                      vapply(tenures, function(x) .remaining_los_at(remaining_bounds$upper, x), numeric(1)))),
+      REMAINING_AT_TENURE_CI_ROWS)
 
     c(km_median_los = median_los, km_p90_los = p90, km_restricted_mean = rmean_val,
       km_past_days_per_intake = past_per_intake, km_future_days_per_intake = future_per_intake,
@@ -647,7 +722,7 @@ stratum_km_summary <- function(period_data, col, labels, cap) {
       km_still_in_care_at_cap = still_at_cap,
       km_still_in_care_at_cap_ci_lower = still_lo,
       km_still_in_care_at_cap_ci_upper = still_hi,
-      resident_quantiles, remaining_at_tenure)
+      resident_quantiles, remaining_at_tenure, remaining_at_tenure_ci)
   }))
 }
 
@@ -863,7 +938,10 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
 # `legend_pos` is NULL for the usual top right corner or names one of its own
 # (a remaining-LOS curve climbs into the top right, so its legend moves to a
 # corner the curves leave clear), and `draw`/`filename`/`csv_file` gate the outputs
-# exactly as draw_png/filename/csv_file do in .plot_single_stratified.
+# exactly as draw_png/filename/csv_file do in .plot_single_stratified. `bounds`
+# is NULL or the table's pointwise CI columns (see .ci_bound_names), written to
+# the right of the CSV's estimates and, when `ribbons` is TRUE, drawn as a
+# stair-shaped ribbon under each curve.
 .plot_km_companion <- function(spec, n_series, references) {
   companion_table <- spec$table
   # A plot selection names the series drawn, with their colors; the CSV below
@@ -892,6 +970,20 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
          main = spec$title)
 
     .plot_grid()
+    # Ribbons behind the marks and curves, cut at the first day a bound is
+    # missing (see .ci_ribbon_stair_xy). The y axis stays scaled to the curves,
+    # so a wide bound in a thin tail runs off the top of the panel rather than
+    # flattening the curves.
+    if (isTRUE(spec$ribbons) && !is.null(spec$bounds)) {
+      ribbon_x_max <- min(references$plot_stay_cap, max(x_vals))
+      for (i in seq_along(series_names)) {
+        ci   <- .ci_bound_names(series_names[i])
+        poly <- .ci_ribbon_stair_xy(x_vals, spec$bounds[[ci[["lower"]]]],
+                                    spec$bounds[[ci[["upper"]]]], ribbon_x_max)
+        graphics::polygon(poly$x, poly$y, col = grDevices::adjustcolor(cols[i], alpha.f = 0.15),
+                          border = NA)
+      }
+    }
     # Marks first, so the curves are drawn over them (see .plot_marker_lines).
     # Only the unified companions carry any; a stratified panel has one set of
     # statistics per stratum and no single curve to hang them on.
@@ -931,8 +1023,11 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
     cat(paste0("\n", spec$label, " plot saved to:"), spec$filename, "\n")
   }
   if (!is.null(spec$csv_file)) {
-    .write_plot_csv(spec$csv_table(companion_table), spec$csv_file,
-                    paste(spec$label, "data"))
+    csv <- spec$csv_table(companion_table)
+    # The bound block, with an empty cell under the summary row csv_table adds.
+    if (!is.null(spec$bounds))
+      csv <- cbind(csv, rbind(spec$bounds[NA_integer_, , drop = FALSE], spec$bounds))
+    .write_plot_csv(csv, spec$csv_file, paste(spec$label, "data"))
   }
 }
 
@@ -1069,6 +1164,7 @@ plot_unified_km_companions <- function(km_results, references, base_filename = N
 
   in_care_table <- .compute_in_care_tenure(km_fit, tau)
   rlos_table    <- .compute_remaining_los(km_fit, tau)
+  rlos_bounds   <- .compute_remaining_los_bounds(km_fit, tau, rlos_table)
 
   # The unified rate, and with it the unified census profile. NA where the bundle
   # was not supplied or does not carry the rate, in which case this companion
@@ -1107,6 +1203,9 @@ plot_unified_km_companions <- function(km_results, references, base_filename = N
          table     = rlos_table,
          csv_table = function(t) .prepend_restricted_mean_row(
                                    t, rlos_map, label = REMAINING_AT_TENURE_ROWS[1L]),
+         # Always drawn, as on the unified KM plot: one band cannot crowd.
+         bounds    = rlos_bounds,
+         ribbons   = TRUE,
          markers   = list(values = tenure,
                           labels = .remaining_los_labels(tenure, rlos_table[[label]],
                                                          references$plot_stay_cap)),
@@ -1269,6 +1368,7 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
     }
     rlos_table    <- .compute_remaining_los(km_fit, tau)
     in_care_table <- .compute_in_care_tenure(km_fit, tau)
+    rlos_bounds   <- .compute_remaining_los_bounds(km_fit, tau, rlos_table)
 
     rmst_map     <- from_bundle("km", "km_restricted_mean")
     census_map   <- from_bundle("census", "expected_census")
@@ -1289,6 +1389,10 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
            table     = rlos_table,
            csv_table = function(t) .prepend_restricted_mean_row(
                                      t, rlos_map, label = REMAINING_AT_TENURE_ROWS[1L]),
+           # Ribbons follow the stratified KM plot's setting: overlapping
+           # bands are the same legibility question on both panels.
+           bounds    = rlos_bounds,
+           ribbons   = isTRUE(references$show_km_ci_ribbons),
            draw      = draw_rlos,
            filename  = rlos_filename,
            csv_file  = rlos_csv),

@@ -19,10 +19,19 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-No numbers move. `results.json` renames keys and moves to schema version 6,
-and the workbook renames three row labels; every CSV and plot is byte-identical
-to 0.4.0. `tools/cox_zph.R`, which is not part of a run, adds rows to its
-table, and the console log's header line changes.
+No existing number moves. `results.json` renames keys and moves to schema
+version 6, and the workbook renames three row labels. The remaining LOS CSVs
+gain confidence-bound columns to the right of their unchanged estimates, their
+plots gain confidence ribbons, and `results.json` and the workbook gain
+interval rows for the remaining LOS at the three tenure statistics; every other
+CSV and plot is byte-identical to 0.4.0. `tools/cox_zph.R`, which is not part
+of a run, adds rows to its table, and the console log's header line changes.
+
+- Remaining LOS carries a pointwise 95% confidence interval, on the log scale
+  (math methods §5.8): bound columns in the `km_remaining_los_*` CSVs,
+  ribbons on their plots, and interval rows for the readings at the three
+  tenure statistics in `results.json` and the workbook. The KM restricted mean
+  keeps its linear-scale interval. No existing number moves.
 
 - `results.json` schema version 6 makes four names consistent with their
   siblings. `mlos_review` reads the new names and warns on a version 5 bundle,

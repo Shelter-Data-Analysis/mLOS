@@ -39,6 +39,7 @@ When a number here is wrong, fix the guide and this file together.
 
 from __future__ import annotations
 
+import math
 import sys
 from pathlib import Path
 
@@ -216,6 +217,21 @@ def _exit_state_against_km(bundle: Bundle) -> str:
         row(ci[ex], ci[f"{ex}_ci_lower"], ci[f"{ex}_ci_upper"]),
         row(cap - ci[ex], cap - ci[f"{ex}_ci_upper"], cap - ci[f"{ex}_ci_lower"]),
     ])
+
+
+def _remaining_los_interval(bundle: Bundle, stratifier: str, level: str, day: int) -> str:
+    """Math methods 5.8: one stratum's remaining-LOS interval, log and linear.
+
+    The standard error is read back from the log-scale bounds the CSV stores.
+    """
+    entry = next(e for e in bundle.data["outputs"]
+                 if e.get("kind") == "km_remaining_los" and e.get("stratifier") == stratifier)
+    frame = pd.read_csv(bundle.root / entry["csv"])
+    row = frame[frame["days"] == str(day)].iloc[0]
+    est, lo, hi = (float(row[c]) for c in (level, f"{level}_ci_lower", f"{level}_ci_upper"))
+    se = est * math.log(hi / est) / Z_95
+    return (f"{est:.1f} days, {lo:.1f} to {hi:.1f}; "
+            f"linear {est - Z_95 * se:.1f} to {est + Z_95 * se:.1f}")
 
 
 def _sheets(bundle: Bundle, vocab: Vocabulary) -> str:
@@ -450,6 +466,11 @@ CLAIMS: list[tuple[str, str, str, object]] = [
     ("OC2", "math 6.8: baseline strata per variant",
      "20, 15 and 12 baseline strata, all holding events, over 15,521 events",
      lambda b, v: _strata_counts(b)),
+
+    # -- Math methods, section 5.8: a remaining-LOS interval in a thin tail -
+    ("OC2", "math 5.8: PUPPY remaining LOS at tenure 30, log against linear",
+     "26.3 days, 9.3 to 74.6; linear -1.1 to 53.8",
+     lambda b, v: _remaining_los_interval(b, "animal_group", "PUPPY", 30)),
 
     # -- Math methods, section 7.7: the exit state against KM ---------------
     # One string per table row, estimate | standard error | 95% CI: KM, days

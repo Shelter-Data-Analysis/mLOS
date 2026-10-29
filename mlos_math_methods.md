@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261027_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261028_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -403,6 +403,18 @@ is the probability of being present at tenure $t$, each sum term is the probabil
 $$\text{Remaining LOS}(0) = \sum_{t = 0}^{\tau - 1}\widehat{S}(t),$$
 
 which is the daily step-sum restricted mean of §5.3. These curves are plotted for the unified fit and once per stratifier (“Expected Remaining Days in Care” against “Days Already in Care”), each plot with a companion CSV.
+
+**Confidence interval.** The ratio $\widehat{S}(t)/\widehat{S}(x)$ is the product of the Kaplan-Meier factors $1 - d_j/n_j$ over the exit days $t_j$ after $x$, where $d_j$ animals leave out of $n_j$ at risk. Remaining LOS$(x)$ is therefore the restricted mean, over $[x, \tau]$, of a Kaplan-Meier curve built from the stays present at tenure $x$ alone, and its variance is the standard restricted-mean variance taken over the exits after $x$:
+
+$$\widehat{\text{Var}}\left\lbrack \text{Remaining LOS}(x) \right\rbrack = \sum_{x < t_j < \tau}A_j^{2}\,\frac{d_j}{n_j(n_j - d_j)},\qquad A_j = \sum_{t = t_j}^{\tau - 1}\frac{\widehat{S}(t)}{\widehat{S}(x)}.$$
+
+The risk sets $n_j$ are those of the fit, so left truncation is handled as in §5.1. mLOS forms the pointwise 95% interval on the log scale,
+
+$$\text{Remaining LOS}(x)\,\exp\left( \pm 1.96\,\widehat{se}/\text{Remaining LOS}(x) \right),$$
+
+which stays above zero. Where few animals remain at risk the upper bound can be very large. That is the right reading: the data say only that the remaining stay is long, whereas a linear-scale interval would reach below the 1-day minimum. On **OC2**, PUPPY at tenure 30, where few animals remain, has an estimate of 26.3 days and an interval of 9.3 to 74.6 days; the linear-scale interval would be −1.1 to 53.8. The KM restricted mean of §5.3 keeps its linear-scale interval, so at $x = 0$, where the two estimates coincide, the intervals share a standard error but not a shape.
+
+The three readings of the curve at tenure statistics, described next, carry the curve's bounds read at the same tenure. Each interval takes its tenure as given and leaves out the uncertainty in the tenure statistic itself.
 
 **Complementarity with §5.6.** The census profile $N(d)$ of §5.6 says how many animals sit at each tenure. Remaining LOS says how many more days an animal at that tenure expects. Their product, summed over the grid, is the future workload of §5.6, the animal-days the steady-state census is still owed within the cap, and §5.6 derives its closed form $\bar{I}\sum_{t}(t + 1)\,\widehat{S}(t)$. The two analyses are two readings of the same partial sums of $\widehat{S}$, tied together by the identity $\text{Remaining LOS}(0) = \widetilde{\text{RMST}}$ above.
 
@@ -788,6 +800,7 @@ The conditional outcome mix is read at the same three tenures and truncated to t
 - the KM median, 90th percentile, and $\text{RMST}(\tau)$ (§5.2–5.3)
 - the at-cap survival $\widehat{S}(\tau)$ with the curve's pointwise bounds
 - an indicative interval for the expected census (see below for method)
+- the Remaining LOS readings at the three tenure statistics, with the curve's log-scale pointwise bounds (§5.8)
 - the final AJ CIF for `Any` and each outcome type (the pointwise bounds of §7.3 evaluated at the horizon)
 - the AJ restricted mean days by state (§7.7)
 
