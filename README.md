@@ -142,6 +142,8 @@ Every run records what produced it: the tool version, the R and package versions
 
 mLOS is archived at [10.5281/zenodo.22083814](https://doi.org/10.5281/zenodo.22083814). Cite that alongside the version a run reports: the DOI resolves to the newest release, so the version is what says which one produced a result. Every run reports it, in the console log, in the `run` block of `results.json`, and on the Excel cover sheet.
 
+The tool and its design are described in a paper, which can be cited beside the software when the method is what you refer to: Mavrovouniotis ML. The mLOS Open-Source Software for Analyzing Length of Stay in Animal Shelters. *Animals*. 2026;16(20):3207. [doi:10.3390/ani16203207](https://doi.org/10.3390/ani16203207)
+
 [`CITATION.cff`](CITATION.cff) holds the rest, including the deposits the prepared input and the preparation tool come from, and what the shipped OC2 settings produce. Three deposits sit beside this repository:
 
 | Deposit | DOI | Cite it when |

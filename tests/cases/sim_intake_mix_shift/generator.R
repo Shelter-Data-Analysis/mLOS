@@ -21,7 +21,7 @@
 # faster", and both are correct statements about the same data.
 #
 # "Rate" is meant in the outcome-window sense of Mavrovouniotis,
-# Animals 2026, 16(8):1158, Section 2.5: outcomes occur at a constant
+# Animals 2026, 16(8):1158 (doi:10.3390/ani16081158), Section 2.5: outcomes occur at a constant
 # rate lambda within a window of duration T each day, while the stay is
 # counted in whole days, so the daily no-outcome probability is
 # Q = exp(-lambda T) and multiplying lambda by 1.5 raises Q to the 1.5

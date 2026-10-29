@@ -4,7 +4,7 @@
 # 1 -> 2 boundary, the rate at which animals in care have outcomes
 # DOUBLES, for every animal in care, including residents admitted
 # earlier (see generator.R). "Rate" is meant in the outcome-window sense
-# of Mavrovouniotis, Animals 2026, 16(8):1158, Section 2.5: outcomes
+# of Mavrovouniotis, Animals 2026, 16(8):1158 (doi:10.3390/ani16081158), Section 2.5: outcomes
 # occur at a constant rate lambda within a window of duration T each
 # day, while the stay itself is counted in whole days. The daily
 # no-outcome probability is Q = exp(-lambda T), so doubling lambda

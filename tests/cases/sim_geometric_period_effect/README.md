@@ -20,7 +20,7 @@ central lesson is the contrast between two ways of seeing that change:
 ## The model
 
 - **What "the rate doubles" means.** Following the outcome-window model
-  of Mavrovouniotis, *Animals* 2026, 16(8):1158, Section 2.5: outcomes
+  of Mavrovouniotis, *Animals* 2026, 16(8):1158 (doi:10.3390/ani16081158), Section 2.5: outcomes
   occur at a constant rate λ within a window of duration T each day,
   while the stay itself is counted in whole days (arrival and departure
   days both count, so a same-day intake and outcome is LOS = 1). The

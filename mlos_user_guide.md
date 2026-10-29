@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261029_007. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261029_008. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -135,7 +135,7 @@ mLOS is a tool that helps animal shelters answer some deceptively tricky questio
 - Do they differ by animal size or gender, by shelter facility, or by any grouping we care to define?
 - What do we see if we zero in on a single intake stream, one location, one age band, or one calendar window?
 
-The tool plots complete distributions rather than just averages.  It computes confidence intervals that tell you whether you can rely on a given metric or curve.  The methods are standard survival analysis, and the tool is a toolkit rather than a mandated set of metrics: use the parts that answer your questions. It is written for shelter practitioners and the collaborators and advisors who help them read the results. The sections below explain why these distinctions matter and how to read what the tool gives back.
+The tool plots complete distributions rather than just averages.  It computes confidence intervals that tell you whether you can rely on a given metric or curve.  The methods are standard survival analysis, and the tool is a toolkit rather than a mandated set of metrics: use the parts that answer your questions. It is written for shelter practitioners and the collaborators and advisors who help them read the results, and the software paper [4] describes the tool and its design. The sections below explain why these distinctions matter and how to read what the tool gives back.
 
 ### The core idea
 
@@ -1415,5 +1415,7 @@ You can instead have the tool compute AnimLOS (discussed in [2, 3]), which attem
 
 [2] Mavrovouniotis ML. Distribution of Length of Stay and Its Variation by Calendar Period in Animal Shelters. In: Veterinary Information Network; 2026:456-459. [researchgate.net](https://www.researchgate.net/publication/403852994_Distribution_of_Length_of_Stay_and_Its_Variation_by_Calendar_Period_in_Animal_Shelters)
 
-[3] Mavrovouniotis ML. Distribution of length of stay and its variation by calendar period in animal shelters: Cumulative incidence of outcome types by calendar period in Orange County California.  (Forthcoming in the JSMCAH special issue on the ABVP 2026 Symposium, to appear in www.jsmcah.org)
+[3] Mavrovouniotis M. Distribution of length of stay and its variation by calendar period in animal shelters: Cumulative incidence of outcome types by calendar period in Orange County, California [ABSTRACT]. JSMCAH. 2026;5(S1). Accessed October 29, 2026. https://jsmcah.org/index.php/jasv/article/view/185
+
+[4] Mavrovouniotis ML. The mLOS Open-Source Software for Analyzing Length of Stay in Animal Shelters. Animals. 2026;16(20):3207. doi:10.3390/ani16203207
 

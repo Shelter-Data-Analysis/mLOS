@@ -95,6 +95,23 @@ keywords:
 # If a deposit's own title or author list changes, change it here too: a
 # citation that does not match the record is not a citation.
 references:
+  - type: article
+    title: >-
+      The mLOS Open-Source Software for Analyzing Length of Stay in Animal
+      Shelters
+    authors:
+      - family-names: "Mavrovouniotis"
+        given-names: "Michael Loizos"
+        orcid: "https://orcid.org/0009-0009-9896-2761"
+    journal: "Animals"
+    volume: 16
+    issue: "20"
+    start: 3207
+    year: 2026
+    doi: "10.3390/ani16203207"
+    notes: >-
+      The paper describing this software and its design.  Cite it beside the
+      software DOI and version when the method is what a work refers to.
   - type: data
     title: >-
       Processed animal-level data, with descriptive statistics, from

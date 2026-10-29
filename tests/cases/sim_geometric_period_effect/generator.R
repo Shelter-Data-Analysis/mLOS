@@ -9,7 +9,7 @@
 # without re-drawing anyone's remaining stay.
 #
 # "The rate doubles" is meant in the outcome-window sense of
-# Mavrovouniotis, Animals 2026, 16(8):1158, Section 2.5: outcomes occur
+# Mavrovouniotis, Animals 2026, 16(8):1158 (doi:10.3390/ani16081158), Section 2.5: outcomes occur
 # at a constant rate lambda within a window of duration T each day,
 # while the stay itself is counted in whole days. The daily probability
 # of NO outcome is then Q = exp(-lambda T), and doubling lambda squares

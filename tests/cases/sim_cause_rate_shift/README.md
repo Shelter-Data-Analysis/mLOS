@@ -47,7 +47,7 @@ Each cause has a distinct, instructive fate, all checked in `expected.R`:
 
 Same machinery as `sim_geometric_period_effect` (see that case and
 generator.R here): geometric stays via the outcome-window model of
-Mavrovouniotis, *Animals* 2026, 16(8):1158, Section 2.5, with the causes
+Mavrovouniotis, *Animals* 2026, 16(8):1158 (doi:10.3390/ani16081158), Section 2.5, with the causes
 competing as constant rates within each day's window. Daily no-outcome
 probability Q = 0.94 before the boundary, 0.94² = 0.8836 from it; an
 outcome day's cause follows the regime's rate shares (0.6/0.3/0.1

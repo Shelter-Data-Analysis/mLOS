@@ -7,7 +7,7 @@
 #   1. Every dog in care gets FASTER: the within-day outcome rate
 #      improves x1.5, for both sizes and for every animal already in
 #      care. In the outcome-window model of Mavrovouniotis, Animals
-#      2026, 16(8):1158, Section 2.5, that raises the daily no-outcome
+#      2026, 16(8):1158 (doi:10.3390/ani16081158), Section 2.5, that raises the daily no-outcome
 #      probability to the 1.5 power (Q -> Q^1.5), the grouped form of
 #      proportional hazards, so the true Cox period hazard ratio is
 #      exactly 1.5.

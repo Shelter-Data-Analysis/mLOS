@@ -29,7 +29,9 @@ rewritten or deleted, and "the GitHub repository" and a named version are
 different claims, of which only the second is checkable.
 [10.5281/zenodo.22083814](https://doi.org/10.5281/zenodo.22083814) is the DOI,
 and the console log, the `run` block of `results.json`, and the Excel cover
-sheet each report the version to name it with.
+sheet each report the version to name it with. Where a report discusses the
+tool itself, cite its paper beside it:
+[10.3390/ani16203207](https://doi.org/10.3390/ani16203207).
 
 Where the extract is not yours to release, deposit the settings and the results
 without it, and say which file is withheld and why. What is lost is

@@ -33,6 +33,13 @@ of a run, adds rows to its table, and the console log's header line changes.
 - The User Guide's "Records that must be in the file" advises ending the
   study window a few days before the extraction date where intakes and
   outcomes can be recorded late. No numbers move.
+- The software paper, Mavrovouniotis ML, *Animals* 2026;16(20):3207
+  (doi:10.3390/ani16203207), is cited in the README, `CONTRIBUTING.md`, the
+  User Guide's references, the math methods introduction, and `CITATION.cff`.
+  The User Guide's JSMCAH abstract reference is complete, and the simulation
+  fixtures cite the outcome-window paper with its DOI,
+  10.3390/ani16081158. Two fixtures' settings comments change with it, so
+  their goldens record new settings digests. No numbers move.
 - The stratified conditional-outcome plot titles read
   "P(<outcome> | in care on day x) by <stratifier>". The words "from day x on"
   are dropped, since being in care on day x already places the outcome on day

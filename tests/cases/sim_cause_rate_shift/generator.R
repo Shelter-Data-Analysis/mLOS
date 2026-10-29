@@ -9,7 +9,7 @@
 #   N (non-live):      rate UNCHANGED      (x 1)
 #
 # "Rate" is meant in the outcome-window sense of Mavrovouniotis, Animals
-# 2026, 16(8):1158, Section 2.5: within each day's outcome window the
+# 2026, 16(8):1158 (doi:10.3390/ani16081158), Section 2.5: within each day's outcome window the
 # causes compete as constant rates lambda_L, lambda_T, lambda_N, while
 # the stay is counted in whole days. Writing Lambda for their sum, the
 # daily probability of NO outcome is Q = exp(-Lambda T), and an outcome
