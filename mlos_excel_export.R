@@ -1385,8 +1385,8 @@ write_weibull_by_stratifier_sheet <- function(wb, sheet, wres,
   # because it continues the same reading of the curve: the median and the P90
   # are the days by which half and nine tenths have left, and the terminal
   # value is the fraction that never does within the cap. Compare it with
-  # fraction_capped in the observations section, which counts the same event
-  # from the rows rather than from the fitted curve.
+  # fraction_capped in the confidence-interval section, which counts the same
+  # event from the rows rather than from the fitted curve.
   next_row <- write_matrix_section(
     next_row, "KM Length of Stay",
     measures$km[c("km_median_los", "km_p90_los", "km_still_in_care_at_cap",

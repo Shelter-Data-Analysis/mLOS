@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20261029_002. Read it in any markdown reader,
+presentation guide, version 20261029_003. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -411,8 +411,7 @@ worth](#what-a-deck-is-worth) says why. Four checks, in order:
    no trace of what it dropped. `mlos_deck_tables.xlsx` holds the rows the
    slides had no room for, `analysis_results.xlsx` holds more than that, and
    `results.json` holds everything.
-4. **Check the wording and the numbers**, with the two commands in the
-   sections below.
+4. **Check the wording**, with the command in the next section.
 
 ### Checking that the wording is complete
 
@@ -1036,7 +1035,7 @@ is set to.*
 
 ### The opening summary
 
-Four tables and a pair of notes describing what was analyzed, i.e., the input
+These blocks describe what was analyzed, i.e., the input
 as the run narrowed it (not raw file statistics, which belong to data
 preparation).  Also indicates whether a gap existed in the risk set.
 
@@ -1780,9 +1779,6 @@ levels of a stratifier, ask whether the levels partition the thing being
 measured. Periods partition the calendar; they do not partition the standing
 population, and they do not share a denominator with each other.
 
-The Cox test is a gate, not a ranker. At the sixteen thousand stays of OC1 and
-OC2 everything is significant, so p-values cannot order slides.
-
 **Salience is computed here, never in R.** It is a presentation heuristic, not
 a finding; in `results.json` it would sit beside estimates that survived a test
 suite and would read as a claim about the shelter rather than a claim about the
@@ -1911,8 +1907,7 @@ cannot drift from it.
 
 ### The regression frames
 
-`regression.py` turns the bundle's two Cox regressions into frames, and is the
-one place in the package that derives a number.
+`regression.py` turns the bundle's two Cox regressions into frames.
 
 `pooled(bundle)` is the pooled Cox regression of the methods document's §6.1:
 every stratifier in one linear predictor, all of them sharing one baseline
@@ -1991,10 +1986,9 @@ the uncertainty.
 
 #### Why this one file derives
 
-Invariant 1 below says nothing is recomputed, and this is an exception. The
-quantity is a comparison *between* two bundle entries, used for presentation
-rather than reported as a new result, and it lives in one function so that the
-exception is visible. If it ever needs to appear in `analysis_results.xlsx`,
+Invariant 1 below allows this: the comparison is arithmetic on two published
+fits, used for presentation rather than reported as a new result, and it lives
+in one function so that it is visible. If it ever needs to appear in `analysis_results.xlsx`,
 or to be cited as a separate finding, then it should move into R.
 
 ### Display names
