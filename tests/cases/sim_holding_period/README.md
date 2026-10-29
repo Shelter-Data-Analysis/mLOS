@@ -24,7 +24,7 @@ the in-care tenure column sums to the mean tenure, and remaining LOS at
 day 0 equals the restricted mean. Those identities hold for *any* curve,
 so a formula that computed the wrong quantity consistently would pass
 them. This fixture compares the outputs with a generating truth instead,
-through the new `expected_tenure` check in `tests/run_tests.R`, for the
+through the `expected_tenure` check in `tests/run_tests.R`, for the
 whole sample and for each period.
 
 Remaining LOS shows the hold most plainly: an animal on its intake day

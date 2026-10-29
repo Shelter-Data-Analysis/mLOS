@@ -23,7 +23,7 @@ analysis exists to answer: *did we get slower, or did our intake
 change?*
 
 A note on the sign convention, because it is easy to misread: a hazard
-ratio **above** 1 means dogs leave **faster**, i.e. shorter stays — the
+ratio **above** 1 means dogs leave **faster**, i.e., shorter stays — the
 good direction. The crude medians moving the other way is the paradox,
 not a bookkeeping error.
 
@@ -70,8 +70,8 @@ exactly the adjusted-vs-crude capability it teaches.
    and outflow temporarily *exceeded* inflow. Here the deficit is far
    inside sampling noise (~4 SD = 0.9/day), so it is described rather
    than pinned.
-2. **The group-stratified KM is itself a pooling trap.** `km_group`
-   stratifies by size but pools *both regimes*, so each size's curve is
+2. **The group-stratified KM is itself a pooling trap.** The
+   by-animal-group KM stratifies by size but pools *both regimes*, so each size's curve is
    a pre/post hazard mixture with no clean closed form — the same
    mistake the case is about, one level down. Only its counts are
    pinned. The census composition tells the story a third way: LARGE

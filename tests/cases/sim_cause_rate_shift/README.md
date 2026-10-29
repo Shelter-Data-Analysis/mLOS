@@ -11,8 +11,8 @@ medians (12 → 6) and restricted means. But the doubling is composed of
 
 | Cause | Within-day rate at the boundary | CIF plateau (share of outcomes) |
 |---|---|---|
-| L (live release) | **×3** | 0.6 → 0.9 |
-| T (transfer) | **×1/3** | 0.3 → 0.05 |
+| L (community live) | **×3** | 0.6 → 0.9 |
+| T (other live) | **×1/3** | 0.3 → 0.05 |
 | N (non-live) | **unchanged** | 0.1 → 0.05 |
 
 The baseline shares 0.6/0.3/0.1 are chosen so the share-weighted

@@ -29,7 +29,7 @@ central lesson is the contrast between two ways of seeing that change:
   (daily outcome probability 0.06), after it Q = 0.94² = 0.8836
   (probability 0.1164). This is exactly the whole-day (grouped) form of
   proportional hazards, so the Cox hazard ratio — fitted with the Efron
-  tie handling, see the math document Section 6.2 — has true value
+  tie handling, see math methods §6.2 — has true value
   exactly 2: the within-day rate ratio.
 - **A neat consequence**: squaring Q compresses the survival curve
   two-fold in time, S₂(m) = S₁(2m). Period 2/3's day-6 values equal

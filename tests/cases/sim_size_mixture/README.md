@@ -1,7 +1,7 @@
 # sim_size_mixture — the declining-hazard illusion (heterogeneity, not memory)
 
 This fixture holds a shelter where **nothing ever changes and nobody's
-prospects depend on how long they've stayed**: 70% SMALL dogs leaving at
+prospects depend on how long they have stayed**: 70% SMALL dogs leaving at
 a constant 12% per day (mean stay 8.3 days), 30% LARGE dogs at a
 constant 3% per day (mean stay 33.3 days). Every dog is memoryless.
 And yet the unified analyses "show" that dogs get harder to move the
@@ -41,7 +41,7 @@ Record size, and the artifact dissolves — all pinned in `expected.R`:
   8.33; LARGE median 23, rmean 32.47).
 - Cox with the size term: LARGE hazard ratio at its grouped-hazards
   truth ln(0.97)/ln(0.88) = 0.238.
-- Weibull **with** the size term: shape ≈ 1.12, i.e. constant hazard up
+- Weibull **with** the size term: shape ≈ 1.12, i.e., constant hazard up
   to the documented whole-day discretization bias; LOS ratio 4.
 
 The practical lesson is an action, not a caveat: **record size and

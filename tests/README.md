@@ -89,7 +89,7 @@ eleven-way tie on intake rate, selectively disabled outputs. Synthetic checks
 build a small frame by hand for behavior no fixture pins down at the
 boundary. Both are needed, and the split is not cosmetic: the rule that
 highlight flags are inherited from the full table rather than recomputed on
-the shown rows CANNOT be tested from fixtures, because the levels a
+the shown rows *cannot* be tested from fixtures, because the levels a
 superlative picks usually are the extremes, so a recomputation agrees by
 accident. It takes a hand-built case with a mid-range row to fail.
 
@@ -201,7 +201,7 @@ reports, since a violation already in history stays there.
 
 The plain run needs the `survival` and `yaml` packages. `--generate-outputs`
 additionally uses `jsonlite` for the results bundle and `openxlsx` for the
-workbook checks (the latter skipped with a note if it isn't installed). Exit
+workbook checks (the latter skipped with a note if it is not installed). Exit
 status is nonzero if any check fails.
 
 ## On every push
@@ -219,7 +219,7 @@ and 3. `pyproject.toml` sets no ceiling on pandas, so both majors are in use;
 pandas 3 requires Python 3.11, which is what leaves the floor leg on pandas 2.
 Each leg prints the versions the resolver chose before running.
 
-The goldens are not compared there, for the reason given above: a runner
+The goldens are not compared there, for the reason given below: a runner
 installs what CRAN holds today, and `tests/golden/environment.txt` records
 something else. `--generate-outputs` stays a local step.
 
@@ -228,7 +228,7 @@ something else. `--generate-outputs` stays a local step.
 **Plain run** — every fixture under `tests/cases/<name>/` is run through the
 production pipeline and its `expected_*` values are checked. Afterwards, a
 validation section asserts the exact error messages of the settings parsers
-and row-level data checks (these `stop()` paths can't be reached through
+and row-level data checks (these `stop()` paths cannot be reached through
 fixtures, because a fixture that trips one would abort its own run). The same
 section checks the Data Summary's two censoring counts, unclassified exits and
 `outcome_type_censored`, and when its warning fires.
@@ -278,7 +278,7 @@ Standalone checks follow, none tied to a fixture:
   reaching the console rather than the log.
 
 **`--generate-outputs`** — additionally runs *every* analysis on *every*
-fixture (even ones a fixture wasn't built to test — small edge-case data is
+fixture (even ones a fixture was not built to test — small edge-case data is
 exactly where an unhandled degenerate case hides; every analysis must either
 produce a result or report `has_analysis = FALSE`, never crash) and renders
 all plots and CSVs to `tests/results/<name>/` for visual inspection. It also:
@@ -339,7 +339,7 @@ If a code change is **supposed** to alter outputs:
 3. Commit the golden diff together with the code change.
 
 If a `--generate-outputs` run reports golden failures and you did *not* intend
-an output change, that's a regression — investigate before touching the
+an output change, that is a regression — investigate before touching the
 goldens.
 
 ## Adding a fixture
@@ -373,7 +373,7 @@ See the `flatten_*()` functions in `run_tests.R` for the full field lists. The
 per-period and per-stratum ones read the same observation matrix the results
 bundle carries, so a fixture pins the value that reaches `results.json` and the
 workbook rather than one derived alongside it.
-Expecting `NA` for a field also works as an *absence* assertion (e.g. a CIF
+Expecting `NA` for a field also works as an *absence* assertion (e.g., a CIF
 column that must not exist for a period).
 
 Expected values are compared with an absolute tolerance of `1e-6` by

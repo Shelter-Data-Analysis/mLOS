@@ -11,7 +11,7 @@ common Weibull scale of 20 days, and a checkerboard of shapes:
 | STRAY  | 1.30 | 0.70 |
 
 Owner-surrendered G1 animals and stray G2 animals face a falling
-discharge hazard; the other two diagonal cells face a rising one. Half
+discharge hazard; the two cells on the other diagonal face a rising one. Half
 the shelter accelerates with tenure and half decelerates, and the two
 halves are defined by a pairing rather than by either column.
 
