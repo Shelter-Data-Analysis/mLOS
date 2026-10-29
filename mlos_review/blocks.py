@@ -468,10 +468,10 @@ def study_window_table(bundle: Bundle, whole: bool = True,
 # they belong to, how many arrived inside the window, then the cap and the stays
 # that ran past it. A measure the bundle does not offer drops out.
 SAMPLE_ROWS = ["total_stays", "n_animals", "total_intakes",
-               "restricted_stay_cap", "n_capped"]
+               "restricted_stay_cap", "capped_at_restricted_stay_cap"]
 
 # The one sample row the bundle also gives a share for.
-SAMPLE_SHARES = {"n_capped": ("unified", "fraction_capped")}
+SAMPLE_SHARES = {"capped_at_restricted_stay_cap": ("ci", "fraction_capped")}
 
 # The all-cause pseudo-outcome, which leads the outcome rows as their total. It is
 # not a state the data can record, so it has no count of its own and takes the
@@ -495,6 +495,14 @@ def requires_sample(bundle: Bundle) -> bool:
     return bundle.has("strata", "all", "unified_stay_counts")
 
 
+def _whole_sample(bundle: Bundle, block: str, measure: str):
+    """One measure of the whole-sample stratum, or None where it is absent."""
+    if not bundle.has("strata", "all", block):
+        return None
+    frame = bundle.stratum("all", block)
+    return frame[measure].iloc[0] if measure in frame.columns else None
+
+
 def _sample_counts(bundle: Bundle) -> dict:
     """Every sample count this bundle offers, keyed by its measure name.
 
@@ -506,12 +514,10 @@ def _sample_counts(bundle: Bundle) -> dict:
     found = {"total_stays": stays["total_stays"].iloc[0]}
     if bundle.value("data_preparation", "animal_ids_supplied", default=False):
         found["n_animals"] = bundle.value("data_preparation", "n_animals")
-    if bundle.has("strata", "all", "observations"):
-        observed = bundle.stratum("all", "observations")
-        if "total_intakes" in observed.columns:
-            found["total_intakes"] = observed["total_intakes"].iloc[0]
+    found["total_intakes"] = _whole_sample(bundle, "observations", "total_intakes")
     found["restricted_stay_cap"] = bundle.value("settings", "restricted_stay_cap")
-    found["n_capped"] = bundle.value("unified", "n_capped")
+    found["capped_at_restricted_stay_cap"] = _whole_sample(
+        bundle, "observations", "capped_at_restricted_stay_cap")
     return {name: value for name, value in found.items() if value is not None}
 
 
@@ -598,7 +604,7 @@ def sample_table(bundle: Bundle, vocab) -> Table:
     rows = {
         (SAMPLE_GROUP, _sample_row_label(measure, vocab)): {
             "count": found[measure],
-            "share": bundle.value(*SAMPLE_SHARES[measure])
+            "share": _whole_sample(bundle, *SAMPLE_SHARES[measure])
                      if measure in SAMPLE_SHARES else None,
         }
         for measure in SAMPLE_ROWS if measure in found

@@ -109,28 +109,7 @@
   "unified": {
     "study_start": "2024-05-01",
     "study_end": "2024-11-01",
-    "restricted_stay_cap": 120,
     "max_time": 120,
-    "n_total": 2166,
-    "n_events": 1851,
-    "n_censored": 315,
-    "n_capped": 13,
-    "fraction_capped": 0.0060018467220683287,
-    "fraction_capped_ci_lower": 0.0031994855224984969,
-    "fraction_capped_ci_upper": 0.010241472680030728,
-    "still_in_care_at_cap": 0.0057734348607553386,
-    "still_in_care_at_cap_ci_lower": 0.0032181067489111589,
-    "still_in_care_at_cap_ci_upper": 0.010357813674969931,
-    "median_los": 8,
-    "median_los_ci_lower": 8,
-    "median_los_ci_upper": 9,
-    "percentile_90": 37,
-    "percentile_90_ci_lower": 34,
-    "percentile_90_ci_upper": 41,
-    "restricted_mean": 15.227568395256309,
-    "restricted_mean_se": 0.4588876429898387,
-    "restricted_mean_ci_lower": 14.328148614996225,
-    "restricted_mean_ci_upper": 16.126988175516392,
     "gaps": {
       "type": "table",
       "columns": {
@@ -558,7 +537,6 @@
   "aj": {
     "has_analysis": true,
     "outcome_states": ["L", "T", "N"],
-    "max_time": 120,
     "rmtl": {
       "type": "table",
       "columns": {
@@ -569,7 +547,6 @@
         "ci_upper": [16.137537824056274, 75.781984323426258, 23.240382590573841, 11.445155654551828, 105.68240103354367]
       }
     },
-    "rmtl_cap": 120,
     "probability_mass": null
   },
   "strata": {

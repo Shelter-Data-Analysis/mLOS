@@ -647,15 +647,16 @@ write_general_sheet <- function(wb, bundle, title_style,
     "Study period start", "Study period end", "Restricted stay cap", "Fraction capped",
     "Median LOS", "P90 LOS", "Still in care at cap (fitted)", "Restricted mean LOS"
   )
+  all_value <- function(block, row) bundle$strata$all[[block]][row, 1]
   km_detail_values <- list(
     bundle$unified$study_start,
     bundle$unified$study_end,
-    bundle$unified$restricted_stay_cap,
-    bundle$unified$fraction_capped,
-    bundle$unified$median_los,
-    bundle$unified$percentile_90,
-    bundle$unified$still_in_care_at_cap,
-    bundle$unified$restricted_mean
+    bundle$settings$restricted_stay_cap,
+    all_value("ci", "fraction_capped"),
+    all_value("km", "km_median_los"),
+    all_value("km", "km_p90_los"),
+    all_value("km", "km_still_in_care_at_cap"),
+    all_value("km", "km_restricted_mean")
   )
   # By_All always carries the fuller unified analysis, whatever the period
   # structure, so this pointer is fixed.

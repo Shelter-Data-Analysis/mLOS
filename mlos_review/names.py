@@ -286,23 +286,6 @@ METRICS: dict[str, Name] = {
     "right_censored_stays": Name("right-censored stays", "right-censored"),
 }
 
-# The unified node spells several quantities differently from the stratum
-# tables that hold the same measure: it drops the `km_` prefix, which the
-# stratum rows carry to separate the fitted figures from the observed counts
-# beside them. Aliasing rather than duplicating keeps one wording per concept,
-# so a slide comparing the whole sample against its strata cannot label the two
-# halves inconsistently.
-ALIASES: dict[str, str] = {
-    "n_total": "total_observations",
-    "n_events": "events",
-    "n_censored": "censored",
-    "n_capped": "capped_at_restricted_stay_cap",
-    "median_los": "km_median_los",
-    "still_in_care_at_cap": "km_still_in_care_at_cap",
-    "percentile_90": "km_p90_los",
-    "restricted_mean": "km_restricted_mean",
-}
-
 
 # ---------------------------------------------------------------------------
 # Figure kinds and stratifiers
@@ -494,10 +477,9 @@ class Vocabulary:
     # -- internals ----------------------------------------------------------
 
     def _base_metric(self, base: str) -> Name:
-        canonical = ALIASES.get(base, base)
-        if canonical in METRICS:
-            return METRICS[canonical]
-        templated = self._outcome_metric(canonical)
+        if base in METRICS:
+            return METRICS[base]
+        templated = self._outcome_metric(base)
         if templated is not None:
             return templated
         self._fallbacks.add(base)

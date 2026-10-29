@@ -401,7 +401,7 @@ flatten_aj <- function(aj_results, references) {
   flat <- list(has_analysis = as.numeric(isTRUE(aj$has_analysis)))
   if (!isTRUE(aj$has_analysis)) return(flat)
 
-  flat$max_time         <- aj$max_time
+  flat$max_time         <- aj_results$max_time
   flat$n_outcome_states <- length(aj$outcome_states)
   c(flat, flatten_cif_cells(aj_results$cif_df))
 }
@@ -1059,8 +1059,8 @@ check_csv_aggregates <- function(case_name, bundle, results_dir) {
     }
     switch(entry$kind,
       # The unified survival file's column is the curve itself, not a stratum
-      # heading, so it reads its restricted mean from the unified node instead.
-      km_survival = if (identical(entry$stratifier, "all")) bundle$unified$restricted_mean
+      # heading, so it reads the single column of the whole-sample stratum.
+      km_survival = if (identical(entry$stratifier, "all")) strata$km["km_restricted_mean", 1]
                     else at(strata$km, "km_restricted_mean"),
       km_remaining_los    = at(strata$census, "remaining_days_at_mean_tenure"),
       km_census_by_tenure = at(strata$census, "expected_census"),

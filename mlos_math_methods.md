@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261029_004. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261029_005. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -237,7 +237,7 @@ Because $\tau$ sets the horizon for the KM restricted mean (§5.3) and Remaining
 
 Every stay counts in full up to $\tau$, including the stays capped there. A row capped at $\tau$ is censored, not discarded: it stays in the risk set for all of days $0$ through $\tau - 1$ and never triggers a drop in $\widehat{S}$, so $\widehat{S}(d)$ for $d < \tau$ is exactly what it would have been with no cap, and the capped stay contributes the maximum any single stay can contribute to every sum over that grid. Concretely, the capped stays supply $\tau\,\widehat{S}(\tau)$ of the restricted mean $\sum_{d < \tau}\widehat{S}(d)$. On **OC1**’s animal groups that is about a tenth of the LRG figure, from under one percent of that group's arrivals. Nothing in the formulas treats a capped animal as absent.
 
-What the cap does exclude is those stays' existence *beyond* $\tau$, and that exclusion is not spread evenly over the outputs. The single diagnostic is the curve's terminal value $\widehat{S}(\tau)$, reported as `km_still_in_care_at_cap` per stratum and as `still_in_care_at_cap` for the unified curve: it is the fraction of an arriving cohort that outlives the cap. **A value as small as 0.5% is not negligible**, because the standing population weights those stays by their duration (§5.6): a stay present for hundreds of days is present on hundreds of census days, so a remnant that is a rounding error among arrivals can be several percent of the residents. Ordered from most to least exposed:
+What the cap does exclude is those stays' existence *beyond* $\tau$, and that exclusion is not spread evenly over the outputs. The single diagnostic is the curve's terminal value $\widehat{S}(\tau)$, reported as `km_still_in_care_at_cap` per stratum, the unified curve's in the single column of **By_All**: it is the fraction of an arriving cohort that outlives the cap. **A value as small as 0.5% is not negligible**, because the standing population weights those stays by their duration (§5.6): a stay present for hundreds of days is present on hundreds of census days, so a remnant that is a rounding error among arrivals can be several percent of the residents. Ordered from most to least exposed:
 
 1. **Resident tenure quantiles** (`per_resident_past_days_restricted_p90`, then `..._restricted_median`, §5.7). Worst affected, and they give no signal when they fail. They are read off a tenure profile that ends at $\tau$, so they behave as though every capped stay departed on day $\tau$. Since the profile is nearly flat far out in its tail, a small change in the excluded mass buys many days. On **OC1**, if the LRG stays at the cap were to continue for a further 200 days on average, that group's resident P90 would move from 190 days to about 254. At a further 380 days the true value would lie beyond $\tau$ and be unidentifiable, yet a definite integer would still be reported, since $G(\tau - 1) = 0$ makes "not reached" impossible by construction (§5.7).
 2. **Resident tenure and workload means** (`per_resident_past_days`, `expected_past_animal_days`, `expected_future_animal_days`, `expected_census`, §5.6). These are lower bounds, and they are understated by more than $\widehat{S}(\tau)$ suggests, for the same length-bias reason. A mean spreads the missing mass over the whole range instead of concentrating it at one crossing point, so these move less than the quantiles.
@@ -700,7 +700,7 @@ The JSON's top level:
 | `run` | when the run happened, and over which data and settings files |
 | `settings` | the settings that shaped the numbers |
 | `data_preparation` | the attrition from CSV rows to analyzed rows |
-| `unified` | the whole-sample analysis, including any risk-set gaps (§5.1) |
+| `unified` | the study window, the KM fit's last time, and any risk-set gaps (§5.1); the whole-sample measures are `strata.all` |
 | `strata` | one block per stratifier, keyed `period`, `intake_type`, `animal_group`, and `all` |
 | `cox`, `weibull`, `aj` | the fits of §§6 and 7, each with a `has_analysis` flag |
 | `palette` | the plot colors, so a redrawn figure matches |

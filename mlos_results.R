@@ -771,9 +771,10 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
   list(
     has_analysis = TRUE,
     outcome_states = aj$outcome_states,
-    max_time = aj$max_time,
+    # The whole-sample RMTL table keeps its standard errors, which no stratum
+    # block carries. Its horizon and cap are strata$all$aj_window and
+    # settings$restricted_stay_cap.
     rmtl = aj$rmtl,
-    rmtl_cap = aj$rmtl_cap,
     probability_mass = .aj_probability_mass_matrix(aj, references)
   )
 }
@@ -1493,32 +1494,14 @@ build_results_bundle <- function(cox_results,
         output_flags           = references$output_flags
       )
     ),
+    # What only the whole-sample fit knows. Its counts, KM statistics, and
+    # their intervals are the single column of strata$all, under the names
+    # every stratum uses, and are not repeated here.
     unified = list(
-      study_start              = as.character(min(period_data$period_start)),
-      study_end                = as.character(max(period_data$period_end)),
-      restricted_stay_cap      = km_results$restricted_stay_cap,
-      max_time                 = km_results$max_time,
-      n_total                  = km_results$n_total,
-      n_events                 = km_results$n_events,
-      n_censored               = km_results$n_censored,
-      n_capped                 = km_results$n_capped,
-      fraction_capped          = unname(km_results$fraction_capped),
-      fraction_capped_ci_lower = unname(km_results$fraction_capped_ci_lower),
-      fraction_capped_ci_upper = unname(km_results$fraction_capped_ci_upper),
-      still_in_care_at_cap     = unname(km_results$still_in_care_at_cap),
-      still_in_care_at_cap_ci_lower = unname(km_results$still_in_care_at_cap_ci_lower),
-      still_in_care_at_cap_ci_upper = unname(km_results$still_in_care_at_cap_ci_upper),
-      median_los               = unname(km_results$median_los),
-      median_los_ci_lower      = unname(km_results$median_los_ci_lower),
-      median_los_ci_upper      = unname(km_results$median_los_ci_upper),
-      percentile_90            = unname(km_results$percentile_90),
-      percentile_90_ci_lower   = unname(km_results$percentile_90_ci_lower),
-      percentile_90_ci_upper   = unname(km_results$percentile_90_ci_upper),
-      restricted_mean          = unname(km_results$restricted_mean),
-      restricted_mean_se       = unname(km_results$restricted_mean_se),
-      restricted_mean_ci_lower = unname(km_results$restricted_mean_ci_lower),
-      restricted_mean_ci_upper = unname(km_results$restricted_mean_ci_upper),
-      gaps                     = gaps
+      study_start = as.character(min(period_data$period_start)),
+      study_end   = as.character(max(period_data$period_end)),
+      max_time    = km_results$max_time,
+      gaps        = gaps
     ),
     # The plot palette, so a downstream chart can use the same colors the tool's
     # own figures use. Hex rather than R color names, which are not portable

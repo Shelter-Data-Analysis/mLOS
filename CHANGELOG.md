@@ -19,8 +19,8 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-No existing number moves. `results.json` renames keys and moves to schema
-version 6, and the workbook renames three row labels. The remaining LOS CSVs
+No existing number moves. `results.json` renames keys, stops storing
+whole-sample values twice, and moves to schema version 6, and the workbook renames three row labels. The remaining LOS CSVs
 gain confidence-bound columns to the right of their unchanged estimates, their
 plots gain confidence ribbons, and `results.json` and the workbook gain
 interval rows for the remaining LOS at the three tenure statistics. With
@@ -51,7 +51,7 @@ of a run, adds rows to its table, and the console log's header line changes.
   keeps its linear-scale interval. No existing number moves.
 
 - `results.json` schema version 6 makes four names consistent with their
-  siblings. `mlos_review` reads the new names and warns on a version 5 bundle,
+  siblings and stops storing whole-sample values twice. `mlos_review` reads the new names and warns on a version 5 bundle,
   from which it cannot build a deck.
   - The stratifier ids `intake` and `group` become `intake_type` and
     `animal_group`, matching the data columns and the model terms. The ids key
@@ -68,6 +68,17 @@ of a run, adds rows to its table, and the console log's header line changes.
   - Each stratifier's `unified_stay_counts` keys its rows by a `level` column,
     which held intake types, animal groups, and `All` under the name
     `period_label`.
+  - The `unified` block keeps `study_start`, `study_end`, `max_time`, and
+    `gaps`, and drops the counts, KM statistics, and intervals it repeated
+    under other names: `n_total`, `n_events`, `n_censored`, `n_capped`,
+    `fraction_capped`, `still_in_care_at_cap`, `median_los`, `percentile_90`,
+    `restricted_mean`, their bounds and standard error, and
+    `restricted_stay_cap`. Each value is in `strata.all` under the name every
+    stratum uses (`total_observations`, `km_median_los`,
+    `km_still_in_care_at_cap`, and so on), or in `settings`. The `aj` block
+    drops `max_time` and `rmtl_cap`, which are `strata.all.aj_window` and
+    `settings.restricted_stay_cap`; its `rmtl` table stays, since it alone
+    carries the RMTL standard errors.
 - The workbook row `weibull_freed_shape_los_ratio` becomes
   `weibull_stratified_los_ratio`, with its two interval rows, in step with
   `cox_stratified_hazard_ratio` beside it. The row is not in `results.json`.
