@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261029_004. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261029_005. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -318,7 +318,7 @@ On the other hand, reading across the strata at a fixed X shows how the tenure-X
 
 These plots complement the remaining-LOS plots above: one says how many animals sit at each tenure, the other how many more days each of them expects; together they describe the standing population and its future workload.
 
-The companion CSV carries a single header row above the day grid, `expected_census` (the column total; the same name the workbook's census-aggregates section uses for this quantity), matching the one-header convention of the other plot CSVs. The other aggregates are recoverable from the grid: the scale factor is the day-0 row (mean daily intakes = the expected number in care at zero days), and the future care demand is the summed product of the census profile and the remaining LOS. The workbook's census-aggregates section reports all of them directly.
+The companion CSV carries a single summary row above the day grid, `expected_census` (the column total; the same name the workbook's census-aggregates section uses for this quantity), matching the one-summary-row convention of the other plot CSVs. The other aggregates are recoverable from the grid: the scale factor is the day-0 row (mean daily intakes = the expected number in care at zero days), and the future care demand is the summed product of the census profile and the remaining LOS. The workbook's census-aggregates section reports all of them directly.
 
 | File | Description |
 |---|---|
@@ -343,7 +343,7 @@ This curve does not start at 1.0 the way the KM curve does. At X = 0 it reads `1
 
 **What a walk through the kennels sees.** The curve covers every animal in care for any part of the day, the day's arrivals and departures included: the inventory census of "Which day counts? Who is in the census?". A walk through the kennels sees one day's flow fewer. Walk in the morning, before the day's arrivals, and label each animal by its days already in care; walk in the evening, after the day's arrivals and departures, and label each by its days in care so far, which count today. The two walks give the same profile, because tonight's evening walk and tomorrow's morning walk see the same animals with the same numbers. To compare a walk with this curve, divide the curve by its starting value, `1 − 1/restricted mean LOS`, which gives the share of walked animals beyond X. With a memoryless length of stay, that walk-through share equals the KM curve exactly. A walk in the middle of the day, with only part of the day's arrivals and departures done, matches neither exactly. The math methods document (§5.7) gives the derivation.
 
-Each curve is a transformation of that stratum's KM curve alone (the intake rate cancels out), so it needs no assumption about arrival rates. The companion CSV carries a single header row, `per_resident_past_days` (the same name the workbook uses for this quantity) which is the mean tenure of the in-care population and equals the column total.
+Each curve is a transformation of that stratum's KM curve alone (the intake rate cancels out), so it needs no assumption about arrival rates. The companion CSV carries a single summary row, `per_resident_past_days` (the same name the workbook uses for this quantity) which is the mean tenure of the in-care population and equals the column total.
 
 The unified plot is marked at three statistics of this same tenure distribution: its median, its 90th percentile, and its mean. The first two are `per_resident_past_days_restricted_median` and `..._restricted_p90` in the workbook, where the red and orange lines cross the curve at 0.5 and 0.1; the mean is `per_resident_past_days`, the column total. Unlike the KM median these are always reached, because the profile is built on the capped day grid (i.e., assumes no animals remain in care past `restricted_stay_cap`).
 
@@ -497,7 +497,7 @@ Every sheet is laid out in vertical sections with a blank row as the separator. 
 
 - **Period metadata**: the start date, exclusive end date, and duration of each period. This is the same table that leads `By_Period`.
 - **Observation gaps**: placed high, right after the period metadata, so that it is not overlooked. It is shaded green when no risk-set gaps were found and red when any were. See the Observation gaps section.
-- **Analysis settings**: the settings that shape the numbers or their interpretation, namely the restricted stay cap, the Cox reference levels for period, intake type, and animal group, the columns that compose the animal-group dimension, whether a Weibull fit was run alongside Cox, the two row-discard flags, the intake, animal-group, and other value filters, and the outcome labels deleted outright or reclassified as still-in-care.
+- **Analysis settings**: the settings that shape the numbers or their interpretation, namely the restricted stay cap, the Cox reference levels for period, intake type, and animal group, the columns that compose the animal-group axis, whether a Weibull fit was run alongside Cox, the two row-discard flags, the intake, animal-group, and other value filters, and the outcome labels deleted outright or reclassified as still-in-care.
 - **Unified KM detail**: the overall study window, the restricted stay cap and the fraction of stays it bound, and the unified median, 90th percentile, still-in-care-at-cap, and restricted mean. These are the same four KM Length of Stay figures the `By_All` sheet carries per column.
 - The stratification coverage, and the raw-label to L/T/N mapping actually applied.
 
