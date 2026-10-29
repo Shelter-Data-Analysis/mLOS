@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261028_003. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261029_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -784,6 +784,8 @@ Animals still in care have a blank `outcome_type` and a blank `outcome_date`. Bu
 ### Records that must be in the file
 
 The analysis is valid only if the data include **all animal stays that overlap with the study periods**, not just animals with outcomes during those periods. Animals already in care at the start of a period are left-truncated (their time at risk begins at the period start, not their intake date). Including their full stay would bias LOS estimates upward, while omitting them altogether would bias them downward.
+
+The requirement holds for the last days of the window as well. Where intakes and outcomes can be recorded some days after they occur, the most recent days of an extract are incomplete: a late intake leaves its stay out, and a late outcome reads as still in care, which lengthens the estimated LOS. End the study window a few days before the extraction date, so that every day inside it is fully recorded.
 
 ### Study window trimming
 
