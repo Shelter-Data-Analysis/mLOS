@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20261029_001. Read it in any markdown reader,
+presentation guide, version 20261029_002. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -2570,7 +2570,7 @@ layout limits, and since the slide count is computed rather than authored,
 using it would mean generating `.qmd` from Python anyway: it would buy the
 rendering and not the logic.
 
-**The Block IR is the intermediate.** Tables and bullet lists with titles and footnotes
+**The Block IR (intermediate representation) is the intermediate.** Tables and bullet lists with titles and footnotes
 attached *are* a document model. Keeping them and putting thin renderers behind
 them makes the renderer choice swappable rather than foundational.
 

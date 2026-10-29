@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261029_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261029_003. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -69,8 +69,8 @@
         - [`period_reference`](#period_reference)
         - [`regression_exclude_periods`](#regression_exclude_periods)
         - [`regression_from_day`, `regression_to_day`](#regression_from_day-regression_to_day)
-        - [`intake_type_reference`](#intake_type_reference)
         - [`animal_group_reference`](#animal_group_reference)
+        - [`intake_type_reference`](#intake_type_reference)
         - [`parametric_regression`](#parametric_regression)
         - [`weibull_shape_crossing`](#weibull_shape_crossing)
     - [Plots and output selection](#plots-and-output-selection)
@@ -1206,7 +1206,7 @@ Positive integer, at most 13. The largest number of strata for which a stratifie
 
 This setting affects **plots only**. Every numerical analysis runs on every stratum no matter the value of `max_plot_strata`, and the CSV behind each skipped plot is written unchanged, so nothing is lost but the picture. It is a matter of preference. How many curves stay legible on one panel depends on how well they separate and on whether confidence-interval ribbons are drawn, which crowd a panel much faster than bare lines. See the section [Plot strata limit](#plot-strata-limit) above for some nuances on how this limit is applied for KM and AJ.
 
-If the curves separate cleanly and you want to see all the plots, keep the limit at 13 so that the run produces as many plots as its palette allows.
+If the curves separate cleanly and you want to see all the plots, set the limit to 13 so that the run produces as many plots as its palette allows.
 
 If you use a high limit and end up with plots that are too cluttered to be useful, lower the limit to stop producing those plots.  This will allow your run to complete faster, but some of your results will not be plotted.  If you want those plotted, you have three choices: name the levels to plot with [`plot_periods`, `plot_intake_types`, or `plot_animal_groups`](#plot_periods-plot_intake_types-plot_animal_groups), reformulate to fewer strata (which changes the results), or take the CSV files and build your own plots, perhaps partitioning the levels for an offending stratifier and doing multiple plots instead of one.
 

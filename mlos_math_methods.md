@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261029_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261029_002. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -650,9 +650,9 @@ the days of those that left, weighted by the fraction that left, plus the whole 
 
 The ratio
 
-$$\frac{\widehat{\mathbf F_{k}}(d)}{\widehat{\mathbf F_{k}}\left( \tau^{\ast} \right)}$$
+$$\frac{\widehat F_{k}(d)}{\widehat F_{k}\left( \tau^{\ast} \right)}$$
 
-is by definition $1$ at $d = \tau^{\ast}$, so extending the sum past $\tau^{\ast}$ under the same forward-fill convention used for KM curves (§5.5) would only append zero-valued terms, leaving $\mathrm{RM_{k}}$ unaffected by that choice of horizon. The daily $\widehat{\mathbf F_{k}}$ and $\mathrm{CondRem_{k}}$ values are not: extending them flat past $\tau^{\ast}$ would misrepresent the horizon’s true information limit (§9), which is why the tabulation itself stops at $\tau^{\ast}$ rather than $\tau$.
+is by definition $1$ at $d = \tau^{\ast}$, so extending the sum past $\tau^{\ast}$ under the same forward-fill convention used for KM curves (§5.5) would only append zero-valued terms, leaving $\mathrm{RM_{k}}$ unaffected by that choice of horizon. The daily $\widehat F_{k}$ and $\mathrm{CondRem_{k}}$ values are not: extending them flat past $\tau^{\ast}$ would misrepresent the horizon’s true information limit (§9), which is why the tabulation itself stops at $\tau^{\ast}$ rather than $\tau$.
 
 ## 7.6 Stratified AJ: by period, intake type, and animal group
 
