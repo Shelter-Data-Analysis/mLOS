@@ -1197,7 +1197,9 @@ plot_aj_conditional_by_stratum_lines <- function(aj_stratum_results, references 
     value_col = "conditional_probability",
     ylab = "Conditional Probability",
     main_prefix = "P(",
-    main_suffix = paste0(" from day x on | in care on day x) by ",
+    # No "from day x on": being in care on day x already puts the outcome on
+    # day x or later, and the longer title ran off the panel.
+    main_suffix = paste0(" | in care on day x) by ",
                          aj_stratum_results$stratifier$label),
     outcome_formatter = .outcome_label,
     show_ci_ribbons = isTRUE(references$show_aj_cif_ci_ribbons),

@@ -29,6 +29,10 @@ CSVs, plots, and readings gain bounds the same way. Every other CSV and plot is
 byte-identical to 0.4.0. `tools/cox_zph.R`, which is not part
 of a run, adds rows to its table, and the console log's header line changes.
 
+- The stratified conditional-outcome plot titles read
+  "P(<outcome> | in care on day x) by <stratifier>". The words "from day x on"
+  are dropped, since being in care on day x already places the outcome on day
+  x or later, and the longest titles ran off the panel. No numbers move.
 - A new setting, `aj_conditional_ci`, gives the conditional outcome
   probabilities pointwise 95% confidence intervals, clustered on `animal_id`
   like the other AJ intervals: one Aalen-Johansen refit per tenure on the
