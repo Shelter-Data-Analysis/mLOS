@@ -2369,6 +2369,21 @@ def manifest_path(deck_path: str | Path) -> Path:
     return deck_path.parent / (deck_path.stem + MANIFEST_SUFFIX)
 
 
+def workbook_sheets(results: str | Path | Bundle, settings: Settings | None = None
+                    ) -> tuple[list[workbook.Sheet], Vocabulary]:
+    """The deck's tables, grouped onto sheets as its workbook holds them.
+
+    The tables `build` writes to the workbook, from the same settings, for a
+    caller that shows them some other way. The vocabulary comes back with them
+    because their headers are written through it (`header_text`).
+    """
+    bundle = results if isinstance(results, Bundle) else Bundle.load(results)
+    settings = resolved_settings(bundle, settings)
+    vocab = Vocabulary(bundle.data)
+    readings = curve_readings_table(bundle, settings.curve_readings, vocab)
+    return workbook.sheets(bundle, vocab, readings), vocab
+
+
 def build(results: str | Path | Bundle, out_path: str | Path | None = None,
           settings: Settings | None = None,
           tables_only: bool = False) -> tuple[Path | None, Path | None]:
@@ -2388,12 +2403,10 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     settings = settings or Settings()
     bundle = results if isinstance(results, Bundle) else Bundle.load(results)
     settings = resolved_settings(bundle, settings)
-    vocab = Vocabulary(bundle.data)
     # Before any slide is drawn, so a reading the run cannot supply refuses
     # the build at the start rather than after it.
-    readings = curve_readings_table(bundle, settings.curve_readings, vocab)
+    sheets, vocab = workbook_sheets(bundle, settings)
     out_path = Path(out_path) if out_path is not None else settings.output_path
-    sheets = workbook.sheets(bundle, vocab, readings)
 
     if tables_only:
         if not sheets:

@@ -23,7 +23,7 @@ from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-from mlos_review.blocks import Format, Table, cell_format, header_text
+from mlos_review.blocks import Table, cell_format, format_value, header_text
 from mlos_review.names import Vocabulary, capitalize_first
 
 SLIDE_WIDTH = Inches(13.333)
@@ -611,22 +611,6 @@ def _blank_layout(deck):
 
 
 
-def _format_cell(value, fmt: Format) -> str:
-    """Write one cell out. Percent scaling happens HERE, not in the frame.
-
-    Text passes through untouched. A column may hold a date or the name of a
-    level, and there is nothing for a decimal count to do to either; see the
-    note on text columns in `Table`.
-    """
-    if isinstance(value, str):
-        return value
-    if value is None or value != value:  # NaN
-        return "" if fmt.blank else "n/a"
-    if fmt.percent:
-        return f"{value * 100:,.{fmt.decimals}f}%"
-    return f"{value:,.{fmt.decimals}f}"
-
-
 def _text_width(text: str, size: Pt) -> int:
     """How wide a string will be, set at one point size."""
     capitals = sum(1 for character in text if character.isupper())
@@ -713,7 +697,7 @@ def _column_widths(table: Table, vocab: Vocabulary,
         header = header_text(table, vocab, measure)
         widest = _text_width(header, VALUE_PT)
         for row in table.df.index:
-            text = _format_cell(table.df.loc[row, measure],
+            text = format_value(table.df.loc[row, measure],
                                 cell_format(table, row, measure))
             widest = max(widest, _text_width(text, VALUE_PT) + flag)
         widths.append(_width_for(widest))
@@ -745,7 +729,7 @@ def _column_minimums(table: Table, vocab: Vocabulary,
     for measure in table.df.columns:
         widest = _word_width(header_text(table, vocab, measure), VALUE_PT)
         for row in table.df.index:
-            text = _format_cell(table.df.loc[row, measure],
+            text = format_value(table.df.loc[row, measure],
                                 cell_format(table, row, measure))
             # A formatted number never contains a space, so its own width IS
             # its minimum: "10,228" cannot be broken anywhere.
@@ -1015,7 +999,7 @@ def _add_table(slide, table: Table, vocab: Vocabulary, top: Emu, height: Emu,
         for j, measure in enumerate(measures, start=depth):
             paragraph = grid.cell(i, j).text_frame.paragraphs[0]
             value = paragraph.add_run()
-            value.text = _format_cell(table.df.loc[row, measure],
+            value.text = format_value(table.df.loc[row, measure],
                                       cell_format(table, row, measure))
             value.font.size = VALUE_PT
             flag = "" if table.flags is None else table.flags.loc[row, measure]

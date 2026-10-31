@@ -248,6 +248,37 @@ def cell_format(table: Table, row, measure: str) -> Format:
     return table.formats.get(measure, Format())
 
 
+def format_value(value, fmt: Format) -> str:
+    """Write one cell out as text. Percent scaling happens HERE, not in the frame.
+
+    Text passes through untouched. A column may hold a date or the name of a
+    level, and there is nothing for a decimal count to do to either; see the
+    note on text columns in `Table`.
+    """
+    if isinstance(value, str):
+        return value
+    if value is None or value != value:  # NaN
+        return "" if fmt.blank else "n/a"
+    if fmt.percent:
+        return f"{value * 100:,.{fmt.decimals}f}%"
+    return f"{value:,.{fmt.decimals}f}"
+
+
+def rounds_to_zero(value: float, fmt: Format) -> bool:
+    """Whether this format would display a nonzero value as zero.
+
+    The case is a p-value of 3.7e-06 under four decimals, which shows as
+    "0.0000" and reads as an exact zero rather than as a number too small for
+    the column. A Cox p-value displayed as zero is the one number in these
+    tables a reader might quote, so a renderer that asks this can show the
+    value in full instead.
+    """
+    if value == 0:
+        return False
+    scaled = abs(value) * (100 if fmt.percent else 1)
+    return scaled < 0.5 * 10 ** -fmt.decimals
+
+
 def separates(values: pd.Series) -> bool:
     """Whether a measure can tell the levels apart at all.
 

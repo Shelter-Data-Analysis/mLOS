@@ -67,6 +67,7 @@ from mlos_review.blocks import (
     requires_full_table,
     requires_level_counts,
     requires_workload,
+    rounds_to_zero,
     workload_columns,
     workload_full_table,
     requires_sample,
@@ -210,22 +211,7 @@ def _excel_format(spec: Format) -> str:
     return f"{decimals}%" if spec.percent else decimals
 
 
-def _rounds_to_zero(value: float, spec: Format) -> bool:
-    """Whether this format would display a nonzero value as zero.
-
-    The case is a p-value of 3.7e-06 under four decimals, which shows as
-    "0.0000" and reads as an exact zero rather than as a number too small for
-    the column. The cell still holds the value, but a sheet is read as printed,
-    and a Cox p-value displayed as zero is the one number here a reader might
-    quote. Such a cell falls back to General, where Excel shows 3.67183E-06.
-    """
-    if value == 0:
-        return False
-    scaled = abs(value) * (100 if spec.percent else 1)
-    return scaled < 0.5 * 10 ** -spec.decimals
-
-
-def _index_headers(frame: pd.DataFrame) -> list[str]:
+def index_headers(frame: pd.DataFrame) -> list[str]:
     """Headers for the index columns, from the index's own names.
 
     A frame indexed by level yields "Level"; the regression frames, indexed by
@@ -252,12 +238,12 @@ def _write_table(worksheet, table: Table, vocab: Vocabulary, row: int,
             worksheet.cell(row=row, column=1).font.copy(bold=True))
         row += 1
 
-    index_headers = _index_headers(frame)
-    for offset, text in enumerate(index_headers):
+    headers = index_headers(frame)
+    for offset, text in enumerate(headers):
         worksheet.cell(row=row, column=1 + offset, value=text).font = (
             worksheet.cell(row=row, column=1 + offset).font.copy(bold=True))
     for offset, measure in enumerate(frame.columns):
-        cell = worksheet.cell(row=row, column=1 + len(index_headers) + offset,
+        cell = worksheet.cell(row=row, column=1 + len(headers) + offset,
                               value=header_text(table, vocab, measure, short=False))
         cell.font = cell.font.copy(bold=True)
     row += 1
@@ -267,7 +253,7 @@ def _write_table(worksheet, table: Table, vocab: Vocabulary, row: int,
         for offset, part in enumerate(parts):
             worksheet.cell(row=row, column=1 + offset, value=str(part))
         for offset, measure in enumerate(frame.columns):
-            column = 1 + len(index_headers) + offset
+            column = 1 + len(headers) + offset
             value = record[measure]
             cell = worksheet.cell(row=row, column=column)
             if pd.isna(value):
@@ -276,10 +262,13 @@ def _write_table(worksheet, table: Table, vocab: Vocabulary, row: int,
             if isinstance(value, str):
                 cell.value = value
                 continue
-            # The stored value, unrounded; the format decides the display.
+            # The stored value, unrounded; the format decides the display. A
+            # value the format would show as zero falls back to General, where
+            # Excel shows 3.67183E-06: the cell still holds the value, but a
+            # sheet is read as printed.
             cell.value = float(value)
             spec = cell_format(table, key, measure)
-            if not _rounds_to_zero(cell.value, spec):
+            if not rounds_to_zero(cell.value, spec):
                 cell.number_format = _excel_format(spec)
         row += 1
 

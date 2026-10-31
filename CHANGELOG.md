@@ -33,6 +33,12 @@ of a run, adds rows to its table, and the console log's header line changes.
 - `python3 -m mlos_review.deck --tables-only` writes the deck's table
   workbook without the deck, archiving any deck and slide list at that name
   (presentation guide, "Running it, and what it writes"). No numbers move.
+- For a program that shows the deck's tables itself, `mlos_review` names
+  four functions as its interface: `deck.workbook_sheets`, the tables the
+  workbook holds, which `deck.build` also calls; `blocks.format_value`, a
+  cell's text as the slides print it; `blocks.rounds_to_zero`, which the
+  workbook uses to show in full a value its format would print as zero; and
+  `workbook.index_headers`. No numbers move.
 - The User Guide's "Records that must be in the file" advises ending the
   study window a few days before the extraction date where intakes and
   outcomes can be recorded late. No numbers move.

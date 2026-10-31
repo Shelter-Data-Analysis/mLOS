@@ -393,24 +393,34 @@ def check_tied_extremes() -> None:
 def check_cell_formatting() -> None:
     """The number the reader sees, which the format spec alone does not pin."""
     section("cell formatting (synthetic)")
-    from mlos_review.render_pptx import _format_cell
+    from mlos_review.blocks import format_value, rounds_to_zero
 
     expect_equal("a fraction renders as a percent",
-                 _format_cell(0.008, Format(1, percent=True)), "0.8%")
+                 format_value(0.008, Format(1, percent=True)), "0.8%")
     expect_equal("a percent at one is a hundred",
-                 _format_cell(1.0, Format(0, percent=True)), "100%")
+                 format_value(1.0, Format(0, percent=True)), "100%")
     expect_equal("a plain number is not scaled",
-                 _format_cell(30.79, Format(1)), "30.8")
+                 format_value(30.79, Format(1)), "30.8")
     expect_equal("thousands are grouped",
-                 _format_cell(9051.8, Format(0)), "9,052")
+                 format_value(9051.8, Format(0)), "9,052")
     expect_equal("a missing value says so",
-                 _format_cell(float("nan"), Format(1)), "n/a")
+                 format_value(float("nan"), Format(1)), "n/a")
     # The two cases the summary tables added: a column that only some rows
     # have any business filling, and a column whose values were never numbers.
     expect_equal("a structurally empty cell stays empty",
-                 _format_cell(float("nan"), Format(1, blank=True)), "")
+                 format_value(float("nan"), Format(1, blank=True)), "")
     expect_equal("text passes through untouched",
-                 _format_cell("2019-01-01", Format(0)), "2019-01-01")
+                 format_value("2019-01-01", Format(0)), "2019-01-01")
+    # A nonzero value its format would print as zero, which a renderer may
+    # then show in full rather than as an exact zero.
+    expect_equal("a tiny p-value rounds to zero under four decimals",
+                 rounds_to_zero(3.7e-06, Format(4)), True)
+    expect_equal("a value that survives the rounding does not",
+                 rounds_to_zero(0.00005, Format(4)), False)
+    expect_equal("a percent is judged after scaling",
+                 rounds_to_zero(0.0004, Format(2, percent=True)), False)
+    expect_equal("an exact zero is not a value rounded away",
+                 rounds_to_zero(0.0, Format(4)), False)
 
 
 def check_settings() -> None:
