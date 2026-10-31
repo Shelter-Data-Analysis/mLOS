@@ -16,11 +16,12 @@ about their being the right slides. See the package docstring; anyone handed a
 deck should be told the same.
 
     python3 -m mlos_review.deck [results_dir] [out.pptx] [--settings=FILE]
-                                [--template=FILE]
+                                [--template=FILE] [--tables-only]
 
 With no arguments it reads `results/`, takes its settings from
 `data/OC_deck_settings.yaml` if that exists, and writes `reports/mlos_deck.pptx`,
-archiving any deck already there.
+archiving any deck already there. `--tables-only` writes the deck's workbook
+and nothing else.
 """
 
 from __future__ import annotations
@@ -91,7 +92,7 @@ from mlos_review.figures import FigureSet
 from mlos_review.names import Vocabulary, capitalize_first
 from mlos_review.narrow import (hidden_levels, narrowed, regression_excluded,
                                 regression_window)
-from mlos_review.output import prepare_output
+from mlos_review.output import archive_existing, prepare_output
 from mlos_review.regression import unstable_levels
 from mlos_review.regression import (comparison as cox_comparison, pooled,
                                     stratified, hazard_ratio_panel,
@@ -2369,8 +2370,12 @@ def manifest_path(deck_path: str | Path) -> Path:
 
 
 def build(results: str | Path | Bundle, out_path: str | Path | None = None,
-          settings: Settings | None = None) -> tuple[Path, Path | None]:
+          settings: Settings | None = None,
+          tables_only: bool = False) -> tuple[Path | None, Path | None]:
     """Write a deck. Returns where it went and what it displaced, if anything.
+
+    With `tables_only`, writes the deck's workbook alone and returns the
+    workbook's path, or None when the run has no table to write.
 
     The archived path is RETURNED rather than left on the function for a caller
     to pick up afterwards, so two calls cannot report each other's archive.
@@ -2388,6 +2393,20 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     # the build at the start rather than after it.
     readings = curve_readings_table(bundle, settings.curve_readings, vocab)
     out_path = Path(out_path) if out_path is not None else settings.output_path
+    sheets = workbook.sheets(bundle, vocab, readings)
+
+    if tables_only:
+        if not sheets:
+            return None, None
+        # No deck is drawn, but a deck already at this path is moved aside with
+        # its slide list, as a full build would move them: left in place, it
+        # would sit beside a workbook from another run.
+        archived = archive_existing(out_path)
+        archive_existing(manifest_path(out_path))
+        tables_path, _ = prepare_output(workbook_path(out_path))
+        workbook.write(sheets, tables_path, vocab)
+        return tables_path, archived
+
     figures = FigureSet(directory=figure_directory(out_path))
 
     slides = assemble(bundle, vocab, figures, settings)
@@ -2398,7 +2417,6 @@ def build(results: str | Path | Bundle, out_path: str | Path | None = None,
     # deliverable in its own right; the manifest is not, because it describes
     # the figure files beside it, which are overwritten.
     figures.write_manifest()
-    sheets = workbook.sheets(bundle, vocab, readings)
     if sheets:
         tables_path, _ = prepare_output(workbook_path(out_path))
         workbook.write(sheets, tables_path, vocab)
@@ -2484,12 +2502,14 @@ def main(argv: list[str]) -> int:
     # reason: a silently ignored `--setings=my.yaml` is a settings file the user
     # believes is in force. `--settings` without `=FILE` is the same mistake in
     # a second spelling, most often `--settings my.yaml`, which would also send
-    # the file name into the positional arguments.
+    # the file name into the positional arguments. A switch takes no value.
     known = ("--settings", "--template")
-    unknown = sorted(set(flags) - set(known))
+    switches = ("--tables-only",)
+    unknown = sorted(set(flags) - set(known) - set(switches))
     if unknown:
+        listed = [f"{flag}=FILE" for flag in known] + list(switches)
         print(f"error: unrecognized flag(s): {', '.join(unknown)}. "
-              f"The flags are {', '.join(f'{flag}=FILE' for flag in known)}.",
+              f"The flags are {', '.join(listed)}.",
               file=sys.stderr)
         return 1
     for flag in known:
@@ -2497,6 +2517,11 @@ def main(argv: list[str]) -> int:
             print(f"error: {flag} needs a value, as {flag}=FILE.",
                   file=sys.stderr)
             return 1
+    for flag in switches:
+        if flags.get(flag):
+            print(f"error: {flag} takes no value.", file=sys.stderr)
+            return 1
+    tables_only = "--tables-only" in flags
     misplaced = undashed_flags(args, known)
     for problem in misplaced:
         print(f"error: {problem}", file=sys.stderr)
@@ -2531,13 +2556,19 @@ def main(argv: list[str]) -> int:
               f"does not have: {', '.join(absent)}")
 
     try:
-        path, archived = build(bundle, out, settings)
+        path, archived = build(bundle, out, settings, tables_only=tables_only)
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)
+        return 1
+    if path is None:
+        print("error: this run has no table to write. Nothing was written or "
+              "moved.", file=sys.stderr)
         return 1
     if archived is not None:
         print(f"archived previous deck to {archived}")
     print(f"wrote {path}")
+    if tables_only:
+        return 0
     # The companions are reported too, because a file nobody is told about is a
     # file nobody opens.
     for companion in (workbook_path(path), manifest_path(path),

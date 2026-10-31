@@ -30,6 +30,9 @@ CSVs, plots, and readings gain bounds the same way. Every other CSV and plot is
 byte-identical to 0.4.0. `tools/cox_zph.R`, which is not part
 of a run, adds rows to its table, and the console log's header line changes.
 
+- `python3 -m mlos_review.deck --tables-only` writes the deck's table
+  workbook without the deck, archiving any deck and slide list at that name
+  (presentation guide, "Running it, and what it writes"). No numbers move.
 - The User Guide's "Records that must be in the file" advises ending the
   study window a few days before the extraction date where intakes and
   outcomes can be recorded late. No numbers move.

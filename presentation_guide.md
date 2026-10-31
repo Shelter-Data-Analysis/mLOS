@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20261029_004. Read it in any markdown reader,
+presentation guide, version 20261030_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -224,6 +224,11 @@ either name is renamed to `<stem>_<YYYYMMDD>_<NNN>` first, the same scheme
 most recent and older ones stay beside it. Nothing is deleted. The figures are
 the exception and are simply redrawn, because the deck embeds its images, so
 an archived deck keeps the ones it was built with.
+
+**`--tables-only` writes the workbook and nothing else.** A deck and slide
+list already at the deck's name are archived as a full build would archive
+them, so no deck is left beside a workbook from another run. The figures
+directory is left as it is.
 
 ### Settings
 

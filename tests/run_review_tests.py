@@ -2294,6 +2294,8 @@ def check_command_line_guards() -> None:
              "--template="),
             ("deck: a misspelled flag without dashes", deck.main,
              ["deck", str(results), "templete=x.pptx"], "reads as a flag"),
+            ("deck: a switch given a value", deck.main,
+             ["deck", str(results), "--tables-only=yes"], "takes no value"),
             ("deck: output is the template", deck.main,
              ["deck", str(results), str(template), f"--template={template}",
               f"--settings={settings}"], "is the template"),
@@ -4697,7 +4699,8 @@ def check_workbook_and_manifest(case: str, bundle: Bundle, directory: Path) -> N
     from openpyxl import load_workbook
 
     from mlos_review import workbook
-    from mlos_review.deck import build, figure_directory, workbook_path
+    from mlos_review.deck import (build, figure_directory, manifest_path,
+                                  workbook_path)
 
     vocab = Vocabulary(bundle.data)
     sheets = workbook.sheets(bundle, vocab)
@@ -4755,6 +4758,31 @@ def check_workbook_and_manifest(case: str, bundle: Bundle, directory: Path) -> N
                        bool(entry["description"]) and bool(entry["kind"]))
                 expect(f"{case}: {entry['plot']} names a real stratifier",
                        entry["stratifier"] in bundle.stratifiers())
+
+        # A tables-only build over the full one: the same workbook, no deck,
+        # and the deck and slide list it would have replaced moved aside
+        # rather than left beside a workbook from another run.
+        if tables.exists():
+            full_book = load_workbook(tables)
+            before = sorted(p.name for p in Path(tmp).iterdir())
+            written, archived = build(directory, out, tables_only=True)
+            expect_equal(f"{case}: tables-only returns the workbook",
+                         written, tables)
+            expect(f"{case}: tables-only moves the deck aside",
+                   archived is not None and archived.exists()
+                   and not out.exists())
+            expect(f"{case}: tables-only moves the slide list aside",
+                   not manifest_path(out).exists())
+            added = sorted(set(p.name for p in Path(tmp).iterdir())
+                           - set(before))
+            expect(f"{case}: tables-only adds only the archives",
+                   len(added) == 3, str(added))
+            book = load_workbook(tables)
+            expect_equal(f"{case}: tables-only writes the same sheets",
+                         book.sheetnames, full_book.sheetnames)
+            expect(f"{case}: tables-only writes the same cells",
+                   all(list(book[n].values) == list(full_book[n].values)
+                       for n in book.sheetnames))
 
 
 def check_ratio_panel_sheets(case: str, bundle: Bundle) -> None:
