@@ -143,6 +143,11 @@ outcome_type_N: # Non-live: euthanasia (any type), died in care, lost in care
 restricted_stay_cap: 365
 
 # Plots are truncated at this day on the x-axis (does not affect statistics). Must be <= restricted_stay_cap.
+# 58 keeps the PUPPY remaining-LOS curve on scale. From tenure 60 on, the only puppy
+# still in care is one 404-day stay, A1689700, most likely a transfer whose
+# outcome was never recorded. It is kept in the data deliberately, and it shows
+# how far one extreme stay moves the tenure and remaining-LOS figures of a
+# stratum whose stays are short.
 plot_stay_cap: 58
 
 # Interval width in days for the two probability-mass stacks, a side view that bins
