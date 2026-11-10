@@ -1,0 +1,47 @@
+{
+  "upload_type": "software",
+  "title": "mLOS (Version 0.4.0)",
+  "version": "0.4.0",
+  "creators": [
+    {
+      "name": "Mavrovouniotis, Michael Loizos",
+      "orcid": "0009-0009-9896-2761"
+    }
+  ],
+  "description": "Survival analysis of length of stay in animal shelters.  A run is one YAML settings file and one prepared CSV of shelter stays, and produces Kaplan-Meier, Cox proportional-hazards, and Aalen-Johansen competing-risks results comparing time in care across user-defined periods, intake types, or animal groups.  Output is a consolidated Excel workbook, a plot set with the numerical values of every curve beside it, a JSON bundle holding every computed number, and a record of how the input rows were transformed, removed or kept.",
+  "notes": "If you use this software, please cite it as below.  If you use results computed from the Orange County data that the shipped settings files cover, also cite the deposit the prepared input comes from, 10.5281/zenodo.22051368, alongside it.  If you use the OC2 results as they are rather than recomputing them, cite 10.5281/zenodo.23047014 instead of that one.",
+  "keywords": [
+    "animal shelter",
+    "length of stay",
+    "survival analysis",
+    "Kaplan-Meier",
+    "competing risks",
+    "Aalen-Johansen estimate",
+    "Cox regression"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/Shelter-Data-Analysis/mLOS/tree/v0.4.0",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "10.5281/zenodo.22084230",
+      "relation": "compiles",
+      "resource_type": "dataset"
+    },
+    {
+      "identifier": "10.5281/zenodo.22085156",
+      "relation": "compiles",
+      "resource_type": "presentation"
+    },
+    {
+      "identifier": "10.3390/ani16203207",
+      "relation": "isDescribedBy"
+    }
+  ],
+  "references": [
+    "Mavrovouniotis ML. Use of Kaplan-Meier and Cox regressions in the distribution of length of stay in animal shelters for pre-specified calendar periods: Definition, computation, and examples of dog length of stay in Orange County California. PLOS ONE. 2026;21(1):e0342102. doi:10.1371/journal.pone.0342102",
+    "Mavrovouniotis ML. The mLOS Open-Source Software for Analyzing Length of Stay in Animal Shelters. Animals. 2026;16(20):3207. doi:10.3390/ani16203207"
+  ]
+}

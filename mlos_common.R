@@ -37,8 +37,9 @@ invisible(Sys.setlocale("LC_COLLATE", "C"))
 # Excel cover sheet. A published result is checkable only as a pair: the DOI of
 # the archive and the version a run reported. One number covers the whole
 # repository, R side and Python side alike, because one tag produces one
-# archive with one DOI; the test suite holds MLOS_VERSION, CITATION.cff, and
-# pyproject.toml equal. Bump it when the work of a release is done, then tag.
+# archive with one DOI; the test suite holds MLOS_VERSION, CITATION.cff,
+# .zenodo.json, and pyproject.toml equal. Bump it when the work of a release is
+# done, then tag.
 MLOS_VERSION <- "0.4.0"
 
 # Every package whose version can change what a run produces. A result is

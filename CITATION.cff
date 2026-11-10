@@ -1,6 +1,7 @@
 # Citation metadata, in the Citation File Format (https://citation-file-format.org).
-# GitHub reads this and shows a "Cite this repository" button; Zenodo reads it
-# when minting a DOI from a release.
+# GitHub reads this and shows a "Cite this repository" button.  Zenodo reads
+# .zenodo.json instead when minting a DOI from a release, and ignores this file
+# while that one exists; the test suite holds the fields the two share equal.
 #
 ####   RELEASE CHECKLIST.  The full runbook is PUBLISHING.md; these are the
 ####   steps that go wrong inside this file.
@@ -12,7 +13,8 @@
 ####   2. On each tagged release, bump `version` and `date-released` to match.
 ####      `version` here must equal the one a run log reports, or the citation
 ####      names software that did not produce the result.  The test suite holds
-####      it equal to MLOS_VERSION in mlos_common.R and to pyproject.toml.
+####      it equal to MLOS_VERSION in mlos_common.R, to pyproject.toml, and to
+####      the version, the title, and the tree link's tag in .zenodo.json.
 ####      `version` is bumped when the work is done rather than when the tag
 ####      lands, so `date-released` runs ahead of the tag until CHANGELOG.md's
 ####      Unreleased section is given its number; check it at tag time.
@@ -28,24 +30,17 @@
 ####      stable, and `version` above is what says which release was actually
 ####      run.  There is therefore no `doi:` field until the release after the
 ####      first archived one.
-####   5. AFTER publishing a release, edit the Zenodo record's `version` field
-####      to drop the leading `v`.  Zenodo takes that field from the tag name
-####      rather than from `version` below, so the record reads `v0.1.0` where
-####      a run log reads `0.1.0`, and the pair a reader checks is the DOI and
-####      the version.  This has needed doing on every release so far, so
-####      treat it as part of publishing rather than as something to check
-####      for.  It is not confined to records built from a GitHub release; a
-####      deposit uploaded by hand has arrived with a `v` too, so check every
-####      record.  Check it in the Zenodo interface at the time: reading a
-####      record back afterward shows its current state, not what was minted.
+####   5. AFTER publishing a release, check that every record's `version`
+####      field reads `0.1.0`, not `v0.1.0`.  Without .zenodo.json, Zenodo takes
+####      the field from the tag name; a deposit uploaded by hand has arrived
+####      with a `v` too.  The pair a reader checks is the DOI and the version.
 ####      The bare form is correct rather than merely preferred: semantic
 ####      versioning treats `v0.1.0` as a tag name and `0.1.0` as the version.
 #
 ####   LICENSE.  `license` below names the license of the code, which is what
-####   this file is metadata for.  The two guides, mlos_user_guide.md and
-####   mlos_math_methods.md, are CC BY 4.0; see README.md.  Naming both here
-####   would leave Zenodo to choose one for its record, so the record's own
-####   description is where the documentation license belongs.
+####   this file is metadata for.  The guides are CC BY 4.0; see README.md.
+####   .zenodo.json names no license, so Zenodo takes the record's from the
+####   repository's LICENSE file.
 
 cff-version: 1.2.0
 message: >-

@@ -10,8 +10,9 @@ line of the section, not inferred from the bullets. A documentation-only
 release says so and says that output is byte-identical to the release before.
 
 **The section heading moves when the version is closed out, before the tag.**
-It moves with `MLOS_VERSION`, `version:` in `CITATION.cff` and `version` in
-`pyproject.toml`, in the commit the tag will point at. Zenodo archives that
+It moves with `MLOS_VERSION`, `version:` in `CITATION.cff`, `version` in
+`pyproject.toml`, and the version in `.zenodo.json`, in the commit the tag will
+point at. Zenodo archives that
 tree, so a heading still reading `Unreleased` there archives a release unable
 to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
@@ -30,6 +31,11 @@ CSVs, plots, and readings gain bounds the same way. Every other CSV and plot is
 byte-identical to 0.4.0. `tools/cox_zph.R`, which is not part
 of a run, adds rows to its table, and the console log's header line changes.
 
+- `.zenodo.json` gives the Zenodo software record its version without a
+  leading `v`, its title, its related works, and its references, which were
+  entered by hand on each release (`PUBLISHING.md`, step 5). The test suite
+  holds its version to `MLOS_VERSION` and its shared fields to
+  `CITATION.cff`. No numbers move.
 - `python3 -m mlos_review.deck --tables-only` writes the deck's table
   workbook without the deck, archiving any deck and slide list at that name
   (presentation guide, "Running it, and what it writes"). No numbers move.

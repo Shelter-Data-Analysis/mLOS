@@ -3887,7 +3887,7 @@ run_suite_checks <- function() {
 
   cat("\n=== release metadata ===\n")
 
-  # One repository, one tag, one archive, so one version number. Three files
+  # One repository, one tag, one archive, so one version number. Four files
   # declare it and nothing else holds them together, which is exactly the drift
   # a citation cannot survive: the pair a reader checks is the DOI and the
   # version a run log reported.
@@ -3901,6 +3901,77 @@ run_suite_checks <- function() {
     expect_equal("release: CITATION.cff carries a release date",
                  as.numeric(grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
                                   as.character(cff$`date-released`))), 1)
+  }
+
+  # .zenodo.json is the software record's metadata. When it is present Zenodo
+  # ignores CITATION.cff, so the fields both files carry are held equal here,
+  # and the per-release values are held to MLOS_VERSION. Zenodo drops a field
+  # name it does not know without saying so, and fails the archive on a file
+  # it cannot read, which costs a version number to repair; hence the
+  # allowed-name checks.
+  zenodo_file <- file.path(project_root, ".zenodo.json")
+  expect_equal("release: .zenodo.json exists",
+               as.numeric(file.exists(zenodo_file)), 1)
+  if (file.exists(zenodo_file) && file.exists(citation_file)) {
+    zen <- tryCatch(jsonlite::fromJSON(zenodo_file, simplifyVector = FALSE),
+                    error = function(e) NULL)
+    expect_equal("release: .zenodo.json parses", as.numeric(is.list(zen)), 1)
+    if (is.list(zen)) {
+      zenodo_fields <- c("upload_type", "publication_type", "title",
+                         "version", "creators", "contributors", "description",
+                         "notes", "keywords", "subjects", "license",
+                         "related_identifiers", "references", "language",
+                         "dates", "locations", "grants", "communities",
+                         "publication_date", "access_right",
+                         "imprint_publisher")
+      unknown_fields <- setdiff(names(zen), zenodo_fields)
+      if (length(unknown_fields) > 0)
+        cat("  .zenodo.json fields Zenodo does not read:",
+            paste(unknown_fields, collapse = ", "), "\n")
+      expect_equal("release: .zenodo.json uses only fields Zenodo reads",
+                   length(unknown_fields), 0)
+      expect_equal("release: .zenodo.json version matches MLOS_VERSION",
+                   as.numeric(identical(zen$version, MLOS_VERSION)), 1)
+      expect_equal("release: .zenodo.json title names the version",
+                   as.numeric(identical(zen$title, sprintf(
+                     "%s (Version %s)", cff$title, MLOS_VERSION))), 1)
+      tree_url <- sprintf("%s/tree/v%s", cff$`repository-code`, MLOS_VERSION)
+      expect_equal("release: .zenodo.json links the tree of this release's tag",
+                   as.numeric(any(vapply(zen$related_identifiers, function(r)
+                     identical(r$identifier, tree_url) &&
+                       identical(r$relation, "isSupplementTo"),
+                     logical(1)))), 1)
+      # The relation names Zenodo accepts (DataCite's, in camel case).
+      zenodo_relations <- c(
+        "isCitedBy", "cites", "isSupplementTo", "isSupplementedBy",
+        "isContinuedBy", "continues", "isDescribedBy", "describes",
+        "hasMetadata", "isMetadataFor", "isNewVersionOf",
+        "isPreviousVersionOf", "isPartOf", "hasPart", "isReferencedBy",
+        "references", "isDocumentedBy", "documents", "isCompiledBy",
+        "compiles", "isVariantFormOf", "isOriginalFormOf", "isIdenticalTo",
+        "isReviewedBy", "reviews", "isDerivedFrom", "isSourceOf",
+        "requires", "isRequiredBy", "isObsoletedBy", "obsoletes")
+      relations <- vapply(zen$related_identifiers, function(r)
+        if (is.character(r$relation)) r$relation else NA_character_,
+        character(1))
+      expect_equal("release: .zenodo.json uses only relations Zenodo accepts",
+                   as.numeric(length(relations) > 0 &&
+                                all(relations %in% zenodo_relations)), 1)
+      expect_equal("release: .zenodo.json description is CITATION.cff's abstract",
+                   as.numeric(identical(zen$description, cff$abstract)), 1)
+      expect_equal("release: .zenodo.json notes are CITATION.cff's message",
+                   as.numeric(identical(zen$notes, cff$message)), 1)
+      expect_equal("release: .zenodo.json keywords match CITATION.cff",
+                   as.numeric(identical(unlist(zen$keywords),
+                                        unlist(cff$keywords))), 1)
+      cff_creators <- vapply(cff$authors, function(a) sprintf(
+        "%s, %s | %s", a$`family-names`, a$`given-names`,
+        sub("^https://orcid.org/", "", a$orcid)), character(1))
+      zen_creators <- vapply(zen$creators, function(a) sprintf(
+        "%s | %s", a$name, a$orcid), character(1))
+      expect_equal("release: .zenodo.json creators match CITATION.cff authors",
+                   as.numeric(identical(zen_creators, cff_creators)), 1)
+    }
   }
 
   pyproject <- file.path(project_root, "pyproject.toml")

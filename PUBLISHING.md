@@ -72,8 +72,9 @@ published after the switch is on and does not reach back for earlier ones.
 - Rename `## Unreleased` in `CHANGELOG.md` to the version and the date,
   the same UTC date set two bullets below.
 - Confirm `MLOS_VERSION` in `mlos_common.R`, `version:` in `CITATION.cff`,
-  `version` in `pyproject.toml`, and that heading all agree. The test suite
-  checks the first three; the heading is by hand.
+  `version` in `pyproject.toml`, the version in `.zenodo.json` (its `version`,
+  its `title`, and the tag in its GitHub tree link), and that heading all
+  agree. The test suite checks all but the heading, which is by hand.
 - Set `date-released:` in `CITATION.cff` to the day the tag will actually be
   cut, checked in UTC:
 
@@ -177,11 +178,10 @@ git tag -a vX.Y.Z -m "X.Y.Z" && git push origin main && git push origin vX.Y.Z
 ```
 
 Then publish the release from the existing tag, titled with the bare version
-number. `CITATION.cff` supplies the title and authors, so a release titled
-`mLOS X.Y.Z` would produce a Zenodo record reading
-`Shelter-Data-Analysis/mLOS: mLOS X.Y.Z`.
+number. The Zenodo record takes its title from `.zenodo.json`, so the release
+title appears on GitHub alone.
 
-### 5. Collect the software DOIs, and fix the version field
+### 5. Collect the software DOIs, and check the record
 
 Zenodo mints two DOIs within a minute or two: one for the release, one concept
 DOI for all releases. Keep both; the concept DOI is the one `CITATION.cff`
@@ -206,47 +206,37 @@ release, and its GitHub page for the repository shows the release as
 0.2.3 both `published` and `released` returned 409, and the record minted about
 an hour later.
 
-Then edit the Zenodo record's `version` field to drop the leading `v`. Zenodo
-takes it from the tag name rather than from `CITATION.cff`, so the record reads
-`vX.Y.Z` where a run log reads `X.Y.Z`, and the pair a reader checks is the DOI
-and the version. This has needed doing on every release so far, so it is part
-of publishing rather than something to check for.
+Then check the record against `.zenodo.json`, which Zenodo reads in place of
+`CITATION.cff`. Without that file the record would take its version from the
+tag name, reading `vX.Y.Z` where a run log reads `X.Y.Z`, and would carry none
+of the related works below. Check in the Zenodo interface at the time; reading
+a record back afterward shows its current state, not what was minted.
 
-It is not confined to records built from a GitHub release. A deposit uploaded
-by hand has arrived with a `v` too, so check the version field on every record
-you publish rather than only on the software ones. Check it in the Zenodo
-interface at the time; reading a record back afterward shows its current state,
-not what was minted.
+- **Title** `mLOS (Version X.Y.Z)` and **Version** `X.Y.Z`, without a `v`.
+- **Related works**:
+  - *is supplement to* the GitHub tree of tag `vX.Y.Z`
+  - *compiles* `10.5281/zenodo.22084230`, the results deposit, all versions
+  - *compiles* `10.5281/zenodo.22085156`, the deck deposit, all versions
+  - *is described by* `10.3390/ani16203207`, the mLOS paper
+- **References**: the PLOS ONE paper on calendar periods and the Animals paper
+  on mLOS.
 
-The bare form is the right one, and not merely a preference: semantic
+The bare version is the right one, and not merely a preference: semantic
 versioning treats `vX.Y.Z` as a tag name and `X.Y.Z` as the version. Adopting
 the `v` everywhere instead is not open to us anyway, because Python normalizes
 a leading `v` out of a package version, so `pyproject.toml` would report the
-bare form whatever it was given and the three declarations would stop
-agreeing.
+bare form whatever it was given and the declarations would stop agreeing.
 
-In the same edit, add the two *compiles* relations and the *is described by*
-relation under Related works, and the two papers under References. A record
-built from a GitHub release carries only the automatic *is supplement to* link
-to its tree, and what was entered by hand on an earlier release does not carry
-forward to it, as it does through New Version on a hand deposit:
+Zenodo fails the archive on a `.zenodo.json` it cannot read, and the file is
+inside the tagged tree, so redelivery cannot repair it; a new tag can. The test
+suite checks that the file parses and uses only the field and relation names
+Zenodo accepts. A field name Zenodo does not know is dropped without notice,
+which is what the record check above catches.
 
-- *compiles* `10.5281/zenodo.22084230`, the results deposit, all versions
-- *compiles* `10.5281/zenodo.22085156`, the deck deposit, all versions
-- *is described by* `10.3390/ani16203207`, the mLOS paper
-- Reference: `Mavrovouniotis ML. Use of Kaplan-Meier and Cox regressions in
-  the distribution of length of stay in animal shelters for pre-specified
-  calendar periods: Definition, computation, and examples of dog length of
-  stay in Orange County California. PLOS ONE. 2026;21(1):e0342102.
-  doi:10.1371/journal.pone.0342102`
-- Reference: `Mavrovouniotis ML. The mLOS Open-Source Software for Analyzing
-  Length of Stay in Animal Shelters. Animals. 2026;16(20):3207.
-  doi:10.3390/ani16203207`
-
-The two *compiles* relations are concept DOIs, so all five entries are the
-same on every release. The deposits already point back with *is compiled by*,
-so the chain holds without the relations; they make it walkable from the
-software record as well.
+The two *compiles* relations are concept DOIs, so they are the same on every
+release. The deposits already point back with *is compiled by*, so the chain
+holds without the relations; they make it walkable from the software record as
+well.
 
 ### 6. Stage and upload the results deposit
 
@@ -274,7 +264,8 @@ harmless and looks like debris in a citable record.
   version by construction.
 - **Version** `1`, typed in explicitly. An empty version field is not neutral:
   `CITATION.cff` cites data deposits by version, so a blank field leaves the
-  citation naming something the record does not say.
+  citation naming something the record does not say. A hand deposit has
+  arrived reading `v1`, so check it after publishing.
 - **Related identifiers**, which are what make the deposits a chain rather than
   a set of orphans:
   - *is derived from* the prepared data, `10.5281/zenodo.22051368`. Not the
