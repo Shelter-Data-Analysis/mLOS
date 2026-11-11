@@ -28,6 +28,9 @@ No numbers move.
   version 5, `10.5281/zenodo.24124177`, and the deck built from it, version
   6, `10.5281/zenodo.24124424`. The ancestry diagram beneath the table names
   the two.
+- The README's citing table, `CITATION.cff` and its message, the Zenodo
+  notes, and the presentation guide name the OC2 results version 5 and deck
+  version 6 in place of results version 4 and deck version 5.
 - `tools/make_deposit.py --deck` stages each figures directory as its
   `manifest.json` lists it, so images an earlier build left there under
   names the current build no longer uses stay out of the deposit.

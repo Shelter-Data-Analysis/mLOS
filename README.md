@@ -149,8 +149,8 @@ The tool and its design are described in a paper, which can be cited beside the 
 | Deposit | DOI | Cite it when |
 |---|---|---|
 | Prepared input | [10.5281/zenodo.22051368](https://doi.org/10.5281/zenodo.22051368) | You ran mLOS on the shipped OC1 or OC2 data. |
-| OC2 results | [10.5281/zenodo.23047014](https://doi.org/10.5281/zenodo.23047014) | You used those results as they are rather than recomputing them. |
-| OC2 slide deck | [10.5281/zenodo.23047087](https://doi.org/10.5281/zenodo.23047087) | The slides themselves are what you are referring to. The results deposit is the record of the statistical analysis; the deck is only a rendering of it. |
+| OC2 results | [10.5281/zenodo.24124177](https://doi.org/10.5281/zenodo.24124177) | You used those results as they are rather than recomputing them. |
+| OC2 slide deck | [10.5281/zenodo.24124424](https://doi.org/10.5281/zenodo.24124424) | The slides themselves are what you are referring to. The results deposit is the record of the statistical analysis; the deck is only a rendering of it. |
 
 [`PUBLISHING.md`](PUBLISHING.md) is the release runbook, and lists every citable identifier in the chain.
 

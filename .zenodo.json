@@ -9,7 +9,7 @@
     }
   ],
   "description": "Survival analysis of length of stay in animal shelters.  A run is one YAML settings file and one prepared CSV of shelter stays, and produces Kaplan-Meier, Cox proportional-hazards, and Aalen-Johansen competing-risks results comparing time in care across user-defined periods, intake types, or animal groups.  Output is a consolidated Excel workbook, a plot set with the numerical values of every curve beside it, a JSON bundle holding every computed number, and a record of how the input rows were transformed, removed or kept.",
-  "notes": "If you use this software, please cite it with the version you ran.  If you use results computed from the Orange County data that the shipped settings files cover, also cite the deposit the prepared input comes from, 10.5281/zenodo.22051368, alongside it.  If you use the OC2 results as they are rather than recomputing them, cite 10.5281/zenodo.23047014 instead of that one.",
+  "notes": "If you use this software, please cite it with the version you ran.  If you use results computed from the Orange County data that the shipped settings files cover, also cite the deposit the prepared input comes from, 10.5281/zenodo.22051368, alongside it.  If you use the OC2 results as they are rather than recomputing them, cite 10.5281/zenodo.24124177 instead of that one.",
   "keywords": [
     "animal shelter",
     "length of stay",
