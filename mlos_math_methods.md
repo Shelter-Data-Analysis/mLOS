@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261029_007. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261111_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -708,7 +708,7 @@ The JSON's top level:
 
 Three container shapes carry the numbers, each naming itself in a `type` field. A `matrix` has `rows`, `columns`, and `values`, one array per row across the columns, and is the shape the per-column sheets of §8.4 are built from. A `table` holds its `columns` as named arrays of equal length. A `named_vector` is a single row of labeled values. `schema_version` moves when a field changes meaning or leaves, not when one is added.
 
-What the JSON does not carry are the per-day curve grids of §8.2. The KM curves, Remaining LOS, the census and tenure profiles and the AJ curves stay in the CSVs, and the `outputs` manifest is how the JSON points at them. It holds one entry per emitted plot and CSV, naming the file pair, what the curve is, its day axis, the meaning and units of the value columns, and the summary row above the grid together with the rule that derives it (`column_sum` for a restricted mean, `at_mean_tenure` for the Remaining LOS reading of §8.2). This avoids duplication of large tables and makes results more accessible to the casual user.
+What the JSON does not carry are the per-day curve grids of §8.2. The KM curves, Remaining LOS, the census and tenure profiles and the AJ curves stay in the CSVs, and the `outputs` manifest is how the JSON points at them. It holds one entry per emitted plot and CSV, naming the file pair, the title drawn on the plot, what the curve is, its day axis, the meaning and units of the value columns, and the summary row above the grid together with the rule that derives it (`column_sum` for a restricted mean, `at_mean_tenure` for the Remaining LOS reading of §8.2). This avoids duplication of large tables and makes results more accessible to the casual user.
 
 ## 8.2 Plot-companion CSVs
 

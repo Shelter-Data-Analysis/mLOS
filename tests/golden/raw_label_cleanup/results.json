@@ -770,6 +770,7 @@
     {
       "csv": "km_survival_unified.csv",
       "plot": "km_survival_unified.png",
+      "title": "Kaplan-Meier Survival Curve - Length of Stay",
       "kind": "km_survival",
       "stratifier": "all",
       "outcome": null,
@@ -795,6 +796,7 @@
     {
       "csv": "km_remaining_los_unified.csv",
       "plot": "km_remaining_los_unified.png",
+      "title": "Expected Remaining LOS (tied to in-care tenure statistics)",
       "kind": "km_remaining_los",
       "stratifier": "all",
       "outcome": null,
@@ -820,6 +822,7 @@
     {
       "csv": "km_census_by_tenure_unified.csv",
       "plot": "km_census_by_tenure_unified.png",
+      "title": "Expected Animals in Care by Tenure",
       "kind": "km_census_by_tenure",
       "stratifier": "all",
       "outcome": null,
@@ -845,6 +848,7 @@
     {
       "csv": "km_in_care_tenure_unified.csv",
       "plot": "km_in_care_tenure_unified.png",
+      "title": "In-Care Tenure Profile",
       "kind": "km_in_care_tenure",
       "stratifier": "all",
       "outcome": null,
@@ -870,6 +874,7 @@
     {
       "csv": "aj_cif_unified.csv",
       "plot": "aj_cif_unified.png",
+      "title": "AJ Competing-Risk CIF",
       "kind": "aj_cif",
       "stratifier": "all",
       "outcome": null,
@@ -895,6 +900,7 @@
     {
       "csv": "aj_conditional_unified.csv",
       "plot": "aj_conditional_unified.png",
+      "title": "Conditional Remaining Outcome Probability",
       "kind": "aj_conditional",
       "stratifier": "all",
       "outcome": null,
@@ -915,6 +921,7 @@
     {
       "csv": null,
       "plot": "aj_cif_unified_stack.png",
+      "title": "AJ Cumulative Incidence Stack",
       "kind": "aj_cif",
       "stratifier": "all",
       "outcome": null,
@@ -935,6 +942,7 @@
     {
       "csv": null,
       "plot": "aj_conditional_unified_stack.png",
+      "title": "Outcome Type Stack From Day x",
       "kind": "aj_conditional",
       "stratifier": "all",
       "outcome": null,

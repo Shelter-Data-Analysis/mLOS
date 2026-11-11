@@ -1000,6 +1000,19 @@ check_output_manifest <- function(case_name, bundle, results_dir) {
   expect_equal(paste0(case_name, ": manifest: no plot named that was not written"),
                length(setdiff(listed_png, on_disk_png)), 0)
 
+  # Every plot is named by the title it draws, and nothing else carries one. A
+  # plot drawn without a title, or a drawing path that stops reaching title(),
+  # leaves its entry untitled and shows up here.
+  plotted <- Filter(function(e) !is.null(e$plot), manifest)
+  untitled <- vapply(Filter(function(e) !(is.character(e$title) && length(e$title) == 1L &&
+                                             nzchar(e$title)), plotted),
+                     function(e) e$plot, character(1))
+  if (length(untitled) > 0) cat("  plots without a title:", paste(untitled, collapse = ", "), "\n")
+  expect_equal(paste0(case_name, ": manifest: every plot carries its title"),
+               length(untitled), 0)
+  expect_equal(paste0(case_name, ": manifest: no title without a plot"),
+               sum(vapply(manifest, function(e) is.null(e$plot) && !is.null(e$title), logical(1))), 0)
+
   # Archiving a previous run falls back to .MLOS_OUTPUT_FILE_PATTERN when there
   # is no manifest to read, so an output family named outside that pattern would
   # quietly stop being archived and start lingering as a stale file. Catch that
@@ -3325,6 +3338,29 @@ run_suite_checks <- function() {
   any_manifest <- .build_output_manifest(any_files, c(.OUTCOME_STATE_LEVELS, "Any"))
   expect_equal("aj_cif_any: the manifest describes the all-cause files",
                sum(vapply(any_manifest, function(e) identical(e$outcome, "Any"), logical(1))), 1)
+
+  # A plot's manifest title is read back from what the device drew
+  # (.drawn_title), so it is the figure's own title whatever assembled it.
+  cat("\n=== plot titles ===\n")
+  title_dir <- tempfile("plot_titles")
+  dir.create(title_dir)
+  reset_emitted_outputs()
+  .with_png(file.path(title_dir, "km_titled.png"), plot(1:3, main = paste("Curves by", "Period")))
+  .with_png(file.path(title_dir, "km_bars.png"), barplot(1:3, main = "Mass Stack"))
+  .with_png(file.path(title_dir, "km_untitled.png"), plot(1:3))
+  drawn <- emitted_titles()
+  expect_equal("plot titles: an assembled plot() title is read back",
+               as.numeric(identical(unname(drawn["km_titled.png"]), "Curves by Period")), 1)
+  expect_equal("plot titles: a barplot() title is read back",
+               as.numeric(identical(unname(drawn["km_bars.png"]), "Mass Stack")), 1)
+  expect_equal("plot titles: a plot drawn without a title has none",
+               as.numeric(is.na(drawn["km_untitled.png"])), 1)
+  titled_manifest <- .build_output_manifest(c("km_survival_unified.png", "km_survival_unified.csv"),
+                                            .OUTCOME_STATE_LEVELS,
+                                            titles = c(km_survival_unified.png = "Curves by Period"))
+  expect_equal("plot titles: the manifest entry carries the plot's title",
+               as.numeric(identical(titled_manifest[[1]]$title, "Curves by Period")), 1)
+  reset_emitted_outputs()
 
   # plot_periods, plot_intake_types, and plot_animal_groups name the levels a
   # stratifier's plots draw. Every analysis and every CSV keeps all levels; the
