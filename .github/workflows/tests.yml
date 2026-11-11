@@ -70,7 +70,7 @@ jobs:
 
   python-suite:
     name: Python suite (${{ matrix.python }}, pandas ${{ matrix.pandas-name }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -82,17 +82,22 @@ jobs:
         #
         # 3.9 is the floor pyproject declares, and the leg that catches a module
         # losing `from __future__ import annotations`, which pyproject records
-        # as load-bearing rather than habit.
+        # as load-bearing rather than habit. It is also the Python macOS ships
+        # as python3. setup-python offers no 3.9 build for Ubuntu 26.04, which
+        # ubuntu-latest became in October 2026, so this leg runs on 24.04.
         include:
           - python: "3.9"
             pandas: "<3"
             pandas-name: "2"
+            os: ubuntu-24.04
           - python: "3.13"
             pandas: "<3"
             pandas-name: "2"
+            os: ubuntu-latest
           - python: "3.13"
             pandas: ">=3"
             pandas-name: "3"
+            os: ubuntu-latest
     env:
       # figures.py imports matplotlib at module scope, so a runner with no
       # display needs a backend that asks for none.
