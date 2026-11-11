@@ -24,7 +24,13 @@ No numbers move.
 
 - `PUBLISHING.md`'s identifier table gains ShelterDataPrep 0.5.0 and 0.5.1,
   `10.5281/zenodo.23169496` and `10.5281/zenodo.24123641`, and mLOS 0.5.0,
-  `10.5281/zenodo.24124078`.
+  `10.5281/zenodo.24124078`, with the OC2 results deposit made from its run,
+  version 5, `10.5281/zenodo.24124177`, and the deck built from it, version
+  6, `10.5281/zenodo.24124424`. The ancestry diagram beneath the table names
+  the two.
+- `tools/make_deposit.py --deck` stages each figures directory as its
+  `manifest.json` lists it, so images an earlier build left there under
+  names the current build no longer uses stay out of the deposit.
 
 ## 0.5.0 (2026-11-11)
 

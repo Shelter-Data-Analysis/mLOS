@@ -515,12 +515,14 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 25 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
 | 26 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
 | 27 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
-| 28 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 29 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 30 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
-| 31 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
-| 32 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
-| 33 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
+| 28 | mLOS results, version 5 | `10.5281/zenodo.24124177` |
+| 29 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 30 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 31 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 32 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
+| 33 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
+| 34 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
+| 35 | mLOS deck, version 6 | `10.5281/zenodo.24124424` |
 
 **Recording a newly minted DOI is a short step.** Adding a row to this table,
 or naming the DOI in the changelog, is a markdown-only edit: commit it straight
@@ -547,7 +549,7 @@ raw extract   …091
      |  isDerivedFrom
 prepared data …368   <-- isCompiledBy -- ShelterDataPrep …338
      |  isDerivedFrom
-mLOS results  …014   <-- isCompiledBy -- mLOS …814
+mLOS results  …177   <-- isCompiledBy -- mLOS …814
      |  isDerivedFrom
-mLOS deck     …087   <-- isCompiledBy -- mLOS …814
+mLOS deck     …424   <-- isCompiledBy -- mLOS …814
 ```
