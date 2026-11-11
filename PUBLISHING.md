@@ -221,6 +221,10 @@ a record back afterward shows its current state, not what was minted.
 - **References**: the PLOS ONE paper on calendar periods and the Animals paper
   on mLOS.
 
+To add, change, or remove a related work or reference, edit `.zenodo.json`
+before tagging, not the record. Zenodo builds each release's record from the
+file, so an edit made on the record does not reach the next release.
+
 The bare version is the right one, and not merely a preference: semantic
 versioning treats `vX.Y.Z` as a tag name and `X.Y.Z` as the version. Adopting
 the `v` everywhere instead is not open to us anyway, because Python normalizes
