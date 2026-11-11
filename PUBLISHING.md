@@ -478,7 +478,7 @@ and the guides say to compare them. `pooled`, `unified` and `crude` are settled
 ## The citable identifiers
 
 Every one exists, and each was checked against Zenodo rather than copied from a
-page. Rows 4 to 6 are ShelterDataPrep's own release DOIs. They
+page. Rows 4 to 8 are ShelterDataPrep's own release DOIs. They
 are that repository's to maintain and nothing here depends on them, but a data
 availability statement is written once from one list, and sending its author
 to a second document to complete it is how a citation ends up incomplete.
@@ -494,30 +494,32 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 4 | ShelterDataPrep 0.3.0 | `10.5281/zenodo.22051339` |
 | 5 | ShelterDataPrep 0.3.1 | `10.5281/zenodo.22051603` |
 | 6 | ShelterDataPrep 0.4.0 | `10.5281/zenodo.22647126` |
-| 7 | Prepared data, all versions | `10.5281/zenodo.22051367` |
-| 8 | Prepared data, version 1 | `10.5281/zenodo.22051368` |
-| 9 | mLOS, all releases | `10.5281/zenodo.22083814` |
-| 10 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
-| 11 | mLOS 0.1.1 | `10.5281/zenodo.22086002` |
-| 12 | mLOS 0.1.2 | `10.5281/zenodo.22135408` |
-| 13 | mLOS 0.2.0 | `10.5281/zenodo.22652051` |
-| 14 | mLOS 0.2.1 | `10.5281/zenodo.22662175` |
-| 15 | mLOS 0.2.2 | `10.5281/zenodo.22680313` |
-| 16 | mLOS 0.2.3 | `10.5281/zenodo.22971450` |
-| 17 | mLOS 0.2.4 | `10.5281/zenodo.22972448` |
-| 18 | mLOS 0.3.0 | `10.5281/zenodo.23047477` |
-| 19 | mLOS 0.4.0 | `10.5281/zenodo.23170150` |
-| 20 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 21 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 22 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
-| 23 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
-| 24 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
-| 25 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 26 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 27 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
-| 28 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
-| 29 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
-| 30 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
+| 7 | ShelterDataPrep 0.5.0 | `10.5281/zenodo.23169496` |
+| 8 | ShelterDataPrep 0.5.1 | `10.5281/zenodo.24123641` |
+| 9 | Prepared data, all versions | `10.5281/zenodo.22051367` |
+| 10 | Prepared data, version 1 | `10.5281/zenodo.22051368` |
+| 11 | mLOS, all releases | `10.5281/zenodo.22083814` |
+| 12 | mLOS 0.1.0 | `10.5281/zenodo.22083815` |
+| 13 | mLOS 0.1.1 | `10.5281/zenodo.22086002` |
+| 14 | mLOS 0.1.2 | `10.5281/zenodo.22135408` |
+| 15 | mLOS 0.2.0 | `10.5281/zenodo.22652051` |
+| 16 | mLOS 0.2.1 | `10.5281/zenodo.22662175` |
+| 17 | mLOS 0.2.2 | `10.5281/zenodo.22680313` |
+| 18 | mLOS 0.2.3 | `10.5281/zenodo.22971450` |
+| 19 | mLOS 0.2.4 | `10.5281/zenodo.22972448` |
+| 20 | mLOS 0.3.0 | `10.5281/zenodo.23047477` |
+| 21 | mLOS 0.4.0 | `10.5281/zenodo.23170150` |
+| 22 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 23 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 24 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
+| 25 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
+| 26 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
+| 27 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 28 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 29 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 30 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
+| 31 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
+| 32 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
 
 **Recording a newly minted DOI is a short step.** Adding a row to this table,
 or naming the DOI in the changelog, is a markdown-only edit: commit it straight
