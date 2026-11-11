@@ -18,6 +18,14 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
+## Unreleased
+
+No numbers move.
+
+- `PUBLISHING.md`'s identifier table gains ShelterDataPrep 0.5.0 and 0.5.1,
+  `10.5281/zenodo.23169496` and `10.5281/zenodo.24123641`, and mLOS 0.5.0,
+  `10.5281/zenodo.24124078`.
+
 ## 0.5.0 (2026-11-11)
 
 No existing number moves. `results.json` renames keys, stops storing
