@@ -18,7 +18,7 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
-## Unreleased
+## 0.5.0 (2026-11-11)
 
 No existing number moves. `results.json` renames keys, stops storing
 whole-sample values twice, and moves to schema version 6. The workbook

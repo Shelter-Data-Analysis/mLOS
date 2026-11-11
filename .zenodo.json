@@ -1,7 +1,7 @@
 {
   "upload_type": "software",
-  "title": "mLOS (Version 0.4.0)",
-  "version": "0.4.0",
+  "title": "mLOS (Version 0.5.0)",
+  "version": "0.5.0",
   "creators": [
     {
       "name": "Mavrovouniotis, Michael Loizos",
@@ -21,7 +21,7 @@
   ],
   "related_identifiers": [
     {
-      "identifier": "https://github.com/Shelter-Data-Analysis/mLOS/tree/v0.4.0",
+      "identifier": "https://github.com/Shelter-Data-Analysis/mLOS/tree/v0.5.0",
       "relation": "isSupplementTo",
       "resource_type": "software"
     },

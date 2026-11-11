@@ -40,7 +40,7 @@ invisible(Sys.setlocale("LC_COLLATE", "C"))
 # archive with one DOI; the test suite holds MLOS_VERSION, CITATION.cff,
 # .zenodo.json, and pyproject.toml equal. Bump it when the work of a release is
 # done, then tag.
-MLOS_VERSION <- "0.4.0"
+MLOS_VERSION <- "0.5.0"
 
 # Every package whose version can change what a run produces. A result is
 # checkable against the code that made it only alongside the versions that ran:
