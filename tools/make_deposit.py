@@ -394,6 +394,32 @@ def deck_file_kind(name, suffix):
     return DECK_KINDS.get(suffix, "figure")
 
 
+def copy_figures(source, destination):
+    """Copy a figures directory as its manifest names it, and return the copies.
+
+    The deck builder writes into an existing figures directory, so images from
+    an earlier build stay there under names the current build no longer uses.
+    The directory's manifest.json lists what this build drew; copying that
+    list rather than the directory keeps those leftovers out of the deposit.
+    """
+    manifest = source / "manifest.json"
+    if not manifest.is_file():
+        sys.exit("{0} not found -- rebuild the deck before depositing "
+                 "it".format(manifest.relative_to(ROOT)))
+    names = [entry["plot"]
+             for entry in json.loads(manifest.read_text())["figures"]]
+    missing = [name for name in names if not (source / name).is_file()]
+    if missing:
+        sys.exit("{0} names figures that are not there: {1} -- rebuild the "
+                 "deck".format(manifest.relative_to(ROOT), ", ".join(missing)))
+    destination.mkdir()
+    copies = []
+    for name in ["manifest.json"] + names:
+        shutil.copy2(str(source / name), str(destination / name))
+        copies.append(destination / name)
+    return sorted(copies)
+
+
 def stage_deck(runs, out):
     """Copy each deck with the workbook and figures it was built from."""
     fresh(out)
@@ -427,11 +453,9 @@ def stage_deck(runs, out):
         folder.mkdir()
         for source in (deck, tables, slides):
             shutil.copy2(str(source), str(folder / source.name))
-        shutil.copytree(str(figures), str(folder / "figures"))
         staged = [folder / deck.name, folder / tables.name,
                   folder / slides.name]
-        staged += sorted(path for path in (folder / "figures").iterdir()
-                         if path.is_file() and path.name not in SKIP_FILES)
+        staged += copy_figures(figures, folder / "figures")
 
         # The variants, each with its own figures.  Named rather than
         # discovered: reports/ also holds the branded builds and whatever was
@@ -449,12 +473,9 @@ def stage_deck(runs, out):
                             run["label"]))
             check_deck_matches_run(variant, run, bundle_file)
             shutil.copy2(str(variant), str(folder / variant.name))
-            shutil.copytree(str(variant_figures),
-                            str(folder / variant_figures.name))
             staged.append(folder / variant.name)
-            staged += sorted(
-                path for path in (folder / variant_figures.name).iterdir()
-                if path.is_file() and path.name not in SKIP_FILES)
+            staged += copy_figures(variant_figures,
+                                   folder / variant_figures.name)
         for source in staged:
             name = str(source.relative_to(folder)).replace("\\", "/")
             rows.append([
