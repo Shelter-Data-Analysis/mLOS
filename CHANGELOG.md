@@ -20,8 +20,14 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-No numbers move.
+No numbers move. Every plot and CSV is byte-identical to 0.5.0, and
+`results.json` gains one field.
 
+- Each plot's entry in the `outputs` manifest of `results.json` carries a
+  `title`: the title drawn on the figure, read back from what the device drew,
+  so a program naming a plot can use the figure's own words. An entry without
+  a plot has a null title. `schema_version` stays 6, since a field was added
+  and none changed meaning.
 - `PUBLISHING.md`'s identifier table gains ShelterDataPrep 0.5.0 and 0.5.1,
   `10.5281/zenodo.23169496` and `10.5281/zenodo.24123641`, and mLOS 0.5.0,
   `10.5281/zenodo.24124078`, with the OC2 results deposit made from its run,

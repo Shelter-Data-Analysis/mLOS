@@ -1022,7 +1022,8 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
 # this run's. A suppressed output flag, a stratifier the data cannot support,
 # and an analysis that declined all drop out here the same way, by not having
 # been written.
-.build_output_manifest <- function(emitted, outcome_states, plot_levels = NULL) {
+.build_output_manifest <- function(emitted, outcome_states, plot_levels = NULL,
+                                   titles = character(0)) {
   entry <- function(family, stem, stratifier_id = NULL, outcome = NULL) {
     csv <- paste0(stem, ".csv")
     png <- paste0(stem, ".png")
@@ -1032,6 +1033,11 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
     e <- list(
       csv         = if (has_csv) csv else NULL,
       plot        = if (has_png) png else NULL,
+      # The title drawn on the plot, as the figure shows it (see .drawn_title
+      # in mlos_common.R), so a consumer naming a plot uses the figure's own
+      # words rather than a second name for it. Null for a CSV with no plot
+      # and for a plot drawn without a title.
+      title       = if (has_png && !is.na(titles[png])) unname(titles[png]) else NULL,
       kind        = family$kind,
       stratifier  = stratifier_id,
       outcome     = outcome,
@@ -1576,7 +1582,8 @@ attach_output_manifest <- function(bundle) {
   # "Any" is listed too so the aj_cif_any plots are described when written;
   # the manifest keeps only files the run emitted.
   bundle$outputs <- .build_output_manifest(emitted_outputs(), c(.OUTCOME_STATE_LEVELS, "Any"),
-                                           bundle$settings$presentation$plot_levels)
+                                           bundle$settings$presentation$plot_levels,
+                                           emitted_titles())
   bundle
 }
 

@@ -411,12 +411,36 @@ stratifiers <- list(
         res = res,
         pointsize = 12 * pointsize_factor)
     on.exit(dev.off(), add = TRUE)
+    # A file device keeps no record of what it draws unless asked; the record
+    # is what .drawn_title reads the title back from.
+    dev.control(displaylist = "enable")
     # Set AFTER the device opens, since par is per device. Nothing is set when
     # no file was asked for, so an interactive session keeps its own settings.
     par(mar = .PLOT_MAR, mgp = .PLOT_MGP, tcl = .PLOT_TCL,
         cex.main = .PLOT_CEX_MAIN, font.main = .PLOT_FONT_MAIN)
   }
-  force(code)
+  value <- force(code)
+  if (!is.null(filename)) .record_plot_title(filename, .drawn_title())
+  value
+}
+
+# The title the plot just drawn carries, read back from the device's record of
+# its drawing calls, or NA when it drew none. Read back rather than passed in
+# because the titles are assembled in a dozen places from settings, stratifier
+# labels, and outcome labels: a copy kept beside each one could drift from what
+# the figure shows, and the manifest's title is there to name the figure as a
+# reader sees it. Every title reaches the device through title(), which plot()
+# and barplot() call, so it is the first non-empty `main` among those calls.
+.drawn_title <- function() {
+  for (op in recordPlot()[[1]]) {
+    call <- op[[2]]
+    fn <- call[[1]]
+    if (inherits(fn, "NativeSymbolInfo") && identical(fn$name, "C_title")) {
+      main <- call[[2]]
+      if (is.character(main) && length(main) == 1L && nzchar(main)) return(main)
+    }
+  }
+  NA_character_
 }
 
 # Scale line widths for PNG plots using a global factor
@@ -698,9 +722,11 @@ stratifiers <- list(
 # the test suite calls it per fixture, since one process runs them all.
 .emitted_outputs_env <- new.env(parent = emptyenv())
 .emitted_outputs_env$files <- character(0)
+.emitted_outputs_env$titles <- character(0)
 
 reset_emitted_outputs <- function() {
   .emitted_outputs_env$files <- character(0)
+  .emitted_outputs_env$titles <- character(0)
   invisible(NULL)
 }
 
@@ -709,8 +735,17 @@ reset_emitted_outputs <- function() {
   invisible(NULL)
 }
 
+.record_plot_title <- function(filename, title) {
+  .emitted_outputs_env$titles[[basename(filename)]] <- title
+  invisible(NULL)
+}
+
 # Base names of everything written since the last reset, in emission order.
 emitted_outputs <- function() unique(basename(.emitted_outputs_env$files))
+
+# The title drawn on each plot written since the last reset, named by the
+# plot's base name; NA for a plot drawn without one.
+emitted_titles <- function() .emitted_outputs_env$titles
 
 # Derive the CSV filename that accompanies a saved PNG plot (same path, .csv extension)
 .plot_csv_filename <- function(plot_filename) {
