@@ -44,11 +44,12 @@
 
 cff-version: 1.2.0
 message: >-
-  If you use this software, please cite it as below.  If you use results
-  computed from the Orange County data that the shipped settings files cover,
-  also cite the deposit the prepared input comes from, 10.5281/zenodo.22051368,
-  alongside it.  If you use the OC2 results as they are rather than recomputing
-  them, cite 10.5281/zenodo.23047014 instead of that one.
+  If you use this software, please cite it with the version you ran.  If you
+  use results computed from the Orange County data that the shipped settings
+  files cover, also cite the deposit the prepared input comes from,
+  10.5281/zenodo.22051368, alongside it.  If you use the OC2 results as they
+  are rather than recomputing them, cite 10.5281/zenodo.23047014 instead of
+  that one.
 title: "mLOS"
 abstract: >-
   Survival analysis of length of stay in animal shelters.  A run is one YAML

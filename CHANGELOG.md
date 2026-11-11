@@ -31,6 +31,10 @@ CSVs, plots, and readings gain bounds the same way. Every other CSV and plot is
 byte-identical to 0.4.0. `tools/cox_zph.R`, which is not part
 of a run, adds rows to its table, and the console log's header line changes.
 
+- The citation message, in `CITATION.cff` and as the notes of the Zenodo
+  record, asks for the software to be cited with the version run, rather
+  than "as below", which on the Zenodo page points at nothing. No numbers
+  move.
 - `.zenodo.json` gives the Zenodo software record its version without a
   leading `v`, its title, its related works, and its references, which were
   entered by hand on each release (`PUBLISHING.md`, step 5). The test suite
