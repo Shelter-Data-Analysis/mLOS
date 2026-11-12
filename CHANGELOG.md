@@ -18,6 +18,13 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
+## Unreleased
+
+No numbers move.
+
+- `PUBLISHING.md`'s identifier table gains mLOS 0.5.1,
+  `10.5281/zenodo.24148334`, checked against the Zenodo record.
+
 ## 0.5.1 (2026-11-12)
 
 No numbers move. Every plot and CSV is byte-identical to 0.5.0, and
