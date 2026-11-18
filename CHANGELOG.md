@@ -20,8 +20,19 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ## Unreleased
 
-No numbers move.
+Numbers can move for a dataset whose `outcome_type` carries an unlisted label
+containing `EUTH`, `DIED`, `LOST`, `ESCAPED`, or `STOLEN`. With
+`discard_bad_rows: true` those stays were dropped and are now kept as `N`;
+with `discard_bad_rows: false` the run stopped and now completes. The shipped
+OC1 and OC2 settings run with `discard_bad_rows: false`, so every label they
+meet is listed, and their numbers do not move.
 
+- An `outcome_type` label that no `outcome_type_*` setting lists and that
+  contains `EUTH`, `DIED`, `LOST`, `ESCAPED`, or `STOLEN`, in any letter case,
+  is classified `N` (non-live) instead of rejected as unrecognized. A listed
+  label keeps its setting's treatment. The console reports each defaulted
+  label with its count, and the screening ledger records the step as
+  `outcome_type_default_N`. See "Default non-live labels" in the user guide.
 - `PUBLISHING.md`'s identifier table gains mLOS 0.5.1,
   `10.5281/zenodo.24148334`, checked against the Zenodo record.
 

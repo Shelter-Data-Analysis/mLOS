@@ -2429,6 +2429,45 @@ run_suite_checks <- function() {
                  "intake_date,outcome_date,outcome_type",
                  "2024-02-01,2024-02-10,Zebra")), val_refs),
                "unrecognized outcome_type: Zebra")
+  # Default N: an unlisted label containing EUTH, DIED, LOST, ESCAPED, or
+  # STOLEN, in any letter case, is non-live rather than unrecognized. Holds in
+  # both modes, direct L/T/N and outcome_type_L/T/N mapping.
+  default_n_csv <- c(
+    "intake_date,outcome_date,outcome_type",
+    "2024-02-01,2024-02-10,Euthanized",
+    "2024-02-02,2024-02-11,DIED IN CARE",
+    "2024-02-03,2024-02-12,Lost",
+    "2024-02-04,2024-02-13,escaped",
+    "2024-02-05,2024-02-14,STOLEN")
+  for (mode in c("direct", "mapping")) {
+    mode_refs <- if (mode == "direct") val_refs else
+      refs_for(with_base(outcome_type_L = list("Adopted"), outcome_type_T = list("Transfer"),
+                         outcome_type_N = list("Euth")))
+    default_n_data <- read_and_prepare_data(write_temp_csv(default_n_csv), mode_refs)
+    expect_equal(paste0("default N (", mode, "): all five substrings classify as N"),
+                 sum(as.character(default_n_data$outcome_type) == "N", na.rm = TRUE), 5)
+  }
+  # An explicit setting wins over the default: a listed label keeps the
+  # treatment its setting gives it.
+  listed_refs <- refs_for(with_base(outcome_type_L = list("NOT LOST"),
+                                    outcome_type_T = list("Transfer"),
+                                    outcome_type_N = list("Euth"),
+                                    outcome_type_in_care = list("LOST HOLD"),
+                                    outcome_type_censored = list("ESCAPED TRANSFER"),
+                                    outcome_type_delete = list("DIED DUPLICATE")))
+  listed_data <- read_and_prepare_data(write_temp_csv(c(
+    "intake_date,outcome_date,outcome_type",
+    "2024-02-01,2024-02-10,NOT LOST",
+    "2024-02-02,2024-02-11,LOST HOLD",
+    "2024-02-03,2024-02-12,ESCAPED TRANSFER",
+    "2024-02-04,2024-02-13,DIED DUPLICATE",
+    "2024-02-05,2024-02-14,Stolen")), listed_refs)
+  listed_codes <- paste(as.character(listed_data$outcome_type), collapse = ",")
+  expect_equal("default N: outcome_type_delete wins", nrow(listed_data), 4)
+  expect_equal("default N: L, in-care, and censored win; unlisted Stolen is N",
+               listed_codes == "L,NA,NA,N", 1)
+  expect_equal("default N: outcome_type_censored flags its stay",
+               which(listed_data$censored_by_setting), 3)
   expect_error("outcome_type with no outcome_date",
                read_and_prepare_data(write_temp_csv(c(
                  "intake_date,outcome_date,outcome_type",

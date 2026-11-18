@@ -39,6 +39,20 @@
   })
 }
 
+# Substrings that make an outcome_type label non-live (N) by default. A label
+# that no outcome_type_* setting lists, and that contains one of these in any
+# letter case, is classified N instead of being rejected as unrecognized:
+# "EUTH" covers "Euthanized" and "EUTH VET", "DIED" covers "DIED IN CARE".
+# A label listed in any outcome_type_* setting keeps that setting's treatment.
+.DEFAULT_N_SUBSTRINGS <- c("EUTH", "DIED", "LOST", "ESCAPED", "STOLEN")
+
+.default_n_label <- function(labels) {
+  up  <- toupper(labels)
+  hit <- rep(FALSE, length(labels))
+  for (s in .DEFAULT_N_SUBSTRINGS) hit <- hit | grepl(s, up, fixed = TRUE)
+  hit & !is.na(labels)
+}
+
 # One stage row of the ledger. Takes counts rather than the frames they came
 # from, because break_down_by_period records the period split, where "before"
 # and "after" hold different things (stays, and animal-period rows).
@@ -414,7 +428,8 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
   }
 
   # Check 3: outcome_type must be blank/NA, in outcome_type_delete, in outcome_type_in_care,
-  #          in outcome_type_censored, or mappable to L/T/N.
+  #          in outcome_type_censored, mappable to L/T/N, or a default-N label
+  #          (see .DEFAULT_N_SUBSTRINGS).
   all_known_labels <- c(
     if (!is.null(references$outcome_type_mapping)) names(references$outcome_type_mapping),
     if (!is.null(references$outcome_type_delete))  references$outcome_type_delete,
@@ -424,7 +439,7 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
   )
   ot_cur        <- trimws(data$outcome_type)
   has_ot        <- !is.na(ot_cur) & ot_cur != ""
-  unrecognized  <- has_ot & !(ot_cur %in% all_known_labels)
+  unrecognized  <- has_ot & !(ot_cur %in% all_known_labels) & !.default_n_label(ot_cur)
 
   if (any(unrecognized)) {
     bad_vals <- unique(ot_cur[unrecognized])
@@ -560,6 +575,28 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
     raw_values  <- trimws(data$outcome_type)
     non_missing <- !is.na(raw_values)
     data$outcome_type[non_missing] <- raw_values[non_missing]
+  }
+
+  # Default N: an unlisted label containing EUTH, DIED, LOST, ESCAPED, or
+  # STOLEN (see .DEFAULT_N_SUBSTRINGS). Labels that reach this point unlisted
+  # passed Check 3 only on that ground, and the delete, in-care, and censored
+  # lists acted on the raw labels above, so a listed label never gets here.
+  listed    <- if (!is.null(outcome_type_mapping)) names(outcome_type_mapping) else c("L", "T", "N")
+  default_n <- !is.na(raw_values) & !(raw_values %in% listed) & .default_n_label(raw_values)
+  if (any(default_n)) {
+    n_labels <- sort(unique(raw_values[default_n]))
+    by_label <- table(raw_values[default_n])[n_labels]
+    cat("outcome_type default: classified", sum(default_n), "animal(s) as N (non-live)",
+        "from labels no setting lists:",
+        paste0(n_labels, " (", as.integer(by_label), ")", collapse = ", "), "\n")
+    record_step("outcome_type_default_N", "map", "outcome_type",
+                paste0(paste(n_labels, collapse = ", "),
+                       " -> N (unlisted label containing ",
+                       paste(.DEFAULT_N_SUBSTRINGS, collapse = ", "), ")"),
+                data, data, affected = default_n,
+                breakdown = .value_breakdown("map from", "outcome_type", n_labels,
+                                             raw_values, default_n, "rows mapped"))
+    data$outcome_type[default_n] <- "N"
   }
 
   data$outcome_type <- factor(data$outcome_type, levels = .OUTCOME_STATE_LEVELS)

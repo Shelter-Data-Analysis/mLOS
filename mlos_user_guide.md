@@ -806,7 +806,7 @@ Data preparation runs these stages in this order. Each stage driven by a setting
 | 1 | `outcome_type_delete` | Drop rows whose raw `outcome_type` is in the delete list |
 | 2 | Mandatory-column check | Stop if `intake_date` / `outcome_date` / `outcome_type` are missing |
 | 3 | Build `animal_group` | Concatenate `animal_group_columns` (if set) |
-| 4 | Row validation | Bad/short dates, `outcome_type_in_care` recode, `outcome_type_censored` recode, factor variable conversion (`discard_bad_rows`) |
+| 4 | Row validation | Bad/short dates, `outcome_type_in_care` recode, `outcome_type_censored` recode, default non-live labels to `N`, factor variable conversion (`discard_bad_rows`) |
 | 5 | Value maps | Rewrite `intake_type` / `animal_group` values (`intake_type_map`, `animal_group_map`) |
 | 6 | **Duplicate-stay removal** | Collapse rows sharing `animal_id` + `intake_date` + `outcome_date` |
 | 7 | **Overlapping-stay screen** | Detect/stop-or-drop physically impossible overlapping stays (`discard_overlapping_rows`) |
@@ -883,9 +883,11 @@ outcome_type_N:
   - "Lost"
 ```
 
-Maps site-specific raw labels from the CSV `outcome_type` column to the canonical L/T/N codes. If the data file already uses `L`, `T`, and `N` directly, omit all three keys. Otherwise, all three keys must be present, but a list may be empty (the key with nothing after the colon) when there are no labels for that code; at least one of the three must list a value. No raw label may appear in more than one `outcome_type_*` setting, the delete, in-care, and censored lists included. If none of the three keys are present, the CSV is assumed to already contain `L`, `T`, or `N` directly. The two modes are exclusive: when the mappings are given, only the listed labels are recognized, so a literal `L`, `T`, or `N` in the data is then an error unless it appears in one of the lists.
+Maps site-specific raw labels from the CSV `outcome_type` column to the canonical L/T/N codes. If the data file already uses `L`, `T`, and `N` directly, omit all three keys. Otherwise, all three keys must be present, but a list may be empty (the key with nothing after the colon) when there are no labels for that code; at least one of the three must list a value. No raw label may appear in more than one `outcome_type_*` setting, the delete, in-care, and censored lists included. If none of the three keys are present, the CSV is assumed to already contain `L`, `T`, or `N` directly. The two modes are exclusive: when the mappings are given, the listed labels replace `L`, `T`, and `N`, so a literal `L`, `T`, or `N` in the data is then an error unless it appears in one of the lists.
 
 Quote all values because YAML may otherwise interpret certain strings as booleans.
+
+**Default non-live labels.** In either mode, a label that no `outcome_type_*` setting lists and that contains `EUTH`, `DIED`, `LOST`, `ESCAPED`, or `STOLEN`, in any letter case, is classified `N` instead of being rejected as unrecognized. So `Euthanized`, `DIED IN CARE`, and `Stolen` need no listing. A label listed in any `outcome_type_*` setting, the delete, in-care, and censored lists included, keeps that setting's treatment: list a label under `outcome_type_L` or `outcome_type_T` to keep it out of `N`. The console prints each defaulted label with its count, and the screening ledger records the step as `outcome_type_default_N`.
 
 #### `outcome_type_delete`
 
