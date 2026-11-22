@@ -408,9 +408,10 @@ extract_references <- function(settings, periods) {
   png_line_width_factor <- parse_positive_numeric_default("png_line_width_factor", 1)
 
   # Plot-only legibility limit (see .MAX_PLOT_STRATA in mlos_common.R for the
-  # default). 1 disables stratified plots entirely: a stratifier reaches the
+  # default). 1 disables stratified plots unless a plot selection
+  # (plot_periods and the like) names a single level: a stratifier reaches the
   # plot code only through a has_field gate requiring two or more levels, so
-  # its stratum count is always at least 2.
+  # without a selection its stratum count is at least 2.
   if (!is.null(settings[["max_plot_strata"]])) {
     max_plot_strata <- parse_positive_integer_cap(settings[["max_plot_strata"]], "max_plot_strata")
     if (max_plot_strata > .MAX_PLOT_STRATA_LIMIT) {

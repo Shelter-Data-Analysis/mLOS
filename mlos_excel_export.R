@@ -887,7 +887,8 @@ write_data_preparation_sheet <- function(wb, bundle, title_style,
 # misalign the columns. Returns a vector of NAs (one per label) when `tbl`
 # is NULL or empty, rather than erroring: the general Cox and Weibull fits
 # this section compares the shape variant against can in principle succeed
-# or fail independently of it (see .stratifier_weibull_comparison_matrix).
+# or fail independently of it (see .stratifier_hazard_ratio_matrix and
+# .stratifier_los_ratio_matrix).
 .stratifier_own_rows <- function(tbl, scale_stratifier, labels, value_col) {
   na_rows <- rep(NA_real_, length(labels))
   if (is.null(tbl) || nrow(tbl) == 0) {

@@ -221,8 +221,8 @@ mlos_file_sha256 <- function(path) {
 # overridable per run via the max_plot_strata setting (references$max_plot_strata,
 # which is what the plot code reads; this is only the fallback). When a
 # stratifier (period, intake type, or animal group) has more levels than the
-# limit, the plot is skipped and only the companion CSV is written. analysis
-# (KM fits, Cox regression, AJ) always runs on all strata regardless, so this
+# limit, the plot is skipped and only the companion CSV is written. Analysis
+# (KM fits, Cox regression, AJ) is unaffected by this limit, so this
 # is purely a legibility knob: how many curves stay readable on one panel
 # depends on how well they separate, on whether CI ribbons are drawn, and on
 # the reader's own preference, none of which the tool can judge.
@@ -976,7 +976,7 @@ emitted_titles <- function() .emitted_outputs_env$titles
   # Iterate in canonical level order via .stratum_levels_present (which also
   # states the ordering rationale), so the AJ per-stratum results, plots,
   # and legends share the models' ordering. That helper covers the
-  # non-factor case too (alphabetical), so a genuinely non-factor stratum
+  # non-factor case too (byte order), so a genuinely non-factor stratum
   # column a caller might pass gets the same stable order as everywhere
   # else.
   levels_present <- .stratum_levels_present(column)

@@ -82,7 +82,7 @@
 
 # Insert each factor predictor's reference level into a coefficient table
 # as a definitional row (see .reference_row_for), at the level's CANONICAL
-# slot -- chronological for period, alphabetical for intake_type and
+# slot -- chronological for period, byte order for intake_type and
 # animal_group -- so every predictor block lists all levels in the same
 # order as the By_Period / By_Intake_Type / By_Animal_Group worksheet
 # columns, whatever reference policy is in force (an OLDEST period
@@ -220,7 +220,7 @@ cox_regression_analysis <- function(period_data, references) {
       "\n", sep = "")
 
   # Canonical level orders, captured BEFORE any releveling: chronological
-  # for period (set explicitly above), alphabetical for intake_type and
+  # for period (set explicitly above), byte order for intake_type and
   # animal_group (fixed once at read_and_prepare_data). Reference-row
   # insertion into the coefficient tables (.insert_reference_rows) restores
   # this order regardless of which level relevel() moves to the front.
@@ -667,10 +667,9 @@ cox_zph_table <- function(cox_results) {
 # LOS ratio. Restricting to fit$mx$scale (rather than every fit$covpars row)
 # is what keeps this table to SCALE covariates only when a fit also carries
 # shape(...) covariates (see the shape-variant block of
-# .weibull_regression_analysis below, and .weibull_shape_table for those); for
-# the two existing call sites here (the main Cox-companion Weibull fit and its
-# crude companion), neither ever puts anything on shape, so
-# mx$scale == seq_along(covpars) there and this is a no-op change.
+# .weibull_regression_analysis below, and .weibull_shape_tables for those); for
+# the main fit and its crude companion, which put nothing on shape,
+# mx$scale == seq_along(covpars).
 # Handles a covariate-free fit (fit$covpars NULL, so fit$covpars[fit$mx$scale]
 # is NULL too): the tables come back with zero rows.
 .weibull_fit_tables <- function(fit) {
@@ -872,6 +871,20 @@ cox_zph_table <- function(cox_results) {
          floor_n, " outcomes (fewest: ", fewest, " at ", min(under), ")")
 }
 
+# A fit whose standard errors flexsurvreg could not compute from the Hessian
+# it reached, or that the optimizer left short (.fit_weibull's `unstable`),
+# reported wherever such a fit is the one whose numbers get published. Every
+# Weibull number mLOS shows carries an interval, and an interval computed
+# around a point the optimizer is unsure of is an approximation the reader has
+# no other way to notice. The shape variants can answer this by falling back
+# to a simpler shape formula; the pooled and crude fits have nothing to fall
+# back to, so for them saying so IS the answer.
+.report_unstable <- function(unstable, what) {
+  if (is.null(unstable) || is.na(unstable)) return(invisible(NULL))
+  cat(what, ": ", unstable, " -- its confidence intervals are approximations\n", sep = "")
+  invisible(NULL)
+}
+
 # One Weibull fit, with two things flexsurvreg leaves to the caller.
 #
 # FIRST, its starting values are derived from the data, and they go wrong in two
@@ -914,20 +927,6 @@ cox_zph_table <- function(cox_results) {
 # the shape-variant block below fall back to the additive shape formula.
 # Checking fit$cov afterwards would not find it -- by then flexsurv has already
 # replaced it with the positive definite approximation.
-# A fit whose standard errors flexsurvreg could not compute from the Hessian
-# it reached, or that the optimizer left short (.fit_weibull's `unstable`),
-# reported wherever such a fit is the one whose numbers get published. Every
-# Weibull number mLOS shows carries an interval, and an interval computed
-# around a point the optimizer is unsure of is an approximation the reader has
-# no other way to notice. The shape variants can answer this by falling back
-# to a simpler shape formula; the pooled and crude fits have nothing to fall
-# back to, so for them saying so IS the answer.
-.report_unstable <- function(unstable, what) {
-  if (is.null(unstable) || is.na(unstable)) return(invisible(NULL))
-  cat(what, ": ", unstable, " -- its confidence intervals are approximations\n", sep = "")
-  invisible(NULL)
-}
-
 .fit_weibull <- function(formula_text, data, env) {
   fml <- as.formula(formula_text, env = env)
 

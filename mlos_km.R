@@ -534,7 +534,7 @@ stratified_km_analysis <- function(period_data, references) {
 }
 
 # The two resident-tenure quantile rows, named once because they are produced
-# by stratum_km_summary, relocated by build_stratum_measures, and consumed as a
+# by stratum_km_summary, relocated by compute_stratum_measures, and consumed as a
 # family (with the per_resident_past_days mean) by the census section.
 RESIDENT_TENURE_QUANTILE_ROWS <- c("per_resident_past_days_restricted_median",
                                    "per_resident_past_days_restricted_p90")
@@ -621,7 +621,7 @@ REMAINING_AT_TENURE_CI_ROWS <- as.vector(rbind(paste0(REMAINING_AT_TENURE_ROWS, 
 # and quantile() call that supply the point estimates; the restricted-mean CI
 # is rmean +/- 1.96 * the se(rmean) survfit reports.
 #
-# The last two rows are per unit intake rate, within the cap (math methods
+# The two *_days_per_intake rows are per unit intake rate, within the cap (math methods
 # 5.6), from the census-by-tenure profile N(d) = rate * S(d), d = 0..cap-1:
 # the elapsed animal-days sum_d d * S(d) (backward-looking) and the future
 # animal-days sum_d (d+1) * S(d) (forward-looking). Scaling them by the
@@ -631,10 +631,11 @@ REMAINING_AT_TENURE_CI_ROWS <- as.vector(rbind(paste0(REMAINING_AT_TENURE_ROWS, 
 # Their difference is sum_d S(d) = the restricted mean, so Expected_future -
 # Expected_past = expected_census by construction.
 #
-# The final five rows are the resident-tenure quantiles and the remaining-LOS
-# curve read at each of the three tenure statistics. They are computed here
+# The final eleven rows are the resident-tenure quantiles, the remaining-LOS
+# curve read at each of the three tenure statistics, and those readings' bounds.
+# They are computed here
 # because this is where the survival grid lives, but they are reported with the
-# resident-view rows rather than the intake-cohort ones: build_stratum_measures
+# resident-view rows rather than the intake-cohort ones: compute_stratum_measures
 # (mlos_results.R) moves them into the census matrix, next to the
 # per_resident_past_days mean they are the median, 90th percentile, and readouts
 # of.
