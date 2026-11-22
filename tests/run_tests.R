@@ -3456,6 +3456,34 @@ run_suite_checks <- function() {
                sum(file.exists(file.path(pl_none, c(pl_km_png, pl_aj_png)))), 0)
   expect_equal("plot selection: a selection within the limit is drawn",
                sum(file.exists(file.path(pl_some, c(pl_km_png, pl_aj_png)))), 2)
+  # One level selected: survfit cuts the fit to a stratum with no $strata, so
+  # every label has to come from the selection, and the lone curve still gets
+  # its legend row on the companions.
+  pl_one <- tryCatch(pl_render("STRAY"), error = function(e) NULL)
+  pl_one_pngs <- paste0("km_", c("survival", "remaining_los", "census_by_tenure",
+                                 "in_care_tenure"), fi_intake$suffix, ".png")
+  expect_equal("plot selection: one level draws every stratified KM plot",
+               if (is.null(pl_one)) 0 else sum(file.exists(file.path(pl_one, pl_one_pngs))),
+               length(pl_one_pngs))
+  pl_one_legend <- local({
+    x <- pl_setup(max_plot_strata = 2)
+    x$refs$plot_levels$intake_type <- "STRAY"
+    strat <- fi_quiet(stratified_km_analysis(x$pd, x$refs))
+    grDevices::pdf(NULL)
+    on.exit(grDevices::dev.off())
+    grDevices::dev.control(displaylist = "enable")
+    fi_quiet(plot_stratified_km(strat, x$refs))
+    # The last plot drawn is the in-care tenure companion; legend rows reach
+    # the device as text() calls carrying their labels.
+    drawn <- vapply(grDevices::recordPlot()[[1]], function(op) {
+      call <- as.list(op[[2]])
+      inherits(call[[1]], "NativeSymbolInfo") && identical(call[[1]]$name, "C_text") &&
+        any(vapply(call[-1], function(a) is.character(a) && any(a == "STRAY"), logical(1)))
+    }, logical(1))
+    as.numeric(any(drawn))
+  })
+  expect_equal("plot selection: a lone selected curve keeps its legend row",
+               pl_one_legend, 1)
   pl_csvs <- list.files(pl_none, pattern = "\\.csv$")
   expect_equal("plot selection: the CSVs are written either way",
                as.numeric(length(pl_csvs) > 0 &&

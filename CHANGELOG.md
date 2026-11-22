@@ -24,6 +24,11 @@ No numbers move.
 
 - `PUBLISHING.md`'s identifier table gains mLOS 0.5.1,
   `10.5281/zenodo.24148334`, checked against the Zenodo record.
+- A plot selection naming a single level (`plot_periods`, `plot_intake_types`,
+  or `plot_animal_groups`) no longer stops the run at the stratified KM plot.
+  That stratum's curve on the remaining-LOS, census-by-tenure, and in-care
+  tenure plots now carries a legend row naming it. Runs without such a
+  selection draw exactly what they drew before.
 
 ## 0.5.1 (2026-11-12)
 

@@ -996,12 +996,14 @@ stratum_census_aggregates <- function(km_summary, mean_daily_intakes,
       lines(x_vals[in_plot], y_vals[in_plot], col = cols[i], lty = 1, lwd = .png_lwd(2), type = "s")
     }
 
-    # A lone curve needs no legend row of its own: it is the whole-data curve,
-    # which the title already says. Only the unified companions reach that
-    # case, a single-level stratifier never being plotted at all. Their marks
-    # do need rows, so the legend appears whenever there is anything to say.
-    legend_items <- if (length(series_names) > 1) series_names else character(0)
-    legend_cols  <- if (length(series_names) > 1) cols[seq_along(series_names)] else character(0)
+    # A lone whole-data curve needs no legend row of its own: the title already
+    # says what it is. That is the unified companions' case. A lone curve that a
+    # plot selection picked out is one stratum among several, and keeps its row.
+    # The marks need rows too, so the legend appears whenever there is anything
+    # to say.
+    named_series <- length(series_names) > 1 || !is.null(spec$series)
+    legend_items <- if (named_series) series_names else character(0)
+    legend_cols  <- if (named_series) cols[seq_along(series_names)] else character(0)
     legend_lty   <- rep(1, length(legend_items))
     legend_lwd   <- rep(.png_lwd(2), length(legend_items))
     if (!is.null(marks)) {
@@ -1261,9 +1263,12 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
 
   # Helper function to plot a single stratified KM
   # plot_fit is the fit drawn, km_fit the one the CSV is written from: a plot
-  # selection draws some strata, and the CSV keeps them all.
-  .plot_single_stratified <- function(km_fit, cols, title, filename = NULL, csv_file = NULL,
-                                      draw_png = TRUE, rmst_map = NULL, plot_fit = km_fit) {
+  # selection draws some strata, and the CSV keeps them all. series_names labels
+  # the drawn strata, passed in because a fit cut to one stratum carries no
+  # $strata to read them from.
+  .plot_single_stratified <- function(km_fit, cols, title, series_names, filename = NULL,
+                                      csv_file = NULL, draw_png = TRUE, rmst_map = NULL,
+                                      plot_fit = km_fit) {
     if (isTRUE(draw_png)) .with_png(filename, {
       plot(plot_fit,
            conf.int = FALSE,
@@ -1282,7 +1287,7 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
       # edges align exactly with the KM curves' own step jumps (see .ci_ribbon_stair_xy).
       if (isTRUE(references$show_km_ci_ribbons)) {
         x_max <- references$plot_stay_cap
-        for (i in seq_along(plot_fit$strata)) {
+        for (i in seq_along(series_names)) {
           raw  <- .stratum_ci_steps(plot_fit, i)
           poly <- .ci_ribbon_stair_xy(raw$time, raw$lower, raw$upper, x_max)
           ribbon_col <- grDevices::adjustcolor(cols[i], alpha.f = 0.15)
@@ -1300,7 +1305,7 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
 
       # Add legend
       legend("topright",
-             legend = .strip_stratum_prefix(names(plot_fit$strata)),
+             legend = series_names,
              col = cols,
              lty = 1,
              lwd = .png_lwd(2),
@@ -1448,6 +1453,7 @@ plot_stratified_km <- function(stratified_results, references, save_prefix = NUL
         km_fit,
         shown$cols,
         paste("Kaplan-Meier Curves by", stratifier$label),
+        shown$names,
         filename,
         csv_file,
         draw_png = draw_km,
