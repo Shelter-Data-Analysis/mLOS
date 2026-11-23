@@ -482,6 +482,9 @@ page. Rows 4 to 10 are ShelterDataPrep's own release DOIs. They
 are that repository's to maintain and nothing here depends on them, but a data
 availability statement is written once from one list, and sending its author
 to a second document to complete it is how a citation ends up incomplete.
+Rows 27 and 28 are mLOSweb's, the web page that runs ShelterDataPrep and mLOS
+in the browser, listed for the same reason; a result computed in the page names
+it beside the two programs.
 
 The prepared input this analysis reads was produced under ShelterDataPrep
 0.3.0, row 4, which is the version to name beside row 3.
@@ -514,19 +517,21 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 24 | mLOS 0.5.0 | `10.5281/zenodo.24124078` |
 | 25 | mLOS 0.5.1 | `10.5281/zenodo.24148334` |
 | 26 | mLOS 0.6.0 | `10.5281/zenodo.24484706` |
-| 27 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 28 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 29 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
-| 30 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
-| 31 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
-| 32 | mLOS results, version 5 | `10.5281/zenodo.24124177` |
-| 33 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 34 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 35 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
-| 36 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
-| 37 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
-| 38 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
-| 39 | mLOS deck, version 6 | `10.5281/zenodo.24124424` |
+| 27 | mLOSweb, all releases | `10.5281/zenodo.24124646` |
+| 28 | mLOSweb 0.4.0 | `10.5281/zenodo.24485080` |
+| 29 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 30 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 31 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
+| 32 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
+| 33 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
+| 34 | mLOS results, version 5 | `10.5281/zenodo.24124177` |
+| 35 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 36 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 37 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 38 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
+| 39 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
+| 40 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
+| 41 | mLOS deck, version 6 | `10.5281/zenodo.24124424` |
 
 **Recording a newly minted DOI is a short step.** Adding a row to this table,
 or naming the DOI in the changelog, is a markdown-only edit: commit it straight

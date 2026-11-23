@@ -25,6 +25,9 @@ No numbers move.
 - `PUBLISHING.md`'s identifier table gains ShelterDataPrep 0.5.2 and 0.6.0,
   `10.5281/zenodo.24211902` and `10.5281/zenodo.24484529`, and mLOS 0.6.0,
   `10.5281/zenodo.24484706`, each checked against the Zenodo record.
+- `PUBLISHING.md`'s identifier table gains mLOSweb, all releases,
+  `10.5281/zenodo.24124646`, and mLOSweb 0.4.0, `10.5281/zenodo.24485080`,
+  checked against the Zenodo record.
 
 ## 0.6.0 (2026-11-23)
 
