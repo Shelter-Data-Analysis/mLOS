@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261122_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261122_002. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -285,7 +285,7 @@ Six families carry bounds: the unified `km_survival_unified`, `km_remaining_los_
 
 The three `km_survival_by_*` plots can optionally show the same style of shaded confidence-interval ribbon per stratum (drawn as a true stair shape matching the curve). The ribbon is off by default (unlike the unified plot above, where it is always on). Enable it with `show_km_ci_ribbons: true` in the settings file. The setting governs the picture only: the bounds are in `km_survival_by_*.csv` regardless. The same setting draws ribbons on the stratified [remaining LOS plots](#remaining-los-plots); the other KM-derived plots described below have no ribbons.
 
-**The three marks.** `km_survival_unified` carries a dashed vertical line at each of its median, its 90th percentile, and its restricted mean, in red, orange, and green, with the value spelled out in the legend. The two unified companion plots described below, `km_remaining_los_unified` and `km_in_care_tenure_unified`, are marked the same way in the same three colors, so the marks read alike across all three unified figures. A statistic the curve never reaches (a median beyond the cap, say) has neither a line nor a legend row; one that falls beyond the plotted x range, which is set by [`plot_stay_cap`](#plot_stay_cap), keeps its legend row and its value, noted "off scale". The stratified plots are not marked: with several curves on a panel, it would be confusing. These per-stratum statistics can be found in the workbook.
+**The three marks.** `km_survival_unified` carries a dashed vertical line at each of its median, its 90th percentile, and its restricted mean, in red, orange, and green, with the value spelled out in the legend. The three unified companion plots described below, `km_remaining_los_unified`, `km_census_by_tenure_unified`, and `km_in_care_tenure_unified`, are marked the same way in the same three colors, so the marks read alike across all four unified figures. A statistic the curve never reaches (a median beyond the cap, say) has neither a line nor a legend row; one that falls beyond the plotted x range, which is set by [`plot_stay_cap`](#plot_stay_cap), keeps its legend row and its value, noted "off scale". The stratified plots are not marked: with several curves on a panel, it would be confusing. These per-stratum statistics can be found in the workbook.
 
 #### Remaining LOS plots
 
@@ -327,7 +327,7 @@ The companion CSV carries a single summary row above the day grid, `expected_cen
 | `km_census_by_tenure_by_intake_type` | Expected animals in care by tenure, per intake type. |
 | `km_census_by_tenure_by_animal_group` | Expected animals in care by tenure, per animal group. |
 
-The unified file is the least informative of the four: the unified KM curve multiplied by a single number, the overall intake rate, so it is the same shape on a different y-axis.
+The unified file is the least informative of the four: the unified KM curve multiplied by a single number, the overall intake rate, so it is the same shape on a different y-axis. Its plot is marked at the median, 90th percentile, and mean tenure of the in-care population, the statistics of the [in-care tenure plot](#in-care-tenure-plots) below, since the census by tenure, divided by its total, is that tenure distribution.
 
 The value of this family lies entirely in the **relative** heights of its curves. Each stratum is scaled by its own intake rate, which is what puts the levels on a common footing in numbers of animals and makes the cross-stratum readings above possible: how the tenure-X population divides among the strata, and which strata contribute most of the animals at each tenure. A stratum with a long average stay but few intakes and one with a short average stay but many can end up contributing comparable numbers, and only the rescaling shows that.
 
@@ -398,9 +398,9 @@ A note on what a stratum means, because it differs by stratifier. Periods slice 
 
 #### Plot strata limit
 
-Stratified plots (KM curves and AJ lines, each by period, intake type, or animal group) are produced only when the stratifier has **10 or fewer levels** by default, adjustable up or down with the `max_plot_strata` setting (with a hard maximum of 13, the size of the plot color palette; see the [settings reference](#settings-file-yaml)). When the limit is exceeded the plot is skipped with a console message, but the companion CSV file is still written (unless you have separately turned that CSV off; see [Stratified-output selection](#stratified-output-selection)). All numerical analyses (KM fits, Cox regression, AJ) run on the full data regardless of how many strata there are.
+Stratified plots (KM curves and AJ lines, each by period, intake type, or animal group) are produced only when the stratifier has **10 or fewer levels** by default, adjustable up or down with the `max_plot_strata` setting (with a hard maximum of 13, the size of the plot color palette; see the [settings reference](#settings-file-yaml)). When the limit is exceeded the plot is skipped with a console message, but the companion CSV file is still written (unless you have separately turned that CSV off; see [Stratified-output selection](#stratified-output-selection)). All numerical analyses (KM fits, Cox regression, AJ) are unaffected by this limit.
 
-This limit exists purely for **visual legibility**. How many curves stay readable on one panel depends on how well they happen to separate, on whether confidence-interval ribbons are drawn (ribbons overlap and muddy a panel and can be controlled with `show_km_ci_ribbons` and `show_aj_cif_ci_ribbons`), and on your own preference. Ten curves that separate cleanly may read better than four that tangle. Since nothing but the rendering is affected, and the CSV of every stratum is written either way, setting the limit is a matter of taste. See `max_plot_strata` in the [settings reference](#settings-file-yaml) for how to change it, including how to turn stratified plots off entirely while keeping their data.
+This limit exists purely for **visual legibility**. How many curves stay readable on one panel depends on how well they happen to separate, on whether confidence-interval ribbons are drawn (ribbons overlap and muddy a panel and can be controlled with `show_km_ci_ribbons` and `show_aj_cif_ci_ribbons`), and on your own preference. Ten curves that separate cleanly may read better than four that tangle. Since nothing but the rendering is affected, and the CSV of every stratum is written either way, setting the limit is a matter of taste. See `max_plot_strata` in the [settings reference](#settings-file-yaml) for how to change it, including how to turn stratified plots off while keeping their data.
 
 To plot a stratifier with more levels than the limit, name the levels to draw with [`plot_periods`, `plot_intake_types`, or `plot_animal_groups`](#plot_periods-plot_intake_types-plot_animal_groups). The limit then counts the named levels, so a selection within it is drawn.
 
@@ -432,7 +432,7 @@ The one class of result that lives outside the file is the per-day curve grids, 
 
 Beside the table are the figures that are not removals:
 
-- How many outcomes were recoded as still in care.
+- How many outcomes were recoded as still in care, and how many as censored at departure.
 - One record per value-map transformation configured in `mapped_intake_type` or `mapped_animal_group`, each record giving `from`, `to`, and `rows_mapped`. The table is present but empty when no map is configured.
 - Whether your file supplied `animal_id` values or the tool generated them.
 - The number of distinct animals.
@@ -495,7 +495,7 @@ Every sheet is laid out in vertical sections with a blank row as the separator. 
 
 - **Period metadata**: the start date, exclusive end date, and duration of each period. This is the same table that leads `By_Period`.
 - **Observation gaps**: placed high, right after the period metadata, so that it is not overlooked. It is shaded green when no risk-set gaps were found and red when any were. See the Observation gaps section.
-- **Analysis settings**: the settings that shape the numbers or their interpretation, namely the restricted stay cap, the Cox reference levels for period, intake type, and animal group, the columns that compose the animal-group axis, whether a Weibull fit was run alongside Cox, the two row-discard flags, the intake, animal-group, and other value filters, and the outcome labels deleted outright or reclassified as still-in-care.
+- **Analysis settings**: the settings that shape the numbers or their interpretation, namely the restricted stay cap, the Cox reference levels for period, intake type, and animal group, the columns that compose the animal-group axis, whether a Weibull fit was run alongside Cox, the two row-discard flags, the intake, animal-group, and other value filters, the outcome labels deleted outright, reclassified as still-in-care, or censored at departure, and, where set, the levels excluded from the regressions and the days of each stay they fit.
 - **Unified KM detail**: the overall study window, the restricted stay cap and the fraction of stays it bound, and the unified median, 90th percentile, still-in-care-at-cap, and restricted mean. These are the same four KM Length of Stay figures the `By_All` sheet carries per column.
 - The stratification coverage, and the raw-label to L/T/N mapping actually applied.
 
@@ -539,7 +539,7 @@ Unlike the outcome mix, which is a share of departures, this is measured against
 
 Four numbers summarize the Kaplan-Meier fit for that stratum, or for the whole population on `By_All`: the median, the 90th percentile, still in care at cap, and the restricted mean.
 
-The **median** and **90th percentile** are the days by which half, and 90%, of stays have ended. Either is labeled "not reached" if it would fall beyond the cap.
+The **median** and **90th percentile** are the days by which half, and 90%, of stays have ended. Either is left empty (NA) if it would fall beyond the cap.
 
 **`km_still_in_care_at_cap`** is the curve's terminal value, the fitted probability that a stay is still in care once it has reached the cap. It is the fitted counterpart of the observed `fraction_capped` in the confidence-interval section. See the [census and animal-day metrics section](#census-and-animal-day-metrics) for how to read the pair.
 
@@ -663,7 +663,7 @@ A "Fit stability" row near the top says whether the fit reached a maximum the co
 
 *Optional, written only when `parametric_regression: WEIBULL` is set. There is one `Weibull_By_Period`, `Weibull_By_Intake_Type`, or `Weibull_By_Animal_Group` sheet per qualifying predictor.*
 
-A sheet whose stratifier does not qualify at all shows a note instead of the tables, and the compact companion table on the corresponding `By_...` sheet shows the same note.
+A sheet whose stratifier does not qualify at all shows a note instead of the tables, and its Weibull rows in the ratio blocks of the corresponding `By_...` sheet are left empty.
 
 Stratifying by period alone conflates two things: whatever period itself does to how long animals stay, and any shift in the *mix* of intake types and animal groups from one period to the next, such as more owner surrenders or a rising share of one animal group among intakes.
 
@@ -801,21 +801,23 @@ Except for the overlapping-stay cleaning, including out-of-window records in the
 
 ### The screening stages, in order
 
-Data preparation runs these stages in this order. Each stage driven by a setting is documented with that setting in the [settings reference](#settings-file-yaml); the two that need no setting, the mandatory-column check and the study-window trimming, are described above.
+Data preparation runs these stages in this order. Each stage driven by a setting is documented with that setting in the [settings reference](#settings-file-yaml); of the four that need no setting, the mandatory-column check, the space trimming, and the study-window trimming are described above, and the blank-record drop under [`discard_bad_rows`](#discard_bad_rows).
 
 | # | Stage | What it does |
 |---|---|---|
 | 1 | `outcome_type_delete` | Drop rows whose raw `outcome_type` is in the delete list |
 | 2 | Mandatory-column check | Stop if `intake_date` / `outcome_date` / `outcome_type` are missing |
-| 3 | Build `animal_group` | Concatenate `animal_group_columns` (if set) |
-| 4 | Row validation | Bad/short dates, `outcome_type_in_care` recode, `outcome_type_censored` recode, factor variable conversion (`discard_bad_rows`) |
-| 5 | Value maps | Rewrite `intake_type` / `animal_group` values (`intake_type_map`, `animal_group_map`) |
-| 6 | **Duplicate-stay removal** | Collapse rows sharing `animal_id` + `intake_date` + `outcome_date` |
-| 7 | **Overlapping-stay screen** | Detect/stop-or-drop physically impossible overlapping stays (`discard_overlapping_rows`) |
-| 8 | **Value filters** | `intake_type`, then `animal_group`, then the `other` column |
-| 9 | Study-window trimming | Drop stays entirely outside every period |
+| 3 | Trim spaces | Remove leading and trailing spaces from `intake_type`, `animal_group`, `animal_id`, and the `animal_group_columns` sources |
+| 4 | Build `animal_group` | Concatenate `animal_group_columns` (if set) |
+| 5 | Drop blank records | Drop rows with none of `intake_date`, `outcome_date`, `outcome_type` |
+| 6 | Row validation | Bad/short dates, `outcome_type_in_care` recode, `outcome_type_censored` recode, factor variable conversion (`discard_bad_rows`) |
+| 7 | Value maps | Rewrite `intake_type` / `animal_group` values (`intake_type_map`, `animal_group_map`) |
+| 8 | **Duplicate-stay removal** | Collapse rows sharing `animal_id` + `intake_date` + `outcome_date` |
+| 9 | **Overlapping-stay screen** | Detect/stop-or-drop physically impossible overlapping stays (`discard_overlapping_rows`) |
+| 10 | **Value filters** | `intake_type`, then `animal_group`, then the `other` column |
+| 11 | Study-window trimming | Drop stays entirely outside every period |
 
-The order is not arbitrary. The two integrity checks at stages 6 and 7 judge the **complete** file, so they run before any filter can remove one row of a conflicting pair, and the trimming that closes the sequence runs last so that a stay is discarded only once every other step has had its say. This guarantees that altering the study window does not make animals enter or leave the study set for any reason other than their stay's overlap with the study window.
+The order is not arbitrary. The two integrity checks at stages 8 and 9 judge the **complete** file, so they run before any filter can remove one row of a conflicting pair, and the trimming that closes the sequence runs last so that a stay is discarded only once every other step has had its say. This guarantees that altering the study window does not make animals enter or leave the study set for any reason other than their stay's overlap with the study window.
 
 ## Settings File (YAML)
 
@@ -1210,7 +1212,7 @@ If the curves separate cleanly and you want to see all the plots, set the limit 
 
 If you use a high limit and end up with plots that are too cluttered to be useful, lower the limit to stop producing those plots.  This will allow your run to complete faster, but some of your results will not be plotted.  If you want those plotted, you have three choices: name the levels to plot with [`plot_periods`, `plot_intake_types`, or `plot_animal_groups`](#plot_periods-plot_intake_types-plot_animal_groups), reformulate to fewer strata (which changes the results), or take the CSV files and build your own plots, perhaps partitioning the levels for an offending stratifier and doing multiple plots instead of one.
 
-Set `max_plot_strata` to `1` to turn stratified plots off entirely while still producing all their CSVs. Every stratifier has at least two levels by definition (a single-level column is not a stratifier at all and is skipped earlier), so a limit of 1 suppresses all of them. `0` is rejected: it would mean the same thing, and allowing two spellings of "off" invites ambiguity or typos.
+Set `max_plot_strata` to `1` to turn stratified plots off while still producing all their CSVs, except where a plot selection names a single level, which is then drawn. Every stratifier has at least two levels by definition (a single-level column is not a stratifier at all and is skipped earlier), so without a selection a limit of 1 suppresses all of them. `0` is rejected: it would mean the same thing, and allowing two spellings of "off" invites ambiguity or typos.
 
 #### `plot_periods`, `plot_intake_types`, `plot_animal_groups`
 

@@ -39,7 +39,7 @@ math, which is this document's problem and no other's.
 
 # mLOS — Length-of-Stay Analysis Tool: Math Methods
 
-*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261111_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for mLOS math methods, version 20261122_001. Read it in any markdown reader that renders LaTeX math, Obsidian among them. The companion `mlos_math_methods.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -276,7 +276,7 @@ The metric is this quantity summed over the period’s rows, divided by $D_{j}$.
 
 **Intake and outcome flow.** Total intakes in $P_{j}$ = rows with $s_{j} \leq$ `intake_date` $< e_{j}$; total outcomes = rows with a **classified** outcome (non-missing `outcome_type`) whose `outcome_date` lies in $\lbrack s_{j},e_{j})$. Unclassified exits are not counted as outcomes. Mean daily intakes/outcomes divide by $D_{j}$.
 
-# 5. Kaplan–Meier Analysis
+# 5. Kaplan-Meier Analysis
 
 ## 5.1 Estimator
 
@@ -594,7 +594,7 @@ Worth reading beside §6.7, which can free the same combinations parametrically 
 
 **Where they go.** Into `results.json` at `cox.stratified_variants.<stratifier>` and, copied, at `strata.<stratifier>.cox_stratified`, with the whole per-variant report above. Of that report the workbook takes one line: each stratifier's own hazard ratios, in the Hazard ratios block of its own sheet (§8), beside the pooled hazard ratio they are the check on. The tests and the concordance stay in the JSON, since they are evaluated against a stratified null and answer a different question from §6.1's. The `sim_size_mixture` and `sim_intake_mix_shift` test fixtures pin them against generating truth: both have closed-form true coefficients, and both check that those coefficients survive the move into a stratified baseline, the latter under a composition that shifts across the period boundary.
 
-# 7. Aalen–Johansen Competing-Risks Analysis
+# 7. Aalen-Johansen Competing-Risks Analysis
 
 ## 7.1 Multistate setup
 
