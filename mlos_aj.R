@@ -227,12 +227,14 @@ compute_aj_cif_results <- function(period_data,
 }
 
 # Evaluate a multistate survfit call with one warning removed: "an id value
-# appears on more than one cluster". survival 3.8.9 raises it at random on
-# data whose ids are nested in their clusters, because survfitAJ passes a
-# 1-based order to a C check that indexes it as 0-based (reported upstream,
-# therneau/survival). The check's result feeds only that warning, so no
+# appears on more than one cluster". survival before 3.8-13 raises it at
+# random on data whose ids are nested in their clusters, because survfitAJ
+# passes a 1-based order to a C check that indexes it as 0-based
+# (therneau/survival#348). The check's result feeds only that warning, so no
 # estimate is affected, and an mLOS stay belongs to one animal by
-# construction. Every other warning passes through.
+# construction. The same read runs one element past the end of the id
+# vector and can stop R with a segmentation fault, which no handler catches;
+# survival 3.8-13 fixes both. Every other warning passes through.
 .without_twoclust_warning <- function(expr) {
   withCallingHandlers(expr, warning = function(w) {
     if (grepl("an id value appears on more than one cluster", conditionMessage(w), fixed = TRUE))
