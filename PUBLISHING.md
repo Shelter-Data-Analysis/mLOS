@@ -511,19 +511,20 @@ The prepared input this analysis reads was produced under ShelterDataPrep
 | 21 | mLOS 0.4.0 | `10.5281/zenodo.23170150` |
 | 22 | mLOS 0.5.0 | `10.5281/zenodo.24124078` |
 | 23 | mLOS 0.5.1 | `10.5281/zenodo.24148334` |
-| 24 | mLOS results, all versions | `10.5281/zenodo.22084230` |
-| 25 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
-| 26 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
-| 27 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
-| 28 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
-| 29 | mLOS results, version 5 | `10.5281/zenodo.24124177` |
-| 30 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
-| 31 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
-| 32 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
-| 33 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
-| 34 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
-| 35 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
-| 36 | mLOS deck, version 6 | `10.5281/zenodo.24124424` |
+| 24 | mLOS 0.6.0 | `10.5281/zenodo.24484706` |
+| 25 | mLOS results, all versions | `10.5281/zenodo.22084230` |
+| 26 | mLOS results, version 1 | `10.5281/zenodo.22084231` |
+| 27 | mLOS results, version 2 | `10.5281/zenodo.22652165` |
+| 28 | mLOS results, version 3 | `10.5281/zenodo.22971148` |
+| 29 | mLOS results, version 4 | `10.5281/zenodo.23047014` |
+| 30 | mLOS results, version 5 | `10.5281/zenodo.24124177` |
+| 31 | mLOS deck, all versions | `10.5281/zenodo.22085156` |
+| 32 | mLOS deck, version 1 | `10.5281/zenodo.22085157` |
+| 33 | mLOS deck, version 2 | `10.5281/zenodo.22135419` |
+| 34 | mLOS deck, version 3 | `10.5281/zenodo.22652329` |
+| 35 | mLOS deck, version 4 | `10.5281/zenodo.22971252` |
+| 36 | mLOS deck, version 5 | `10.5281/zenodo.23047087` |
+| 37 | mLOS deck, version 6 | `10.5281/zenodo.24124424` |
 
 **Recording a newly minted DOI is a short step.** Adding a row to this table,
 or naming the DOI in the changelog, is a markdown-only edit: commit it straight

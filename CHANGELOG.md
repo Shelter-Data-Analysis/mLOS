@@ -18,6 +18,13 @@ to name itself. `PUBLISHING.md` step 2 is where the four are moved together.
 
 ---
 
+## Unreleased
+
+No numbers move.
+
+- `PUBLISHING.md`'s identifier table gains mLOS 0.6.0,
+  `10.5281/zenodo.24484706`, checked against the Zenodo record.
+
 ## 0.6.0 (2026-11-23)
 
 No numbers move for OC1 or OC2. On 2026-11-23 every CSV of both runs was
