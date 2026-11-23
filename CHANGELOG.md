@@ -46,6 +46,8 @@ No numbers move.
   keys that become the carrier, and the carrier itself only where no map pair
   rewrites it. Where no raw value selects the carrier (the `_UNKNOWN_` fill,
   or a blank mapped onto it), it names `animal_group_filter` instead.
+- The deck's own hazard-ratio, LOS-ratio, and Cox comparison figures draw
+  their gridlines dotted in R's `gray70`, matching the R plots beside them.
 
 ## 0.5.1 (2026-11-12)
 

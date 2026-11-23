@@ -1,7 +1,7 @@
 # mLOS Presentation Guide
 
 *Note: This Markdown file is the documentation of record for the mLOS
-presentation guide, version 20261110_001. Read it in any markdown reader,
+presentation guide, version 20261122_001. Read it in any markdown reader,
 Obsidian among them. The companion `presentation_guide.docx` is tracked here,
 but it is rebuilt only for a release, so it carries the version it was built
 from: where the two differ, this file is the current one and the Word copy
@@ -633,7 +633,7 @@ falls under the floor the stratifier says nothing on that slide. It is a
 dynamic reading in a deck that usually looks at steady state, and it is
 clearest by period where the regimes actually differ. Both sides are capped at
 the stay cap. On OC2 the gaps are
-uneven: the two censuses agree within 4%, the tenures part by 14% on Early-C,
+uneven: the two censuses agree within 3%, the tenures part by 14% on Early-C,
 and the animal-days by 13% on Late-C.
 
 **Two exact identities carry a bullet each.** On the second slide's last two
@@ -1435,10 +1435,10 @@ after it belongs.
 
 **The burden-carrier finding** (`burden_carrier`) **fires only where a level
 carries the load**:
-more than half the days owed, and a larger share of them than of the residents
-who owe them. Both, because either alone says nothing. A majority on its own is
+more than half the days owed, and a share of them at least 5 percentage points
+above its share of the residents who owe them. Both, because either alone says nothing. A majority on its own is
 usually the biggest level being biggest, which is on the slide already; a
-disproportion on its own can be 3% of the residents holding 5% of the days. On
+disproportion on its own can be 3% of the residents holding 9% of the days. On
 **OC2**, animal group qualifies (LARGE at 93% of the days owed against 70% of
 the residents) and intake type does not (STRAY at 60% against a 64% census
 share).
@@ -1550,7 +1550,7 @@ answer.
 
 | Rule | Fires when | Names |
 |---|---|---|
-| `narrowing` | a level carries the workload (`burden_carrier`) and holds at least `NARROWING_MINIMUM_STAYS` | `other_filter_column_name`, `animal_group_columns`, `intake_filter` |
+| `narrowing` | a level carries the workload (`burden_carrier`) and holds at least `NARROWING_MINIMUM_STAYS` | `other_filter_column_name`, `animal_group_columns`, `intake_filter`, `animal_group_filter` |
 | `dimension_not_separating` | a stratifier falls below the salience threshold | `period_dates` |
 | `unestimable_levels` | a level's agreement margin is at or past `WIDE_MARGIN` | merging, or the source data |
 | `cap_binding` | a level is over `CAP_RECOMMENDATION_THRESHOLD` still in care at the cap | `restricted_stay_cap` |
@@ -1574,9 +1574,12 @@ same rows and leaves `animal_group_columns` free to be pointed at another
 attribute of the same animals, an age band for instance. The mirror run is
 named too: the same column as `other_filter_cut` keeps everything *except* the
 carrier, and the levels it was swamping finally state their own behavior on
-the other splits and in both regressions. A stratifier the tool does not
-compose, `intake_type` being the case, has nothing to repoint and gets the plain
-filter.
+the other splits and in both regressions. The values it names are the
+source column's own, since that filter runs before `animal_group_map` and the
+`_UNKNOWN_` fill: the map keys that become the carrier, and the carrier's name
+unless a pair rewrites it. A stratifier the tool does not compose, `intake_type`
+being the case, has nothing to repoint and gets the plain filter, and so does a
+carrier no raw value selects, such as the `_UNKNOWN_` fill.
 
 **`tail_spread` is relative to the shelter, not absolute.** A level is flagged
 for being more dispersed than the data it came from, so a shelter whose stays
@@ -1655,15 +1658,16 @@ has to rank or drop them.
 ### Salience
 
 **Built**, in `salience.py`, for the one decision that needs it today: whether
-`emphasis: AUTO` gives a stratifier the resident-outlook slide. Nothing ranks
-stratifiers against each other yet, because nothing has a slide budget to spend.
+`emphasis: AUTO` gives a stratifier the resident-outlook slide. One finding
+compares stratifiers, naming on the whole-sample slide the one whose levels
+differ furthest; nothing spends a slide budget on that comparison.
 
 `stay_days_deviation` is how far apart a stratifier's levels are in average
 stay, in days, after taking out the part that is sampling noise. Keeping it in
 days makes it readable directly: levels of this stratifier differ by about plus
-or minus eleven days of average stay. Normalization is a separate step at
-ranking time, dividing by the unified restricted mean, because comparing
-stratifiers needs a unitless number but interpreting one does not.
+or minus eleven days of average stay. Within one run every stratifier shares
+the unified restricted mean, so days rank them exactly as a normalized figure
+would; dividing by that mean matters only when comparing shelters.
 
 It is built in three steps.
 
@@ -1819,14 +1823,17 @@ as the tool meets more shelters.
 | `SHAPE_POOLED_CEILING` | 95% of the pooled adjusted k | and how far below the shelter's own shape; the two cross at a pooled k of 0.895 |
 | `DRIFT_GAP` | 5% | how far a level's counted figure must sit from its fitted one before the gap is a finding |
 | `DRIFT_FLOOR` | 1% of the whole sample's counted animal-days | how much that gap must be worth at the shelter's scale, every slide's gap converted to animal-days first |
+| `CARE_DAYS_MAJORITY` | 50% of the days owed | with the next, whether a level carries a stratifier's workload; a level must hold more than this |
+| `CARE_DAYS_DISPROPORTION` | 5 percentage points | how far a level's share of the days owed must exceed its share of the residents |
+| `REPRESENTATION_GAP` | 5 percentage points | how far a level's share of the residents must sit from its share of the arrivals before the gap is a finding |
+| `PARAMETRIC_GAP` | 10% of the Cox estimate | how far the Weibull hazard ratio must sit from the Cox one before the deck says the Weibull form is doing work of its own |
 | `NARROWING_MINIMUM_STAYS` | 1,000 stays | how large a level must be before a rerun narrowed to it is worth suggesting |
 | `RECOMMENDATION_MINIMUM_SHARE` | 2% of stays | the share below which no recommendation names a level |
 
 The cap pair is the one place two of these cover the same ground, and
 [Recommendations](#recommendations) says why the recommending one is set ten
-times higher. The burden-carrier test, which two rules share, has no constant
-of its own: a level qualifies on holding more than half the days owed and a
-larger share of them than of the residents who owe them, and
+times higher. The burden-carrier test, which two rules share, is the
+`CARE_DAYS_MAJORITY` and `CARE_DAYS_DISPROPORTION` pair, and
 [Findings](#findings) says why either condition alone says nothing.
 
 ---
@@ -2210,7 +2217,7 @@ three-estimate dots of the hazard-ratio and LOS ratio slides (`hazard_ratios`,
 
 Both copy R's base-graphics look rather than matplotlib's, since they land on
 the same slides as R's own: plain title inside the figure at the axis-label
-size, dashed light-gray gridlines, boxed legend, and the same 3200 x 2133
+size, dotted gray gridlines, boxed legend, and the same 3200 x 2133
 pixels at 3:2.
 Colors come from the run's `palette.stratum_colors`, with one caveat the legend
 has to carry: on these figures a color is a *model*, where on every KM and AJ
@@ -2395,8 +2402,8 @@ three exclusions:
 
 - a table that never reaches a reader, existing only as a step between frames;
 - a table that is merely a *view* of another already written, being a row
-  selection, a column subset, or a transposition: `highlights_table` picks four
-  rows out of `full_table`, and the slide's four-column Cox comparison is the
+  selection, a column subset, or a transposition: `highlights_table` picks up to
+  four rows out of `full_table`, and the slide's four-column Cox comparison is the
   same case against the full one;
 - a table that is another one under a different name, such as the
   competing-risk teaser, which *is* the whole-sample stratum's table.
@@ -2581,8 +2588,7 @@ Roughly in order of how much each limits a deck.
 
 - **No planner, no profiles, no budget.** The [deck plan](#the-deck-plan) is
   designed and not built. Salience (`salience.py`) decides one thing, whether a stratifier earns
-  its resident-outlook slide, but nothing ranks stratifiers against each other
-  or trades slides off against a budget, and there is still no notion of detail
+  its resident-outlook slide, but nothing trades slides off against a budget, and there is still no notion of detail
   level. The threshold is calibrated against one shelter; see
   [Salience](#salience) for what it does there and what tightening it would
   take.

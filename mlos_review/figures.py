@@ -22,7 +22,7 @@ one here would be re-deriving the analysis with a paintbrush.
 
 **Matching the R figures.** These land on the same slides as figures drawn by
 R's base graphics, so they copy that look rather than matplotlib's: a plain
-title inside the figure, large type, dashed light-gray gridlines, a boxed
+title inside the figure, large type, dotted gray gridlines, a boxed
 legend, and the same 3:2 shape at the same pixel size, so the layout scales
 them identically and a reader does not see two houses' styles on one page.
 
@@ -79,7 +79,10 @@ LEGEND_SIZE = 14
 # label already is.
 HEADER_BAND = 0.05
 
-GRID_COLOR = "#999999"
+# The grid R draws on every plot (.plot_grid in mlos_common.R): dotted, in R's
+# gray70, so these figures and R's look alike on adjacent slides.
+GRID_COLOR = "#B3B3B3"
+GRID_STYLE = ":"
 # The reference level's pair of bars are definitional, not estimates, so they
 # are drawn faintly: present, countable, and visibly not a measurement.
 REFERENCE_ALPHA = 0.35
@@ -274,7 +277,7 @@ def ratio_comparison(frame: pd.DataFrame, series, title: str, path: str | Path,
         margin = 0.06 * (high - low) or 0.1
         axes.set_xlim(max(0.0, low - margin), high + margin)
     axes.tick_params(axis="x", labelsize=TICK_SIZE)
-    axes.grid(axis="x", color=GRID_COLOR, linestyle="--", linewidth=0.8, zorder=0)
+    axes.grid(axis="x", color=GRID_COLOR, linestyle=GRID_STYLE, linewidth=0.8, zorder=0)
     axes.set_axisbelow(True)
     for side in ("top", "right"):
         axes.spines[side].set_visible(False)
@@ -373,7 +376,7 @@ def hazard_ratio_comparison(frame: pd.DataFrame, title: str, path: str | Path,
     axes.set_xlim(left=0)
     axes.set_xlabel("Hazard ratio  (above 1 = leaves sooner)", fontsize=LABEL_SIZE)
     axes.tick_params(axis="x", labelsize=TICK_SIZE)
-    axes.grid(axis="x", color=GRID_COLOR, linestyle="--", linewidth=0.8, zorder=0)
+    axes.grid(axis="x", color=GRID_COLOR, linestyle=GRID_STYLE, linewidth=0.8, zorder=0)
     axes.set_axisbelow(True)
     for side in ("top", "right"):
         axes.spines[side].set_visible(False)

@@ -994,11 +994,11 @@ WORKLOAD_HEADERS = {
 }
 
 # A level carries a stratifier's future workload when it holds a majority of
-# the days still owed AND holds a larger share of them than of the residents
-# who owe them. Both conditions, because either alone says nothing worth a
-# sentence: a majority on its own is usually just the biggest level being
-# biggest, and a disproportion on its own can be a level holding 3% of the
-# residents and 5% of the days.
+# the days still owed AND a share of them at least CARE_DAYS_DISPROPORTION
+# above its share of the residents who owe them. Both conditions, because
+# either alone says nothing worth a sentence: a majority on its own is usually
+# just the biggest level being biggest, and a disproportion on its own can be a
+# level holding 3% of the residents and 9% of the days.
 CARE_DAYS_MAJORITY = 0.50
 CARE_DAYS_DISPROPORTION = 0.05
 
