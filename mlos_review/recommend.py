@@ -171,28 +171,68 @@ def _narrowing_method(bundle: Bundle, stratifier: str, carrier: str,
 
     Falls back to naming the plain filter for a stratifier whose column the
     tool does not compose, where there is nothing to repoint and the flattening
-    is unavoidable.
+    is unavoidable, and wherever the carrier is not a value the source column
+    holds (see `_source_values`).
     """
     source_setting = SOURCE_COLUMN_SETTINGS.get(stratifier)
     source_column = (bundle.value("settings", source_setting)
                      if source_setting else None)
-    if not source_column or not isinstance(source_column, str):
+    raw = (_source_values(bundle, stratifier, carrier)
+           if source_column and isinstance(source_column, str) else None)
+    if raw is None:
         setting = FILTER_SETTINGS.get(stratifier)
         return f" Set `{setting}` in the analysis settings." if setting else ""
 
+    values = ", ".join(raw)
     return (
         f" To do it without losing the dimension: set "
         f"`other_filter_column_name: {source_column}` with "
-        f"`other_filter_pass: [{carrier}]`, which narrows the rows, and then "
+        f"`other_filter_pass: [{values}]`, which narrows the rows, and then "
         f"point `{source_setting}` at another attribute of the same animals, "
         f"an age band for instance, so {label} goes on splitting the analysis "
         f"instead of collapsing to one level. Filtering "
         f"`{FILTER_SETTINGS.get(stratifier, source_setting)}` instead would "
         f"narrow the same rows and flatten the split at the same time. "
-        f"The mirror run is worth as much: the same column as "
-        f"`other_filter_cut` keeps everything EXCEPT {carrier}, and the levels "
+        f"The mirror run is worth as much: the same values as "
+        f"`other_filter_cut` keep everything EXCEPT {carrier}, and the levels "
         f"it was swamping finally state their own behavior on the other "
         f"splits and in both regressions.")
+
+
+def _source_values(bundle: Bundle, stratifier: str, carrier: str) -> list[str] | None:
+    """The source-column values that make up the carrier, or None if unknown.
+
+    `other_filter_pass` matches the source column as the file holds it, before
+    `animal_group_map` rewrites it and before a blank becomes the `_UNKNOWN_`
+    fill, while the carrier is named as the analysis saw it. So the values
+    mapped onto the carrier are listed beside the carrier itself, and None
+    comes back where a filter on the raw column cannot select the carrier's
+    rows: the carrier is the fill, or a blank was mapped onto it. Every map
+    pair is listed, including those that matched no row, since a value absent
+    from this file passes nothing and costs nothing. The carrier's own name is
+    listed unless a pair rewrites it, since the pairs do not chain: with
+    XL -> LRG and LRG -> MED, a raw LRG row is MED, not the carrier.
+    """
+    if _is_fill(carrier):
+        return None
+    sources: list[str] = []
+    rewritten: set[str] = set()
+    if stratifier == "animal_group" and bundle.has("data_preparation",
+                                                    "mapped_animal_group"):
+        pairs = bundle.table("data_preparation", "mapped_animal_group")
+        if not pairs.empty:
+            sources = [str(value) for value in
+                       pairs.loc[pairs["to"].astype(str) == carrier, "from"]]
+            rewritten = set(pairs["from"].astype(str))
+    if any(_is_fill(value) for value in sources):
+        return None
+    values = sources + ([carrier] if carrier not in rewritten else [])
+    return values or None
+
+
+def _is_fill(value: str) -> bool:
+    """Whether a value is the tool's `_UNKNOWN_` fill for a blank."""
+    return value.startswith("_") and value.strip("_") == "UNKNOWN"
 
 
 def dimension_not_separating(bundle: Bundle, stratifier: str, vocab) -> list[str]:

@@ -39,6 +39,13 @@ No numbers move.
 - The Cox console line on periods names separately those left out by
   `regression_exclude_periods` and those a `regression_from_day` /
   `regression_to_day` window leaves with no rows.
+- The Crude Weibull block of the Weibull_Regression sheet stores N and events
+  as numbers rather than text. The values are unchanged.
+- The deck's advice to narrow a run through `other_filter_column_name` names
+  the source-column values the filter has to match: the `animal_group_map`
+  keys that become the carrier, and the carrier itself only where no map pair
+  rewrites it. Where no raw value selects the carrier (the `_UNKNOWN_` fill,
+  or a blank mapped onto it), it names `animal_group_filter` instead.
 
 ## 0.5.1 (2026-11-12)
 

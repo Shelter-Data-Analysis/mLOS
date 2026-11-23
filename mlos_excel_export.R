@@ -455,14 +455,25 @@ write_weibull_regression_sheet <- function(wb, wres, cox_has_analysis, coverage,
     return(invisible(NULL))
   }
 
-  openxlsx::writeData(wb, "Weibull_Regression",
-                      data.frame(c("Model formula", "N", "events", "Fit stability"),
-                                 c(paste0(uni$formula, "  (dist = weibull)"),
-                                   uni$n, uni$n_events,
-                                   .excel_fit_stability(uni$fit_unstable)),
-                                 stringsAsFactors = FALSE),
-                      startRow = next_row, startCol = 1, colNames = FALSE)
-  next_row <- next_row + 4
+  # One row at a time, so N and events stay numbers: a single value column
+  # would hold the formula too, and every cell in it would become text.
+  crude_rows <- list(
+    list("Model formula", paste0(uni$formula, "  (dist = weibull)")),
+    list("N", uni$n),
+    list("events", uni$n_events),
+    list("Fit stability", .excel_fit_stability(uni$fit_unstable))
+  )
+  for (i in seq_along(crude_rows)) {
+    value <- crude_rows[[i]][[2]]
+    openxlsx::writeData(wb, "Weibull_Regression",
+                        data.frame(crude_rows[[i]][[1]], value, stringsAsFactors = FALSE),
+                        startRow = next_row + i - 1, startCol = 1, colNames = FALSE)
+    if (is.numeric(value)) {
+      .excel_apply_row_num_style(wb, "Weibull_Regression", value, next_row + i - 1, 2,
+                                 num_style_int, num_style_float)
+    }
+  }
+  next_row <- next_row + length(crude_rows)
   .excel_write_estimate_row(wb, "Weibull_Regression", next_row,
                             "Crude Weibull shape (k)",
                             uni$shape, uni$shape_lo, uni$shape_hi,

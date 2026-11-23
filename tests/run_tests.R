@@ -1222,6 +1222,22 @@ check_json_round_trip <- function(case_name, excel_file, json_file, results_dir,
 # column and the notes say -- plus a spot check per sheet family that a cell
 # holds the bundle's value. The arithmetic behind those values is checked in
 # check_bundle_invariants, not through the spreadsheet.
+# Whether one cell of a workbook is stored as a number. read.xlsx returns a
+# column holding text and numbers as text throughout, so it cannot answer this;
+# the cell's own type attribute in the sheet XML can. openxlsx writes sheet k
+# of getSheetNames as xl/worksheets/sheet<k>.xml. NA when the cell is absent.
+.xlsx_cell_is_number <- function(excel_file, sheet_name, row, col) {
+  k <- match(sheet_name, openxlsx::getSheetNames(excel_file))
+  dir <- tempfile("xlsx")
+  utils::unzip(excel_file, files = paste0("xl/worksheets/sheet", k, ".xml"), exdir = dir)
+  xml <- paste(readLines(file.path(dir, "xl", "worksheets", paste0("sheet", k, ".xml")),
+                         warn = FALSE), collapse = "")
+  ref <- paste0(LETTERS[col], row)
+  tag <- regmatches(xml, regexpr(paste0('<c r="', ref, '"[^>]*>'), xml))
+  if (length(tag) == 0) return(NA)
+  !grepl('t="(s|str|inlineStr)"', tag)
+}
+
 check_excel_workbook <- function(case_name, excel_file, bundle) {
   expect_equal(paste0(case_name, ": excel: workbook written"),
                as.numeric(file.exists(excel_file)), 1)
@@ -1432,23 +1448,34 @@ check_excel_workbook <- function(case_name, excel_file, bundle) {
                        shape_cells[[j]])
         }
       }
-      # Unified block at the sheet's bottom: when the unified fit is
-      # distinct from the main model, its shape cell must mirror the
-      # bundle's value; when the main model already is the unified fit
-      # (no group terms), the note must say so instead.
-      uni <- wres$unified
+      # Crude block at the sheet's bottom: when the crude fit is distinct from
+      # the main model, its shape cells mirror the bundle and its N and events
+      # are stored as numbers, not text; when the main model already is the
+      # crude fit (no group terms), the note says so instead.
+      uni <- wres$crude
+      expect_equal(paste0(case_name, ": excel: the bundle carries a crude Weibull block"),
+                   as.numeric(!is.null(uni)), 1)
       if (isTRUE(uni$has_analysis) && !isTRUE(uni$same_as_main)) {
-        uni_row <- which(ws[[1]] == "Unified Weibull shape (k)")[1]
+        uni_row <- which(ws[[1]] == "Crude Weibull shape (k)")[1]
         uni_cells <- c(shape = uni$shape, shape_lo = uni$shape_lo, shape_hi = uni$shape_hi)
         for (j in seq_along(uni_cells)) {
-          expect_equal(paste0(case_name, ": excel: unified Weibull ", names(uni_cells)[j],
+          expect_equal(paste0(case_name, ": excel: crude Weibull ", names(uni_cells)[j],
                               " is numeric in col ", j + 1),
                        if (!is.na(uni_row)) suppressWarnings(as.numeric(ws[uni_row, j + 1][[1]])) else NA_real_,
                        uni_cells[[j]])
         }
+        crude_head <- which(ws[[1]] == "Crude Weibull")[1]
+        for (label in c("N", "events")) {
+          r <- crude_head - 1 + match(label, ws[[1]][crude_head:nrow(ws)])
+          expect_equal(paste0(case_name, ": excel: crude Weibull ", label, " is a number cell"),
+                       as.numeric(isTRUE(.xlsx_cell_is_number(excel_file, "Weibull_Regression", r, 2))), 1)
+          expect_equal(paste0(case_name, ": excel: crude Weibull ", label, " matches bundle"),
+                       suppressWarnings(as.numeric(ws[r, 2][[1]])),
+                       as.numeric(if (label == "N") uni$n else uni$n_events))
+        }
       } else if (isTRUE(uni$same_as_main)) {
-        expect_equal(paste0(case_name, ": excel: unified same-as-main note present"),
-                     as.numeric(any(grepl("already is the unified fit", ws[[1]], fixed = TRUE))), 1)
+        expect_equal(paste0(case_name, ": excel: crude same-as-main note present"),
+                     as.numeric(any(grepl("already is the crude fit", ws[[1]], fixed = TRUE))), 1)
       }
     } else {
       expect_equal(paste0(case_name, ": excel: weibull no-analysis note present"),

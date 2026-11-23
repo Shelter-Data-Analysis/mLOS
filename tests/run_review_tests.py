@@ -4619,6 +4619,42 @@ def check_extra_histlos() -> None:
 # ---------------------------------------------------------------------------
 
 
+def check_narrowing_filter_values() -> None:
+    """The narrowing advice filters the raw source column by raw values.
+
+    `other_filter_pass` matches the column before `animal_group_map` rewrites it
+    and before a blank becomes `_UNKNOWN_`, so the advice has to name the values
+    the file holds: the map keys that become the carrier, the carrier itself only
+    where no pair rewrites it, and the plain filter where a raw filter cannot
+    select the carrier at all.
+    """
+    from mlos_review import recommend
+
+    def advice(carrier, pairs=None):
+        data = {"settings": {"animal_group_columns": "size"}, "data_preparation": {}}
+        if pairs is not None:
+            data["data_preparation"]["mapped_animal_group"] = {
+                "type": "table",
+                "columns": {"from": [p[0] for p in pairs], "to": [p[1] for p in pairs],
+                            "rows_mapped": [1] * len(pairs)}}
+        return recommend._narrowing_method(Bundle(data=data, root=Path(".")),
+                                           "animal_group", carrier, "animal group")
+
+    expect("narrowing values: no map names the carrier itself",
+           "`other_filter_pass: [LRG]`" in advice("LRG"), advice("LRG"))
+    expect("narrowing values: map keys onto the carrier are listed with it",
+           "`other_filter_pass: [XL, LRG]`" in advice("LRG", [("XL", "LRG")]),
+           advice("LRG", [("XL", "LRG")]))
+    chained = advice("LRG", [("XL", "LRG"), ("LRG", "MED")])
+    expect("narrowing values: a carrier name the map rewrites is left out",
+           "`other_filter_pass: [XL]`" in chained, chained)
+    for carrier, pairs in (("_UNKNOWN_", None), ("LRG", [("_UNKNOWN_", "LRG")])):
+        said = advice(carrier, pairs)
+        expect(f"narrowing values: the plain filter where a raw filter cannot "
+               f"select {carrier} ({pairs})",
+               "other_filter_pass" not in said and "animal_group_filter" in said, said)
+
+
 def check_margin_takes_the_further_bound() -> None:
     """The margin is set by the bound further from 1, not the larger bound.
 
@@ -5602,6 +5638,7 @@ def main(argv: list[str]) -> int:
         check_report_archiving,
         check_stacked_underscore_codes,
         check_capitalize_first,
+        check_narrowing_filter_values,
         check_margin_takes_the_further_bound,
         check_comparison_declines_without_both_fits,
         check_bullet_pagination,
