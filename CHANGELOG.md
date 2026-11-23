@@ -29,6 +29,11 @@ No numbers move.
   That stratum's curve on the remaining-LOS, census-by-tenure, and in-care
   tenure plots now carries a legend row naming it. Runs without such a
   selection draw exactly what they drew before.
+- Leading and trailing spaces are trimmed from `intake_type`, `animal_group`,
+  `animal_id`, and the `animal_group_columns` sources when the data is read,
+  so a padded value joins its unpadded category and matches maps and filters
+  written for it. Files prepared by ShelterDataPrep, OC1 and OC2 among them,
+  carry no such spaces, and their output is unchanged.
 
 ## 0.5.1 (2026-11-12)
 

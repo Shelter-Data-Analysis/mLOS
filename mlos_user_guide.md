@@ -1,6 +1,6 @@
 # mLOS — Length-of-Stay Analysis Tool: User Guide
 
-*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261111_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
+*Note: This Markdown file is the documentation of record for the mLOS User Guide, version 20261122_001. Read it in any markdown reader, Obsidian among them. The companion `mlos_user_guide.docx` is tracked here, but it is rebuilt only for a release, so it carries the version it was built from: where the two differ, this file is the current one and the Word copy lags it.*
 
 *© 2026 Michael Loizos Mavrovouniotis. This document is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is part of the mLOS project, whose code is released under the MIT License.*
 
@@ -750,6 +750,8 @@ A full console log is written to `results/analysis_log.txt`.
 | `animal_id` | Animal identifier. Rows belonging to the same animal, such as repeat intakes, share one value. When the column is missing, or an id is blank, an id is generated automatically, one per row. Real animal ids change the behavior in three ways; see below. |
 
 **Blanks in `intake_type` and `animal_group` become `_UNKNOWN_`.** Blank entries in these two columns are neither dropped nor left missing: they are filled with the placeholder value `_UNKNOWN_`, so those animals appear as their own category in the stratified KM curves and the Cox regression rather than being silently excluded from them. (Wherever levels are ordered, the leading underscore puts `_UNKNOWN_` after labels beginning with a digit or an upper-case letter and before any beginning with a lower-case one, so with the upper-case values recommended below it comes last.) If your data already uses the literal value `_UNKNOWN_`, the placeholder grows an extra underscore on each side (`__UNKNOWN__`, and so on) until it collides with nothing. Every fill is reported on the console. Note that a column holding one real value plus some blanks therefore has **two** categories, enough to switch on the stratified analysis for that column.
+
+**Leading and trailing spaces are removed.** In `intake_type`, `animal_group`, `animal_id`, and the source columns named by `animal_group_columns`, a value such as `" STRAY"` is read as `STRAY` before anything else happens, so it joins the `STRAY` category and matches a map or filter written for `STRAY`. The console reports how many values in each column were trimmed.
 
 **Recommendation: use UPPERCASE (or Capitalized) values in `intake_type` and `animal_group`.** These values appear verbatim in plot legends, Excel sheets, and regression coefficient names, where they are glued directly to the column name: `intake_typeOWNER` reads much more clearly than `intake_typeowner`. Values are case-sensitive throughout, including in `intake_type_reference` and `animal_group_reference`, so pick one convention and use it consistently in the data and the settings file.
 

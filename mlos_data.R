@@ -298,8 +298,25 @@ read_and_prepare_data <- function(csv_file = "MLOS.csv", references) {
     stop("Missing mandatory columns: ", paste(missing_cols, collapse = ", "))
   }
 
-  # Build animal_group from animal_group_columns if specified.
+  # Leading and trailing spaces are not part of a label or an id. Trimmed here,
+  # before animal_group is built and before anything matches, counts, or keys
+  # on these columns, so " STRAY" and "STRAY" are one level, a value map or
+  # filter matches both, and "A1 " is the same animal as "A1" in the duplicate
+  # and overlap screens. outcome_type and the value filters compare trimmed
+  # values already. Not a ledger stage: on a file with no padding it changes
+  # nothing, and the console line says when it changed something.
   ag_cols <- references$animal_group_columns
+  for (col in intersect(unique(c("intake_type", "animal_group", "animal_id", ag_cols)),
+                        names(data))) {
+    trimmed  <- trimws(data[[col]])
+    n_padded <- sum(!is.na(trimmed) & trimmed != data[[col]])
+    if (n_padded > 0) {
+      cat(col, ": trimmed leading or trailing spaces from ", n_padded, " value(s)\n", sep = "")
+      data[[col]] <- trimmed
+    }
+  }
+
+  # Build animal_group from animal_group_columns if specified.
   if (!is.null(ag_cols)) {
     missing_ag <- setdiff(ag_cols, names(data))
     if (length(missing_ag) > 0) {

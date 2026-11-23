@@ -3508,6 +3508,30 @@ run_suite_checks <- function() {
   expect_equal("plot selection manifest: no key without a selection",
                as.numeric(!("plotted_levels" %in% names(pl_plain[[1]]))), 1)
 
+  # Leading and trailing spaces in intake_type, animal_id, and an
+  # animal_group_columns source are trimmed on read: padded and unpadded
+  # spellings are one level, a value map matches both, and "A1 " is A1, so the
+  # repeated stay below is a duplicate.
+  cat("\n=== label trimming ===\n")
+  tr_csv <- write_temp_csv(c(
+    "animal_id,intake_date,outcome_date,outcome_type,intake_type,size",
+    "A1 ,2021-01-01,2021-01-05,L, STRAY,LARGE",
+    "A1,2021-01-01,2021-01-05,L,STRAY,LARGE",
+    "A2,2021-01-02,2021-01-10,T,OWNER , SMALL",
+    "A3,2021-01-03,2021-01-08,N,STRAY,SMALL\t"))
+  tr_refs <- refs_for(list(period_dates = c("2021-01-01", "2021-04-01"),
+                           restricted_stay_cap = 60, animal_group_columns = "size",
+                           intake_type_map = list(list(STRAY = "ST"))))
+  tr_data <- fi_quiet(read_and_prepare_data(tr_csv, tr_refs))
+  expect_equal("label trimming: padded intake types are one level, mapped",
+               as.numeric(identical(levels(tr_data$intake_type), c("OWNER", "ST"))), 1)
+  expect_equal("label trimming: the map matches padded and unpadded values",
+               attr(tr_data, "preparation")$mapped_intake_type$rows_mapped, 3)
+  expect_equal("label trimming: a padded animal_group_columns source",
+               as.numeric(identical(levels(tr_data$animal_group), c("LARGE", "SMALL"))), 1)
+  expect_equal("label trimming: a padded animal_id is the same animal",
+               nrow(tr_data), 3)
+
   # regression_exclude_periods leaves periods out of the Cox and Weibull fits.
   # Each excluded period keeps its row in every coefficient table, blank, and
   # the plots default to the periods the regressions keep.
