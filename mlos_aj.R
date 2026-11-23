@@ -333,6 +333,8 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
     plot(cif_df$days, cif_df[[cif_cols[1]]], type = "n",
          xlab = "Days Already in Care", ylab = "Cumulative Incidence",
          main = "AJ Competing-Risk CIF", xlim = c(0, x_limit), ylim = c(0, 1))
+    # Grid first, behind the ribbons and curves, as on the other line plots.
+    .plot_grid()
 
     # CIFs are step functions (jumps at event times), like the KM curve, so
     # draw true steps (type = "s": each day's value holds until the next day)
@@ -358,7 +360,6 @@ plot_aj_cif <- function(aj_results, references, save_file = NULL) {
             lwd = lwd, col = cols[i], type = "s")
     }
 
-    .plot_grid()
     legend_labels <- sapply(states, .outcome_label)
     # The all-cause curve climbs through the top-left corner, so with it drawn
     # the legend moves to the right-hand middle, between the community-live

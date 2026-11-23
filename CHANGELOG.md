@@ -34,6 +34,11 @@ No numbers move.
   so a padded value joins its unpadded category and matches maps and filters
   written for it. Files prepared by ShelterDataPrep, OC1 and OC2 among them,
   carry no such spaces, and their output is unchanged.
+- The unified CIF plot draws its grid behind the ribbons and curves, as the
+  other line plots do. Its CSV is unchanged.
+- The Cox console line on periods names separately those left out by
+  `regression_exclude_periods` and those a `regression_from_day` /
+  `regression_to_day` window leaves with no rows.
 
 ## 0.5.1 (2026-11-12)
 

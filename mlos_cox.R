@@ -154,6 +154,7 @@ cox_regression_analysis <- function(period_data, references) {
   # predictor's qualification are settled on the periods the models fit.
   periods_in_data <- sort(unique(period_data$period_num))
   period_data <- .regression_rows(period_data, references)
+  periods_kept <- sort(unique(period_data$period_num))
   # regression_from_day / regression_to_day: every fit below sees only those
   # days of each stay. A period left with no rows in them keeps its blank row,
   # as an excluded one does, and a default reference is counted over the rows
@@ -212,11 +213,18 @@ cox_regression_analysis <- function(period_data, references) {
   periods_with_data <- references$periods[references$periods$period_num %in% periods_in_data, ]
   period_data$period <- factor(period_data$period_label,
                                levels = periods_with_data$period_label)
-  cat("\nPeriods: ", n_periods, " period(s) defined, ",
-      length(present_periods), " with data",
-      if (length(periods_in_data) > length(present_periods))
-        paste0(" in the regressions (", length(periods_in_data) - length(present_periods),
-               " excluded)"),
+  # Two things can leave a period with data out of the regressions, and the
+  # line names each: regression_exclude_periods, and a day window that leaves
+  # the period no rows.
+  n_excluded <- length(periods_in_data) - length(periods_kept)
+  n_emptied  <- length(periods_kept) - length(present_periods)
+  dropped <- c(if (n_excluded > 0) paste0(n_excluded, " excluded by regression_exclude_periods"),
+               if (n_emptied > 0) paste0(n_emptied, " with no rows between regression_from_day ",
+                                         "and regression_to_day"))
+  cat("\nPeriods: ", n_periods, " period(s) defined, ", length(periods_in_data), " with data",
+      if (length(dropped) > 0)
+        paste0(", ", length(present_periods), " in the regressions (",
+               paste(dropped, collapse = "; "), ")"),
       "\n", sep = "")
 
   # Canonical level orders, captured BEFORE any releveling: chronological
