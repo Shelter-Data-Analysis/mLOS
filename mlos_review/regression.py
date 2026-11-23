@@ -170,7 +170,7 @@ def _rows_from(table: pd.DataFrame, xlevels: dict, terms: dict[str, str],
     the same order and the difference is not cosmetic: `xlevels` is the
     RELEVELED order, reference first, while R writes the table back in the
     canonical order every worksheet, plot and stratum table in the project
-    uses, chronological for periods and alphabetical for the rest. Reading
+    uses, chronological for periods and byte order for the rest. Reading
     `xlevels` for the order puts the reference level first, so one deck would
     show its animal groups in two different orders on consecutive slides.
 
@@ -212,9 +212,10 @@ def pooled(bundle: Bundle) -> pd.DataFrame:
     Indexed by (stratifier, level), with the reference level present as the
     definitional row R wrote: hazard ratio exactly 1, interval and p-value
     missing, because the reference is the denominator of the ratios and not an
-    estimate of anything. Levels stay in the canonical order `xlevels` gives,
-    chronological for periods and alphabetical for the rest, which is the order
-    every table and worksheet in the project uses.
+    estimate of anything. Levels stay in the canonical order the table gives
+    (see `_rows_from`; `xlevels` lists the reference first), chronological for
+    periods and byte order for the rest, which is the order every table and
+    worksheet in the project uses.
 
     Empty when the run had no qualifying predictor and skipped Cox entirely.
     """

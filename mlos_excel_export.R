@@ -285,14 +285,6 @@ write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style
   )
 }
 
-# Weibull sheet (only when parametric_regression: WEIBULL): the same three
-# blocks as the Cox sheet, cell-for-cell comparable -- overview rows without a
-# Weibull counterpart hold NA, and the "Hazard ratios" block carries the HRs
-# implied by the fit (hr = LOS_ratio^(-k)) so agreement with the Cox sheet can
-# be read off directly -- plus a fourth, practitioner-facing "LOS ratios"
-# block with the shape parameter and its plain-language reading, and a final
-# "Crude Weibull" block: the same fit with the group terms dropped
-# (intercept + period only), whose shape describes the marginal process.
 # .fit_weibull's verdict on a fit, as a worksheet value. Always written, never
 # conditional on there being something wrong: a row that appears only on the
 # runs with a problem is a row nobody knows to look for, and its absence reads
@@ -302,6 +294,14 @@ write_cox_regression_sheet <- function(wb, cox, coverage, title_style, num_style
   paste0("approximate confidence intervals: ", unstable)
 }
 
+# Weibull sheet (only when parametric_regression: WEIBULL): the same three
+# blocks as the Cox sheet, cell-for-cell comparable -- overview rows without a
+# Weibull counterpart hold NA, and the "Hazard ratios" block carries the HRs
+# implied by the fit (hr = LOS_ratio^(-k)) so agreement with the Cox sheet can
+# be read off directly -- plus a fourth, practitioner-facing "LOS ratios"
+# block with the shape parameter and its plain-language reading, and a final
+# "Crude Weibull" block: the same fit with the group terms dropped
+# (intercept + period only), whose shape describes the marginal process.
 write_weibull_regression_sheet <- function(wb, wres, cox_has_analysis, coverage,
                                            title_style, num_style_int, num_style_float,
                                            scope = NULL) {
@@ -941,10 +941,9 @@ write_data_preparation_sheet <- function(wb, bundle, title_style,
 #
 # Naming. Every regression row says which fit it came from, because on this
 # sheet the fits are the only thing that distinguishes them: "pooled" is the
-# fully adjusted single-shape/single-baseline model of 6.1 and 6.6, "freed
-# shape" is 6.7's Weibull variant, "stratified" is 6.8's Cox variant, and the
-# words are the ones the math methods and the deck vocabulary
-# (mlos_review/names.py) already use. In particular "pooled" is NOT "crude":
+# fully adjusted single-shape/single-baseline model of 6.1 and 6.6, and
+# "stratified" names both per-predictor variants, 6.7's Weibull (which the deck
+# vocabulary in mlos_review/names.py labels "freed shape") and 6.8's Cox. In particular "pooled" is NOT "crude":
 # the crude Weibull is a different fit again, with the group terms dropped, and
 # it lives on the Weibull_Regression sheet. Nor is it "global", which in the
 # Cox sections means the model-level tests of 6.4 and would collide here. The
@@ -1116,8 +1115,8 @@ write_data_preparation_sheet <- function(wb, bundle, title_style,
 # but with the OTHER predictors added as shape(...) terms. Laid out like
 # Weibull_Regression itself (row-wise, one model report per sheet) rather
 # than the column-per-level convention of By_Period/By_Intake_Type/
-# By_Animal_Group, which only carry a compact LOS-ratio + CI companion
-# section instead (.write_stratifier_ratio_section) -- the p-values,
+# By_Animal_Group, which only carry compact hazard-ratio and LOS-ratio
+# sections instead (.write_stratifier_ratio_section) -- the p-values,
 # every scale predictor's row (not just this stratifier's own), and the
 # shape-ratio table live here.
 write_weibull_by_stratifier_sheet <- function(wb, sheet, wres,

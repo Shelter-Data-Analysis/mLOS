@@ -158,7 +158,7 @@ HIGHLIGHT_COLOR = RGBColor(0xD6, 0xD6, 0xD6)
 # conditional format instead; only this file turns them into ink.
 #
 # Not letters, which is the point. The competing-risk tables head their columns
-# with outcome codes, and on the OC data those are L, T and N: an "L" beside a
+# with outcome codes, and on OC1 and OC2 those are L, T and N: an "L" beside a
 # number meant "lowest" while the "L" above it meant community live, on the
 # same table. Any letter can collide with a code, since the codes come from the
 # user's data. Arrows cannot.

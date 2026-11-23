@@ -548,7 +548,7 @@ MLOS_RESULTS_SCHEMA_VERSION <- 6L
 }
 
 # The serializable half of .weibull_regression_analysis's value: everything
-# except the flexsurvreg fit, which carries calls and environments. The unified
+# except the flexsurvreg fit, which carries calls and environments. The crude
 # companion is already plain (it never holds its own fit).
 .weibull_bundle <- function(wres) {
   if (is.null(wres) || !isTRUE(wres$has_analysis)) {
@@ -557,6 +557,28 @@ MLOS_RESULTS_SCHEMA_VERSION <- 6L
   }
   wres$fit <- NULL
   wres
+}
+
+#' A stratifier's stratified Cox variant (the per-predictor fits
+#' .cox_stratified_variants builds into cox_results$stratified_variants), or a
+#' declined placeholder when no variant was built for it. Three ways that
+#' happens, and the fallback message lists all three because from here they are
+#' indistinguishable, the entry simply being absent: this stratifier is not one
+#' of the pooled model's predictors (single-level or absent), fewer than two
+#' predictors qualify so no variant is attempted at all, or the pooled Cox
+#' regression was skipped outright. A variant that was attempted and failed on
+#' its own is not this path: it carries its own has_analysis = FALSE entry with
+#' the fit error.
+#'
+#' Mirrors .weibull_shape_variant_for below, and for the same reason: the
+#' per-stratum node should say why a fit is missing rather than omit the key.
+.cox_stratified_variant_for <- function(cox_results, stratifier_id) {
+  cv <- cox_results$stratified_variants[[stratifier_id]]
+  if (!is.null(cv)) return(cv)
+  list(has_analysis = FALSE,
+       message = paste("not a predictor in the pooled Cox regression,",
+                       "fewer than two qualifying predictors,",
+                       "or Cox regression was skipped"))
 }
 
 # A stratifier's Weibull shape variant (the per-predictor fits
@@ -576,28 +598,6 @@ MLOS_RESULTS_SCHEMA_VERSION <- 6L
 #
 # Already plain (shape_variants entries never carry a flexsurvreg fit), so
 # unlike .weibull_bundle there is nothing to strip.
-#' A stratifier's stratified Cox variant (the per-predictor fits
-#' .cox_stratified_variants builds into cox_results$stratified_variants), or a
-#' declined placeholder when no variant was built for it. Three ways that
-#' happens, and the fallback message lists all three because from here they are
-#' indistinguishable, the entry simply being absent: this stratifier is not one
-#' of the pooled model's predictors (single-level or absent), fewer than two
-#' predictors qualify so no variant is attempted at all, or the pooled Cox
-#' regression was skipped outright. A variant that was attempted and failed on
-#' its own is not this path: it carries its own has_analysis = FALSE entry with
-#' the fit error.
-#'
-#' Mirrors .weibull_shape_variant_for above, and for the same reason: the
-#' per-stratum node should say why a fit is missing rather than omit the key.
-.cox_stratified_variant_for <- function(cox_results, stratifier_id) {
-  cv <- cox_results$stratified_variants[[stratifier_id]]
-  if (!is.null(cv)) return(cv)
-  list(has_analysis = FALSE,
-       message = paste("not a predictor in the pooled Cox regression,",
-                       "fewer than two qualifying predictors,",
-                       "or Cox regression was skipped"))
-}
-
 .weibull_shape_variant_for <- function(cox_results, stratifier_id) {
   wv <- cox_results$weibull$shape_variants[[stratifier_id]]
   if (!is.null(wv)) return(wv)
@@ -816,13 +816,12 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
 # AJ CIF grids stop at the AJ analysis window (the last fitted time, at most
 # the cap), and the AJ conditional grids carry only the days where the
 # conditional probabilities are defined.
-# The three day-grid extents (see the x_note comment above).
+# The day-grid extents (see the x_note comment above).
 .X_NOTE_KM   <- "integer tenure; the grid runs 0..restricted_stay_cap - 1"
 .X_NOTE_AJ   <- "integer tenure; the grid runs 0..the AJ analysis window (the last fitted time, at most restricted_stay_cap)"
 .X_NOTE_COND <- "integer tenure; only the days within the AJ analysis window where the conditional probabilities are defined"
 .X_NOTE_MASS <- "right-closed day intervals at the probability_mass_width setting, the last running to restricted_stay_cap, followed by a remainder bar that is not an interval"
 
-# What the remaining-LOS families' summary row is, said once for both scopes.
 # What the two stratified families that have pointwise bounds say about their
 # columns. The bounds are a block to the right of the whole estimate grid rather
 # than a pair beside each column they bound, so a consumer that wants the curves
@@ -850,6 +849,7 @@ write_screening_ledger_csv <- function(bundle, csv_file) {
   "then, when aj_conditional_ci is true, their pointwise 95% CI bounds as a",
   "block to the right of the estimate grid, paired per column in the same order")
 
+# What the remaining-LOS families' summary row is, said once for both scopes.
 .AGGREGATE_AT_MEAN_TENURE <- paste(
   "the curve read at the mean in-care tenure (per_resident_past_days) of the",
   "same stratum, truncated to the day step it falls in: what an animal of",
@@ -1201,33 +1201,6 @@ archive_previous_outputs <- function(output_dir, excel_file, log_file, json_file
   list(dir = archive_dir, n = sum(moved))
 }
 
-#' Assemble every reported result into one bundle
-#'
-#' The single object every downstream report reads. Takes the analysis results
-#' as they come out of the pipeline and returns plain lists, data frames, and
-#' matrices: no fit objects, no environments, nothing that needs R to
-#' interpret it. What goes in is what any consumer may show; deciding what to
-#' show, and how, is the consumer's business.
-#'
-#' The `strata` node holds one entry per stratifying dimension, each the full
-#' output of compute_stratum_measures:
-#'   all     the whole sample as a single unified column; always present
-#'   period  one column per period, each period's own duration as denominator;
-#'           always computed, though a consumer may choose not to show it when
-#'           there is a single period and it says nothing `all` does not
-#'   intake / group  present when the column exists with 2+ levels
-#'
-#' This runs before any plot or CSV is written, so that the rendering step can
-#' take its summary values from here rather than deriving them a second time.
-#' The `outputs` manifest is therefore empty at this point; call
-#' attach_output_manifest once rendering is done.
-#'
-#' Curve grids: the unified KM scalars and the AJ CIF grids travel here, but
-#' the plot companion grids (stratified KM, census by tenure, remaining LOS,
-#' in-care tenure) are still produced inside the plotting path and remain
-#' CSV-only for now.
-#'
-#' @return A nested list; see MLOS_RESULTS_SCHEMA_VERSION for versioning
 # The rows a restricted-mean ratio adds to a stratifier's KM matrix, and the
 # level everything in them is divided by.
 KM_RATIO_ROWS <- c("km_restricted_mean_ratio",
@@ -1329,6 +1302,31 @@ check_plot_level_references <- function(cox_results, references) {
 }
 
 
+#' Assemble every reported result into one bundle
+#'
+#' The single object every downstream report reads. Takes the analysis results
+#' as they come out of the pipeline and returns plain lists, data frames, and
+#' matrices: no fit objects, no environments, nothing that needs R to
+#' interpret it. What goes in is what any consumer may show; deciding what to
+#' show, and how, is the consumer's business.
+#'
+#' The `strata` node holds one entry per stratifying dimension, each the full
+#' output of compute_stratum_measures:
+#'   all     the whole sample as a single unified column; always present
+#'   period  one column per period, each period's own duration as denominator;
+#'           always computed, though a consumer may choose not to show it when
+#'           there is a single period and it says nothing `all` does not
+#'   intake_type / animal_group  present when the column exists with 2+ levels
+#'
+#' This runs before any plot or CSV is written, so that the rendering step can
+#' take its summary values from here rather than deriving them a second time.
+#' The `outputs` manifest is therefore empty at this point; call
+#' attach_output_manifest once rendering is done.
+#'
+#' Per-day curve grids are not in the bundle: they live in the companion CSVs,
+#' which the outputs manifest describes.
+#'
+#' @return A nested list; see MLOS_RESULTS_SCHEMA_VERSION for versioning
 build_results_bundle <- function(cox_results,
                                  km_results,
                                  aj_results,

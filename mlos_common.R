@@ -352,8 +352,8 @@ stratifiers <- list(
 #
 # Two things worth knowing before changing these numbers:
 #
-#   Margins are measured in lines, so png_pointsize_factor scales them. OC runs
-#   at 1.5, which silently made every stock margin half again as wide in
+#   Margins are measured in lines, so png_pointsize_factor scales them. OC1 runs
+#   at 1.5 and OC2 at 2, which silently made every stock margin half again as wide in
 #   inches. Setting them here decouples the two: raising the font no longer
 #   buys more whitespace along with it.
 #

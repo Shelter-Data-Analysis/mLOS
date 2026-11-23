@@ -39,7 +39,7 @@ from mlos_review.settings import Emphasis
 # They cross at 6.7 days of mean LOS. Below that the floor dominates and the
 # rule is close to "a day"; above it the share takes over, and it takes over
 # early enough that on any shelter but a very fast one the share is the term
-# that decides. OC sits at 16.8, where the share contributes 2.5 days against
+# that decides. OC2 sits at 16.7, where the share contributes 2.5 days against
 # the floor's 1.
 STAY_DAYS_DEVIATION_FLOOR = 1.0
 STAY_DAYS_DEVIATION_SHARE = 0.15
